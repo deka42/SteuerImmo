@@ -582,7 +582,7 @@
 
             <div class="input-group">
                 <label for="haltedauer">Haltedauer (Jahre)</label>
-                <input type="number" id="haltedauer" value="10" min="0">
+                <input type="number" id="haltedauer" value="8" min="0">
             </div>
 
             <div class="input-group">
@@ -680,33 +680,6 @@
         <div class="comments-header">
             <h2>💬 Kommentare & Erfahrungen</h2>
             <p>Teilen Sie Ihre Erfahrungen oder stellen Sie Fragen zu diesem Steuervergleich</p>
-            
-            <!-- Firebase Setup Hinweis -->
-            <div class="firebase-notice" style="background: #d4edda; border: 2px solid #c3e6cb; color: #155724; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: left;">
-                <h4>🔥 Firebase erfolgreich konfiguriert!</h4>
-                <p><strong>Status:</strong> <span id="firebase-status">✅ Aktiv - Kommentare werden dauerhaft gespeichert!</span></p>
-                
-                <div style="margin-top: 15px; padding: 15px; background: rgba(255,255,255,0.7); border-radius: 8px; font-size: 0.9em;">
-                    <strong>🎉 Ihr Firebase-Projekt ist einsatzbereit:</strong>
-                    <ul style="margin: 10px 0; padding-left: 20px;">
-                        <li>✅ <strong>Web-App konfiguriert</strong> mit API-Schlüssel</li>
-                        <li>🔄 <strong>Nächster Schritt:</strong> Firestore Database aktivieren</li>
-                        <li>📊 <strong>Kostenlos:</strong> Bis zu 50.000 Lesevorgänge/Tag</li>
-                        <li>🌍 <strong>Global:</strong> Kommentare für alle Besucher sichtbar</li>
-                    </ul>
-                    
-                    <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 5px; color: #856404; border: 1px solid #ffeaa7;">
-                        <strong>⚠️ Wichtig - Firestore aktivieren:</strong><br>
-                        <a href="https://console.firebase.google.com/project/steuervergleich-kommentare/firestore" target="_blank" style="color: #3498db;">
-                            Firebase Console → Firestore Database → "Datenbank erstellen" → "Testmodus" → "europe-west3"
-                        </a>
-                    </div>
-                    
-                    <div style="margin-top: 10px; padding: 10px; background: #e8f5e8; border-radius: 5px; color: #2e7d32;">
-                        💡 <strong>Firestore-Regeln (Testmodus):</strong> Erlaubt allen Nutzern das Lesen/Schreiben für 30 Tage.
-                    </div>
-                </div>
-            </div>
         </div>
         
         <div class="comment-form">
@@ -839,16 +812,15 @@
         serverTimestamp 
     } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-    // Firebase Configuration - Ihr Projekt: steuervergleich-kommentare
+    // Firebase Configuration (Optional - für dauerhafte Kommentarspeicherung)
     const firebaseConfig = {
-        apiKey: "AIzaSyDKZpE30GmsZNhN28d2nT0SnyI_cN5esNE",
-        authDomain: "steuervergleich-kommentare.firebaseapp.com",
-        databaseURL: "https://steuervergleich-kommentare-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "steuervergleich-kommentare",
-        storageBucket: "steuervergleich-kommentare.firebasestorage.app",
-        messagingSenderId: "524534192125",
-        appId: "1:524534192125:web:9282205e4a3878b7696b94",
-        measurementId: "G-Y3NNN5KVX5"
+        apiKey: "IHRE_API_KEY_HIER",
+        authDomain: "ihr-projekt.firebaseapp.com",
+        databaseURL: "https://ihr-projekt-default-rtdb.region.firebasedatabase.app/",
+        projectId: "ihr-projekt-id",
+        storageBucket: "ihr-projekt.appspot.com",
+        messagingSenderId: "123456789",
+        appId: "1:123456789:web:abcdef123456"
     };
 
     let app, db;
@@ -856,11 +828,15 @@
 
     // Firebase initialisieren (falls korrekte Config vorhanden)
     try {
-        // Firebase mit der echten Konfiguration initialisieren
-        app = initializeApp(firebaseConfig);
-        db = getFirestore(app);
-        firebaseInitialized = true;
-        console.log("✅ Firebase erfolgreich initialisiert mit Projekt:", firebaseConfig.projectId);
+        if (firebaseConfig.apiKey !== "IHRE_API_KEY_HIER") {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            firebaseInitialized = true;
+            console.log("✅ Firebase erfolgreich initialisiert");
+        } else {
+            console.warn("⚠️ Firebase Config nicht konfiguriert - verwende lokalen Speicher");
+            firebaseInitialized = false;
+        }
     } catch (error) {
         console.error("❌ Firebase Initialisierung fehlgeschlagen:", error);
         firebaseInitialized = false;
@@ -1699,28 +1675,6 @@
 
     // Kommentare beim Laden der Seite laden
     loadComments();
-
-    // Firebase Status anzeigen
-    document.addEventListener('DOMContentLoaded', function() {
-        const statusElement = document.getElementById('firebase-status');
-        if (statusElement) {
-            setTimeout(() => {
-                if (window.firebaseInitialized) {
-                    statusElement.innerHTML = '<span style="color: #27ae60; font-weight: bold;">✅ Firebase aktiv - Kommentare werden dauerhaft gespeichert!</span>';
-                    // Status-Box ist bereits grün gesetzt
-                } else {
-                    statusElement.innerHTML = '<span style="color: #e74c3c; font-weight: bold;">❌ Firebase-Verbindung fehlgeschlagen - Prüfen Sie die Firestore-Aktivierung</span>';
-                    // Box auf gelb/rot setzen bei Problemen
-                    const notice = statusElement.closest('.firebase-notice');
-                    if (notice) {
-                        notice.style.background = '#fff3cd';
-                        notice.style.borderColor = '#ffeaa7';
-                        notice.style.color = '#856404';
-                    }
-                }
-            }, 500);
-        }
-    });
 </script>
 ```
 
