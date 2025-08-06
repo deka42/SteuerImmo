@@ -582,7 +582,7 @@
 
             <div class="input-group">
                 <label for="haltedauer">Haltedauer (Jahre)</label>
-                <input type="number" id="haltedauer" value="10" min="0">
+                <input type="number" id="haltedauer" value="8" min="0">
             </div>
 
             <div class="input-group">
@@ -812,15 +812,16 @@
         serverTimestamp 
     } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-    // Firebase Configuration (Optional - für dauerhafte Kommentarspeicherung)
+    // Firebase Configuration - Aktiviert für dauerhafte Kommentarspeicherung
     const firebaseConfig = {
-        apiKey: "IHRE_API_KEY_HIER",
-        authDomain: "ihr-projekt.firebaseapp.com",
-        databaseURL: "https://ihr-projekt-default-rtdb.region.firebasedatabase.app/",
-        projectId: "ihr-projekt-id",
-        storageBucket: "ihr-projekt.appspot.com",
-        messagingSenderId: "123456789",
-        appId: "1:123456789:web:abcdef123456"
+        apiKey: "AIzaSyDKZpE30GmsZNhN28d2nT0SnyI_cN5esNE",
+        authDomain: "steuervergleich-kommentare.firebaseapp.com",
+        databaseURL: "https://steuervergleich-kommentare-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "steuervergleich-kommentare",
+        storageBucket: "steuervergleich-kommentare.firebasestorage.app",
+        messagingSenderId: "524534192125",
+        appId: "1:524534192125:web:9282205e4a3878b7696b94",
+        measurementId: "G-Y3NNN5KVX5"
     };
 
     let app, db;
@@ -828,17 +829,14 @@
 
     // Firebase initialisieren (falls korrekte Config vorhanden)
     try {
-        if (firebaseConfig.apiKey !== "IHRE_API_KEY_HIER") {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            firebaseInitialized = true;
-            console.log("✅ Firebase erfolgreich initialisiert");
-        } else {
-            console.warn("⚠️ Firebase Config nicht konfiguriert - verwende lokalen Speicher");
-            firebaseInitialized = false;
-        }
+        // Firebase automatisch mit der Konfiguration initialisieren
+        app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        firebaseInitialized = true;
+        console.log("✅ Firebase erfolgreich initialisiert - Kommentare werden global gespeichert");
     } catch (error) {
         console.error("❌ Firebase Initialisierung fehlgeschlagen:", error);
+        console.warn("🔄 Fallback: Verwende lokalen Speicher");
         firebaseInitialized = false;
     }
 
