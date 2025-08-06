@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Immobilien Steuervergleich</title>
+    <title>Immobilien-Steuer-Suite 2025</title>
     <style>
         * {
             margin: 0;
@@ -17,15 +17,13 @@
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         min-height: 100vh;
-        padding: 20px;
     }
 
     .container {
-        max-width: 1400px;
+        max-width: 1600px;
         margin: 0 auto;
         background: white;
-        border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        min-height: 100vh;
         overflow: hidden;
     }
 
@@ -37,34 +35,80 @@
     }
 
     .header h1 {
-        font-size: 2.5em;
+        font-size: 2.8em;
         margin-bottom: 10px;
         font-weight: 300;
     }
 
     .subtitle {
-        font-size: 1.2em;
+        font-size: 1.3em;
         opacity: 0.9;
+        margin-bottom: 20px;
     }
 
-    .main-content {
-        display: grid;
-        grid-template-columns: 400px 1fr;
-        min-height: 600px;
+    /* Navigation Tabs */
+    .nav-tabs {
+        display: flex;
+        background: #34495e;
+        overflow-x: auto;
     }
 
+    .nav-tab {
+        flex: 1;
+        padding: 15px 20px;
+        background: #34495e;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.95em;
+        font-weight: 500;
+        min-width: 180px;
+    }
+
+    .nav-tab:hover {
+        background: #3498db;
+    }
+
+    .nav-tab.active {
+        background: #3498db;
+        box-shadow: inset 0 -3px 0 #2980b9;
+    }
+
+    .tab-content {
+        display: none;
+        padding: 30px;
+        min-height: 800px;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    /* Input Sections */
     .input-section {
         background: #f8f9fa;
-        padding: 30px;
-        border-right: 2px solid #e9ecef;
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 30px;
     }
 
-    .results-section {
-        padding: 30px;
+    .input-section h3 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-size: 1.3em;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+    }
+
+    .input-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
     }
 
     .input-group {
-        margin-bottom: 25px;
+        margin-bottom: 20px;
     }
 
     .input-group label {
@@ -72,92 +116,86 @@
         margin-bottom: 8px;
         font-weight: 600;
         color: #2c3e50;
-        font-size: 0.95em;
+        font-size: 0.9em;
     }
 
-    .input-group input, .input-group select {
+    .input-group input, 
+    .input-group select {
         width: 100%;
         padding: 12px 15px;
         border: 2px solid #e9ecef;
-        border-radius: 10px;
-        font-size: 16px;
+        border-radius: 8px;
+        font-size: 14px;
         transition: all 0.3s ease;
     }
 
-    .input-group input:focus, .input-group select:focus {
+    .input-group input:focus, 
+    .input-group select:focus {
         outline: none;
         border-color: #3498db;
         box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
     }
 
-    .calculate-btn {
-        width: 100%;
-        padding: 15px;
-        background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-size: 18px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 20px;
+    .input-help {
+        font-size: 0.8em;
+        color: #6c757d;
+        margin-top: 5px;
     }
 
-    .calculate-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(39, 174, 96, 0.3);
-    }
-
+    /* Results */
     .results-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 25px;
-        margin-top: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 20px;
+        margin-top: 30px;
     }
 
     .result-card {
         background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-        border-radius: 15px;
-        padding: 25px;
+        border-radius: 12px;
+        padding: 20px;
         border: 2px solid #e9ecef;
         transition: all 0.3s ease;
     }
 
     .result-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         border-color: #3498db;
     }
 
-    .result-card h3 {
+    .result-card.best-option {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        border-color: #27ae60;
+    }
+
+    .result-card h4 {
         color: #2c3e50;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
+        font-size: 1.2em;
         text-align: center;
-        font-size: 1.4em;
-        font-weight: 600;
     }
 
     .result-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 12px 0;
+        padding: 8px 0;
         border-bottom: 1px solid #e9ecef;
     }
 
     .result-item:last-child {
         border-bottom: none;
         font-weight: 600;
-        font-size: 1.1em;
         margin-top: 10px;
-        padding-top: 20px;
+        padding-top: 15px;
         border-top: 2px solid #3498db;
     }
 
     .result-label {
         color: #2c3e50;
         font-weight: 500;
+        font-size: 0.9em;
     }
 
     .result-value {
@@ -169,32 +207,76 @@
         color: #e74c3c;
     }
 
+    /* Buttons */
+    .calculate-btn {
+        background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .calculate-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(39, 174, 96, 0.3);
+    }
+
+    /* Warnings and Info Boxes */
     .warning {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 0.9em;
+        line-height: 1.5;
+    }
+
+    .warning.info {
+        background: #e3f2fd;
+        border: 1px solid #bbdefb;
+        color: #1565c0;
+    }
+
+    .warning.success {
+        background: #e8f5e8;
+        border: 1px solid #c8e6c9;
+        color: #2e7d32;
+    }
+
+    .warning.warning {
         background: #fff3cd;
         border: 1px solid #ffeaa7;
         color: #856404;
-        padding: 15px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        font-size: 0.9em;
     }
 
+    .warning.danger {
+        background: #ffebee;
+        border: 1px solid #ffcdd2;
+        color: #c62828;
+    }
+
+    /* Comparison Table */
     .comparison-table {
         width: 100%;
-        margin-top: 30px;
         border-collapse: collapse;
         background: white;
         border-radius: 10px;
         overflow: hidden;
         box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-top: 30px;
     }
 
     .comparison-table th,
     .comparison-table td {
-        padding: 15px;
+        padding: 12px;
         text-align: left;
         border-bottom: 1px solid #e9ecef;
-        font-size: 0.9em;
+        font-size: 0.85em;
     }
 
     .comparison-table th {
@@ -208,318 +290,167 @@
         background: #f8f9fa;
     }
 
-    .best-option {
+    .comparison-table .best-option {
         background: #d4edda !important;
         border-left: 4px solid #27ae60;
     }
 
-    @media (max-width: 1200px) {
-        .main-content {
-            grid-template-columns: 1fr;
-        }
-        
-        .input-section {
-            border-right: none;
-            border-bottom: 2px solid #e9ecef;
-        }
-    }
-
-    /* Firebase Status Punkt */
-    .firebase-status-dot {
-        font-size: 0.7em;
-        margin-left: 8px;
-        opacity: 0.8;
-        transition: all 0.3s ease;
-        cursor: help;
-    }
-
-    .firebase-status-dot:hover {
-        opacity: 1;
-        transform: scale(1.2);
-    }
-
-    /* Kommentarsektion Styles */
-    .comments-section {
-        background: #f8f9fa;
-        border-top: 3px solid #3498db;
-        padding: 40px;
-        margin-top: 0;
-    }
-
-    .comments-header {
-        text-align: center;
-        margin-bottom: 40px;
-    }
-
-    .comments-header h2 {
-        color: #2c3e50;
-        font-size: 2em;
-        margin-bottom: 10px;
-        font-weight: 600;
-    }
-
-    .comments-header p {
-        color: #6c757d;
-        font-size: 1.1em;
-    }
-
-    .comment-form {
-        background: white;
-        border-radius: 15px;
+    /* Strategy Overview */
+    .strategy-overview {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
         padding: 30px;
-        margin-bottom: 40px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        border-radius: 15px;
+        margin: 30px 0;
     }
 
-    .comment-form h3 {
-        color: #2c3e50;
+    .strategy-overview h3 {
+        font-size: 1.5em;
         margin-bottom: 20px;
-        font-size: 1.3em;
+        text-align: center;
     }
 
-    .form-group {
-        margin-bottom: 20px;
+    .timeline {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 30px 0;
         position: relative;
     }
 
-    .form-group input,
-    .form-group textarea {
-        width: 100%;
-        padding: 15px;
-        border: 2px solid #e9ecef;
-        border-radius: 10px;
-        font-size: 16px;
-        font-family: inherit;
-        transition: all 0.3s ease;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus {
-        outline: none;
-        border-color: #3498db;
-        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-    }
-
-    .char-counter {
+    .timeline::before {
+        content: '';
         position: absolute;
-        bottom: 10px;
-        right: 15px;
-        font-size: 0.8em;
-        color: #6c757d;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: rgba(255,255,255,0.3);
+        z-index: 1;
     }
 
-    .submit-comment-btn {
-        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-        color: white;
-        border: none;
-        padding: 15px 30px;
+    .timeline-item {
+        background: rgba(255,255,255,0.2);
+        padding: 15px;
         border-radius: 10px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .submit-comment-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
-    }
-
-    .comments-count {
-        font-size: 1.2em;
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 30px;
         text-align: center;
+        position: relative;
+        z-index: 2;
+        min-width: 120px;
+        backdrop-filter: blur(10px);
     }
 
-    .comment,
-    .reply {
-        background: white;
-        border-radius: 15px;
-        padding: 25px;
-        margin-bottom: 20px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        transition: all 0.3s ease;
-    }
-
-    .comment:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
-    }
-
-    .reply {
-        margin-left: 40px;
-        margin-top: 15px;
-        background: #f8f9fa;
-        border-left: 4px solid #3498db;
-    }
-
-    .comment-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-
-    .comment-avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5em;
-        margin-right: 15px;
-    }
-
-    .comment-meta {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .comment-author {
+    .timeline-item.active {
+        background: rgba(255,255,255,0.9);
         color: #2c3e50;
-        font-size: 1.1em;
     }
 
-    .comment-date {
-        color: #6c757d;
-        font-size: 0.9em;
-        margin-top: 2px;
-    }
-
-    .comment-content {
-        color: #2c3e50;
-        line-height: 1.6;
-        margin-bottom: 15px;
-        font-size: 1em;
-    }
-
-    .comment-actions {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-    }
-
-    .like-btn,
-    .dislike-btn,
-    .reply-btn {
-        background: none;
-        border: 2px solid #e9ecef;
-        border-radius: 20px;
-        padding: 8px 15px;
-        font-size: 0.9em;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .like-btn:hover {
-        border-color: #27ae60;
-        background: #27ae60;
-        color: white;
-    }
-
-    .like-btn.active {
-        background: #27ae60;
-        border-color: #27ae60;
-        color: white;
-    }
-
-    .dislike-btn:hover {
-        border-color: #e74c3c;
-        background: #e74c3c;
-        color: white;
-    }
-
-    .dislike-btn.active {
-        background: #e74c3c;
-        border-color: #e74c3c;
-        color: white;
-    }
-
-    .reply-btn:hover {
-        border-color: #3498db;
-        background: #3498db;
-        color: white;
-    }
-
-    .replies {
-        margin-top: 20px;
-    }
-
-    .reply-form {
-        margin: 20px 0 20px 40px;
-        background: #f8f9fa;
-        padding: 20px;
-        border-radius: 10px;
-        display: none;
-    }
-
-    .reply-form.active {
-        display: block;
-    }
-
-    .reply-form input,
-    .reply-form textarea {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        font-family: inherit;
-    }
-
-    .reply-form button {
-        background: #3498db;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-        margin-right: 10px;
-    }
-
-    .reply-form .cancel-btn {
-        background: #6c757d;
+    /* Responsive Design */
+    @media (max-width: 1200px) {
+        .input-grid {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
     }
 
     @media (max-width: 768px) {
+        .nav-tabs {
+            flex-direction: column;
+        }
+        
+        .nav-tab {
+            min-width: unset;
+        }
+        
         .results-grid {
             grid-template-columns: 1fr;
         }
         
-        .header h1 {
-            font-size: 2em;
+        .timeline {
+            flex-direction: column;
+            gap: 15px;
         }
         
-        .container {
-            margin: 10px;
-            border-radius: 15px;
+        .timeline::before {
+            display: none;
         }
+    }
 
-        .comments-section {
-            padding: 20px;
-        }
+    /* Additional Styles für erweiterte Features */
+    .scenario-comparison {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 25px;
+        margin: 20px 0;
+    }
 
-        .comment-form {
-            padding: 20px;
-        }
+    .scenario-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+    }
 
-        .reply {
-            margin-left: 20px;
-        }
+    .scenario-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        border-left: 4px solid #3498db;
+    }
 
-        .reply-form {
-            margin-left: 20px;
-        }
+    .cash-flow-chart {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 20px 0;
+        border: 1px solid #e9ecef;
+    }
 
-        .comment-actions {
-            flex-wrap: wrap;
-        }
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 10px 0;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #27ae60, #2ecc71);
+        transition: width 0.3s ease;
+    }
+
+    /* Tab Icons */
+    .tab-icon {
+        margin-right: 8px;
+    }
+
+    /* Tooltip Styles */
+    .tooltip {
+        position: relative;
+        cursor: help;
+    }
+
+    .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 200px;
+        background-color: #2c3e50;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 8px;
+        position: absolute;
+        z-index: 1000;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -100px;
+        font-size: 0.8em;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
     }
 </style>
 ```
@@ -528,466 +459,566 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏠 Immobilien Steuervergleich</h1>
-            <div class="subtitle">Vergleich des VERKAUFS durch verschiedene Strukturen (nicht Einbringung)</div>
+            <h1>🏠 Immobilien-Steuer-Suite 2025</h1>
+            <div class="subtitle">Komplettanalyse für smarte Immobilieninvestoren - Alle Steueraspekte auf einen Blick</div>
         </div>
 
 ```
-    <div class="main-content">
-        <div class="input-section">
-            <div class="warning">
-                ⚠️ Hinweis: Diese Berechnung dient nur zur groben Orientierung. Für steuerliche Beratung konsultieren Sie einen Steuerberater.
-            </div>
-            
-            <div class="warning" style="background: #ffebee; border-color: #ffcdd2; color: #c62828;">
-                🚨 <strong>Steuerfreiheit richtig verstehen - Einbringung vs. Verkauf:</strong>
-                <br><br><strong>§ 23 EStG (10-Jahres-Frist) für private Veräußerungsgeschäfte:</strong>
-                <br>• <strong>Privatpersonen:</strong> Steuerfrei nach 10 Jahren
-                <br>• <strong>Vermögensverwaltende Personengesellschaften:</strong> Transparente Besteuerung (§ 39 Abs. 2 Nr. 2 AO)
-                <br><br><strong>Einbringung in GmbH/UG:</strong>
-                <br>• <strong>Nach 10 Jahren Privatbesitz:</strong> Einbringung kann steuerfrei sein
-                <br>• <strong>Unter 10 Jahren:</strong> Einbringung steuerpflichtig
-                <br><br><strong>Verkauf durch GmbH/UG:</strong>
-                <br>• <strong>Immer steuerpflichtig:</strong> ~48-50% Gesamtbelastung
-                <br>• <strong>§ 23 EStG gilt nicht:</strong> Immobilie ist Betriebsvermögen
-                <br>• <strong>§ 8b KStG gilt nicht:</strong> Nur für Anteile an anderen Gesellschaften
-            </div>
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('verkauf')">
+            <span class="tab-icon">💰</span>Verkaufssteuer-Vergleich
+        </button>
+        <button class="nav-tab" onclick="switchTab('grundsteuer')">
+            <span class="tab-icon">🏛️</span>Grundsteuer 2025
+        </button>
+        <button class="nav-tab" onclick="switchTab('erbschaft')">
+            <span class="tab-icon">👨‍👩‍👧‍👦</span>Erbschaftsteuer
+        </button>
+        <button class="nav-tab" onclick="switchTab('schenkung')">
+            <span class="tab-icon">🎁</span>Schenkungssteuer
+        </button>
+        <button class="nav-tab" onclick="switchTab('gesamtstrategie')">
+            <span class="tab-icon">🎯</span>Gesamtstrategie
+        </button>
+        <button class="nav-tab" onclick="switchTab('cashflow')">
+            <span class="tab-icon">📊</span>Cash-Flow Analyse
+        </button>
+    </div>
 
-            <div class="warning" style="background: #e3f2fd; border-color: #bbdefb; color: #1565c0; margin-top: 20px;">
-                💡 <strong>Strategische Empfehlung für Immobilieninvestoren (Update 2025):</strong>
-                <br><br><strong>🥇 OPTIMAL (nach Haltedauer):</strong>
-                <br>• <strong>0-10 Jahre:</strong> VV GmbH & Co. KG (transparente Besteuerung + Gewerbesteueranrechnung)
-                <br>• <strong>Ab 10 Jahren:</strong> Privatverkauf oder VV GbR (0% Steuern)
-                <br>• <strong>Langfristig:</strong> VV GmbH & Co. KG (nach 10 Jahren steuerfrei + BFH-Gewerbesteuerbefreiung!)
-                <br><br><strong>🚫 VERMEIDEN bei Immobilien:</strong>
-                <br>• <strong>Reine GmbH/UG:</strong> Immer ~48-50% Steuerbelastung
-                <br>• <strong>Gewerbliche Strukturen:</strong> Keine 10-Jahres-Steuerfreiheit
-                <br><br><strong>⚡ Der Game-Changer:</strong> VV GmbH & Co. KG kombiniert Steuerfreiheit nach 10 Jahren mit Haftungsbegrenzung!
-                <br><br><strong>🆕 WICHTIGE NEUERUNGEN 2024/2025:</strong>
-                <br>• <strong>BFH-Urteil:</strong> "Aufwärts abgefärbte" VV Personengesellschaften sind gewerbesteuerfrei!
-                <br>• <strong>Gesellschafterdarlehen:</strong> Steuerrechtlich nicht mehr anerkannt (BFH I R 21/22)
-                <br>• <strong>Finanzierung:</strong> Kapitalkonto oder externe Finanzierung erforderlich
-            </div>
-
-            <div class="input-group">
-                <label for="kaufpreis">Kaufpreis (€)</label>
-                <input type="number" id="kaufpreis" value="300000" min="0">
-            </div>
-
-            <div class="input-group">
-                <label for="verkaufspreis">Verkaufspreis (€)</label>
-                <input type="number" id="verkaufspreis" value="450000" min="0">
-            </div>
-
-            <div class="input-group">
-                <label for="nebenkosten_kauf">Nebenkosten Kauf (€)</label>
-                <input type="number" id="nebenkosten_kauf" value="30000" min="0">
-            </div>
-
-            <div class="input-group">
-                <label for="nebenkosten_verkauf">Nebenkosten Verkauf (€)</label>
-                <input type="number" id="nebenkosten_verkauf" value="22500" min="0">
-            </div>
-
-            <div class="input-group">
-                <label for="modernisierung">Modernisierung/Renovierung (€)</label>
-                <input type="number" id="modernisierung" value="50000" min="0">
-            </div>
-
-            <div class="input-group">
-                <label for="haltedauer">Haltedauer (Jahre)</label>
-                <input type="number" id="haltedauer" value="10" min="0">
-            </div>
-
-            <div class="input-group">
-                <label for="einbringung_nach_jahren">Ursprünglich private Haltedauer vor Einbringung (Jahre) - optional</label>
-                <input type="number" id="einbringung_nach_jahren" placeholder="z.B. 3 = 3 Jahre privat, dann eingebracht" min="0">
-                <small style="color: #6c757d; font-size: 0.8em;">
-                    <strong>Beispiel:</strong> 12 Jahre private Haltung → Einbringung steuerfrei (§23 EStG). Verkauf durch GmbH dennoch steuerpflichtig!
-                </small>
-            </div>
-
-            <div class="input-group">
-                <label for="persoenlicher_steuersatz">Persönlicher Steuersatz (%)</label>
-                <input type="number" id="persoenlicher_steuersatz" value="42" min="0" max="47" step="0.1">
-            </div>
-
-            <div class="input-group">
-                <label for="kirchensteuer">Kirchensteuer (%)</label>
-                <input type="number" id="kirchensteuer" value="8" min="0" max="9" step="0.1">
-            </div>
-
-            <button class="calculate-btn" onclick="berechnen()">📊 Berechnung durchführen</button>
+    <!-- Tab Content -->
+    
+    <!-- Verkaufssteuer-Vergleich Tab -->
+    <div id="verkauf" class="tab-content active">
+        <div class="warning info">
+            <strong>🎯 Verkaufssteuer-Vergleich:</strong> Hier vergleichen wir verschiedene Rechtsformen beim VERKAUF einer Immobilie. 
+            Dies ist die Basis für alle weiteren steuerlichen Überlegungen.
         </div>
 
-        <div class="results-section">
-            <div id="results-container">
-                <h2 style="text-align: center; color: #2c3e50; margin-bottom: 30px;">Ergebnisse der Steuerberechnung</h2>
-                <div class="results-grid" id="results-grid">
-                    <!-- Ergebnisse werden hier eingefügt -->
-                </div>
-                <table class="comparison-table" id="comparison-table" style="display: none;">
-                    <thead>
-                        <tr>
-                            <th>Struktur</th>
-                            <th>Nettogewinn</th>
-                            <th>Steuern</th>
-                            <th>Steuerquote</th>
-                            <th>Besonderheiten</th>
-                        </tr>
-                    </thead>
-                    <tbody id="comparison-body">
-                        <!-- Vergleichstabelle wird hier eingefügt -->
-                    </tbody>
-                </table>
-                
-                <div class="warning" style="background: #e8f5e8; border-color: #c8e6c9; color: #2e7d32; margin-top: 30px;">
-                    🏆 <strong>VV GmbH & Co. KG vs. Reine GmbH - Der entscheidende Unterschied (Update 2025):</strong>
-                    <br><br><strong>VV GmbH & Co. KG (Personengesellschaft):</strong>
-                    <br>• ✅ <strong>Nach 10 Jahren STEUERFREI</strong> (§23 EStG gilt)
-                    <br>• ✅ <strong>BFH 2025: GEWERBESTEUERFREI</strong> als "aufwärts abgefärbte" Struktur
-                    <br>• ✅ <strong>Transparente Besteuerung</strong> - keine Doppelbesteuerung
-                    <br>• ✅ <strong>Verluste sofort verrechenbar</strong> mit anderen Einkünften
-                    <br>• ✅ <strong>Flexible Gewinnverteilung</strong> möglich
-                    <br>• ⚠️ <strong>Finanzierung über Kapitalkonto</strong> (keine Gesellschafterdarlehen mehr)
-                    <br><br><strong>Reine VV GmbH (Kapitalgesellschaft):</strong>
-                    <br>• ❌ <strong>NIEMALS steuerfrei</strong> bei Immobilienverkäufen
-                    <br>• ❌ <strong>Doppelbesteuerung:</strong> ~30% GmbH + ~26% Ausschüttung = ~48-50%
-                    <br>• ❌ <strong>Verluste "gefangen"</strong> in der Gesellschaft
-                    <br>• ❌ <strong>Starre Gewinnverteilung</strong> nach Beteiligungsquoten
-                    <br>• ⚠️ <strong>Gesellschafterdarlehen möglich</strong> (aber Doppelbesteuerung bleibt)
-                    <br><br><strong>🎯 Bei 150.000€ Gewinn nach 10+ Jahren:</strong>
-                    <br>• <strong>GmbH & Co. KG:</strong> 0€ Steuern = 150.000€ netto
-                    <br>• <strong>Reine GmbH:</strong> ~72.000€ Steuern = ~78.000€ netto
-                    <br>• <strong>💰 Vorteil GmbH & Co. KG: 72.000€ gespart + gewerbesteuerfrei!</strong>
+        <div class="input-section">
+            <h3>📊 Immobilien- und Verkaufsdaten</h3>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="kaufpreis">Kaufpreis (€)</label>
+                    <input type="number" id="kaufpreis" value="300000" min="0">
                 </div>
 
-                <div class="warning" style="background: #fff3cd; border-color: #ffeaa7; color: #856404; margin-top: 20px;">
-                    📋 <strong>Differenzierte Betrachtung der Einbringung und des Verkaufs:</strong>
-                    <br><br><strong>1. Einbringung von PRIVATVERMÖGEN in GmbH:</strong>
-                    <br>• <strong>Nach 10 Jahren:</strong> Einbringung kann steuerfrei sein (§ 23 EStG)
-                    <br>• <strong>Unter 10 Jahren:</strong> Einbringung steuerpflichtig (Veräußerungsgewinn)
-                    <br>• <strong>Nach Einbringung:</strong> Immobilie wird Betriebsvermögen der GmbH
-                    <br><br><strong>2. Einbringung von BETRIEBSVERMÖGEN in GmbH:</strong>
-                    <br>• <strong>§ 20 UmwStG:</strong> Steuerneutrale Einbringung möglich (Buchwertfortführung)
-                    <br>• <strong>Steueraufschiebung</strong> - nicht Steuerbefreiung
-                    <br>• <strong>Thesaurierungspflicht</strong> unter bestimmten Voraussetzungen
-                    <br><br><strong>3. Verkauf DURCH die GmbH (nach Einbringung):</strong>
-                    <br>• <strong>Immer steuerpflichtig:</strong> ~30% Gesellschaft + ~26% Ausschüttung = ~48-50%
-                    <br>• <strong>Keine Steuerfreiheit:</strong> § 23 EStG und § 8b KStG gelten nicht
-                    <br>• <strong>Betriebsvermögen:</strong> Keine privaten Veräußerungsgeschäfte mehr
-                    <br><br><strong>🚨 NEU 2024/2025 - Gesellschafterdarlehen:</strong>
-                    <br>• <strong>BFH-Urteil (I R 21/22):</strong> Gesellschafterdarlehen an GbRs steuerrechtlich nicht anerkannt
-                    <br>• <strong>Konfusion:</strong> Gläubiger = Schuldner → Forderung erlischt steuerrechtlich
-                    <br>• <strong>Alternative:</strong> Kapitalkonto-Finanzierung oder externe Gesellschafter
-                    <br><br><strong>⚠️ Zusätzlich zu beachten:</strong>
-                    <br>• <strong>Grunderwerbsteuer</strong> bei Einbringung (Ausnahmen möglich)
-                    <br>• <strong>Umsatzsteuer</strong> bei gewerblicher Vermietung
-                    <br>• <strong>Drei-Objekt-Grenze:</strong> Einzelfallwürdigung seit 2024 verstärkt
+                <div class="input-group">
+                    <label for="verkaufspreis">Verkaufspreis (€)</label>
+                    <input type="number" id="verkaufspreis" value="450000" min="0">
+                </div>
+
+                <div class="input-group">
+                    <label for="nebenkosten_kauf">Nebenkosten Kauf (€)</label>
+                    <input type="number" id="nebenkosten_kauf" value="30000" min="0">
+                    <div class="input-help">Notar, Grunderwerbsteuer, Makler</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="nebenkosten_verkauf">Nebenkosten Verkauf (€)</label>
+                    <input type="number" id="nebenkosten_verkauf" value="22500" min="0">
+                    <div class="input-help">Makler, Notar, Exposé</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="modernisierung">Modernisierung/Renovierung (€)</label>
+                    <input type="number" id="modernisierung" value="50000" min="0">
+                </div>
+
+                <div class="input-group">
+                    <label for="haltedauer">Haltedauer (Jahre)</label>
+                    <input type="number" id="haltedauer" value="8" min="0">
                 </div>
             </div>
+        </div>
+
+        <div class="input-section">
+            <h3>⚖️ Steuerliche Parameter</h3>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="persoenlicher_steuersatz">Persönlicher Steuersatz (%)</label>
+                    <input type="number" id="persoenlicher_steuersatz" value="42" min="0" max="47" step="0.1">
+                </div>
+
+                <div class="input-group">
+                    <label for="kirchensteuer">Kirchensteuer (%)</label>
+                    <input type="number" id="kirchensteuer" value="8" min="0" max="9" step="0.1">
+                </div>
+
+                <div class="input-group">
+                    <label for="einbringung_nach_jahren">Private Haltedauer vor Einbringung (Jahre)</label>
+                    <input type="number" id="einbringung_nach_jahren" placeholder="Optional: z.B. 12" min="0">
+                    <div class="input-help">Nur bei Einbringung in GmbH/UG relevant</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="bundesland">Bundesland</label>
+                    <select id="bundesland">
+                        <option value="bw">Baden-Württemberg</option>
+                        <option value="by">Bayern</option>
+                        <option value="be">Berlin</option>
+                        <option value="bb">Brandenburg</option>
+                        <option value="hb">Bremen</option>
+                        <option value="hh">Hamburg</option>
+                        <option value="he">Hessen</option>
+                        <option value="mv">Mecklenburg-Vorpommern</option>
+                        <option value="ni">Niedersachsen</option>
+                        <option value="nw" selected>Nordrhein-Westfalen</option>
+                        <option value="rp">Rheinland-Pfalz</option>
+                        <option value="sl">Saarland</option>
+                        <option value="sn">Sachsen</option>
+                        <option value="st">Sachsen-Anhalt</option>
+                        <option value="sh">Schleswig-Holstein</option>
+                        <option value="th">Thüringen</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button class="calculate-btn" onclick="calculateVerkauf()">🧮 Verkaufssteuer berechnen</button>
+
+        <div id="verkauf-results">
+            <!-- Ergebnisse werden hier eingefügt -->
+        </div>
+
+        <div class="warning success">
+            <strong>🏆 Empfehlung für 2025:</strong><br>
+            <strong>Vor 10 Jahren:</strong> VV GmbH & Co. KG oder VV GbR (je nach Haftung)<br>
+            <strong>Nach 10 Jahren:</strong> Privatverkauf oder strukturierte Übertragung<br>
+            <strong>NEU:</strong> BFH-Urteil macht VV GmbH & Co. KG gewerbesteuerfrei!
         </div>
     </div>
-    
-    <!-- Kommentarsektion -->
-    <div class="comments-section">
-        <div class="comments-header">
-            <h2>💬 Kommentare & Erfahrungen <span id="firebase-indicator" class="firebase-status-dot" title="Firebase Status wird geprüft...">🔄</span></h2>
-            <p>Teilen Sie Ihre Erfahrungen oder stellen Sie Fragen zu diesem Steuervergleich</p>
+
+    <!-- Grundsteuer 2025 Tab -->
+    <div id="grundsteuer" class="tab-content">
+        <div class="warning info">
+            <strong>🏛️ Grundsteuer-Reform 2025:</strong> Seit 1. Januar 2025 gilt die neue Grundsteuer. 
+            Alle Immobilien wurden neu bewertet - hier können Sie Ihre neue Grundsteuer berechnen.
         </div>
-        
-        <div class="comment-form">
-            <h3>Neuen Kommentar hinzufügen</h3>
-            <div class="form-group">
-                <input type="text" id="author-name" placeholder="Ihr Name" maxlength="50">
-            </div>
-            <div class="form-group">
-                <textarea id="comment-text" placeholder="Ihr Kommentar..." rows="4" maxlength="1000"></textarea>
-                <div class="char-counter">
-                    <span id="char-count">0</span>/1000
+
+        <div class="input-section">
+            <h3>🏠 Immobiliendaten für Grundsteuer</h3>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="grundstueckswert">Grundsteuerwert (€)</label>
+                    <input type="number" id="grundstueckswert" value="350000" min="0">
+                    <div class="input-help">Laut Grundsteuerwertbescheid 2022/2023</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="immobilientyp">Immobilientyp</label>
+                    <select id="immobilientyp">
+                        <option value="einfamilienhaus">Ein-/Zweifamilienhaus</option>
+                        <option value="mietwohnung">Mietwohngrundstück</option>
+                        <option value="eigentumswohnung">Eigentumswohnung</option>
+                        <option value="gewerbe">Gewerbegrundstück</option>
+                        <option value="unbebaut">Unbebautes Grundstück</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="gemeinde_hebesatz">Hebesatz der Gemeinde (%)</label>
+                    <input type="number" id="gemeinde_hebesatz" value="450" min="0" max="2000">
+                    <div class="input-help">Grundsteuer B - variiert stark je Gemeinde</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="grundsteuer_bundesland">Grundsteuer-Modell</label>
+                    <select id="grundsteuer_bundesland">
+                        <option value="bundesmodell">Bundesmodell (Standard)</option>
+                        <option value="bw">Baden-Württemberg (Bodenwert)</option>
+                        <option value="by">Bayern (Flächenmodell)</option>
+                        <option value="hh">Hamburg (Wohnlagenwert)</option>
+                        <option value="he">Hessen (Flächen-Lage-Modell)</option>
+                        <option value="ni">Niedersachsen (Flächen-Faktor-Modell)</option>
+                        <option value="sl">Saarland (Modifikation Bundesmodell)</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="vermietung_typ">Nutzungsart</label>
+                    <select id="vermietung_typ">
+                        <option value="eigennutzung">Eigennutzung</option>
+                        <option value="vermietung">Vermietung</option>
+                        <option value="gewerbe">Gewerbliche Nutzung</option>
+                        <option value="leerstand">Leerstand</option>
+                    </select>
                 </div>
             </div>
-            <button id="submit-comment" class="submit-comment-btn">
-                📝 Kommentar veröffentlichen
-            </button>
         </div>
-        
-        <div class="comments-list" id="comments-list">
-            <div class="comments-count">
-                <span id="comment-count">3</span> Kommentare
-            </div>
-            
-            <!-- Beispielkommentare -->
-            <div class="comment" data-id="1">
-                <div class="comment-header">
-                    <div class="comment-avatar">👤</div>
-                    <div class="comment-meta">
-                        <strong class="comment-author">Max Immobilien</strong>
-                        <span class="comment-date">vor 2 Tagen</span>
-                    </div>
+
+        <button class="calculate-btn" onclick="calculateGrundsteuer()">🏛️ Grundsteuer berechnen</button>
+
+        <div id="grundsteuer-results">
+            <!-- Grundsteuer Ergebnisse -->
+        </div>
+
+        <div class="warning warning">
+            <strong>⚠️ Einspruch gegen Grundsteuerbescheid:</strong><br>
+            Falls Ihr Grundsteuerwert zu hoch erscheint, können Sie binnen eines Monats Einspruch einlegen. 
+            Bei über 40% Abweichung zum tatsächlichen Wert ist ein Gutachten empfehlenswert.
+        </div>
+    </div>
+
+    <!-- Erbschaftsteuer Tab -->
+    <div id="erbschaft" class="tab-content">
+        <div class="warning info">
+            <strong>👨‍👩‍👧‍👦 Erbschaftsteuer-Planung:</strong> Berechnen Sie die Erbschaftsteuer bei Immobilien und 
+            planen Sie steueroptimierte Übertragungsstrategien.
+        </div>
+
+        <div class="input-section">
+            <h3>🏠 Zu vererbende Immobilie</h3>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="immobilienwert_erbe">Immobilienwert (€)</label>
+                    <input type="number" id="immobilienwert_erbe" value="450000" min="0">
+                    <div class="input-help">Aktueller Verkehrswert (seit 2023 höher bewertet)</div>
                 </div>
-                <div class="comment-content">
-                    Sehr hilfreiches Tool! Die Unterscheidung zwischen Einbringung und Verkauf war mir so nicht bewusst. Besonders der Hinweis zur VV GmbH & Co. KG ist wertvoll. Hat mir bei der Entscheidung für meine Immobilienstrategie geholfen.
+
+                <div class="input-group">
+                    <label for="weiteres_vermoegen">Weiteres Vermögen (€)</label>
+                    <input type="number" id="weiteres_vermoegen" value="100000" min="0">
+                    <div class="input-help">Geld, Aktien, weitere Immobilien</div>
                 </div>
-                <div class="comment-actions">
-                    <button class="like-btn" data-likes="12">
-                        👍 <span>12</span>
-                    </button>
-                    <button class="dislike-btn" data-dislikes="1">
-                        👎 <span>1</span>
-                    </button>
-                    <button class="reply-btn">💬 Antworten</button>
+
+                <div class="input-group">
+                    <label for="schulden">Schulden/Verbindlichkeiten (€)</label>
+                    <input type="number" id="schulden" value="50000" min="0">
+                    <div class="input-help">Kredite, Hypotheken etc.</div>
                 </div>
-                
-                <div class="replies">
-                    <div class="reply" data-id="1-1">
-                        <div class="comment-header">
-                            <div class="comment-avatar">👩‍💼</div>
-                            <div class="comment-meta">
-                                <strong class="comment-author">Steuerberaterin Sarah</strong>
-                                <span class="comment-date">vor 1 Tag</span>
-                            </div>
-                        </div>
-                        <div class="comment-content">
-                            @Max Immobilien Genau richtig erkannt! Die BFH-Urteile von 2024/2025 haben hier einiges geändert. Wichtig ist auch die neue Rechtsprechung zu Gesellschafterdarlehen.
-                        </div>
-                        <div class="comment-actions">
-                            <button class="like-btn" data-likes="8">
-                                👍 <span>8</span>
-                            </button>
-                            <button class="dislike-btn" data-dislikes="0">
-                                👎 <span>0</span>
-                            </button>
-                        </div>
-                    </div>
+
+                <div class="input-group">
+                    <label for="verwandtschaftsgrad">Verwandtschaftsgrad</label>
+                    <select id="verwandtschaftsgrad">
+                        <option value="ehepartner">Ehepartner/Lebenspartner</option>
+                        <option value="kind">Kind/Stiefkind</option>
+                        <option value="enkel">Enkel</option>
+                        <option value="eltern">Eltern/Großeltern</option>
+                        <option value="geschwister">Geschwister/Nichten/Neffen</option>
+                        <option value="andere">Andere Personen</option>
+                    </select>
                 </div>
-            </div>
-            
-            <div class="comment" data-id="2">
-                <div class="comment-header">
-                    <div class="comment-avatar">🏠</div>
-                    <div class="comment-meta">
-                        <strong class="comment-author">Investor_2024</strong>
-                        <span class="comment-date">vor 5 Tagen</span>
-                    </div>
+
+                <div class="input-group">
+                    <label for="wohnflaeche">Wohnfläche (m²)</label>
+                    <input type="number" id="wohnflaeche" value="150" min="0">
+                    <div class="input-help">Für Familienheim-Steuerbefreiung relevant</div>
                 </div>
-                <div class="comment-content">
-                    Eine Frage zur Berechnung: Werden auch die neuen Regelungen zur Grundsteuer berücksichtigt? Und wie sieht es mit der Erbschaftsteuer bei Übertragung aus?
+
+                <div class="input-group">
+                    <label for="selbstnutzung_erblasser">Eigennutzung durch Erblasser</label>
+                    <select id="selbstnutzung_erblasser">
+                        <option value="ja">Ja, bis zum Tod</option>
+                        <option value="nein">Nein, vermietet</option>
+                        <option value="pflegeheim">Nein, im Pflegeheim</option>
+                    </select>
                 </div>
-                <div class="comment-actions">
-                    <button class="like-btn" data-likes="5">
-                        👍 <span>5</span>
-                    </button>
-                    <button class="dislike-btn" data-dislikes="2">
-                        👎 <span>2</span>
-                    </button>
-                    <button class="reply-btn">💬 Antworten</button>
-                </div>
-            </div>
-            
-            <div class="comment" data-id="3">
-                <div class="comment-header">
-                    <div class="comment-avatar">⚖️</div>
-                    <div class="comment-meta">
-                        <strong class="comment-author">Rechtsanwalt Weber</strong>
-                        <span class="comment-date">vor 1 Woche</span>
-                    </div>
-                </div>
-                <div class="comment-content">
-                    Wichtiger Hinweis zum Tool: Bei der Drei-Objekt-Grenze gibt es seit 2024 verschärfte Prüfungen durch die Finanzämter. Jeder Fall wird einzeln betrachtet. Das Tool ist aber eine super Orientierungshilfe für erste Kalkulationen.
-                </div>
-                <div class="comment-actions">
-                    <button class="like-btn" data-likes="18">
-                        👍 <span>18</span>
-                    </button>
-                    <button class="dislike-btn" data-dislikes="0">
-                        👎 <span>0</span>
-                    </button>
-                    <button class="reply-btn">💬 Antworten</button>
+
+                <div class="input-group">
+                    <label for="selbstnutzung_erbe">Geplante Eigennutzung durch Erben (10 Jahre)</label>
+                    <select id="selbstnutzung_erbe">
+                        <option value="ja">Ja, mindestens 10 Jahre</option>
+                        <option value="nein">Nein</option>
+                        <option value="unsicher">Unsicher</option>
+                    </select>
                 </div>
             </div>
+        </div>
+
+        <button class="calculate-btn" onclick="calculateErbschaftsteuer()">👨‍👩‍👧‍👦 Erbschaftsteuer berechnen</button>
+
+        <div id="erbschaft-results">
+            <!-- Erbschaftsteuer Ergebnisse -->
+        </div>
+
+        <div class="warning success">
+            <strong>💡 Steueroptimierung bei Erbschaften:</strong><br>
+            • <strong>Familienheim:</strong> 100% steuerfrei für Ehepartner, für Kinder bis 200m²<br>
+            • <strong>Schenkungen:</strong> Freibeträge alle 10 Jahre nutzbar<br>
+            • <strong>Nießbrauch:</strong> Kann Schenkungsteuer erheblich reduzieren<br>
+            • <strong>Bewertung:</strong> Gutachten bei überhöhten Werten sinnvoll
+        </div>
+    </div>
+
+    <!-- Schenkungssteuer Tab -->
+    <div id="schenkung" class="tab-content">
+        <div class="warning info">
+            <strong>🎁 Schenkungssteuer-Optimierung:</strong> Nutzen Sie Freibeträge optimal und planen Sie 
+            steuerfreie Übertragungen zu Lebzeiten.
+        </div>
+
+        <div class="input-section">
+            <h3>🎁 Schenkungsplanung</h3>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="schenkung_immobilienwert">Immobilienwert gesamt (€)</label>
+                    <input type="number" id="schenkung_immobilienwert" value="600000" min="0">
+                </div>
+
+                <div class="input-group">
+                    <label for="schenkung_anteil">Zu verschenkender Anteil (%)</label>
+                    <input type="number" id="schenkung_anteil" value="50" min="0" max="100">
+                    <div class="input-help">Schrittweise Übertragung möglich</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="schenkung_verwandtschaft">Beschenkter</label>
+                    <select id="schenkung_verwandtschaft">
+                        <option value="ehepartner">Ehepartner/Lebenspartner</option>
+                        <option value="kind">Kind/Stiefkind</option>
+                        <option value="enkel">Enkel</option>
+                        <option value="eltern">Eltern/Großeltern</option>
+                        <option value="geschwister">Geschwister/Nichten/Neffen</option>
+                        <option value="andere">Andere Personen</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="niessbrauch">Nießbrauch vorbehalten</label>
+                    <select id="niessbrauch">
+                        <option value="nein">Nein</option>
+                        <option value="ja">Ja, auf Lebenszeit</option>
+                        <option value="wohnrecht">Nur Wohnrecht</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="jahresmiete">Jahresmiete/Mietwert (€)</label>
+                    <input type="number" id="jahresmiete" value="18000" min="0">
+                    <div class="input-help">Für Nießbrauchswert-Berechnung</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="alter_schenker">Alter des Schenkers</label>
+                    <input type="number" id="alter_schenker" value="65" min="18" max="100">
+                    <div class="input-help">Für Nießbrauchswert-Berechnung</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="vorherige_schenkungen">Vorherige Schenkungen (10 Jahre) (€)</label>
+                    <input type="number" id="vorherige_schenkungen" value="0" min="0">
+                    <div class="input-help">Schenkungen der letzten 10 Jahre an gleiche Person</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="geplante_schritte">Geplante Schenkungsschritte</label>
+                    <input type="number" id="geplante_schritte" value="3" min="1" max="5">
+                    <div class="input-help">Anzahl 10-Jahres-Perioden</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="calculate-btn" onclick="calculateSchenkung()">🎁 Schenkungssteuer berechnen</button>
+
+        <div id="schenkung-results">
+            <!-- Schenkungssteuer Ergebnisse -->
+        </div>
+
+        <div class="warning success">
+            <strong>🎯 Optimale Schenkungsstrategie:</strong><br>
+            • <strong>Timing:</strong> Freibeträge alle 10 Jahre voll ausnutzen<br>
+            • <strong>Nießbrauch:</strong> Reduziert Schenkungswert erheblich<br>
+            • <strong>Mehrere Objekte:</strong> Wohnungsweise verschenken<br>
+            • <strong>Früh starten:</strong> Je früher, desto mehr Freibetrag-Zyklen möglich
+        </div>
+    </div>
+
+    <!-- Gesamtstrategie Tab -->
+    <div id="gesamtstrategie" class="tab-content">
+        <div class="strategy-overview">
+            <h3>🎯 Ihre optimale Immobilienstrategie 2025</h3>
+            <div class="timeline">
+                <div class="timeline-item" id="timeline-kauf">
+                    <div><strong>Kauf</strong></div>
+                    <div>Strukturwahl</div>
+                </div>
+                <div class="timeline-item" id="timeline-haltung">
+                    <div><strong>Haltung</strong></div>
+                    <div>0-10 Jahre</div>
+                </div>
+                <div class="timeline-item" id="timeline-optimierung">
+                    <div><strong>Optimierung</strong></div>
+                    <div>Ab 8 Jahren</div>
+                </div>
+                <div class="timeline-item" id="timeline-exit">
+                    <div><strong>Exit</strong></div>
+                    <div>Verkauf/Übergabe</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scenario-comparison">
+            <h3>📊 Szenario-Vergleich: 10, 20 und 30 Jahre</h3>
+            <div class="scenario-grid" id="scenario-results">
+                <!-- Szenarien werden hier eingefügt -->
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h3>⚙️ Strategische Parameter</h3>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="strategie_alter">Ihr Alter</label>
+                    <input type="number" id="strategie_alter" value="45" min="18" max="90">
+                </div>
+
+                <div class="input-group">
+                    <label for="strategie_risiko">Risikobereitschaft</label>
+                    <select id="strategie_risiko">
+                        <option value="niedrig">Sicherheitsorientiert</option>
+                        <option value="mittel" selected>Ausgewogen</option>
+                        <option value="hoch">Renditeorientiert</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="strategie_liquiditaet">Liquiditätsbedarf</label>
+                    <select id="strategie_liquiditaet">
+                        <option value="niedrig">Langfristig gebunden</option>
+                        <option value="mittel" selected>Flexibel verfügbar</option>
+                        <option value="hoch">Schnell liquidierbar</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="strategie_nachfolge">Nachfolgeplanung</label>
+                    <select id="strategie_nachfolge">
+                        <option value="keine">Noch nicht relevant</option>
+                        <option value="kinder">Vererbung an Kinder</option>
+                        <option value="partner">Übertragung an Partner</option>
+                        <option value="verkauf">Verkauf geplant</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="strategie_weitere_immobilien">Weitere Immobilien geplant</label>
+                    <select id="strategie_weitere_immobilien">
+                        <option value="nein">Nein</option>
+                        <option value="wenige">1-2 weitere</option>
+                        <option value="portfolio">Portfolio-Aufbau</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="strategie_einkommen">Jährliches Einkommen (€)</label>
+                    <input type="number" id="strategie_einkommen" value="80000" min="0">
+                    <div class="input-help">Für Verlustverrechnung relevant</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="calculate-btn" onclick="calculateGesamtstrategie()">🎯 Optimale Strategie ermitteln</button>
+
+        <div id="strategie-results">
+            <!-- Strategieergebnisse -->
+        </div>
+    </div>
+
+    <!-- Cash-Flow Analyse Tab -->
+    <div id="cashflow" class="tab-content">
+        <div class="warning info">
+            <strong>📊 Cash-Flow Analyse:</strong> Vollständige Betrachtung aller Einnahmen, Ausgaben und 
+            steuerlichen Auswirkungen über die gesamte Haltedauer.
+        </div>
+
+        <div class="input-section">
+            <h3>💰 Einnahmen und Ausgaben</h3>
+            <div class="input-grid">
+                <div class="input-group">
+                    <label for="cf_jahresmiete">Jahresmiete (€)</label>
+                    <input type="number" id="cf_jahresmiete" value="18000" min="0">
+                </div>
+
+                <div class="input-group">
+                    <label for="cf_mietsteigerung">Jährliche Mietsteigerung (%)</label>
+                    <input type="number" id="cf_mietsteigerung" value="2.5" min="0" max="10" step="0.1">
+                </div>
+
+                <div class="input-group">
+                    <label for="cf_instandhaltung">Instandhaltung p.a. (€)</label>
+                    <input type="number" id="cf_instandhaltung" value="2000" min="0">
+                </div>
+
+                <div class="input-group">
+                    <label for="cf_verwaltung">Verwaltungskosten p.a. (€)</label>
+                    <input type="number" id="cf_verwaltung" value="800" min="0">
+                </div>
+
+                <div class="input-group">
+                    <label for="cf_versicherung">Versicherungen p.a. (€)</label>
+                    <input type="number" id="cf_versicherung" value="600" min="0">
+                </div>
+
+                <div class="input-group">
+                    <label for="cf_leerstand">Leerstandsrisiko (%)</label>
+                    <input type="number" id="cf_leerstand" value="2" min="0" max="20" step="0.1">
+                </div>
+
+                <div class="input-group">
+                    <label for="cf_finanzierung">Kreditzinsen p.a. (€)</label>
+                    <input type="number" id="cf_finanzierung" value="8000" min="0">
+                    <div class="input-help">Jährliche Zinszahlungen</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="cf_tilgung">Tilgung p.a. (€)</label>
+                    <input type="number" id="cf_tilgung" value="6000" min="0">
+                    <div class="input-help">Nicht steuerlich absetzbar</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="cf_wertsteigerung">Jährliche Wertsteigerung (%)</label>
+                    <input type="number" id="cf_wertsteigerung" value="2" min="-5" max="10" step="0.1">
+                </div>
+
+                <div class="input-group">
+                    <label for="cf_betrachtungszeitraum">Betrachtungszeitraum (Jahre)</label>
+                    <input type="number" id="cf_betrachtungszeitraum" value="15" min="1" max="30">
+                </div>
+            </div>
+        </div>
+
+        <button class="calculate-btn" onclick="calculateCashFlow()">📊 Cash-Flow analysieren</button>
+
+        <div class="cash-flow-chart" id="cashflow-chart">
+            <!-- Cash-Flow Chart wird hier eingefügt -->
+        </div>
+
+        <div id="cashflow-results">
+            <!-- Cash-Flow Ergebnisse -->
+        </div>
+
+        <div class="warning info">
+            <strong>📈 Cash-Flow Interpretation:</strong><br>
+            • <strong>Positiver Cash-Flow:</strong> Immobilie erwirtschaftet Überschuss<br>
+            • <strong>Negativer Cash-Flow:</strong> Zuzahlung nötig, aber steuerliche Vorteile<br>
+            • <strong>Break-Even:</strong> Neutraler Cash-Flow bei Wertsteigerung<br>
+            • <strong>Gesamtrendite:</strong> Berücksichtigt alle Faktoren inkl. Steuern
         </div>
     </div>
 </div>
 
-<!-- Firebase SDK -->
-<script type="module">
-    // Firebase Configuration (Ersetzen Sie mit Ihrer eigenen Config)
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { 
-        getFirestore, 
-        collection, 
-        addDoc, 
-        getDocs, 
-        doc, 
-        updateDoc, 
-        orderBy, 
-        query, 
-        serverTimestamp 
-    } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
-    // Firebase Configuration - Aktiviert für dauerhafte Kommentarspeicherung
-    const firebaseConfig = {
-        apiKey: "AIzaSyDKZpE30GmsZNhN28d2nT0SnyI_cN5esNE",
-        authDomain: "steuervergleich-kommentare.firebaseapp.com",
-        databaseURL: "https://steuervergleich-kommentare-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "steuervergleich-kommentare",
-        storageBucket: "steuervergleich-kommentare.firebasestorage.app",
-        messagingSenderId: "524534192125",
-        appId: "1:524534192125:web:9282205e4a3878b7696b94",
-        measurementId: "G-Y3NNN5KVX5"
-    };
-
-    let app, db;
-    let firebaseInitialized = false;
-
-    // Firebase initialisieren (falls korrekte Config vorhanden)
-    try {
-        // Firebase automatisch mit der Konfiguration initialisieren
-        app = initializeApp(firebaseConfig);
-        db = getFirestore(app);
-        firebaseInitialized = true;
-        console.log("✅ Firebase erfolgreich initialisiert - Kommentare werden global gespeichert");
-    } catch (error) {
-        console.error("❌ Firebase Initialisierung fehlgeschlagen:", error);
-        console.warn("🔄 Fallback: Verwende lokalen Speicher");
-        firebaseInitialized = false;
-    }
-
-    // Firebase Funktionen
-    async function loadCommentsFromFirebase() {
-        if (!firebaseInitialized) return [];
-        
-        try {
-            showLoading(true);
-            const q = query(collection(db, "kommentare"), orderBy("timestamp", "desc"));
-            const querySnapshot = await getDocs(q);
-            const comments = [];
-            
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                comments.push({
-                    id: doc.id,
-                    author: data.author,
-                    content: data.content,
-                    date: formatDate(data.timestamp),
-                    likes: data.likes || 0,
-                    dislikes: data.dislikes || 0,
-                    avatar: data.avatar,
-                    replies: data.replies || []
-                });
-            });
-            
-            showLoading(false);
-            return comments;
-        } catch (error) {
-            console.error("Fehler beim Laden der Kommentare:", error);
-            showNotification("❌ Fehler beim Laden der Kommentare", "error");
-            showLoading(false);
-            return getDefaultComments(); // Fallback zu lokalen Kommentaren
-        }
-    }
-
-    async function saveCommentToFirebase(comment) {
-        if (!firebaseInitialized) {
-            // Lokaler Fallback
-            return saveCommentLocally(comment);
-        }
-        
-        try {
-            const docRef = await addDoc(collection(db, "kommentare"), {
-                author: comment.author,
-                content: comment.content,
-                timestamp: serverTimestamp(),
-                likes: 0,
-                dislikes: 0,
-                avatar: comment.avatar,
-                replies: []
-            });
-            
-            return docRef.id;
-        } catch (error) {
-            console.error("Fehler beim Speichern:", error);
-            showNotification("❌ Fehler beim Speichern des Kommentars", "error");
-            throw error;
-        }
-    }
-
-    async function updateCommentInFirebase(commentId, updates) {
-        if (!firebaseInitialized) return;
-        
-        try {
-            const commentRef = doc(db, "kommentare", commentId);
-            await updateDoc(commentRef, updates);
-        } catch (error) {
-            console.error("Fehler beim Aktualisieren:", error);
-            showNotification("❌ Fehler beim Aktualisieren", "error");
-        }
-    }
-
-    function formatDate(timestamp) {
-        if (!timestamp) return "gerade eben";
-        
-        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-        const now = new Date();
-        const diffMs = now - date;
-        const diffMins = Math.floor(diffMs / 60000);
-        const diffHours = Math.floor(diffMs / 3600000);
-        const diffDays = Math.floor(diffMs / 86400000);
-        
-        if (diffMins < 1) return "gerade eben";
-        if (diffMins < 60) return `vor ${diffMins} Min`;
-        if (diffHours < 24) return `vor ${diffHours} Std`;
-        if (diffDays < 30) return `vor ${diffDays} Tag${diffDays > 1 ? 'en' : ''}`;
-        
-        return date.toLocaleDateString('de-DE');
-    }
-
-    function showLoading(show) {
-        const existingLoader = document.getElementById('comments-loader');
-        
-        if (show && !existingLoader) {
-            const loader = document.createElement('div');
-            loader.id = 'comments-loader';
-            loader.style.cssText = `
-                text-align: center;
-                padding: 40px;
-                color: #6c757d;
-                font-size: 1.1em;
-            `;
-            loader.innerHTML = `
-                <div style="display: inline-block; animation: spin 1s linear infinite;">🔄</div>
-                <div style="margin-top: 10px;">Kommentare werden geladen...</div>
-            `;
-            
-            const commentsList = document.getElementById('comments-list');
-            commentsList.appendChild(loader);
-            
-            // CSS für Spinner
-            if (!document.getElementById('spinner-style')) {
-                const style = document.createElement('style');
-                style.id = 'spinner-style';
-                style.textContent = `
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-        } else if (!show && existingLoader) {
-            existingLoader.remove();
-        }
-    }
-
-    // Globale Variablen für die normale Script-Umgebung
-    window.firebaseInitialized = firebaseInitialized;
-    window.loadCommentsFromFirebase = loadCommentsFromFirebase;
-    window.saveCommentToFirebase = saveCommentToFirebase;
-    window.updateCommentInFirebase = updateCommentInFirebase;
-</script>
-
 <script>
+    // Globale Variablen für Berechnungen
+    let berechungsdaten = {};
+
+    // Tab-Wechsel Funktionalität
+    function switchTab(tabName) {
+        // Alle Tabs deaktivieren
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        // Gewählten Tab aktivieren
+        document.getElementById(tabName).classList.add('active');
+        event.target.closest('.nav-tab').classList.add('active');
+    }
+
+    // Hilfsfunktionen für Formatierung
     function formatCurrency(amount) {
         return new Intl.NumberFormat('de-DE', {
             style: 'currency',
@@ -1001,8 +1032,8 @@
         return (rate).toFixed(1) + '%';
     }
 
-    function berechnen() {
-        // Eingabewerte erfassen
+    // Verkaufssteuer Berechnung (erweitert)
+    function calculateVerkauf() {
         const kaufpreis = parseFloat(document.getElementById('kaufpreis').value) || 0;
         const verkaufspreis = parseFloat(document.getElementById('verkaufspreis').value) || 0;
         const nebenkostenKauf = parseFloat(document.getElementById('nebenkosten_kauf').value) || 0;
@@ -1011,27 +1042,26 @@
         const haltedauer = parseFloat(document.getElementById('haltedauer').value) || 0;
         const persSteuersatz = parseFloat(document.getElementById('persoenlicher_steuersatz').value) || 0;
         const kirchensteuer = parseFloat(document.getElementById('kirchensteuer').value) || 0;
+        const einbringungNach = parseFloat(document.getElementById('einbringung_nach_jahren').value) || 0;
 
-        // Grundberechnungen
+        // Berechnungsdaten für andere Module speichern
+        berechungsdaten.immobilie = {
+            kaufpreis, verkaufspreis, nebenkostenKauf, nebenkostenVerkauf,
+            modernisierung, haltedauer, persSteuersatz, kirchensteuer, einbringungNach
+        };
+
         const gesamtkosten = kaufpreis + nebenkostenKauf + modernisierung;
         const bruttogewinn = verkaufspreis - nebenkostenVerkauf - gesamtkosten;
-
-        // Konstanten definieren
         const koerperschaftsteuer = 15;
         const soli = 5.5;
         const gesamtsteuersatz = persSteuersatz + (persSteuersatz * kirchensteuer / 100) + (persSteuersatz * soli / 100);
-        const einbringungNach = parseFloat(document.getElementById('einbringung_nach_jahren').value) || 0;
         
-        // Alle Strukturen berechnen
         const ergebnisse = [];
 
         // 1. Privatverkauf
         let steuer = 0;
-        let steuerfrei = false;
-        if (haltedauer >= 10) {
-            steuerfrei = true;
-            steuer = 0;
-        } else {
+        let steuerfrei = haltedauer >= 10;
+        if (!steuerfrei) {
             steuer = bruttogewinn * gesamtsteuersatz / 100;
         }
         ergebnisse.push({
@@ -1039,680 +1069,886 @@
             bruttogewinn: bruttogewinn,
             steuer: steuer,
             nettogewinn: bruttogewinn - steuer,
-            besonderheiten: steuerfrei ? 'Steuerfrei nach 10 Jahren' : 'Spekulationssteuer'
+            besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (§23 EStG)' : '⏰ Spekulationssteuer - noch ' + (10 - haltedauer).toFixed(1) + ' Jahre bis steuerfrei'
         });
 
         // 2. VV GbR
         ergebnisse.push({
             typ: 'VV GbR',
             bruttogewinn: bruttogewinn,
-            steuer: steuer, // Gleich wie Privatverkauf
+            steuer: steuer,
             nettogewinn: bruttogewinn - steuer,
-            besonderheiten: steuerfrei ? 'Steuerfrei nach 10 Jahren (wie Privatverkauf)' : 'Transparente Besteuerung, Spekulationssteuer'
+            besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (transparente Besteuerung)' : '⏰ Transparente Besteuerung, noch ' + (10 - haltedauer).toFixed(1) + ' Jahre bis steuerfrei'
         });
 
-        // 3. Gewerbliche GbR - KEINE 10-Jahres-Frist (gewerblich = Betriebseinnahmen)
-        const gewerbesteuer = 14;
-        const gewerbesteuerFreibetrag = 24500;
-        const gewerbesteuerBasis = Math.max(0, bruttogewinn - gewerbesteuerFreibetrag);
-        const gewerbesteuerBetrag = gewerbesteuerBasis * gewerbesteuer / 100;
-        const anrechnungsbetrag = gewerbesteuerBetrag * 3.8;
-        const einkommensteuerBasis = bruttogewinn - Math.min(anrechnungsbetrag, gewerbesteuerBetrag);
-        const einkommensteuer = einkommensteuerBasis * gesamtsteuersatz / 100;
-        const gesamtsteuerGewGbr = gewerbesteuerBetrag + einkommensteuer;
-
-        ergebnisse.push({
-            typ: 'Gewerbliche GbR',
-            bruttogewinn: bruttogewinn,
-            steuer: gesamtsteuerGewGbr,
-            nettogewinn: bruttogewinn - gesamtsteuerGewGbr,
-            besonderheiten: 'Gewerblich = KEINE 10-Jahres-Frist (§23 EStG gilt nicht bei Betriebseinnahmen)'
-        });
-
-        // 4. VV GmbH - Verkauf durch GmbH (nach Einbringung)
-        const gstBasisVV = Math.max(0, bruttogewinn - gewerbesteuerFreibetrag);
-        const gstBetragVV = gstBasisVV * gewerbesteuer / 100;
-        const kstBasisVV = bruttogewinn - gstBetragVV;
-        const kstBetragVV = kstBasisVV * koerperschaftsteuer / 100;
-        const soliVV = kstBetragVV * 5.5 / 100;
-        const gesamtsteuerVV = gstBetragVV + kstBetragVV + soliVV;
-        const nettoGewinnGmbhVV = bruttogewinn - gesamtsteuerVV;
-        const abgeltungsteuerVV = nettoGewinnGmbhVV * 26.375 / 100;
-        
-        let besonderheitVV = '❌ NIEMALS steuerfrei! Doppelbesteuerung: ~30% GmbH + ~26% Ausschüttung';
-        if (einbringungNach > 0 && einbringungNach >= 10) {
-            besonderheitVV = `✅ Einbringung nach ${einbringungNach} Jahren war steuerfrei, ❌ aber Verkauf durch GmbH = Doppelbesteuerung`;
-        } else if (einbringungNach > 0) {
-            besonderheitVV = `❌ Einbringung nach ${einbringungNach} Jahren war steuerpflichtig, Verkauf auch = Doppelbesteuerung`;
-        }
-        
-        ergebnisse.push({
-            typ: 'VV GmbH',
-            bruttogewinn: bruttogewinn,
-            steuer: gesamtsteuerVV + abgeltungsteuerVV,
-            nettogewinn: nettoGewinnGmbhVV - abgeltungsteuerVV,
-            besonderheiten: besonderheitVV
-        });
-
-        // 5. Gewerbliche GmbH  
-        const gstBetragGew = bruttogewinn * gewerbesteuer / 100;
-        const kstBasisGew = bruttogewinn - gstBetragGew;
-        const kstBetragGew = kstBasisGew * koerperschaftsteuer / 100;
-        const soliGew = kstBetragGew * 5.5 / 100;
-        const gesamtsteuerGew = gstBetragGew + kstBetragGew + soliGew;
-        const nettoGewinnGmbhGew = bruttogewinn - gesamtsteuerGew;
-        const abgeltungsteuerGew = nettoGewinnGmbhGew * 26.375 / 100;
-        
-        ergebnisse.push({
-            typ: 'Gewerbliche GmbH',
-            bruttogewinn: bruttogewinn,
-            steuer: gesamtsteuerGew + abgeltungsteuerGew,
-            nettogewinn: nettoGewinnGmbhGew - abgeltungsteuerGew,
-            besonderheiten: 'KEINE § 8b KStG Teilfreistellung bei gewerblicher Tätigkeit!'
-        });
-
-        // 6. VV GmbH & Co. KG - Transparente Besteuerung, 10-Jahres-Frist gilt, NEU: Gewerbesteuerbefreiung
+        // 3. VV GmbH & Co. KG - NEU: Gewerbesteuerbefreiung 2025
         if (haltedauer >= 10) {
             ergebnisse.push({
                 typ: 'VV GmbH & Co. KG',
                 bruttogewinn: bruttogewinn,
                 steuer: 0,
                 nettogewinn: bruttogewinn,
-                besonderheiten: '🏆 STEUERFREI nach 10 Jahren + BFH 2025: Gewerbesteuerbefreiung für "aufwärts abgefärbte" Strukturen!'
+                besonderheiten: '🏆 STEUERFREI nach 10 Jahren + BFH 2025: Gewerbesteuerbefreiung!'
             });
         } else {
-            // NEU: Gewerbesteuerbefreiung für rein vermögensverwaltende "aufwärts abgefärbte" Strukturen
-            const steuerVVKGOhneGewSt = bruttogewinn * gesamtsteuersatz / 100;
+            const steuerVVKG = bruttogewinn * gesamtsteuersatz / 100;
             ergebnisse.push({
                 typ: 'VV GmbH & Co. KG',
                 bruttogewinn: bruttogewinn,
-                steuer: steuerVVKGOhneGewSt,
-                nettogewinn: bruttogewinn - steuerVVKGOhneGewSt,
-                besonderheiten: '⭐ BFH 2025: GEWERBESTEUERFREI als "aufwärts abgefärbte" Struktur + wird nach 10 Jahren komplett steuerfrei!'
+                steuer: steuerVVKG,
+                nettogewinn: bruttogewinn - steuerVVKG,
+                besonderheiten: '⭐ BFH 2025: GEWERBESTEUERFREI + wird nach 10 Jahren komplett steuerfrei!'
             });
         }
 
-        // 7. Gewerbliche GmbH & Co. KG - KEINE 10-Jahres-Frist (gewerblich)
-        ergebnisse.push({
-            typ: 'Gew. GmbH & Co. KG',
-            bruttogewinn: bruttogewinn,
-            steuer: gesamtsteuerGewGbr,
-            nettogewinn: bruttogewinn - gesamtsteuerGewGbr,
-            besonderheiten: 'Gewerblich = KEINE 10-Jahres-Frist, aber Gewerbesteueranrechnung'
-        });
-
-        // 8. VV UG - Verkauf durch UG (nach Einbringung)
-        const gstBasisUG = Math.max(0, bruttogewinn - gewerbesteuerFreibetrag);
-        const gstBetragUG = gstBasisUG * gewerbesteuer / 100;
-        const kstBasisUG = bruttogewinn - gstBetragUG;
-        const kstBetragUG = kstBasisUG * koerperschaftsteuer / 100;
-        const soliUG = kstBetragUG * 5.5 / 100;
-        const gesamtsteuerUG = gstBetragUG + kstBetragUG + soliUG;
-        const nettoGewinnUG = bruttogewinn - gesamtsteuerUG;
+        // 4. VV GmbH (mit Doppelbesteuerung)
+        const gewerbesteuer = 14;
+        const gewerbesteuerFreibetrag = 24500;
+        const gstBasis = Math.max(0, bruttogewinn - gewerbesteuerFreibetrag);
+        const gstBetrag = gstBasis * gewerbesteuer / 100;
+        const kstBasis = bruttogewinn - gstBetrag;
+        const kstBetrag = kstBasis * koerperschaftsteuer / 100;
+        const soli_gmbh = kstBetrag * 5.5 / 100;
+        const gesamtsteuerGmbh = gstBetrag + kstBetrag + soli_gmbh;
+        const nettoGmbh = bruttogewinn - gesamtsteuerGmbh;
+        const abgeltungsteuer = nettoGmbh * 26.375 / 100;
         
-        const thesaurierungsbedarf = Math.max(0, 25000 - 1);
-        const thesaurierung = Math.min(nettoGewinnUG * 0.25, thesaurierungsbedarf);
-        const ausschuettbareGewinnUG = nettoGewinnUG - thesaurierung;
-        const abgeltungsteuerUG = ausschuettbareGewinnUG * 26.375 / 100;
-        
-        let besonderheitUG = '❌ NIEMALS steuerfrei! Doppelbesteuerung + 25% Thesaurierungspflicht';
+        let besonderheitGmbh = '❌ NIEMALS steuerfrei! Doppelbesteuerung: ~30% GmbH + ~26% Ausschüttung = ~48-50%';
         if (einbringungNach > 0 && einbringungNach >= 10) {
-            besonderheitUG = `✅ Einbringung nach ${einbringungNach} Jahren war steuerfrei, ❌ aber Verkauf durch UG = Doppelbesteuerung + Thesaurierung`;
+            besonderheitGmbh = `✅ Einbringung nach ${einbringungNach} Jahren war steuerfrei, ❌ aber Verkauf durch GmbH = Doppelbesteuerung`;
         } else if (einbringungNach > 0) {
-            besonderheitUG = `❌ Einbringung nach ${einbringungNach} Jahren war steuerpflichtig, Verkauf auch = Doppelbesteuerung + Thesaurierung`;
+            besonderheitGmbh = `❌ Einbringung nach ${einbringungNach} Jahren war steuerpflichtig, Verkauf auch = Doppelbesteuerung`;
         }
-            
+        
         ergebnisse.push({
-            typ: 'VV UG',
+            typ: 'VV GmbH',
             bruttogewinn: bruttogewinn,
-            steuer: gesamtsteuerUG + abgeltungsteuerUG,
-            nettogewinn: ausschuettbareGewinnUG - abgeltungsteuerUG + thesaurierung,
-            besonderheiten: besonderheitUG
+            steuer: gesamtsteuerGmbh + abgeltungsteuer,
+            nettogewinn: nettoGmbh - abgeltungsteuer,
+            besonderheiten: besonderheitGmbh
         });
 
-        // Ergebnisse anzeigen
-        zeigeErgebnisse(ergebnisse);
+        // 5. Gewerbliche Strukturen
+        const gewerbesteuerGesamt = bruttogewinn * gewerbesteuer / 100;
+        const anrechnungsbetrag = gewerbesteuerGesamt * 3.8;
+        const einkommensteuerBasis = bruttogewinn - Math.min(anrechnungsbetrag, gewerbesteuerGesamt);
+        const einkommensteuer = einkommensteuerBasis * gesamtsteuersatz / 100;
+        const gesamtsteuerGewerblich = gewerbesteuerGesamt + einkommensteuer;
+
+        ergebnisse.push({
+            typ: 'Gewerbliche GbR',
+            bruttogewinn: bruttogewinn,
+            steuer: gesamtsteuerGewerblich,
+            nettogewinn: bruttogewinn - gesamtsteuerGewerblich,
+            besonderheiten: '❌ Gewerblich = KEINE 10-Jahres-Frist (§23 EStG gilt nicht), aber Gewerbesteueranrechnung'
+        });
+
+        displayVerkaufResults(ergebnisse);
     }
 
-    function zeigeErgebnisse(ergebnisse) {
-        const resultsGrid = document.getElementById('results-grid');
-        const comparisonTable = document.getElementById('comparison-table');
-        const comparisonBody = document.getElementById('comparison-body');
-
-        // Beste Option ermitteln
+    function displayVerkaufResults(ergebnisse) {
         const besteOption = ergebnisse.reduce((beste, aktuelle) => 
             aktuelle.nettogewinn > beste.nettogewinn ? aktuelle : beste
         );
 
-        // Ergebniskarten erstellen
-        resultsGrid.innerHTML = '';
+        let html = `
+            <h3 style="text-align: center; color: #2c3e50; margin: 30px 0;">📊 Verkaufssteuer-Vergleich Ergebnisse</h3>
+            <div class="results-grid">
+        `;
+
+        ergebnisse.forEach(option => {
+            const isBest = option.typ === besteOption.typ;
+            html += `
+                <div class="result-card ${isBest ? 'best-option' : ''}">
+                    <h4>${option.typ} ${isBest ? '🏆' : ''}</h4>
+                    <div class="result-item">
+                        <span class="result-label">Bruttogewinn:</span>
+                        <span class="result-value">${formatCurrency(option.bruttogewinn)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Steuern gesamt:</span>
+                        <span class="result-value negative">${formatCurrency(option.steuer)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Nettogewinn:</span>
+                        <span class="result-value">${formatCurrency(option.nettogewinn)}</span>
+                    </div>
+                    <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; font-size: 0.85em; color: #6c757d;">
+                        ${option.besonderheiten}
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `</div>`;
+
+        // Vergleichstabelle
+        html += `
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Struktur</th>
+                        <th>Nettogewinn</th>
+                        <th>Steuern</th>
+                        <th>Steuerquote</th>
+                        <th>Besonderheiten</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        ergebnisse.forEach(option => {
+            const isBest = option.typ === besteOption.typ;
+            html += `
+                <tr ${isBest ? 'class="best-option"' : ''}>
+                    <td><strong>${option.typ}</strong></td>
+                    <td>${formatCurrency(option.nettogewinn)}</td>
+                    <td>${formatCurrency(option.steuer)}</td>
+                    <td>${formatPercent(option.bruttogewinn > 0 ? option.steuer / option.bruttogewinn * 100 : 0)}</td>
+                    <td style="font-size: 0.8em;">${option.besonderheiten}</td>
+                </tr>
+            `;
+        });
+
+        html += `</tbody></table>`;
+
+        document.getElementById('verkauf-results').innerHTML = html;
+    }
+
+    // Grundsteuer Berechnung
+    function calculateGrundsteuer() {
+        const grundstueckswert = parseFloat(document.getElementById('grundstueckswert').value) || 0;
+        const immobilientyp = document.getElementById('immobilientyp').value;
+        const hebesatz = parseFloat(document.getElementById('gemeinde_hebesatz').value) || 0;
+        const bundeslandModell = document.getElementById('grundsteuer_bundesland').value;
+        const nutzungsart = document.getElementById('vermietung_typ').value;
+
+        // Grundsteuermesszahl je nach Immobilientyp
+        let messzahl = 0.34; // Standard für bebaute Grundstücke
+        if (immobilientyp === 'einfamilienhaus' || immobilientyp === 'mietwohnung' || immobilientyp === 'eigentumswohnung') {
+            messzahl = 0.31;
+        }
+
+        // Bundesland-spezifische Anpassungen
+        if (bundeslandModell === 'hh') {
+            messzahl = 0.70; // Hamburg Sonderregelung
+        } else if (bundeslandModell === 'sl') {
+            messzahl = 0.38; // Saarland Anpassung
+        }
+
+        const messbetrag = grundstueckswert * messzahl / 1000;
+        const grundsteuerBetrag = messbetrag * hebesatz / 100;
+
+        // Steuerliche Behandlung
+        let steuerlicheBehandlung = '';
+        let ersparnis = 0;
         
-        ergebnisse.forEach(option => {
-            const isBest = option.typ === besteOption.typ;
-            const card = document.createElement('div');
-            card.className = `result-card ${isBest ? 'best-option' : ''}`;
+        if (nutzungsart === 'vermietung') {
+            ersparnis = grundsteuerBetrag * (berechungsdaten.immobilie?.persSteuersatz || 42) / 100;
+            steuerlicheBehandlung = `Als Werbungskosten absetzbar. Jährliche Steuerersparnis: ${formatCurrency(ersparnis)}`;
+        } else if (nutzungsart === 'gewerbe') {
+            ersparnis = grundsteuerBetrag * (berechungsdaten.immobilie?.persSteuersatz || 42) / 100;
+            steuerlicheBehandlung = `Als Betriebsausgabe absetzbar. Jährliche Steuerersparnis: ${formatCurrency(ersparnis)}`;
+        } else if (nutzungsart === 'eigennutzung') {
+            steuerlicheBehandlung = 'Nicht steuerlich absetzbar bei Eigennutzung';
+        } else if (nutzungsart === 'leerstand') {
+            steuerlicheBehandlung = 'Erlass bei unverschuldetem Leerstand möglich';
+        }
+
+        let html = `
+            <h3 style="text-align: center; color: #2c3e50; margin: 30px 0;">🏛️ Grundsteuer-Berechnung 2025</h3>
+            <div class="results-grid">
+                <div class="result-card">
+                    <h4>📊 Grundsteuer-Berechnung</h4>
+                    <div class="result-item">
+                        <span class="result-label">Grundsteuerwert:</span>
+                        <span class="result-value">${formatCurrency(grundstueckswert)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Grundsteuermesszahl:</span>
+                        <span class="result-value">${messzahl}‰</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Grundsteuermessbetrag:</span>
+                        <span class="result-value">${formatCurrency(messbetrag)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Hebesatz Gemeinde:</span>
+                        <span class="result-value">${hebesatz}%</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Grundsteuer pro Jahr:</span>
+                        <span class="result-value negative">${formatCurrency(grundsteuerBetrag)}</span>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h4>💡 Steuerliche Auswirkungen</h4>
+                    <div class="result-item">
+                        <span class="result-label">Nutzungsart:</span>
+                        <span class="result-value">${nutzungsart}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Steuerliche Behandlung:</span>
+                        <span class="result-value">Siehe unten</span>
+                    </div>
+                    ${ersparnis > 0 ? `
+                    <div class="result-item">
+                        <span class="result-label">Steuerersparnis p.a.:</span>
+                        <span class="result-value">${formatCurrency(ersparnis)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Nettobelastung p.a.:</span>
+                        <span class="result-value negative">${formatCurrency(grundsteuerBetrag - ersparnis)}</span>
+                    </div>
+                    ` : ''}
+                    <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; font-size: 0.85em; color: #6c757d;">
+                        ${steuerlicheBehandlung}
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h4>📈 Vergleich zur alten Grundsteuer</h4>
+                    <div style="padding: 15px; background: #fff3cd; border-radius: 8px; margin: 10px 0; font-size: 0.9em; color: #856404;">
+                        <strong>⚠️ Hinweis:</strong> Die neue Grundsteuer kann erheblich von der bisherigen abweichen. 
+                        In vielen Kommunen sind Steigerungen von 100-300% möglich, besonders in begehrten Lagen.
+                    </div>
+                    <div style="padding: 15px; background: #e3f2fd; border-radius: 8px; margin: 10px 0; font-size: 0.9em; color: #1565c0;">
+                        <strong>💡 Einspruch möglich:</strong> Bei über 40% Abweichung zum tatsächlichen Marktwert 
+                        können Sie binnen eines Monats Einspruch gegen den Grundsteuerwertbescheid einlegen.
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('grundsteuer-results').innerHTML = html;
+    }
+
+    // Erbschaftsteuer Berechnung
+    function calculateErbschaftsteuer() {
+        const immobilienwert = parseFloat(document.getElementById('immobilienwert_erbe').value) || 0;
+        const weiteresVermoegen = parseFloat(document.getElementById('weiteres_vermoegen').value) || 0;
+        const schulden = parseFloat(document.getElementById('schulden').value) || 0;
+        const verwandtschaftsgrad = document.getElementById('verwandtschaftsgrad').value;
+        const wohnflaeche = parseFloat(document.getElementById('wohnflaeche').value) || 0;
+        const selbstnutzungErblasser = document.getElementById('selbstnutzung_erblasser').value;
+        const selbstnutzungErbe = document.getElementById('selbstnutzung_erbe').value;
+
+        // Erbfallkostenpauschale (2025: 15.000€)
+        const erbfallkosten = 15000;
+        
+        // Freibeträge und Steuerklassen
+        const freibetraege = {
+            'ehepartner': 500000,
+            'kind': 400000,
+            'enkel': 200000,
+            'eltern': 100000,
+            'geschwister': 20000,
+            'andere': 20000
+        };
+
+        const steuerklassen = {
+            'ehepartner': 1,
+            'kind': 1,
+            'enkel': 1,
+            'eltern': 2,
+            'geschwister': 2,
+            'andere': 3
+        };
+
+        const steuersaetze = {
+            1: [7, 11, 15, 19, 23, 27, 30],
+            2: [15, 20, 25, 30, 35, 40, 43],
+            3: [30, 35, 40, 45, 50]
+        };
+
+        const grenzen = [75000, 300000, 600000, 6000000, 13000000, 26000000];
+
+        const freibetrag = freibetraege[verwandtschaftsgrad];
+        const steuerklasse = steuerklassen[verwandtschaftsgrad];
+
+        // Familienheim-Steuerbefreiung prüfen
+        let familienheimBefreiung = false;
+        let familienheimWert = 0;
+
+        if ((verwandtschaftsgrad === 'ehepartner' || verwandtschaftsgrad === 'kind') && 
+            selbstnutzungErblasser === 'ja' && selbstnutzungErbe === 'ja') {
             
-            card.innerHTML = `
-                <h3>${option.typ} ${isBest ? '🏆' : ''}</h3>
-                <div class="result-item">
-                    <span class="result-label">Bruttogewinn:</span>
-                    <span class="result-value">${formatCurrency(option.bruttogewinn)}</span>
+            if (verwandtschaftsgrad === 'ehepartner') {
+                familienheimBefreiung = true;
+                familienheimWert = immobilienwert;
+            } else if (verwandtschaftsgrad === 'kind' && wohnflaeche <= 200) {
+                familienheimBefreiung = true;
+                familienheimWert = immobilienwert;
+            }
+        }
+
+        // Steuerpflichtiges Vermögen berechnen
+        const gesamtvermoegen = immobilienwert + weiteresVermoegen - schulden - erbfallkosten;
+        const steuerpflichtigerWert = familienheimBefreiung ? 
+            Math.max(0, gesamtvermoegen - familienheimWert - freibetrag) :
+            Math.max(0, gesamtvermoegen - freibetrag);
+
+        // Steuersatz ermitteln
+        let steuersatz = 0;
+        if (steuerpflichtigerWert > 0) {
+            const satzTabelle = steuersaetze[steuerklasse];
+            for (let i = 0; i < grenzen.length; i++) {
+                if (steuerpflichtigerWert <= grenzen[i]) {
+                    steuersatz = satzTabelle[i];
+                    break;
+                }
+            }
+            if (steuersatz === 0) {
+                steuersatz = satzTabelle[satzTabelle.length - 1];
+            }
+        }
+
+        const erbschaftsteuer = steuerpflichtigerWert * steuersatz / 100;
+
+        let html = `
+            <h3 style="text-align: center; color: #2c3e50; margin: 30px 0;">👨‍👩‍👧‍👦 Erbschaftsteuer-Berechnung</h3>
+            <div class="results-grid">
+                <div class="result-card">
+                    <h4>💰 Vermögensaufstellung</h4>
+                    <div class="result-item">
+                        <span class="result-label">Immobilienwert:</span>
+                        <span class="result-value">${formatCurrency(immobilienwert)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Weiteres Vermögen:</span>
+                        <span class="result-value">${formatCurrency(weiteresVermoegen)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Schulden:</span>
+                        <span class="result-value negative">-${formatCurrency(schulden)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Erbfallkosten:</span>
+                        <span class="result-value negative">-${formatCurrency(erbfallkosten)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Gesamtvermögen:</span>
+                        <span class="result-value">${formatCurrency(gesamtvermoegen)}</span>
+                    </div>
                 </div>
-                <div class="result-item">
-                    <span class="result-label">Steuern gesamt:</span>
-                    <span class="result-value negative">${formatCurrency(option.steuer)}</span>
+
+                <div class="result-card ${familienheimBefreiung ? 'best-option' : ''}">
+                    <h4>🏠 Familienheim-Befreiung</h4>
+                    <div class="result-item">
+                        <span class="result-label">Berechtigt:</span>
+                        <span class="result-value">${familienheimBefreiung ? 'Ja ✅' : 'Nein ❌'}</span>
+                    </div>
+                    ${familienheimBefreiung ? `
+                    <div class="result-item">
+                        <span class="result-label">Steuerfreier Wert:</span>
+                        <span class="result-value">${formatCurrency(familienheimWert)}</span>
+                    </div>
+                    ` : ''}
+                    <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; font-size: 0.85em; color: #6c757d;">
+                        ${familienheimBefreiung ? 
+                            '✅ Familienheim ist steuerfrei! Bedingung: 10 Jahre Eigennutzung' :
+                            'Voraussetzungen für Familienheim-Befreiung nicht erfüllt'
+                        }
+                    </div>
                 </div>
-                <div class="result-item">
-                    <span class="result-label">Nettogewinn:</span>
-                    <span class="result-value">${formatCurrency(option.nettogewinn)}</span>
+
+                <div class="result-card">
+                    <h4>⚖️ Steuerberechnung</h4>
+                    <div class="result-item">
+                        <span class="result-label">Verwandtschaftsgrad:</span>
+                        <span class="result-value">${verwandtschaftsgrad}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Freibetrag:</span>
+                        <span class="result-value">${formatCurrency(freibetrag)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Steuerklasse:</span>
+                        <span class="result-value">${steuerklasse}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Steuerpflichtiger Wert:</span>
+                        <span class="result-value">${formatCurrency(steuerpflichtigerWert)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Steuersatz:</span>
+                        <span class="result-value">${steuersatz}%</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Erbschaftsteuer:</span>
+                        <span class="result-value ${erbschaftsteuer > 0 ? 'negative' : ''}">${formatCurrency(erbschaftsteuer)}</span>
+                    </div>
                 </div>
-                <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; font-size: 0.9em; color: #6c757d;">
-                    ${option.besonderheiten}
+            </div>
+
+            ${erbschaftsteuer > 0 ? `
+            <div class="warning danger">
+                <strong>💸 Steuerbelastung: ${formatCurrency(erbschaftsteuer)}</strong><br>
+                Das entspricht ${formatPercent(erbschaftsteuer / gesamtvermoegen * 100)} des Gesamtvermögens. 
+                Bei Liquiditätsproblemen könnte ein Verkauf der Immobilie nötig werden.
+            </div>
+            ` : `
+            <div class="warning success">
+                <strong>🎉 Keine Erbschaftsteuer!</strong><br>
+                ${familienheimBefreiung ? 'Dank Familienheim-Befreiung und ' : ''}Freibetrag reicht aus.
+            </div>
+            `}
+        `;
+
+        document.getElementById('erbschaft-results').innerHTML = html;
+    }
+
+    // Schenkungssteuer Berechnung
+    function calculateSchenkung() {
+        const immobilienwert = parseFloat(document.getElementById('schenkung_immobilienwert').value) || 0;
+        const schenkungsanteil = parseFloat(document.getElementById('schenkung_anteil').value) || 0;
+        const verwandtschaft = document.getElementById('schenkung_verwandtschaft').value;
+        const niessbrauch = document.getElementById('niessbrauch').value;
+        const jahresmiete = parseFloat(document.getElementById('jahresmiete').value) || 0;
+        const alterSchenker = parseFloat(document.getElementById('alter_schenker').value) || 0;
+        const vorherigeSchenkungen = parseFloat(document.getElementById('vorherige_schenkungen').value) || 0;
+        const geplantePerioden = parseFloat(document.getElementById('geplante_schritte').value) || 1;
+
+        const schenkungswert = immobilienwert * schenkungsanteil / 100;
+
+        // Freibeträge (gleich wie Erbschaftsteuer)
+        const freibetraege = {
+            'ehepartner': 500000,
+            'kind': 400000,
+            'enkel': 200000,
+            'eltern': 100000,
+            'geschwister': 20000,
+            'andere': 20000
+        };
+
+        const freibetrag = freibetraege[verwandtschaft];
+
+        // Nießbrauchswert berechnen
+        let niessbrauchswert = 0;
+        if (niessbrauch === 'ja' && jahresmiete > 0) {
+            // Vereinfachte Berechnung: Jahresmiete × Kapitalisierungsfaktor
+            const kapitalisierungsfaktor = Math.max(1, 18.6 - (alterSchenker - 50) * 0.5);
+            niessbrauchswert = jahresmiete * kapitalisierungsfaktor;
+        } else if (niessbrauch === 'wohnrecht' && jahresmiete > 0) {
+            const kapitalisierungsfaktor = Math.max(1, 18.6 - (alterSchenker - 50) * 0.5);
+            niessbrauchswert = jahresmiete * 0.6 * kapitalisierungsfaktor; // Wohnrecht = 60% des Nießbrauchs
+        }
+
+        const bereinigterschenkungswert = Math.max(0, schenkungswert - niessbrauchswert);
+        
+        // Mehrperioden-Strategie
+        const schenkungProPeriode = bereinigterschenkungswert / geplantePerioden;
+        const gesamteFreibetraege = freibetrag * geplantePerioden;
+        const gesamteSchenkungsteuer = Math.max(0, bereinigterschenkungswert - gesamteFreibetraege) * 0.15; // Vereinfachter Steuersatz
+
+        // Aktuelle Periode
+        const aktuellerSchenkungswert = vorherigeSchenkungen + schenkungProPeriode;
+        const aktuelleSchenkungsteuer = Math.max(0, aktuellerSchenkungswert - freibetrag) * 0.15;
+
+        let html = `
+            <h3 style="text-align: center; color: #2c3e50; margin: 30px 0;">🎁 Schenkungssteuer-Optimierung</h3>
+            <div class="results-grid">
+                <div class="result-card">
+                    <h4>🏠 Schenkungsgegenstand</h4>
+                    <div class="result-item">
+                        <span class="result-label">Gesamtimmobilienwert:</span>
+                        <span class="result-value">${formatCurrency(immobilienwert)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Schenkungsanteil:</span>
+                        <span class="result-value">${schenkungsanteil}%</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Schenkungswert brutto:</span>
+                        <span class="result-value">${formatCurrency(schenkungswert)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Nießbrauchswert:</span>
+                        <span class="result-value negative">-${formatCurrency(niessbrauchswert)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Schenkungswert netto:</span>
+                        <span class="result-value">${formatCurrency(bereinigterschenkungswert)}</span>
+                    </div>
                 </div>
-            `;
-            
-            resultsGrid.appendChild(card);
+
+                <div class="result-card">
+                    <h4>📊 Einperioden-Strategie</h4>
+                    <div class="result-item">
+                        <span class="result-label">Freibetrag:</span>
+                        <span class="result-value">${formatCurrency(freibetrag)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Steuerpflichtiger Wert:</span>
+                        <span class="result-value">${formatCurrency(Math.max(0, bereinigterschenkungswert - freibetrag))}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Schenkungsteuer:</span>
+                        <span class="result-value negative">${formatCurrency(Math.max(0, bereinigterschenkungswert - freibetrag) * 0.15)}</span>
+                    </div>
+                </div>
+
+                <div class="result-card best-option">
+                    <h4>🎯 Mehrperioden-Strategie (${geplantePerioden} × 10 Jahre)</h4>
+                    <div class="result-item">
+                        <span class="result-label">Schenkung pro Periode:</span>
+                        <span class="result-value">${formatCurrency(schenkungProPeriode)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Gesamte Freibeträge:</span>
+                        <span class="result-value">${formatCurrency(gesamteFreibetraege)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Gesamte Steuerersparnis:</span>
+                        <span class="result-value">${formatCurrency(Math.max(0, bereinigterschenkungswert - freibetrag) * 0.15 - gesamteSchenkungsteuer)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Optimierte Schenkungsteuer:</span>
+                        <span class="result-value negative">${formatCurrency(gesamteSchenkungsteuer)}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-comparison">
+                <h3>📈 Schenkungsstrategie-Vergleich</h3>
+                <div class="scenario-grid">
+                    <div class="scenario-card">
+                        <h4>💸 Ohne Optimierung</h4>
+                        <p><strong>Sofortige Schenkung:</strong> ${formatCurrency(Math.max(0, bereinigterschenkungswert - freibetrag) * 0.15)} Steuern</p>
+                        <p><strong>Nettoübertragung:</strong> ${formatCurrency(bereinigterschenkungswert - Math.max(0, bereinigterschenkungswert - freibetrag) * 0.15)}</p>
+                    </div>
+                    <div class="scenario-card" style="border-left-color: #27ae60;">
+                        <h4>🎯 Mit Optimierung</h4>
+                        <p><strong>Optimierte Steuern:</strong> ${formatCurrency(gesamteSchenkungsteuer)}</p>
+                        <p><strong>Nettoübertragung:</strong> ${formatCurrency(bereinigterschenkungswert - gesamteSchenkungsteuer)}</p>
+                        <p><strong>Ersparnis:</strong> ${formatCurrency(Math.max(0, bereinigterschenkungswert - freibetrag) * 0.15 - gesamteSchenkungsteuer)}</p>
+                    </div>
+                    ${niessbrauchswert > 0 ? `
+                    <div class="scenario-card" style="border-left-color: #3498db;">
+                        <h4>🏠 Nießbrauch-Vorteil</h4>
+                        <p><strong>Jährliche Einnahmen:</strong> ${formatCurrency(jahresmiete)}</p>
+                        <p><strong>Steuerersparnis durch Nießbrauch:</strong> ${formatCurrency(niessbrauchswert * 0.15)}</p>
+                        <p><strong>Verbleiben beim Schenker:</strong> Nutzung + Einnahmen</p>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+
+        document.getElementById('schenkung-results').innerHTML = html;
+    }
+
+    // Gesamtstrategie Berechnung
+    function calculateGesamtstrategie() {
+        // Hier würde eine komplexe Gesamtanalyse erfolgen
+        const alter = parseFloat(document.getElementById('strategie_alter').value) || 45;
+        const risiko = document.getElementById('strategie_risiko').value;
+        const liquiditaet = document.getElementById('strategie_liquiditaet').value;
+        const nachfolge = document.getElementById('strategie_nachfolge').value;
+        const weitereImmobilien = document.getElementById('strategie_weitere_immobilien').value;
+        const einkommen = parseFloat(document.getElementById('strategie_einkommen').value) || 0;
+
+        // Vereinfachte Strategieempfehlung basierend auf Parametern
+        let strategieempfehlung = '';
+        let timeline_aktiv = [];
+
+        if (alter < 40) {
+            if (weitereImmobilien === 'portfolio') {
+                strategieempfehlung = 'VV GmbH & Co. KG für Portfolio-Aufbau';
+                timeline_aktiv = ['kauf', 'haltung'];
+            } else {
+                strategieempfehlung = 'VV GbR oder privat für erste Immobilie';
+                timeline_aktiv = ['kauf', 'haltung'];
+            }
+        } else if (alter < 55) {
+            if (nachfolge === 'kinder') {
+                strategieempfehlung = 'Strukturierte Übertragung mit Schenkungsstrategie';
+                timeline_aktiv = ['haltung', 'optimierung'];
+            } else {
+                strategieempfehlung = 'Renditeoptimierung mit VV GmbH & Co. KG';
+                timeline_aktiv = ['optimierung'];
+            }
+        } else {
+            strategieempfehlung = 'Nachfolgeplanung und steueroptimierte Übertragung';
+            timeline_aktiv = ['optimierung', 'exit'];
+        }
+
+        // Timeline aktivieren
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        timeline_aktiv.forEach(id => {
+            const element = document.getElementById('timeline-' + id);
+            if (element) element.classList.add('active');
         });
 
-        // Vergleichstabelle aktualisieren
-        comparisonBody.innerHTML = '';
-        ergebnisse.forEach(option => {
-            const isBest = option.typ === besteOption.typ;
-            const row = document.createElement('tr');
-            if (isBest) row.className = 'best-option';
-            
-            row.innerHTML = `
-                <td><strong>${option.typ}</strong></td>
-                <td>${formatCurrency(option.nettogewinn)}</td>
-                <td>${formatCurrency(option.steuer)}</td>
-                <td>${formatPercent(option.steuer / option.bruttogewinn * 100)}</td>
-                <td style="font-size: 0.8em;">${option.besonderheiten}</td>
-            `;
-            
-            comparisonBody.appendChild(row);
+        // Szenarien für 10, 20, 30 Jahre berechnen
+        const szenarien = [];
+        const grunddaten = berechungsdaten.immobilie || {};
+        const bruttogewinn = (grunddaten.verkaufspreis || 450000) - (grunddaten.kaufpreis || 300000) - (grunddaten.nebenkosten_kauf || 30000) - (grunddaten.modernisierung || 50000);
+
+        [10, 20, 30].forEach(jahre => {
+            const wertentwicklung = Math.pow(1.02, jahre); // 2% p.a.
+            const zukuenftigerWert = (grunddaten.verkaufspreis || 450000) * wertentwicklung;
+            const zukuenftigerGewinn = zukuenftigerWert - (grunddaten.kaufpreis || 300000) - (grunddaten.nebenkosten_kauf || 30000) - (grunddaten.modernisierung || 50000);
+
+            let steuer = 0;
+            let struktur = '';
+
+            if (jahre >= 10) {
+                struktur = 'Steuerfrei (§23 EStG)';
+            } else if (alter + jahre > 60) {
+                struktur = 'VV GmbH & Co. KG (gewerbesteuerfrei)';
+                steuer = zukuenftigerGewinn * 0.3; // Vereinfacht
+            } else {
+                struktur = 'VV GbR';
+                steuer = zukuenftigerGewinn * 0.4; // Vereinfacht
+            }
+
+            szenarien.push({
+                jahre: jahre,
+                wert: zukuenftigerWert,
+                gewinn: zukuenftigerGewinn,
+                steuer: steuer,
+                netto: zukuenftigerGewinn - steuer,
+                struktur: struktur
+            });
         });
 
-        comparisonTable.style.display = 'table';
+        let html = `
+            <h3 style="text-align: center; color: #2c3e50; margin: 30px 0;">🎯 Ihre optimale Strategie</h3>
+            <div class="warning success">
+                <strong>💡 Strategieempfehlung für Sie:</strong><br>
+                ${strategieempfehlung}<br><br>
+                <strong>Begründung:</strong> Basierend auf Ihrem Alter (${alter}), Risikobereitschaft (${risiko}) und 
+                Nachfolgeplanung (${nachfolge}) ist dies die steueroptimale Lösung.
+            </div>
+
+            <div class="scenario-comparison">
+                <h3>📊 Langzeit-Szenarien</h3>
+                <div class="scenario-grid">
+        `;
+
+        szenarien.forEach(szenario => {
+            html += `
+                <div class="scenario-card">
+                    <h4>📅 Nach ${szenario.jahre} Jahren</h4>
+                    <p><strong>Immobilienwert:</strong> ${formatCurrency(szenario.wert)}</p>
+                    <p><strong>Gewinn brutto:</strong> ${formatCurrency(szenario.gewinn)}</p>
+                    <p><strong>Steuern:</strong> ${formatCurrency(szenario.steuer)}</p>
+                    <p><strong>Gewinn netto:</strong> ${formatCurrency(szenario.netto)}</p>
+                    <p><strong>Beste Struktur:</strong> ${szenario.struktur}</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${Math.min(100, szenario.netto / szenarien[2].netto * 100)}%"></div>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += `
+                </div>
+            </div>
+
+            <div class="warning info">
+                <strong>🎯 Nächste Schritte:</strong><br>
+                1. <strong>Sofort:</strong> ${timeline_aktiv.includes('kauf') ? 'Struktur für Kauf festlegen' : 'Aktuelle Struktur prüfen'}<br>
+                2. <strong>Mittelfristig:</strong> ${timeline_aktiv.includes('optimierung') ? 'Optimierung/Umstrukturierung planen' : 'Portfolio-Entwicklung'}<br>
+                3. <strong>Langfristig:</strong> ${nachfolge !== 'keine' ? 'Nachfolgeplanung konkretisieren' : 'Exit-Strategie entwickeln'}<br><br>
+                <strong>⚠️ Wichtig:</strong> Lassen Sie sich von einem Steuerberater beraten, der auf Immobilienstrukturen spezialisiert ist.
+            </div>
+        `;
+
+        document.getElementById('strategie-results').innerHTML = html;
+    }
+
+    // Cash-Flow Analyse
+    function calculateCashFlow() {
+        const jahresmiete = parseFloat(document.getElementById('cf_jahresmiete').value) || 0;
+        const mietsteigerung = parseFloat(document.getElementById('cf_mietsteigerung').value) || 0;
+        const instandhaltung = parseFloat(document.getElementById('cf_instandhaltung').value) || 0;
+        const verwaltung = parseFloat(document.getElementById('cf_verwaltung').value) || 0;
+        const versicherung = parseFloat(document.getElementById('cf_versicherung').value) || 0;
+        const leerstand = parseFloat(document.getElementById('cf_leerstand').value) || 0;
+        const zinsen = parseFloat(document.getElementById('cf_finanzierung').value) || 0;
+        const tilgung = parseFloat(document.getElementById('cf_tilgung').value) || 0;
+        const wertsteigerung = parseFloat(document.getElementById('cf_wertsteigerung').value) || 0;
+        const betrachtungszeitraum = parseFloat(document.getElementById('cf_betrachtungszeitraum').value) || 15;
+
+        const grunddaten = berechungsdaten.immobilie || {};
+        const immobilienwert = grunddaten.verkaufspreis || 450000;
+        const steuersatz = (grunddaten.persSteuersatz || 42) / 100;
+
+        let cashflows = [];
+        let kumulierterCashFlow = 0;
+        let gesamteinzahlungen = 0;
+        let gesamtauszahlungen = 0;
+
+        for (let jahr = 1; jahr <= betrachtungszeitraum; jahr++) {
+            const aktuelleJahresmiete = jahresmiete * Math.pow(1 + mietsteigerung/100, jahr-1);
+            const effektiveJahresmiete = aktuelleJahresmiete * (1 - leerstand/100);
+            
+            const einnahmen = effektiveJahresmiete;
+            const ausgaben = instandhaltung + verwaltung + versicherung + zinsen + tilgung;
+            const steuerlicheAbschreibung = (grunddaten.kaufpreis || 300000) * 0.02; // 2% linear
+            const steuerlichesErgebnis = einnahmen - (ausgaben - tilgung) - steuerlicheAbschreibung;
+            const steuerersparnis = steuerlichesErgebnis < 0 ? Math.abs(steuerlichesErgebnis) * steuersatz : 0;
+            const steuernachzahlung = steuerlichesErgebnis > 0 ? steuerlichesErgebnis * steuersatz : 0;
+            
+            const nettoCashFlow = einnahmen - ausgaben + steuerersparnis - steuernachzahlung;
+            kumulierterCashFlow += nettoCashFlow;
+            
+            gesamteinzahlungen += einnahmen;
+            gesamtauszahlungen += ausgaben;
+
+            cashflows.push({
+                jahr: jahr,
+                einnahmen: einnahmen,
+                ausgaben: ausgaben,
+                steuereffekt: steuerersparnis - steuernachzahlung,
+                nettoCashFlow: nettoCashFlow,
+                kumuliert: kumulierterCashFlow
+            });
+        }
+
+        // Verkaufsszenario am Ende
+        const endwert = immobilienwert * Math.pow(1 + wertsteigerung/100, betrachtungszeitraum);
+        const verkaufsgewinn = endwert - immobilienwert;
+        const verkaufssteuer = betrachtungszeitraum >= 10 ? 0 : verkaufsgewinn * steuersatz;
+        const nettoverkaufserloees = endwert - verkaufssteuer - (immobilienwert * 0.05); // 5% Verkaufskosten
+
+        const gesamtrendite = ((nettoverkaufserloees + kumulierterCashFlow) / immobilienwert - 1) * 100 / betrachtungszeitraum;
+
+        // Chart HTML generieren
+        let chartHtml = `
+            <h3>📊 Cash-Flow Verlauf über ${betrachtungszeitraum} Jahre</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 5px; margin: 20px 0;">
+        `;
+
+        const maxCashFlow = Math.max(...cashflows.map(cf => Math.abs(cf.nettoCashFlow)));
+        
+        cashflows.slice(0, 15).forEach(cf => { // Max 15 Jahre anzeigen
+            const hoehe = Math.abs(cf.nettoCashFlow) / maxCashFlow * 100;
+            const farbe = cf.nettoCashFlow >= 0 ? '#27ae60' : '#e74c3c';
+            chartHtml += `
+                <div style="text-align: center;">
+                    <div style="height: 100px; display: flex; align-items: end; justify-content: center;">
+                        <div style="width: 20px; height: ${hoehe}%; background: ${farbe}; border-radius: 2px;" title="Jahr ${cf.jahr}: ${formatCurrency(cf.nettoCashFlow)}"></div>
+                    </div>
+                    <div style="font-size: 0.8em; margin-top: 5px;">J${cf.jahr}</div>
+                </div>
+            `;
+        });
+        chartHtml += '</div>';
+
+        let html = `
+            ${chartHtml}
+            
+            <div class="results-grid">
+                <div class="result-card">
+                    <h4>💰 Cash-Flow Zusammenfassung</h4>
+                    <div class="result-item">
+                        <span class="result-label">Durchschnittl. Cash-Flow p.a.:</span>
+                        <span class="result-value ${kumulierterCashFlow/betrachtungszeitraum >= 0 ? '' : 'negative'}">${formatCurrency(kumulierterCashFlow/betrachtungszeitraum)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Kumulierter Cash-Flow:</span>
+                        <span class="result-value ${kumulierterCashFlow >= 0 ? '' : 'negative'}">${formatCurrency(kumulierterCashFlow)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Gesamteinnahmen:</span>
+                        <span class="result-value">${formatCurrency(gesamteinzahlungen)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Gesamtausgaben:</span>
+                        <span class="result-value negative">${formatCurrency(gesamtauszahlungen)}</span>
+                    </div>
+                </div>
+
+                <div class="result-card">
+                    <h4>🏠 Verkaufsszenario (Jahr ${betrachtungszeitraum})</h4>
+                    <div class="result-item">
+                        <span class="result-label">Endwert Immobilie:</span>
+                        <span class="result-value">${formatCurrency(endwert)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Wertsteigerung:</span>
+                        <span class="result-value">${formatCurrency(verkaufsgewinn)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Verkaufsteuer:</span>
+                        <span class="result-value negative">${formatCurrency(verkaufssteuer)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Netto-Verkaufserlös:</span>
+                        <span class="result-value">${formatCurrency(nettoverkaufserloees)}</span>
+                    </div>
+                    <div style="margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px; font-size: 0.85em; color: #6c757d;">
+                        ${betrachtungszeitraum >= 10 ? '✅ Steuerfrei nach 10 Jahren!' : '⏰ Verkauf vor 10 Jahren = steuerpflichtig'}
+                    </div>
+                </div>
+
+                <div class="result-card best-option">
+                    <h4>📈 Gesamtrendite</h4>
+                    <div class="result-item">
+                        <span class="result-label">Investition:</span>
+                        <span class="result-value negative">${formatCurrency(immobilienwert)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Rückfluss Cash-Flow:</span>
+                        <span class="result-value">${formatCurrency(kumulierterCashFlow)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Rückfluss Verkauf:</span>
+                        <span class="result-value">${formatCurrency(nettoverkaufserloees)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Gesamtrückfluss:</span>
+                        <span class="result-value">${formatCurrency(kumulierterCashFlow + nettoverkaufserloees)}</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-label">Gesamtrendite p.a.:</span>
+                        <span class="result-value ${gesamtrendite >= 0 ? '' : 'negative'}">${formatPercent(gesamtrendite)}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.getElementById('cashflow-results').innerHTML = html;
+        document.getElementById('cashflow-chart').innerHTML = html;
     }
 
     // Initiale Berechnung beim Laden
     window.onload = function() {
-        berechnen();
+        calculateVerkauf();
     };
 
     // Automatische Neuberechnung bei Eingabeänderungen
-    document.querySelectorAll('input').forEach(input => {
-        input.addEventListener('input', berechnen);
-    });
-
-    // Kommentarfunktionalität mit Firebase Integration
-    let comments = [];
-    let userLikes = {}; // Speichert welche Kommentare der User geliked/disliked hat
-
-    // Fallback Default-Kommentare (wenn Firebase nicht verfügbar)
-    function getDefaultComments() {
-        return [
-            {
-                id: 1,
-                author: "Max Immobilien",
-                content: "Sehr hilfreiches Tool! Die Unterscheidung zwischen Einbringung und Verkauf war mir so nicht bewusst. Besonders der Hinweis zur VV GmbH & Co. KG ist wertvoll. Hat mir bei der Entscheidung für meine Immobilienstrategie geholfen.",
-                date: "vor 2 Tagen",
-                likes: 12,
-                dislikes: 1,
-                avatar: "👤",
-                replies: [
-                    {
-                        id: "1-1",
-                        author: "Steuerberaterin Sarah",
-                        content: "@Max Immobilien Genau richtig erkannt! Die BFH-Urteile von 2024/2025 haben hier einiges geändert. Wichtig ist auch die neue Rechtsprechung zu Gesellschafterdarlehen.",
-                        date: "vor 1 Tag",
-                        likes: 8,
-                        dislikes: 0,
-                        avatar: "👩‍💼"
-                    }
-                ]
-            },
-            {
-                id: 2,
-                author: "Investor_2024",
-                content: "Eine Frage zur Berechnung: Werden auch die neuen Regelungen zur Grundsteuer berücksichtigt? Und wie sieht es mit der Erbschaftsteuer bei Übertragung aus?",
-                date: "vor 5 Tagen",
-                likes: 5,
-                dislikes: 2,
-                avatar: "🏠",
-                replies: []
-            },
-            {
-                id: 3,
-                author: "Rechtsanwalt Weber",
-                content: "Wichtiger Hinweis zum Tool: Bei der Drei-Objekt-Grenze gibt es seit 2024 verschärfte Prüfungen durch die Finanzämter. Jeder Fall wird einzeln betrachtet. Das Tool ist aber eine super Orientierungshilfe für erste Kalkulationen.",
-                date: "vor 1 Woche",
-                likes: 18,
-                dislikes: 0,
-                avatar: "⚖️",
-                replies: []
-            }
-        ];
-    }
-
-    // Lokaler Fallback für Kommentarspeicherung
-    function saveCommentLocally(comment) {
-        const localComments = JSON.parse(localStorage.getItem('steuervergleich-kommentare') || '[]');
-        comment.id = Date.now().toString();
-        localComments.unshift(comment);
-        localStorage.setItem('steuervergleich-kommentare', JSON.stringify(localComments));
-        return comment.id;
-    }
-
-    function loadCommentsLocally() {
-        const localComments = JSON.parse(localStorage.getItem('steuervergleich-kommentare') || '[]');
-        return localComments.length > 0 ? localComments : getDefaultComments();
-    }
-
-    // Kommentare laden (Firebase oder lokal)
-    async function loadComments() {
-        try {
-            if (window.firebaseInitialized) {
-                comments = await window.loadCommentsFromFirebase();
-            } else {
-                comments = loadCommentsLocally();
-            }
-            
-            if (comments.length === 0) {
-                comments = getDefaultComments();
-            }
-            
-            renderComments();
-        } catch (error) {
-            console.error("Fehler beim Laden der Kommentare:", error);
-            comments = getDefaultComments();
-            renderComments();
-        }
-    }
-
-    // Zeichenzähler für Kommentarfeld
-    const commentText = document.getElementById('comment-text');
-    const charCount = document.getElementById('char-count');
-    
-    commentText.addEventListener('input', function() {
-        const count = this.value.length;
-        charCount.textContent = count;
-        
-        if (count > 900) {
-            charCount.style.color = '#e74c3c';
-        } else if (count > 800) {
-            charCount.style.color = '#f39c12';
-        } else {
-            charCount.style.color = '#6c757d';
-        }
-    });
-
-    // Kommentar hinzufügen (Firebase oder lokal)
-    document.getElementById('submit-comment').addEventListener('click', async function() {
-        const authorName = document.getElementById('author-name').value.trim();
-        const commentContent = document.getElementById('comment-text').value.trim();
-        
-        if (!authorName || !commentContent) {
-            showNotification('❌ Bitte füllen Sie beide Felder aus.', 'error');
-            return;
-        }
-        
-        if (commentContent.length > 1000) {
-            showNotification('❌ Der Kommentar ist zu lang. Maximal 1000 Zeichen erlaubt.', 'error');
-            return;
-        }
-        
-        // Button deaktivieren während des Speicherns
-        const submitBtn = this;
-        const originalText = submitBtn.innerHTML;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '⏳ Wird gespeichert...';
-        
-        try {
-            const newComment = {
-                author: authorName,
-                content: commentContent,
-                date: "gerade eben",
-                likes: 0,
-                dislikes: 0,
-                avatar: getRandomAvatar(),
-                replies: []
-            };
-            
-            if (window.firebaseInitialized) {
-                // Firebase speichern
-                const commentId = await window.saveCommentToFirebase(newComment);
-                newComment.id = commentId;
-            } else {
-                // Lokal speichern
-                newComment.id = saveCommentLocally(newComment);
-            }
-            
-            comments.unshift(newComment);
-            renderComments();
-            
-            // Formular zurücksetzen
-            document.getElementById('author-name').value = '';
-            document.getElementById('comment-text').value = '';
-            charCount.textContent = '0';
-            charCount.style.color = '#6c757d';
-            
-            showNotification('✅ Kommentar wurde erfolgreich hinzugefügt!', 'success');
-            
-        } catch (error) {
-            console.error("Fehler beim Speichern:", error);
-            showNotification('❌ Fehler beim Speichern des Kommentars. Versuchen Sie es erneut.', 'error');
-        } finally {
-            // Button wieder aktivieren
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-        }
-    });
-
-    function getRandomAvatar() {
-        const avatars = ['👤', '👨‍💼', '👩‍💼', '🏠', '💰', '📈', '⚖️', '🔍', '💡', '📊'];
-        return avatars[Math.floor(Math.random() * avatars.length)];
-    }
-
-    function showNotification(message, type = 'info') {
-        const notification = document.createElement('div');
-        const bgColor = type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db';
-        
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: ${bgColor};
-            color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            z-index: 1000;
-            font-weight: 600;
-            animation: slideIn 0.3s ease;
-            max-width: 300px;
-        `;
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    document.body.removeChild(notification);
-                }
-            }, 300);
-        }, 4000);
-    }
-
-    // CSS Animation für Benachrichtigungen
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-    `;
-    document.head.appendChild(style);
-
-    function renderComments() {
-        const commentsList = document.getElementById('comments-list');
-        const commentCount = document.getElementById('comment-count');
-        
-        commentCount.textContent = comments.length;
-        
-        // Entferne nur die Kommentare, behalte den Counter
-        const existingComments = commentsList.querySelectorAll('.comment');
-        existingComments.forEach(comment => comment.remove());
-        
-        comments.forEach(comment => {
-            const commentElement = createCommentElement(comment);
-            commentsList.appendChild(commentElement);
-        });
-    }
-
-    function createCommentElement(comment) {
-        const commentDiv = document.createElement('div');
-        commentDiv.className = 'comment';
-        commentDiv.setAttribute('data-id', comment.id);
-        
-        const repliesHtml = (comment.replies || []).map(reply => `
-            <div class="reply" data-id="${reply.id}">
-                <div class="comment-header">
-                    <div class="comment-avatar">${reply.avatar}</div>
-                    <div class="comment-meta">
-                        <strong class="comment-author">${reply.author}</strong>
-                        <span class="comment-date">${reply.date}</span>
-                    </div>
-                </div>
-                <div class="comment-content">${reply.content}</div>
-                <div class="comment-actions">
-                    <button class="like-btn" data-likes="${reply.likes}" data-comment-id="${reply.id}">
-                        👍 <span>${reply.likes}</span>
-                    </button>
-                    <button class="dislike-btn" data-dislikes="${reply.dislikes}" data-comment-id="${reply.id}">
-                        👎 <span>${reply.dislikes}</span>
-                    </button>
-                </div>
-            </div>
-        `).join('');
-        
-        commentDiv.innerHTML = `
-            <div class="comment-header">
-                <div class="comment-avatar">${comment.avatar}</div>
-                <div class="comment-meta">
-                    <strong class="comment-author">${comment.author}</strong>
-                    <span class="comment-date">${comment.date}</span>
-                </div>
-            </div>
-            <div class="comment-content">${comment.content}</div>
-            <div class="comment-actions">
-                <button class="like-btn ${userLikes[comment.id] === 'like' ? 'active' : ''}" data-likes="${comment.likes}" data-comment-id="${comment.id}">
-                    👍 <span>${comment.likes}</span>
-                </button>
-                <button class="dislike-btn ${userLikes[comment.id] === 'dislike' ? 'active' : ''}" data-dislikes="${comment.dislikes}" data-comment-id="${comment.id}">
-                    👎 <span>${comment.dislikes}</span>
-                </button>
-                <button class="reply-btn" data-comment-id="${comment.id}">💬 Antworten</button>
-            </div>
-            <div class="reply-form" id="reply-form-${comment.id}">
-                <input type="text" placeholder="Ihr Name" id="reply-author-${comment.id}" maxlength="50">
-                <textarea placeholder="Ihre Antwort..." id="reply-content-${comment.id}" rows="3" maxlength="500"></textarea>
-                <button onclick="submitReply('${comment.id}')">Antworten</button>
-                <button class="cancel-btn" onclick="cancelReply('${comment.id}')">Abbrechen</button>
-            </div>
-            <div class="replies">
-                ${repliesHtml}
-            </div>
-        `;
-        
-        return commentDiv;
-    }
-
-    // Event-Delegation für Like/Dislike Buttons
-    document.addEventListener('click', function(e) {
-        if (e.target.matches('.like-btn') || e.target.closest('.like-btn')) {
-            const btn = e.target.closest('.like-btn');
-            handleLikeDislike(btn, 'like');
-        } else if (e.target.matches('.dislike-btn') || e.target.closest('.dislike-btn')) {
-            const btn = e.target.closest('.dislike-btn');
-            handleLikeDislike(btn, 'dislike');
-        } else if (e.target.matches('.reply-btn') || e.target.closest('.reply-btn')) {
-            const btn = e.target.closest('.reply-btn');
-            const commentId = btn.getAttribute('data-comment-id');
-            toggleReplyForm(commentId);
-        }
-    });
-
-    async function handleLikeDislike(button, action) {
-        const commentId = button.getAttribute('data-comment-id');
-        const currentUserAction = userLikes[commentId];
-        
-        // Finde den Kommentar oder die Antwort
-        let targetComment = comments.find(c => c.id == commentId);
-        if (!targetComment) {
-            // Suche in Antworten
-            for (let comment of comments) {
-                const reply = comment.replies.find(r => r.id == commentId);
-                if (reply) {
-                    targetComment = reply;
+    document.querySelectorAll('input, select').forEach(element => {
+        element.addEventListener('change', function() {
+            const activeTab = document.querySelector('.tab-content.active').id;
+            switch(activeTab) {
+                case 'verkauf':
+                    calculateVerkauf();
                     break;
-                }
+                case 'grundsteuer':
+                    calculateGrundsteuer();
+                    break;
+                case 'erbschaft':
+                    calculateErbschaftsteuer();
+                    break;
+                case 'schenkung':
+                    calculateSchenkung();
+                    break;
+                case 'gesamtstrategie':
+                    calculateGesamtstrategie();
+                    break;
+                case 'cashflow':
+                    calculateCashFlow();
+                    break;
             }
-        }
-        
-        if (!targetComment) return;
-        
-        // Aktualisiere die Werte
-        const oldLikes = targetComment.likes;
-        const oldDislikes = targetComment.dislikes;
-        
-        if (currentUserAction === action) {
-            // Gleiche Aktion wieder - entfernen
-            if (action === 'like') {
-                targetComment.likes--;
-            } else {
-                targetComment.dislikes--;
-            }
-            delete userLikes[commentId];
-        } else {
-            // Neue Aktion oder Wechsel
-            if (currentUserAction === 'like') {
-                targetComment.likes--;
-            } else if (currentUserAction === 'dislike') {
-                targetComment.dislikes--;
-            }
-            
-            if (action === 'like') {
-                targetComment.likes++;
-            } else {
-                targetComment.dislikes++;
-            }
-            userLikes[commentId] = action;
-        }
-        
-        // Firebase Update (nur für Hauptkommentare, nicht Antworten)
-        if (window.firebaseInitialized && !commentId.includes('-')) {
-            try {
-                await window.updateCommentInFirebase(commentId, {
-                    likes: targetComment.likes,
-                    dislikes: targetComment.dislikes
-                });
-            } catch (error) {
-                // Revert bei Fehler
-                targetComment.likes = oldLikes;
-                targetComment.dislikes = oldDislikes;
-                showNotification('❌ Fehler beim Aktualisieren', 'error');
-            }
-        }
-        
-        renderComments();
-    }
-
-    function toggleReplyForm(commentId) {
-        const replyForm = document.getElementById(`reply-form-${commentId}`);
-        if (replyForm.classList.contains('active')) {
-            replyForm.classList.remove('active');
-        } else {
-            // Schließe alle anderen Reply-Forms
-            document.querySelectorAll('.reply-form.active').forEach(form => {
-                form.classList.remove('active');
-            });
-            replyForm.classList.add('active');
-            document.getElementById(`reply-author-${commentId}`).focus();
-        }
-    }
-
-    async function submitReply(commentId) {
-        const authorInput = document.getElementById(`reply-author-${commentId}`);
-        const contentInput = document.getElementById(`reply-content-${commentId}`);
-        
-        const author = authorInput.value.trim();
-        const content = contentInput.value.trim();
-        
-        if (!author || !content) {
-            showNotification('❌ Bitte füllen Sie beide Felder aus.', 'error');
-            return;
-        }
-        
-        const reply = {
-            id: `${commentId}-${Date.now()}`,
-            author: author,
-            content: content,
-            date: "gerade eben",
-            likes: 0,
-            dislikes: 0,
-            avatar: getRandomAvatar()
-        };
-        
-        const comment = comments.find(c => c.id == commentId);
-        if (comment) {
-            comment.replies.push(reply);
-            
-            // Firebase Update für Antworten
-            if (window.firebaseInitialized) {
-                try {
-                    await window.updateCommentInFirebase(commentId, {
-                        replies: comment.replies
-                    });
-                } catch (error) {
-                    showNotification('❌ Fehler beim Speichern der Antwort', 'error');
-                    comment.replies.pop(); // Entferne die Antwort wieder
-                    return;
-                }
-            }
-            
-            renderComments();
-            showNotification('✅ Antwort wurde hinzugefügt!', 'success');
-            
-            // Formular zurücksetzen
-            authorInput.value = '';
-            contentInput.value = '';
-            toggleReplyForm(commentId);
-        }
-    }
-
-    function cancelReply(commentId) {
-        const replyForm = document.getElementById(`reply-form-${commentId}`);
-        replyForm.classList.remove('active');
-        
-        // Felder leeren
-        document.getElementById(`reply-author-${commentId}`).value = '';
-        document.getElementById(`reply-content-${commentId}`).value = '';
-    }
-
-    // Kommentare beim Laden der Seite laden
-    loadComments();
-
-    // Firebase Status-Punkt aktualisieren
-    function updateFirebaseStatus() {
-        const indicator = document.getElementById('firebase-indicator');
-        if (indicator) {
-            setTimeout(() => {
-                if (window.firebaseInitialized) {
-                    indicator.innerHTML = '🟢';
-                    indicator.title = 'Firebase aktiv - Kommentare werden global für alle Besucher gespeichert';
-                } else {
-                    indicator.innerHTML = '🔴';
-                    indicator.title = 'Lokaler Modus - Kommentare werden nur in Ihrem Browser gespeichert';
-                }
-            }, 1000);
-        }
-    }
-
-    // Status beim Laden der Seite aktualisieren
-    document.addEventListener('DOMContentLoaded', updateFirebaseStatus);
-    
-    // Status auch sofort aktualisieren (falls DOMContentLoaded bereits ausgeführt wurde)
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', updateFirebaseStatus);
-    } else {
-        updateFirebaseStatus();
-    }
+        });
+    });
 </script>
 ```
 
