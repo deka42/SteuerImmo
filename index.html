@@ -224,6 +224,255 @@
         }
     }
 
+    /* Kommentarsektion Styles */
+    .comments-section {
+        background: #f8f9fa;
+        border-top: 3px solid #3498db;
+        padding: 40px;
+        margin-top: 0;
+    }
+
+    .comments-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .comments-header h2 {
+        color: #2c3e50;
+        font-size: 2em;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .comments-header p {
+        color: #6c757d;
+        font-size: 1.1em;
+    }
+
+    .comment-form {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        margin-bottom: 40px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+
+    .comment-form h3 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-size: 1.3em;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        position: relative;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 16px;
+        font-family: inherit;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    .char-counter {
+        position: absolute;
+        bottom: 10px;
+        right: 15px;
+        font-size: 0.8em;
+        color: #6c757d;
+    }
+
+    .submit-comment-btn {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .submit-comment-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+    }
+
+    .comments-count {
+        font-size: 1.2em;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .comment,
+    .reply {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+    }
+
+    .comment:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    }
+
+    .reply {
+        margin-left: 40px;
+        margin-top: 15px;
+        background: #f8f9fa;
+        border-left: 4px solid #3498db;
+    }
+
+    .comment-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .comment-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5em;
+        margin-right: 15px;
+    }
+
+    .comment-meta {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .comment-author {
+        color: #2c3e50;
+        font-size: 1.1em;
+    }
+
+    .comment-date {
+        color: #6c757d;
+        font-size: 0.9em;
+        margin-top: 2px;
+    }
+
+    .comment-content {
+        color: #2c3e50;
+        line-height: 1.6;
+        margin-bottom: 15px;
+        font-size: 1em;
+    }
+
+    .comment-actions {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .like-btn,
+    .dislike-btn,
+    .reply-btn {
+        background: none;
+        border: 2px solid #e9ecef;
+        border-radius: 20px;
+        padding: 8px 15px;
+        font-size: 0.9em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .like-btn:hover {
+        border-color: #27ae60;
+        background: #27ae60;
+        color: white;
+    }
+
+    .like-btn.active {
+        background: #27ae60;
+        border-color: #27ae60;
+        color: white;
+    }
+
+    .dislike-btn:hover {
+        border-color: #e74c3c;
+        background: #e74c3c;
+        color: white;
+    }
+
+    .dislike-btn.active {
+        background: #e74c3c;
+        border-color: #e74c3c;
+        color: white;
+    }
+
+    .reply-btn:hover {
+        border-color: #3498db;
+        background: #3498db;
+        color: white;
+    }
+
+    .replies {
+        margin-top: 20px;
+    }
+
+    .reply-form {
+        margin: 20px 0 20px 40px;
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        display: none;
+    }
+
+    .reply-form.active {
+        display: block;
+    }
+
+    .reply-form input,
+    .reply-form textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        font-family: inherit;
+    }
+
+    .reply-form button {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-right: 10px;
+    }
+
+    .reply-form .cancel-btn {
+        background: #6c757d;
+    }
+
     @media (max-width: 768px) {
         .results-grid {
             grid-template-columns: 1fr;
@@ -237,6 +486,26 @@
             margin: 10px;
             border-radius: 15px;
         }
+
+        .comments-section {
+            padding: 20px;
+        }
+
+        .comment-form {
+            padding: 20px;
+        }
+
+        .reply {
+            margin-left: 20px;
+        }
+
+        .reply-form {
+            margin-left: 20px;
+        }
+
+        .comment-actions {
+            flex-wrap: wrap;
+        }
     }
 </style>
 ```
@@ -246,7 +515,7 @@
     <div class="container">
         <div class="header">
             <h1>🏠 Immobilien Steuervergleich</h1>
-            <div class="subtitle">Vergleich des VERKAUFS durch verschiedene Strukturen</div>
+            <div class="subtitle">Vergleich des VERKAUFS durch verschiedene Strukturen (nicht Einbringung)</div>
         </div>
 
 ```
@@ -401,6 +670,126 @@
                     <br>• <strong>Grunderwerbsteuer</strong> bei Einbringung (Ausnahmen möglich)
                     <br>• <strong>Umsatzsteuer</strong> bei gewerblicher Vermietung
                     <br>• <strong>Drei-Objekt-Grenze:</strong> Einzelfallwürdigung seit 2024 verstärkt
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Kommentarsektion -->
+    <div class="comments-section">
+        <div class="comments-header">
+            <h2>💬 Kommentare & Erfahrungen</h2>
+            <p>Teilen Sie Ihre Erfahrungen oder stellen Sie Fragen zu diesem Steuervergleich</p>
+        </div>
+        
+        <div class="comment-form">
+            <h3>Neuen Kommentar hinzufügen</h3>
+            <div class="form-group">
+                <input type="text" id="author-name" placeholder="Ihr Name" maxlength="50">
+            </div>
+            <div class="form-group">
+                <textarea id="comment-text" placeholder="Ihr Kommentar..." rows="4" maxlength="1000"></textarea>
+                <div class="char-counter">
+                    <span id="char-count">0</span>/1000
+                </div>
+            </div>
+            <button id="submit-comment" class="submit-comment-btn">
+                📝 Kommentar veröffentlichen
+            </button>
+        </div>
+        
+        <div class="comments-list" id="comments-list">
+            <div class="comments-count">
+                <span id="comment-count">3</span> Kommentare
+            </div>
+            
+            <!-- Beispielkommentare -->
+            <div class="comment" data-id="1">
+                <div class="comment-header">
+                    <div class="comment-avatar">👤</div>
+                    <div class="comment-meta">
+                        <strong class="comment-author">Max Immobilien</strong>
+                        <span class="comment-date">vor 2 Tagen</span>
+                    </div>
+                </div>
+                <div class="comment-content">
+                    Sehr hilfreiches Tool! Die Unterscheidung zwischen Einbringung und Verkauf war mir so nicht bewusst. Besonders der Hinweis zur VV GmbH & Co. KG ist wertvoll. Hat mir bei der Entscheidung für meine Immobilienstrategie geholfen.
+                </div>
+                <div class="comment-actions">
+                    <button class="like-btn" data-likes="12">
+                        👍 <span>12</span>
+                    </button>
+                    <button class="dislike-btn" data-dislikes="1">
+                        👎 <span>1</span>
+                    </button>
+                    <button class="reply-btn">💬 Antworten</button>
+                </div>
+                
+                <div class="replies">
+                    <div class="reply" data-id="1-1">
+                        <div class="comment-header">
+                            <div class="comment-avatar">👩‍💼</div>
+                            <div class="comment-meta">
+                                <strong class="comment-author">Steuerberaterin Sarah</strong>
+                                <span class="comment-date">vor 1 Tag</span>
+                            </div>
+                        </div>
+                        <div class="comment-content">
+                            @Max Immobilien Genau richtig erkannt! Die BFH-Urteile von 2024/2025 haben hier einiges geändert. Wichtig ist auch die neue Rechtsprechung zu Gesellschafterdarlehen.
+                        </div>
+                        <div class="comment-actions">
+                            <button class="like-btn" data-likes="8">
+                                👍 <span>8</span>
+                            </button>
+                            <button class="dislike-btn" data-dislikes="0">
+                                👎 <span>0</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="comment" data-id="2">
+                <div class="comment-header">
+                    <div class="comment-avatar">🏠</div>
+                    <div class="comment-meta">
+                        <strong class="comment-author">Investor_2024</strong>
+                        <span class="comment-date">vor 5 Tagen</span>
+                    </div>
+                </div>
+                <div class="comment-content">
+                    Eine Frage zur Berechnung: Werden auch die neuen Regelungen zur Grundsteuer berücksichtigt? Und wie sieht es mit der Erbschaftsteuer bei Übertragung aus?
+                </div>
+                <div class="comment-actions">
+                    <button class="like-btn" data-likes="5">
+                        👍 <span>5</span>
+                    </button>
+                    <button class="dislike-btn" data-dislikes="2">
+                        👎 <span>2</span>
+                    </button>
+                    <button class="reply-btn">💬 Antworten</button>
+                </div>
+            </div>
+            
+            <div class="comment" data-id="3">
+                <div class="comment-header">
+                    <div class="comment-avatar">⚖️</div>
+                    <div class="comment-meta">
+                        <strong class="comment-author">Rechtsanwalt Weber</strong>
+                        <span class="comment-date">vor 1 Woche</span>
+                    </div>
+                </div>
+                <div class="comment-content">
+                    Wichtiger Hinweis zum Tool: Bei der Drei-Objekt-Grenze gibt es seit 2024 verschärfte Prüfungen durch die Finanzämter. Jeder Fall wird einzeln betrachtet. Das Tool ist aber eine super Orientierungshilfe für erste Kalkulationen.
+                </div>
+                <div class="comment-actions">
+                    <button class="like-btn" data-likes="18">
+                        👍 <span>18</span>
+                    </button>
+                    <button class="dislike-btn" data-dislikes="0">
+                        👎 <span>0</span>
+                    </button>
+                    <button class="reply-btn">💬 Antworten</button>
                 </div>
             </div>
         </div>
@@ -664,6 +1053,343 @@
     document.querySelectorAll('input').forEach(input => {
         input.addEventListener('input', berechnen);
     });
+
+    // Kommentarfunktionalität
+    let comments = [
+        {
+            id: 1,
+            author: "Max Immobilien",
+            content: "Sehr hilfreiches Tool! Die Unterscheidung zwischen Einbringung und Verkauf war mir so nicht bewusst. Besonders der Hinweis zur VV GmbH & Co. KG ist wertvoll. Hat mir bei der Entscheidung für meine Immobilienstrategie geholfen.",
+            date: "vor 2 Tagen",
+            likes: 12,
+            dislikes: 1,
+            avatar: "👤",
+            replies: [
+                {
+                    id: "1-1",
+                    author: "Steuerberaterin Sarah",
+                    content: "@Max Immobilien Genau richtig erkannt! Die BFH-Urteile von 2024/2025 haben hier einiges geändert. Wichtig ist auch die neue Rechtsprechung zu Gesellschafterdarlehen.",
+                    date: "vor 1 Tag",
+                    likes: 8,
+                    dislikes: 0,
+                    avatar: "👩‍💼"
+                }
+            ]
+        },
+        {
+            id: 2,
+            author: "Investor_2024",
+            content: "Eine Frage zur Berechnung: Werden auch die neuen Regelungen zur Grundsteuer berücksichtigt? Und wie sieht es mit der Erbschaftsteuer bei Übertragung aus?",
+            date: "vor 5 Tagen",
+            likes: 5,
+            dislikes: 2,
+            avatar: "🏠",
+            replies: []
+        },
+        {
+            id: 3,
+            author: "Rechtsanwalt Weber",
+            content: "Wichtiger Hinweis zum Tool: Bei der Drei-Objekt-Grenze gibt es seit 2024 verschärfte Prüfungen durch die Finanzämter. Jeder Fall wird einzeln betrachtet. Das Tool ist aber eine super Orientierungshilfe für erste Kalkulationen.",
+            date: "vor 1 Woche",
+            likes: 18,
+            dislikes: 0,
+            avatar: "⚖️",
+            replies: []
+        }
+    ];
+
+    let userLikes = {}; // Speichert welche Kommentare der User geliked/disliked hat
+
+    // Zeichenzähler für Kommentarfeld
+    const commentText = document.getElementById('comment-text');
+    const charCount = document.getElementById('char-count');
+    
+    commentText.addEventListener('input', function() {
+        const count = this.value.length;
+        charCount.textContent = count;
+        
+        if (count > 900) {
+            charCount.style.color = '#e74c3c';
+        } else if (count > 800) {
+            charCount.style.color = '#f39c12';
+        } else {
+            charCount.style.color = '#6c757d';
+        }
+    });
+
+    // Kommentar hinzufügen
+    document.getElementById('submit-comment').addEventListener('click', function() {
+        const authorName = document.getElementById('author-name').value.trim();
+        const commentContent = document.getElementById('comment-text').value.trim();
+        
+        if (!authorName || !commentContent) {
+            alert('Bitte füllen Sie beide Felder aus.');
+            return;
+        }
+        
+        if (commentContent.length > 1000) {
+            alert('Der Kommentar ist zu lang. Maximal 1000 Zeichen erlaubt.');
+            return;
+        }
+        
+        const newComment = {
+            id: Date.now(),
+            author: authorName,
+            content: commentContent,
+            date: "gerade eben",
+            likes: 0,
+            dislikes: 0,
+            avatar: getRandomAvatar(),
+            replies: []
+        };
+        
+        comments.unshift(newComment);
+        renderComments();
+        
+        // Formular zurücksetzen
+        document.getElementById('author-name').value = '';
+        document.getElementById('comment-text').value = '';
+        charCount.textContent = '0';
+        charCount.style.color = '#6c757d';
+        
+        // Success-Nachricht
+        showNotification('✅ Kommentar wurde erfolgreich hinzugefügt!', 'success');
+    });
+
+    function getRandomAvatar() {
+        const avatars = ['👤', '👨‍💼', '👩‍💼', '🏠', '💰', '📈', '⚖️', '🔍', '💡', '📊'];
+        return avatars[Math.floor(Math.random() * avatars.length)];
+    }
+
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#27ae60' : '#3498db'};
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            font-weight: 600;
+            animation: slideIn 0.3s ease;
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => document.body.removeChild(notification), 300);
+        }, 3000);
+    }
+
+    // CSS Animation für Benachrichtigungen
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    function renderComments() {
+        const commentsList = document.getElementById('comments-list');
+        const commentCount = document.getElementById('comment-count');
+        
+        commentCount.textContent = comments.length;
+        
+        // Entferne nur die Kommentare, behalte den Counter
+        const existingComments = commentsList.querySelectorAll('.comment');
+        existingComments.forEach(comment => comment.remove());
+        
+        comments.forEach(comment => {
+            const commentElement = createCommentElement(comment);
+            commentsList.appendChild(commentElement);
+        });
+    }
+
+    function createCommentElement(comment) {
+        const commentDiv = document.createElement('div');
+        commentDiv.className = 'comment';
+        commentDiv.setAttribute('data-id', comment.id);
+        
+        const repliesHtml = comment.replies.map(reply => `
+            <div class="reply" data-id="${reply.id}">
+                <div class="comment-header">
+                    <div class="comment-avatar">${reply.avatar}</div>
+                    <div class="comment-meta">
+                        <strong class="comment-author">${reply.author}</strong>
+                        <span class="comment-date">${reply.date}</span>
+                    </div>
+                </div>
+                <div class="comment-content">${reply.content}</div>
+                <div class="comment-actions">
+                    <button class="like-btn" data-likes="${reply.likes}" data-comment-id="${reply.id}">
+                        👍 <span>${reply.likes}</span>
+                    </button>
+                    <button class="dislike-btn" data-dislikes="${reply.dislikes}" data-comment-id="${reply.id}">
+                        👎 <span>${reply.dislikes}</span>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+        
+        commentDiv.innerHTML = `
+            <div class="comment-header">
+                <div class="comment-avatar">${comment.avatar}</div>
+                <div class="comment-meta">
+                    <strong class="comment-author">${comment.author}</strong>
+                    <span class="comment-date">${comment.date}</span>
+                </div>
+            </div>
+            <div class="comment-content">${comment.content}</div>
+            <div class="comment-actions">
+                <button class="like-btn ${userLikes[comment.id] === 'like' ? 'active' : ''}" data-likes="${comment.likes}" data-comment-id="${comment.id}">
+                    👍 <span>${comment.likes}</span>
+                </button>
+                <button class="dislike-btn ${userLikes[comment.id] === 'dislike' ? 'active' : ''}" data-dislikes="${comment.dislikes}" data-comment-id="${comment.id}">
+                    👎 <span>${comment.dislikes}</span>
+                </button>
+                <button class="reply-btn" data-comment-id="${comment.id}">💬 Antworten</button>
+            </div>
+            <div class="reply-form" id="reply-form-${comment.id}">
+                <input type="text" placeholder="Ihr Name" id="reply-author-${comment.id}" maxlength="50">
+                <textarea placeholder="Ihre Antwort..." id="reply-content-${comment.id}" rows="3" maxlength="500"></textarea>
+                <button onclick="submitReply(${comment.id})">Antworten</button>
+                <button class="cancel-btn" onclick="cancelReply(${comment.id})">Abbrechen</button>
+            </div>
+            <div class="replies">
+                ${repliesHtml}
+            </div>
+        `;
+        
+        return commentDiv;
+    }
+
+    // Event-Delegation für Like/Dislike Buttons
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('.like-btn') || e.target.closest('.like-btn')) {
+            const btn = e.target.closest('.like-btn');
+            handleLikeDislike(btn, 'like');
+        } else if (e.target.matches('.dislike-btn') || e.target.closest('.dislike-btn')) {
+            const btn = e.target.closest('.dislike-btn');
+            handleLikeDislike(btn, 'dislike');
+        } else if (e.target.matches('.reply-btn') || e.target.closest('.reply-btn')) {
+            const btn = e.target.closest('.reply-btn');
+            const commentId = btn.getAttribute('data-comment-id');
+            toggleReplyForm(commentId);
+        }
+    });
+
+    function handleLikeDislike(button, action) {
+        const commentId = button.getAttribute('data-comment-id');
+        const currentUserAction = userLikes[commentId];
+        
+        // Finde den Kommentar oder die Antwort
+        let targetComment = comments.find(c => c.id == commentId);
+        if (!targetComment) {
+            // Suche in Antworten
+            for (let comment of comments) {
+                const reply = comment.replies.find(r => r.id == commentId);
+                if (reply) {
+                    targetComment = reply;
+                    break;
+                }
+            }
+        }
+        
+        if (!targetComment) return;
+        
+        // Aktualisiere die Werte
+        if (currentUserAction === action) {
+            // Gleiche Aktion wieder - entfernen
+            if (action === 'like') {
+                targetComment.likes--;
+            } else {
+                targetComment.dislikes--;
+            }
+            delete userLikes[commentId];
+        } else {
+            // Neue Aktion oder Wechsel
+            if (currentUserAction === 'like') {
+                targetComment.likes--;
+            } else if (currentUserAction === 'dislike') {
+                targetComment.dislikes--;
+            }
+            
+            if (action === 'like') {
+                targetComment.likes++;
+            } else {
+                targetComment.dislikes++;
+            }
+            userLikes[commentId] = action;
+        }
+        
+        renderComments();
+    }
+
+    function toggleReplyForm(commentId) {
+        const replyForm = document.getElementById(`reply-form-${commentId}`);
+        if (replyForm.classList.contains('active')) {
+            replyForm.classList.remove('active');
+        } else {
+            // Schließe alle anderen Reply-Forms
+            document.querySelectorAll('.reply-form.active').forEach(form => {
+                form.classList.remove('active');
+            });
+            replyForm.classList.add('active');
+            document.getElementById(`reply-author-${commentId}`).focus();
+        }
+    }
+
+    function submitReply(commentId) {
+        const authorInput = document.getElementById(`reply-author-${commentId}`);
+        const contentInput = document.getElementById(`reply-content-${commentId}`);
+        
+        const author = authorInput.value.trim();
+        const content = contentInput.value.trim();
+        
+        if (!author || !content) {
+            alert('Bitte füllen Sie beide Felder aus.');
+            return;
+        }
+        
+        const reply = {
+            id: `${commentId}-${Date.now()}`,
+            author: author,
+            content: content,
+            date: "gerade eben",
+            likes: 0,
+            dislikes: 0,
+            avatar: getRandomAvatar()
+        };
+        
+        const comment = comments.find(c => c.id == commentId);
+        if (comment) {
+            comment.replies.push(reply);
+            renderComments();
+            showNotification('✅ Antwort wurde hinzugefügt!', 'success');
+        }
+    }
+
+    function cancelReply(commentId) {
+        const replyForm = document.getElementById(`reply-form-${commentId}`);
+        replyForm.classList.remove('active');
+        
+        // Felder leeren
+        document.getElementById(`reply-author-${commentId}`).value = '';
+        document.getElementById(`reply-content-${commentId}`).value = '';
+    }
+
+    // Kommentare initial rendern
+    renderComments();
 </script>
 ```
 
