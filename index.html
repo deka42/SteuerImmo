@@ -461,6 +461,47 @@
         <div class="header">
             <h1>🏠 Immobilien-Steuer-Suite 2025</h1>
             <div class="subtitle">Komplettanalyse für smarte Immobilieninvestoren - Alle Steueraspekte auf einen Blick</div>
+            <div style="margin-top: 15px;">
+                <button onclick="exportBericht()" style="
+                    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    margin: 0 10px;
+                    cursor: pointer;
+                    font-weight: 600;
+                ">📋 Bericht exportieren</button>
+                <button onclick="resetAllData()" style="
+                    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    margin: 0 10px;
+                    cursor: pointer;
+                    font-weight: 600;
+                ">🔄 Daten zurücksetzen</button>
+                <button onclick="importExample()" style="
+                    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    margin: 0 10px;
+                    cursor: pointer;
+                    font-weight: 600;
+                <button onclick="showExtendedAnalyse()" style="
+                    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    margin: 0 10px;
+                    cursor: pointer;
+                    font-weight: 600;
+                ">🔍 Erweiterte Analyse</button>
+            </div>
         </div>
 
 ```
@@ -1918,37 +1959,811 @@
         document.getElementById('cashflow-chart').innerHTML = html;
     }
 
-    // Initiale Berechnung beim Laden
-    window.onload = function() {
-        calculateVerkauf();
-    };
+    // Erweiterte Berechnungen für Kombi-Analysen
+    function calculateKombiAnalyse() {
+        const grunddaten = berechungsdaten.immobilie || {};
+        if (!grunddaten.kaufpreis) {
+            alert('Bitte zuerst im "Verkaufssteuer-Vergleich" Tab eine Berechnung durchführen.');
+            return;
+        }
 
-    // Automatische Neuberechnung bei Eingabeänderungen
-    document.querySelectorAll('input, select').forEach(element => {
-        element.addEventListener('change', function() {
-            const activeTab = document.querySelector('.tab-content.active').id;
-            switch(activeTab) {
-                case 'verkauf':
-                    calculateVerkauf();
-                    break;
-                case 'grundsteuer':
-                    calculateGrundsteuer();
-                    break;
-                case 'erbschaft':
-                    calculateErbschaftsteuer();
-                    break;
-                case 'schenkung':
-                    calculateSchenkung();
-                    break;
-                case 'gesamtstrategie':
-                    calculateGesamtstrategie();
-                    break;
-                case 'cashflow':
-                    calculateCashFlow();
-                    break;
+        // Alle Module durchrechnen und vergleichen
+        const analyseErgebnisse = {
+            verkauf: calculateVerkaufInternal(grunddaten),
+            grundsteuer: calculateGrundsteuerInternal(),
+            erbschaft: calculateErbschaftsteuerInternal(),
+            schenkung: calculateSchenkungInternal(),
+            cashflow: calculateCashFlowInternal()
+        };
+
+        return analyseErgebnisse;
+    }
+
+    // Interne Berechnungsfunktionen (ohne DOM-Updates)
+    function calculateVerkaufInternal(daten) {
+        const bruttogewinn = daten.verkaufspreis - daten.kaufpreis - daten.nebenkosten_kauf - daten.modernisierung - (daten.nebenkosten_verkauf || 0);
+        const steuerfrei = daten.haltedauer >= 10;
+        const steuer = steuerfrei ? 0 : bruttogewinn * (daten.persSteuersatz + daten.kirchensteuer + 5.5) / 100;
+        
+        return {
+            bruttogewinn,
+            steuer,
+            nettogewinn: bruttogewinn - steuer,
+            steuerfrei
+        };
+    }
+
+    function calculateGrundsteuerInternal() {
+        const grundstueckswert = parseFloat(document.getElementById('grundstueckswert').value) || 350000;
+        const hebesatz = parseFloat(document.getElementById('gemeinde_hebesatz').value) || 450;
+        const messzahl = 0.31; // Vereinfacht für Wohnimmobilien
+        
+        const messbetrag = grundstueckswert * messzahl / 1000;
+        const grundsteuer = messbetrag * hebesatz / 100;
+        
+        return {
+            grundsteuer,
+            messbetrag,
+            grundstueckswert
+        };
+    }
+
+    function calculateErbschaftsteuerInternal() {
+        const immobilienwert = parseFloat(document.getElementById('immobilienwert_erbe').value) || 450000;
+        const verwandtschaft = document.getElementById('verwandtschaftsgrad').value;
+        const freibetraege = {
+            'ehepartner': 500000,
+            'kind': 400000,
+            'enkel': 200000,
+            'eltern': 100000,
+            'geschwister': 20000,
+            'andere': 20000
+        };
+        
+        const freibetrag = freibetraege[verwandtschaft] || 20000;
+        const steuerpflichtig = Math.max(0, immobilienwert - freibetrag);
+        const steuer = steuerpflichtig * 0.15; // Vereinfachter Steuersatz
+        
+        return {
+            immobilienwert,
+            freibetrag,
+            steuer,
+            steuerpflichtig
+        };
+    }
+
+    function calculateSchenkungInternal() {
+        const immobilienwert = parseFloat(document.getElementById('schenkung_immobilienwert').value) || 600000;
+        const anteil = parseFloat(document.getElementById('schenkung_anteil').value) || 50;
+        const schenkungswert = immobilienwert * anteil / 100;
+        
+        return {
+            immobilienwert,
+            schenkungswert,
+            optimierung: schenkungswert * 0.1 // Geschätzte Steuerersparnis durch Optimierung
+        };
+    }
+
+    function calculateCashFlowInternal() {
+        const jahresmiete = parseFloat(document.getElementById('cf_jahresmiete').value) || 18000;
+        const ausgaben = (parseFloat(document.getElementById('cf_instandhaltung').value) || 2000) +
+                        (parseFloat(document.getElementById('cf_verwaltung').value) || 800) +
+                        (parseFloat(document.getElementById('cf_versicherung').value) || 600) +
+                        (parseFloat(document.getElementById('cf_finanzierung').value) || 8000) +
+                        (parseFloat(document.getElementById('cf_tilgung').value) || 6000);
+        
+        const nettoCashFlow = jahresmiete - ausgaben;
+        
+        return {
+            jahresmiete,
+            ausgaben,
+            nettoCashFlow,
+            rendite: (nettoCashFlow / (berechungsdaten.immobilie?.verkaufspreis || 450000)) * 100
+        };
+    }
+
+    // Erweiterte Strategieempfehlungen
+    function generateStrategieempfehlung(analyseErgebnisse) {
+        const verkauf = analyseErgebnisse.verkauf;
+        const cashflow = analyseErgebnisse.cashflow;
+        const alter = parseFloat(document.getElementById('strategie_alter').value) || 45;
+        
+        let empfehlungen = [];
+        
+        // Verkaufsstrategie
+        if (verkauf.steuerfrei) {
+            empfehlungen.push({
+                kategorie: "Verkaufstiming",
+                empfehlung: "✅ Optimal verkaufen - steuerfrei!",
+                prioritaet: "hoch",
+                ersparnis: verkauf.steuer
+            });
+        } else {
+            const wartezeit = 10 - (berechungsdaten.immobilie?.haltedauer || 0);
+            empfehlungen.push({
+                kategorie: "Verkaufstiming",
+                empfehlung: `⏰ Noch ${wartezeit.toFixed(1)} Jahre bis steuerfreier Verkauf warten`,
+                prioritaet: "mittel",
+                ersparnis: verkauf.steuer
+            });
+        }
+        
+        // Cash-Flow Optimierung
+        if (cashflow.nettoCashFlow < 0) {
+            empfehlungen.push({
+                kategorie: "Cash-Flow",
+                empfehlung: "🔄 Mieterhöhung oder Refinanzierung prüfen",
+                prioritaet: "hoch",
+                verbesserung: Math.abs(cashflow.nettoCashFlow)
+            });
+        }
+        
+        // Altersabhängige Empfehlungen
+        if (alter > 55) {
+            empfehlungen.push({
+                kategorie: "Nachfolge",
+                empfehlung: "👨‍👩‍👧‍👦 Schenkungsstrategie entwickeln - Freibeträge nutzen",
+                prioritaet: "hoch",
+                ersparnis: analyseErgebnisse.schenkung.optimierung
+            });
+        }
+        
+        return empfehlungen;
+    }
+
+    // Exportfunktion für Berichte
+    function exportBericht() {
+        const analyseErgebnisse = calculateKombiAnalyse();
+        const empfehlungen = generateStrategieempfehlung(analyseErgebnisse);
+        
+        let berichtHtml = `
+            <h1>📋 Immobilien-Steuer-Analyse Bericht</h1>
+            <h2>🏠 Immobiliendaten</h2>
+            <p>Kaufpreis: ${formatCurrency(berechungsdaten.immobilie?.kaufpreis || 0)}</p>
+            <p>Aktueller Wert: ${formatCurrency(berechungsdaten.immobilie?.verkaufspreis || 0)}</p>
+            <p>Haltedauer: ${berechungsdaten.immobilie?.haltedauer || 0} Jahre</p>
+            
+            <h2>💰 Verkaufssteuer-Analyse</h2>
+            <p>Bruttogewinn: ${formatCurrency(analyseErgebnisse.verkauf.bruttogewinn)}</p>
+            <p>Steuerbelastung: ${formatCurrency(analyseErgebnisse.verkauf.steuer)}</p>
+            <p>Nettogewinn: ${formatCurrency(analyseErgebnisse.verkauf.nettogewinn)}</p>
+            
+            <h2>🎯 Strategieempfehlungen</h2>
+        `;
+        
+        empfehlungen.forEach(emp => {
+            berichtHtml += `<p><strong>${emp.kategorie}:</strong> ${emp.empfehlung}</p>`;
+        });
+        
+        // Öffne neues Fenster für Bericht
+        const neuesFenster = window.open('', '_blank');
+        neuesFenster.document.write(`
+            <html>
+            <head><title>Immobilien-Steuer-Bericht</title>
+            <style>
+                body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+                h1, h2 { color: #2c3e50; }
+                p { margin: 10px 0; }
+            </style>
+            </head>
+            <body>${berichtHtml}</body>
+            </html>
+        `);
+    }
+
+    // Steuer-Rechner für verschiedene Szenarien
+    function calculateSteuerSzenario(szenario) {
+        const grunddaten = berechungsdaten.immobilie || {};
+        
+        switch(szenario) {
+            case 'sofort_verkauf':
+                return calculateVerkaufInternal({
+                    ...grunddaten,
+                    haltedauer: grunddaten.haltedauer || 0
+                });
+                
+            case 'verkauf_10_jahre':
+                return calculateVerkaufInternal({
+                    ...grunddaten,
+                    haltedauer: 10,
+                    verkaufspreis: grunddaten.verkaufspreis * Math.pow(1.02, 10 - (grunddaten.haltedauer || 0))
+                });
+                
+            case 'schenkung_jetzt':
+                const schenkungsdaten = calculateSchenkungInternal();
+                return {
+                    steuerersparnis: schenkungsdaten.optimierung,
+                    empfehlung: 'Schenkung in Raten über mehrere 10-Jahres-Zyklen'
+                };
+                
+            default:
+                return null;
+        }
+    }
+
+    // Erweiterte Benachrichtigungen
+    function showAdvancedNotification(message, type = 'info', actions = []) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            font-weight: 500;
+            max-width: 350px;
+            animation: slideIn 0.3s ease;
+        `;
+        
+        let html = `<div style="margin-bottom: 15px;">${message}</div>`;
+        
+        if (actions.length > 0) {
+            html += '<div>';
+            actions.forEach(action => {
+                html += `<button onclick="${action.onclick}" style="
+                    background: rgba(255,255,255,0.2);
+                    color: white;
+                    border: 1px solid rgba(255,255,255,0.3);
+                    padding: 8px 15px;
+                    margin: 5px 5px 0 0;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 0.9em;
+                ">${action.text}</button>`;
+            });
+            html += '</div>';
+        }
+        
+        notification.innerHTML = html;
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    document.body.removeChild(notification);
+                }
+            }, 300);
+        }, 6000);
+    }
+
+    // Smart-Empfehlungen basierend auf Eingaben
+    function generateSmartEmpfehlungen() {
+        const grunddaten = berechungsdaten.immobilie || {};
+        if (!grunddaten.kaufpreis) return;
+        
+        const empfehlungen = [];
+        
+        // Haltedauer-Optimierung
+        if (grunddaten.haltedauer < 10) {
+            const restzeit = 10 - grunddaten.haltedauer;
+            const potentielleErsparnis = (grunddaten.verkaufspreis - grunddaten.kaufpreis - grunddaten.nebenkosten_kauf - grunddaten.modernisierung) * grunddaten.persSteuersatz / 100;
+            
+            empfehlungen.push({
+                icon: '⏰',
+                titel: 'Verkaufstiming optimieren',
+                beschreibung: `Noch ${restzeit.toFixed(1)} Jahre bis steuerfreier Verkauf`,
+                ersparnis: potentielleErsparnis,
+                prioritaet: 'hoch'
+            });
+        }
+        
+        // Strukturoptimierung
+        if (grunddaten.haltedauer < 8) {
+            empfehlungen.push({
+                icon: '🏢',
+                titel: 'Strukturoptimierung prüfen',
+                beschreibung: 'VV GmbH & Co. KG könnte vorteilhaft sein',
+                ersparnis: grunddaten.verkaufspreis * 0.02, // Geschätzt 2%
+                prioritaet: 'mittel'
+            });
+        }
+        
+        return empfehlungen;
+    }
+
+    // Dashboard-Übersicht
+    function updateDashboard() {
+        const empfehlungen = generateSmartEmpfehlungen();
+        
+        if (empfehlungen.length > 0) {
+            let dashboardHtml = `
+                <div style="
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background: white;
+                    border: 2px solid #3498db;
+                    border-radius: 10px;
+                    padding: 15px;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                    max-width: 300px;
+                    z-index: 999;
+                " id="smart-dashboard">
+                    <h4 style="margin: 0 0 10px 0; color: #2c3e50;">💡 Smart-Empfehlungen</h4>
+            `;
+            
+            empfehlungen.slice(0, 2).forEach(emp => {
+                dashboardHtml += `
+                    <div style="
+                        padding: 10px;
+                        margin: 8px 0;
+                        background: #f8f9fa;
+                        border-radius: 5px;
+                        border-left: 3px solid ${emp.prioritaet === 'hoch' ? '#e74c3c' : '#f39c12'};
+                    ">
+                        <div style="font-weight: 600; font-size: 0.9em;">${emp.icon} ${emp.titel}</div>
+                        <div style="font-size: 0.8em; color: #6c757d; margin: 3px 0;">${emp.beschreibung}</div>
+                        <div style="font-size: 0.8em; font-weight: 600; color: #27ae60;">
+                            💰 Potential: ${formatCurrency(emp.ersparnis)}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            dashboardHtml += `
+                    <button onclick="showExtendedAnalyse()" 
+                            style="
+                                background: #3498db;
+                                color: white;
+                                border: none;
+                                padding: 8px 15px;
+                                border-radius: 5px;
+                                cursor: pointer;
+                                font-size: 0.9em;
+                                margin: 5px 5px 0 0;
+                            ">🔍 Detailanalyse</button>
+                    <button onclick="document.getElementById('smart-dashboard').style.display='none'" 
+                            style="
+                                float: right;
+                                background: #95a5a6;
+                                color: white;
+                                border: none;
+                                padding: 5px 10px;
+                                border-radius: 3px;
+                                cursor: pointer;
+                                font-size: 0.8em;
+                                margin-top: 10px;
+                            ">Schließen</button>
+                    <div style="clear: both;"></div>
+                </div>
+            `;
+            
+            // Entferne altes Dashboard
+            const altesDashboard = document.getElementById('smart-dashboard');
+            if (altesDashboard) {
+                altesDashboard.remove();
             }
+            
+            // Füge neues Dashboard hinzu
+            document.body.insertAdjacentHTML('beforeend', dashboardHtml);
+        }
+    }
+
+    // Initialisierung und Event-Handler
+    function initializeSuite() {
+        // Lade gespeicherte Daten
+        const gespeicherteDaten = localStorage.getItem('immobilien-suite-daten');
+        if (gespeicherteDaten) {
+            try {
+                berechungsdaten = JSON.parse(gespeicherteDaten);
+                // Lade Daten in Formulare
+                if (berechungsdaten.immobilie) {
+                    Object.keys(berechungsdaten.immobilie).forEach(key => {
+                        const element = document.getElementById(key);
+                        if (element) element.value = berechungsdaten.immobilie[key];
+                    });
+                }
+            } catch(e) {
+                console.log('Gespeicherte Daten konnten nicht geladen werden');
+            }
+        }
+        
+        // Erste Berechnung
+        calculateVerkauf();
+        
+        // Smart Dashboard nach 2 Sekunden anzeigen
+        setTimeout(() => {
+            updateDashboard();
+        }, 2000);
+    }
+
+    // Daten speichern
+    function saveSuiteData() {
+        try {
+            localStorage.setItem('immobilien-suite-daten', JSON.stringify(berechungsdaten));
+        } catch(e) {
+            console.log('Daten konnten nicht gespeichert werden');
+        }
+    }
+
+    // Erweiterte Event-Handler
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeSuite();
+        
+        // Auto-save bei Änderungen
+        document.querySelectorAll('input, select').forEach(element => {
+            element.addEventListener('change', function() {
+                saveSuiteData();
+                updateDashboard();
+                
+                const activeTab = document.querySelector('.tab-content.active').id;
+                switch(activeTab) {
+                    case 'verkauf':
+                        calculateVerkauf();
+                        break;
+                    case 'grundsteuer':
+                        calculateGrundsteuer();
+                        break;
+                    case 'erbschaft':
+                        calculateErbschaftsteuer();
+                        break;
+                    case 'schenkung':
+                        calculateSchenkung();
+                        break;
+                    case 'gesamtstrategie':
+                        calculateGesamtstrategie();
+                        break;
+                    case 'cashflow':
+                        calculateCashFlow();
+                        break;
+                }
+            });
         });
     });
+
+    // Export-Funktion zur globalen Verfügung stellen
+    window.exportBericht = exportBericht;
+
+    // Zusätzliche Hilfsfunktionen
+    function resetAllData() {
+        if (confirm('Möchten Sie wirklich alle Daten zurücksetzen?')) {
+            localStorage.removeItem('immobilien-suite-daten');
+            berechungsdaten = {};
+            
+            // Alle Eingabefelder zurücksetzen
+            document.querySelectorAll('input').forEach(input => {
+                if (input.type === 'number') {
+                    input.value = input.getAttribute('value') || '';
+                }
+            });
+            
+            document.querySelectorAll('select').forEach(select => {
+                select.selectedIndex = 0;
+            });
+            
+            // Neuberechwung durchführen
+            calculateVerkauf();
+            
+            showAdvancedNotification('✅ Alle Daten wurden zurückgesetzt', 'success');
+        }
+    }
+
+    function importExample() {
+        // Beispieldaten laden
+        const beispielDaten = {
+            kaufpreis: 400000,
+            verkaufspreis: 580000,
+            nebenkosten_kauf: 40000,
+            nebenkosten_verkauf: 29000,
+            modernisierung: 35000,
+            haltedauer: 6,
+            persoenlicher_steuersatz: 42,
+            kirchensteuer: 8,
+            bundesland: 'nw'
+        };
+        
+        // Daten in Formular eintragen
+        Object.keys(beispielDaten).forEach(key => {
+            const element = document.getElementById(key);
+            if (element) element.value = beispielDaten[key];
+        });
+        
+        // Zusätzliche Beispieldaten für andere Tabs
+        document.getElementById('grundstueckswert').value = 420000;
+        document.getElementById('gemeinde_hebesatz').value = 520;
+        document.getElementById('immobilienwert_erbe').value = 580000;
+        document.getElementById('verwandtschaftsgrad').value = 'kind';
+        document.getElementById('schenkung_immobilienwert').value = 580000;
+        document.getElementById('jahresmiete').value = 22000;
+        document.getElementById('cf_jahresmiete').value = 22000;
+        document.getElementById('cf_instandhaltung').value = 2500;
+        document.getElementById('strategie_alter').value = 48;
+        
+        // Berechnungen aktualisieren
+        calculateVerkauf();
+        
+        showAdvancedNotification('💡 Beispieldaten wurden geladen - München, Mehrfamilienhaus, 6 Jahre Haltedauer', 'success');
+    }
+
+    // Erweiterte Steuer-Rechner-Funktionen
+    function calculateOptimaleSteuerstruktur() {
+        const grunddaten = berechungsdaten.immobilie || {};
+        if (!grunddaten.kaufpreis) return null;
+        
+        const szenarien = [
+            {
+                struktur: 'Privatverkauf',
+                haltedauer: Math.max(10, grunddaten.haltedauer + (10 - grunddaten.haltedauer)),
+                steuerbelastung: 0,
+                besonderheiten: 'Steuerfrei nach 10 Jahren'
+            },
+            {
+                struktur: 'VV GbR',
+                haltedauer: grunddaten.haltedauer,
+                steuerbelastung: grunddaten.haltedauer >= 10 ? 0 : (grunddaten.verkaufspreis - grunddaten.kaufpreis) * 0.42,
+                besonderheiten: 'Transparente Besteuerung, ab 10 Jahre steuerfrei'
+            },
+            {
+                struktur: 'VV GmbH & Co. KG',
+                haltedauer: grunddaten.haltedauer,
+                steuerbelastung: grunddaten.haltedauer >= 10 ? 0 : (grunddaten.verkaufspreis - grunddaten.kaufpreis) * 0.42,
+                besonderheiten: 'BFH 2025: Gewerbesteuerfrei! Ab 10 Jahre komplett steuerfrei'
+            },
+            {
+                struktur: 'VV GmbH',
+                haltedauer: grunddaten.haltedauer,
+                steuerbelastung: (grunddaten.verkaufspreis - grunddaten.kaufpreis) * 0.48,
+                besonderheiten: 'Immer steuerpflichtig - Doppelbesteuerung'
+            }
+        ];
+        
+        // Beste Option ermitteln
+        const besteOption = szenarien.reduce((beste, aktuelle) => 
+            aktuelle.steuerbelastung < beste.steuerbelastung ? aktuelle : beste
+        );
+        
+        return { szenarien, besteOption };
+    }
+
+    // Steuerkalender-Funktion
+    function generateSteuerkalender() {
+        const heute = new Date();
+        const kalender = [];
+        
+        // Grundsteuer-Termine
+        for (let quartal = 1; quartal <= 4; quartal++) {
+            const monat = quartal * 3;
+            const datum = new Date(heute.getFullYear(), monat - 1, 15);
+            kalender.push({
+                datum: datum,
+                ereignis: `Grundsteuer Q${quartal} fällig`,
+                typ: 'grundsteuer',
+                prioritaet: 'mittel'
+            });
+        }
+        
+        // Erbschaftsteuer-Meldefrist (3 Monate nach Erbfall)
+        const erbschaftMeldefrist = new Date(heute.getFullYear(), heute.getMonth() + 3, heute.getDate());
+        kalender.push({
+            datum: erbschaftMeldefrist,
+            ereignis: 'Erbschaftsteuer-Meldung (falls relevant)',
+            typ: 'erbschaftsteuer',
+            prioritaet: 'hoch'
+        });
+        
+        // 10-Jahres-Frist Reminder
+        const grunddaten = berechungsdaten.immobilie || {};
+        if (grunddaten.haltedauer < 10) {
+            const kaufdatum = new Date();
+            kaufdatum.setFullYear(kaufdatum.getFullYear() - grunddaten.haltedauer);
+            const steuerfreiDatum = new Date(kaufdatum);
+            steuerfreiDatum.setFullYear(steuerfreiDatum.getFullYear() + 10);
+            
+            kalender.push({
+                datum: steuerfreiDatum,
+                ereignis: '🎉 Steuerfreier Verkauf möglich (10-Jahres-Frist)',
+                typ: 'verkauf',
+                prioritaet: 'hoch'
+            });
+        }
+        
+        return kalender.sort((a, b) => a.datum - b.datum);
+    }
+
+    // Risiko-Analyse
+    function calculateRisikoAnalyse() {
+        const grunddaten = berechungsdaten.immobilie || {};
+        const risiken = [];
+        
+        // Haltedauer-Risiko
+        if (grunddaten.haltedauer < 10) {
+            const verbleibendeZeit = 10 - grunddaten.haltedauer;
+            const potentiellerVerlust = (grunddaten.verkaufspreis - grunddaten.kaufpreis) * 0.42;
+            risiken.push({
+                typ: 'Spekulationssteuer',
+                beschreibung: `Bei Verkauf vor ${verbleibendeZeit.toFixed(1)} Jahren`,
+                finanziellAuswirkung: potentiellerVerlust,
+                wahrscheinlichkeit: 'mittel',
+                empfehlung: 'Verkauf nach 10 Jahren planen oder Struktur optimieren'
+            });
+        }
+        
+        // Liquiditätsrisiko bei Erbschaft
+        const erbschaftsteuer = calculateErbschaftsteuerInternal().steuer;
+        if (erbschaftsteuer > 50000) {
+            risiken.push({
+                typ: 'Erbschaftsteuer-Liquidität',
+                beschreibung: 'Hohe Erbschaftsteuer könnte Verkauf erzwingen',
+                finanziellAuswirkung: erbschaftsteuer,
+                wahrscheinlichkeit: 'hoch',
+                empfehlung: 'Schenkungsstrategie entwickeln oder Versicherungslösung'
+            });
+        }
+        
+        // Grundsteuer-Risiko
+        const grundsteuer = calculateGrundsteuerInternal().grundsteuer;
+        if (grundsteuer > 2000) {
+            risiken.push({
+                typ: 'Grundsteuer-Anstieg',
+                beschreibung: 'Hohe neue Grundsteuer belastet Rendite',
+                finanziellAuswirkung: grundsteuer * 10, // 10 Jahre
+                wahrscheinlichkeit: 'hoch',
+                empfehlung: 'Einspruch gegen Grundsteuerbescheid prüfen'
+            });
+        }
+        
+        return risiken;
+    }
+
+    // Benchmark-Vergleich
+    function calculateBenchmarkVergleich() {
+        const grunddaten = berechungsdaten.immobilie || {};
+        const kaufpreis = grunddaten.kaufpreis || 0;
+        const verkaufspreis = grunddaten.verkaufspreis || 0;
+        const haltedauer = grunddaten.haltedauer || 1;
+        
+        const immobilienRendite = Math.pow(verkaufspreis / kaufpreis, 1/haltedauer) - 1;
+        
+        // Benchmark-Renditen (vereinfacht)
+        const benchmarks = {
+            'Immobilien-Index Deutschland': 0.04, // 4% p.a.
+            'DAX (historisch)': 0.08, // 8% p.a.
+            'Anleihen (10J Bund)': 0.02, // 2% p.a.
+            'Inflation': 0.025 // 2.5% p.a.
+        };
+        
+        const vergleich = Object.keys(benchmarks).map(benchmark => ({
+            name: benchmark,
+            rendite: benchmarks[benchmark],
+            vergleich: immobilienRendite - benchmarks[benchmark],
+            bewertung: immobilienRendite > benchmarks[benchmark] ? 'Outperformance' : 'Underperformance'
+        }));
+        
+        return {
+            immobilienRendite: immobilienRendite,
+            benchmarks: vergleich
+        };
+    }
+
+    // Erweiterte Dashboard-Funktionen
+    function showExtendedAnalyse() {
+        const risikoAnalyse = calculateRisikoAnalyse();
+        const benchmarkVergleich = calculateBenchmarkVergleich();
+        const steuerkalender = generateSteuerkalender().slice(0, 5);
+        
+        let analyseHtml = `
+            <div style="
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                max-width: 800px;
+                max-height: 80vh;
+                overflow-y: auto;
+                z-index: 10000;
+            " id="extended-analyse">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h2 style="color: #2c3e50; margin: 0;">📊 Erweiterte Analyse</h2>
+                    <button onclick="closeExtendedAnalyse()" style="
+                        background: #e74c3c;
+                        color: white;
+                        border: none;
+                        border-radius: 50%;
+                        width: 35px;
+                        height: 35px;
+                        cursor: pointer;
+                        font-size: 18px;
+                    ">×</button>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h3 style="color: #e74c3c;">⚠️ Risiko-Analyse</h3>
+        `;
+        
+        if (risikoAnalyse.length > 0) {
+            risikoAnalyse.forEach(risiko => {
+                analyseHtml += `
+                    <div style="background: #fff5f5; padding: 15px; border-radius: 8px; margin: 10px 0; border-left: 4px solid #e74c3c;">
+                        <strong>${risiko.typ}</strong><br>
+                        ${risiko.beschreibung}<br>
+                        <strong>Auswirkung:</strong> ${formatCurrency(risiko.finanziellAuswirkung)}<br>
+                        <em>${risiko.empfehlung}</em>
+                    </div>
+                `;
+            });
+        } else {
+            analyseHtml += '<p style="color: #27ae60;">✅ Keine kritischen Risiken identifiziert</p>';
+        }
+        
+        analyseHtml += `
+                    </div>
+                    <div>
+                        <h3 style="color: #3498db;">📈 Rendite-Benchmark</h3>
+                        <p><strong>Ihre Immobilienrendite:</strong> ${formatPercent(benchmarkVergleich.immobilienRendite * 100)} p.a.</p>
+        `;
+        
+        benchmarkVergleich.benchmarks.forEach(benchmark => {
+            const farbe = benchmark.vergleich > 0 ? '#27ae60' : '#e74c3c';
+            analyseHtml += `
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ecf0f1;">
+                    <span>${benchmark.name}</span>
+                    <span style="color: ${farbe};">
+                        ${formatPercent(benchmark.rendite * 100)} 
+                        (${benchmark.vergleich > 0 ? '+' : ''}${formatPercent(benchmark.vergleich * 100)})
+                    </span>
+                </div>
+            `;
+        });
+        
+        analyseHtml += `
+                    </div>
+                </div>
+                
+                <div style="margin-top: 25px;">
+                    <h3 style="color: #f39c12;">📅 Steuer-Kalender (nächste Termine)</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+        `;
+        
+        steuerkalender.forEach(termin => {
+            const farbe = termin.prioritaet === 'hoch' ? '#e74c3c' : '#f39c12';
+            analyseHtml += `
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; border-left: 3px solid ${farbe};">
+                    <div style="font-size: 0.9em; font-weight: 600;">${termin.datum.toLocaleDateString('de-DE')}</div>
+                    <div style="font-size: 0.8em;">${termin.ereignis}</div>
+                </div>
+            `;
+        });
+        
+        analyseHtml += `
+                    </div>
+                </div>
+            </div>
+            <div style="
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                z-index: 9999;
+            " onclick="closeExtendedAnalyse()" id="analyse-overlay"></div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', analyseHtml);
+    }
+
+    function closeExtendedAnalyse() {
+        const analyse = document.getElementById('extended-analyse');
+        const overlay = document.getElementById('analyse-overlay');
+        if (analyse) analyse.remove();
+        if (overlay) overlay.remove();
+    }
+
+    // Globale Funktionen verfügbar machen
+    window.resetAllData = resetAllData;
+    window.importExample = importExample;
+    window.showExtendedAnalyse = showExtendedAnalyse;
+    window.closeExtendedAnalyse = closeExtendedAnalyse;
 </script>
 ```
 
