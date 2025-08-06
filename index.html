@@ -582,7 +582,7 @@
 
             <div class="input-group">
                 <label for="haltedauer">Haltedauer (Jahre)</label>
-                <input type="number" id="haltedauer" value="8" min="0">
+                <input type="number" id="haltedauer" value="10" min="0">
             </div>
 
             <div class="input-group">
@@ -795,185 +795,6 @@
         </div>
     </div>
 </div>
-
-<!-- Firebase SDK -->
-<script type="module">
-    // Firebase Configuration (Ersetzen Sie mit Ihrer eigenen Config)
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { 
-        getFirestore, 
-        collection, 
-        addDoc, 
-        getDocs, 
-        doc, 
-        updateDoc, 
-        orderBy, 
-        query, 
-        serverTimestamp 
-    } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
-    // Firebase Configuration (Optional - für dauerhafte Kommentarspeicherung)
-    const firebaseConfig = {
-        apiKey: "IHRE_API_KEY_HIER",
-        authDomain: "ihr-projekt.firebaseapp.com",
-        databaseURL: "https://ihr-projekt-default-rtdb.region.firebasedatabase.app/",
-        projectId: "ihr-projekt-id",
-        storageBucket: "ihr-projekt.appspot.com",
-        messagingSenderId: "123456789",
-        appId: "1:123456789:web:abcdef123456"
-    };
-
-    let app, db;
-    let firebaseInitialized = false;
-
-    // Firebase initialisieren (falls korrekte Config vorhanden)
-    try {
-        if (firebaseConfig.apiKey !== "IHRE_API_KEY_HIER") {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            firebaseInitialized = true;
-            console.log("✅ Firebase erfolgreich initialisiert");
-        } else {
-            console.warn("⚠️ Firebase Config nicht konfiguriert - verwende lokalen Speicher");
-            firebaseInitialized = false;
-        }
-    } catch (error) {
-        console.error("❌ Firebase Initialisierung fehlgeschlagen:", error);
-        firebaseInitialized = false;
-    }
-
-    // Firebase Funktionen
-    async function loadCommentsFromFirebase() {
-        if (!firebaseInitialized) return [];
-        
-        try {
-            showLoading(true);
-            const q = query(collection(db, "kommentare"), orderBy("timestamp", "desc"));
-            const querySnapshot = await getDocs(q);
-            const comments = [];
-            
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                comments.push({
-                    id: doc.id,
-                    author: data.author,
-                    content: data.content,
-                    date: formatDate(data.timestamp),
-                    likes: data.likes || 0,
-                    dislikes: data.dislikes || 0,
-                    avatar: data.avatar,
-                    replies: data.replies || []
-                });
-            });
-            
-            showLoading(false);
-            return comments;
-        } catch (error) {
-            console.error("Fehler beim Laden der Kommentare:", error);
-            showNotification("❌ Fehler beim Laden der Kommentare", "error");
-            showLoading(false);
-            return getDefaultComments(); // Fallback zu lokalen Kommentaren
-        }
-    }
-
-    async function saveCommentToFirebase(comment) {
-        if (!firebaseInitialized) {
-            // Lokaler Fallback
-            return saveCommentLocally(comment);
-        }
-        
-        try {
-            const docRef = await addDoc(collection(db, "kommentare"), {
-                author: comment.author,
-                content: comment.content,
-                timestamp: serverTimestamp(),
-                likes: 0,
-                dislikes: 0,
-                avatar: comment.avatar,
-                replies: []
-            });
-            
-            return docRef.id;
-        } catch (error) {
-            console.error("Fehler beim Speichern:", error);
-            showNotification("❌ Fehler beim Speichern des Kommentars", "error");
-            throw error;
-        }
-    }
-
-    async function updateCommentInFirebase(commentId, updates) {
-        if (!firebaseInitialized) return;
-        
-        try {
-            const commentRef = doc(db, "kommentare", commentId);
-            await updateDoc(commentRef, updates);
-        } catch (error) {
-            console.error("Fehler beim Aktualisieren:", error);
-            showNotification("❌ Fehler beim Aktualisieren", "error");
-        }
-    }
-
-    function formatDate(timestamp) {
-        if (!timestamp) return "gerade eben";
-        
-        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-        const now = new Date();
-        const diffMs = now - date;
-        const diffMins = Math.floor(diffMs / 60000);
-        const diffHours = Math.floor(diffMs / 3600000);
-        const diffDays = Math.floor(diffMs / 86400000);
-        
-        if (diffMins < 1) return "gerade eben";
-        if (diffMins < 60) return `vor ${diffMins} Min`;
-        if (diffHours < 24) return `vor ${diffHours} Std`;
-        if (diffDays < 30) return `vor ${diffDays} Tag${diffDays > 1 ? 'en' : ''}`;
-        
-        return date.toLocaleDateString('de-DE');
-    }
-
-    function showLoading(show) {
-        const existingLoader = document.getElementById('comments-loader');
-        
-        if (show && !existingLoader) {
-            const loader = document.createElement('div');
-            loader.id = 'comments-loader';
-            loader.style.cssText = `
-                text-align: center;
-                padding: 40px;
-                color: #6c757d;
-                font-size: 1.1em;
-            `;
-            loader.innerHTML = `
-                <div style="display: inline-block; animation: spin 1s linear infinite;">🔄</div>
-                <div style="margin-top: 10px;">Kommentare werden geladen...</div>
-            `;
-            
-            const commentsList = document.getElementById('comments-list');
-            commentsList.appendChild(loader);
-            
-            // CSS für Spinner
-            if (!document.getElementById('spinner-style')) {
-                const style = document.createElement('style');
-                style.id = 'spinner-style';
-                style.textContent = `
-                    @keyframes spin {
-                        0% { transform: rotate(0deg); }
-                        100% { transform: rotate(360deg); }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-        } else if (!show && existingLoader) {
-            existingLoader.remove();
-        }
-    }
-
-    // Globale Variablen für die normale Script-Umgebung
-    window.firebaseInitialized = firebaseInitialized;
-    window.loadCommentsFromFirebase = loadCommentsFromFirebase;
-    window.saveCommentToFirebase = saveCommentToFirebase;
-    window.updateCommentInFirebase = updateCommentInFirebase;
-</script>
 
 <script>
     function formatCurrency(amount) {
@@ -1233,90 +1054,51 @@
         input.addEventListener('input', berechnen);
     });
 
-    // Kommentarfunktionalität mit Firebase Integration
-    let comments = [];
-    let userLikes = {}; // Speichert welche Kommentare der User geliked/disliked hat
-
-    // Fallback Default-Kommentare (wenn Firebase nicht verfügbar)
-    function getDefaultComments() {
-        return [
-            {
-                id: 1,
-                author: "Max Immobilien",
-                content: "Sehr hilfreiches Tool! Die Unterscheidung zwischen Einbringung und Verkauf war mir so nicht bewusst. Besonders der Hinweis zur VV GmbH & Co. KG ist wertvoll. Hat mir bei der Entscheidung für meine Immobilienstrategie geholfen.",
-                date: "vor 2 Tagen",
-                likes: 12,
-                dislikes: 1,
-                avatar: "👤",
-                replies: [
-                    {
-                        id: "1-1",
-                        author: "Steuerberaterin Sarah",
-                        content: "@Max Immobilien Genau richtig erkannt! Die BFH-Urteile von 2024/2025 haben hier einiges geändert. Wichtig ist auch die neue Rechtsprechung zu Gesellschafterdarlehen.",
-                        date: "vor 1 Tag",
-                        likes: 8,
-                        dislikes: 0,
-                        avatar: "👩‍💼"
-                    }
-                ]
-            },
-            {
-                id: 2,
-                author: "Investor_2024",
-                content: "Eine Frage zur Berechnung: Werden auch die neuen Regelungen zur Grundsteuer berücksichtigt? Und wie sieht es mit der Erbschaftsteuer bei Übertragung aus?",
-                date: "vor 5 Tagen",
-                likes: 5,
-                dislikes: 2,
-                avatar: "🏠",
-                replies: []
-            },
-            {
-                id: 3,
-                author: "Rechtsanwalt Weber",
-                content: "Wichtiger Hinweis zum Tool: Bei der Drei-Objekt-Grenze gibt es seit 2024 verschärfte Prüfungen durch die Finanzämter. Jeder Fall wird einzeln betrachtet. Das Tool ist aber eine super Orientierungshilfe für erste Kalkulationen.",
-                date: "vor 1 Woche",
-                likes: 18,
-                dislikes: 0,
-                avatar: "⚖️",
-                replies: []
-            }
-        ];
-    }
-
-    // Lokaler Fallback für Kommentarspeicherung
-    function saveCommentLocally(comment) {
-        const localComments = JSON.parse(localStorage.getItem('steuervergleich-kommentare') || '[]');
-        comment.id = Date.now().toString();
-        localComments.unshift(comment);
-        localStorage.setItem('steuervergleich-kommentare', JSON.stringify(localComments));
-        return comment.id;
-    }
-
-    function loadCommentsLocally() {
-        const localComments = JSON.parse(localStorage.getItem('steuervergleich-kommentare') || '[]');
-        return localComments.length > 0 ? localComments : getDefaultComments();
-    }
-
-    // Kommentare laden (Firebase oder lokal)
-    async function loadComments() {
-        try {
-            if (window.firebaseInitialized) {
-                comments = await window.loadCommentsFromFirebase();
-            } else {
-                comments = loadCommentsLocally();
-            }
-            
-            if (comments.length === 0) {
-                comments = getDefaultComments();
-            }
-            
-            renderComments();
-        } catch (error) {
-            console.error("Fehler beim Laden der Kommentare:", error);
-            comments = getDefaultComments();
-            renderComments();
+    // Kommentarfunktionalität
+    let comments = [
+        {
+            id: 1,
+            author: "Max Immobilien",
+            content: "Sehr hilfreiches Tool! Die Unterscheidung zwischen Einbringung und Verkauf war mir so nicht bewusst. Besonders der Hinweis zur VV GmbH & Co. KG ist wertvoll. Hat mir bei der Entscheidung für meine Immobilienstrategie geholfen.",
+            date: "vor 2 Tagen",
+            likes: 12,
+            dislikes: 1,
+            avatar: "👤",
+            replies: [
+                {
+                    id: "1-1",
+                    author: "Steuerberaterin Sarah",
+                    content: "@Max Immobilien Genau richtig erkannt! Die BFH-Urteile von 2024/2025 haben hier einiges geändert. Wichtig ist auch die neue Rechtsprechung zu Gesellschafterdarlehen.",
+                    date: "vor 1 Tag",
+                    likes: 8,
+                    dislikes: 0,
+                    avatar: "👩‍💼"
+                }
+            ]
+        },
+        {
+            id: 2,
+            author: "Investor_2024",
+            content: "Eine Frage zur Berechnung: Werden auch die neuen Regelungen zur Grundsteuer berücksichtigt? Und wie sieht es mit der Erbschaftsteuer bei Übertragung aus?",
+            date: "vor 5 Tagen",
+            likes: 5,
+            dislikes: 2,
+            avatar: "🏠",
+            replies: []
+        },
+        {
+            id: 3,
+            author: "Rechtsanwalt Weber",
+            content: "Wichtiger Hinweis zum Tool: Bei der Drei-Objekt-Grenze gibt es seit 2024 verschärfte Prüfungen durch die Finanzämter. Jeder Fall wird einzeln betrachtet. Das Tool ist aber eine super Orientierungshilfe für erste Kalkulationen.",
+            date: "vor 1 Woche",
+            likes: 18,
+            dislikes: 0,
+            avatar: "⚖️",
+            replies: []
         }
-    }
+    ];
+
+    let userLikes = {}; // Speichert welche Kommentare der User geliked/disliked hat
 
     // Zeichenzähler für Kommentarfeld
     const commentText = document.getElementById('comment-text');
@@ -1335,66 +1117,43 @@
         }
     });
 
-    // Kommentar hinzufügen (Firebase oder lokal)
-    document.getElementById('submit-comment').addEventListener('click', async function() {
+    // Kommentar hinzufügen
+    document.getElementById('submit-comment').addEventListener('click', function() {
         const authorName = document.getElementById('author-name').value.trim();
         const commentContent = document.getElementById('comment-text').value.trim();
         
         if (!authorName || !commentContent) {
-            showNotification('❌ Bitte füllen Sie beide Felder aus.', 'error');
+            alert('Bitte füllen Sie beide Felder aus.');
             return;
         }
         
         if (commentContent.length > 1000) {
-            showNotification('❌ Der Kommentar ist zu lang. Maximal 1000 Zeichen erlaubt.', 'error');
+            alert('Der Kommentar ist zu lang. Maximal 1000 Zeichen erlaubt.');
             return;
         }
         
-        // Button deaktivieren während des Speicherns
-        const submitBtn = this;
-        const originalText = submitBtn.innerHTML;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '⏳ Wird gespeichert...';
+        const newComment = {
+            id: Date.now(),
+            author: authorName,
+            content: commentContent,
+            date: "gerade eben",
+            likes: 0,
+            dislikes: 0,
+            avatar: getRandomAvatar(),
+            replies: []
+        };
         
-        try {
-            const newComment = {
-                author: authorName,
-                content: commentContent,
-                date: "gerade eben",
-                likes: 0,
-                dislikes: 0,
-                avatar: getRandomAvatar(),
-                replies: []
-            };
-            
-            if (window.firebaseInitialized) {
-                // Firebase speichern
-                const commentId = await window.saveCommentToFirebase(newComment);
-                newComment.id = commentId;
-            } else {
-                // Lokal speichern
-                newComment.id = saveCommentLocally(newComment);
-            }
-            
-            comments.unshift(newComment);
-            renderComments();
-            
-            // Formular zurücksetzen
-            document.getElementById('author-name').value = '';
-            document.getElementById('comment-text').value = '';
-            charCount.textContent = '0';
-            charCount.style.color = '#6c757d';
-            
-            showNotification('✅ Kommentar wurde erfolgreich hinzugefügt!', 'success');
-            
-        } catch (error) {
-            console.error("Fehler beim Speichern:", error);
-            showNotification('❌ Fehler beim Speichern des Kommentars. Versuchen Sie es erneut.', 'error');
-        } finally {
-            // Button wieder aktivieren
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-        }
+        comments.unshift(newComment);
+        renderComments();
+        
+        // Formular zurücksetzen
+        document.getElementById('author-name').value = '';
+        document.getElementById('comment-text').value = '';
+        charCount.textContent = '0';
+        charCount.style.color = '#6c757d';
+        
+        // Success-Nachricht
+        showNotification('✅ Kommentar wurde erfolgreich hinzugefügt!', 'success');
     });
 
     function getRandomAvatar() {
@@ -1404,13 +1163,11 @@
 
     function showNotification(message, type = 'info') {
         const notification = document.createElement('div');
-        const bgColor = type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db';
-        
         notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
-            background: ${bgColor};
+            background: ${type === 'success' ? '#27ae60' : '#3498db'};
             color: white;
             padding: 15px 20px;
             border-radius: 10px;
@@ -1418,19 +1175,14 @@
             z-index: 1000;
             font-weight: 600;
             animation: slideIn 0.3s ease;
-            max-width: 300px;
         `;
         notification.textContent = message;
         document.body.appendChild(notification);
         
         setTimeout(() => {
             notification.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    document.body.removeChild(notification);
-                }
-            }, 300);
-        }, 4000);
+            setTimeout(() => document.body.removeChild(notification), 300);
+        }, 3000);
     }
 
     // CSS Animation für Benachrichtigungen
@@ -1468,7 +1220,7 @@
         commentDiv.className = 'comment';
         commentDiv.setAttribute('data-id', comment.id);
         
-        const repliesHtml = (comment.replies || []).map(reply => `
+        const repliesHtml = comment.replies.map(reply => `
             <div class="reply" data-id="${reply.id}">
                 <div class="comment-header">
                     <div class="comment-avatar">${reply.avatar}</div>
@@ -1510,8 +1262,8 @@
             <div class="reply-form" id="reply-form-${comment.id}">
                 <input type="text" placeholder="Ihr Name" id="reply-author-${comment.id}" maxlength="50">
                 <textarea placeholder="Ihre Antwort..." id="reply-content-${comment.id}" rows="3" maxlength="500"></textarea>
-                <button onclick="submitReply('${comment.id}')">Antworten</button>
-                <button class="cancel-btn" onclick="cancelReply('${comment.id}')">Abbrechen</button>
+                <button onclick="submitReply(${comment.id})">Antworten</button>
+                <button class="cancel-btn" onclick="cancelReply(${comment.id})">Abbrechen</button>
             </div>
             <div class="replies">
                 ${repliesHtml}
@@ -1536,7 +1288,7 @@
         }
     });
 
-    async function handleLikeDislike(button, action) {
+    function handleLikeDislike(button, action) {
         const commentId = button.getAttribute('data-comment-id');
         const currentUserAction = userLikes[commentId];
         
@@ -1556,9 +1308,6 @@
         if (!targetComment) return;
         
         // Aktualisiere die Werte
-        const oldLikes = targetComment.likes;
-        const oldDislikes = targetComment.dislikes;
-        
         if (currentUserAction === action) {
             // Gleiche Aktion wieder - entfernen
             if (action === 'like') {
@@ -1583,21 +1332,6 @@
             userLikes[commentId] = action;
         }
         
-        // Firebase Update (nur für Hauptkommentare, nicht Antworten)
-        if (window.firebaseInitialized && !commentId.includes('-')) {
-            try {
-                await window.updateCommentInFirebase(commentId, {
-                    likes: targetComment.likes,
-                    dislikes: targetComment.dislikes
-                });
-            } catch (error) {
-                // Revert bei Fehler
-                targetComment.likes = oldLikes;
-                targetComment.dislikes = oldDislikes;
-                showNotification('❌ Fehler beim Aktualisieren', 'error');
-            }
-        }
-        
         renderComments();
     }
 
@@ -1615,7 +1349,7 @@
         }
     }
 
-    async function submitReply(commentId) {
+    function submitReply(commentId) {
         const authorInput = document.getElementById(`reply-author-${commentId}`);
         const contentInput = document.getElementById(`reply-content-${commentId}`);
         
@@ -1623,7 +1357,7 @@
         const content = contentInput.value.trim();
         
         if (!author || !content) {
-            showNotification('❌ Bitte füllen Sie beide Felder aus.', 'error');
+            alert('Bitte füllen Sie beide Felder aus.');
             return;
         }
         
@@ -1640,27 +1374,8 @@
         const comment = comments.find(c => c.id == commentId);
         if (comment) {
             comment.replies.push(reply);
-            
-            // Firebase Update für Antworten
-            if (window.firebaseInitialized) {
-                try {
-                    await window.updateCommentInFirebase(commentId, {
-                        replies: comment.replies
-                    });
-                } catch (error) {
-                    showNotification('❌ Fehler beim Speichern der Antwort', 'error');
-                    comment.replies.pop(); // Entferne die Antwort wieder
-                    return;
-                }
-            }
-            
             renderComments();
             showNotification('✅ Antwort wurde hinzugefügt!', 'success');
-            
-            // Formular zurücksetzen
-            authorInput.value = '';
-            contentInput.value = '';
-            toggleReplyForm(commentId);
         }
     }
 
@@ -1673,8 +1388,8 @@
         document.getElementById(`reply-content-${commentId}`).value = '';
     }
 
-    // Kommentare beim Laden der Seite laden
-    loadComments();
+    // Kommentare initial rendern
+    renderComments();
 </script>
 ```
 
