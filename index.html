@@ -224,6 +224,20 @@
         }
     }
 
+    /* Firebase Status Punkt */
+    .firebase-status-dot {
+        font-size: 0.7em;
+        margin-left: 8px;
+        opacity: 0.8;
+        transition: all 0.3s ease;
+        cursor: help;
+    }
+
+    .firebase-status-dot:hover {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+
     /* Kommentarsektion Styles */
     .comments-section {
         background: #f8f9fa;
@@ -678,7 +692,7 @@
     <!-- Kommentarsektion -->
     <div class="comments-section">
         <div class="comments-header">
-            <h2>💬 Kommentare & Erfahrungen</h2>
+            <h2>💬 Kommentare & Erfahrungen <span id="firebase-indicator" class="firebase-status-dot" title="Firebase Status wird geprüft...">🔄</span></h2>
             <p>Teilen Sie Ihre Erfahrungen oder stellen Sie Fragen zu diesem Steuervergleich</p>
         </div>
         
@@ -1673,6 +1687,32 @@
 
     // Kommentare beim Laden der Seite laden
     loadComments();
+
+    // Firebase Status-Punkt aktualisieren
+    function updateFirebaseStatus() {
+        const indicator = document.getElementById('firebase-indicator');
+        if (indicator) {
+            setTimeout(() => {
+                if (window.firebaseInitialized) {
+                    indicator.innerHTML = '🟢';
+                    indicator.title = 'Firebase aktiv - Kommentare werden global für alle Besucher gespeichert';
+                } else {
+                    indicator.innerHTML = '🔴';
+                    indicator.title = 'Lokaler Modus - Kommentare werden nur in Ihrem Browser gespeichert';
+                }
+            }, 1000);
+        }
+    }
+
+    // Status beim Laden der Seite aktualisieren
+    document.addEventListener('DOMContentLoaded', updateFirebaseStatus);
+    
+    // Status auch sofort aktualisieren (falls DOMContentLoaded bereits ausgeführt wurde)
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateFirebaseStatus);
+    } else {
+        updateFirebaseStatus();
+    }
 </script>
 ```
 
