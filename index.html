@@ -2176,9 +2176,9 @@
         document.getElementById('cashflow-chart').innerHTML = html;
     }
 
-    // Alle Strukturen anzeigen
+    // Alle Strukturen anzeigen - KORRIGIERT: Verwendet identische Berechnungen
     function showAllStructures() {
-        // Alle Berechnungen erneut durchführen
+        // Exakt dieselben Parameter wie in der Smart-Filterung
         const kaufpreis = parseFloat(document.getElementById('kaufpreis').value) || 0;
         const verkaufspreis = parseFloat(document.getElementById('verkaufspreis').value) || 0;
         const nebenkostenKauf = parseFloat(document.getElementById('nebenkosten_kauf').value) || 0;
@@ -2194,96 +2194,187 @@
         const koerperschaftsteuer = 15;
         const soli = 5.5;
         const gesamtsteuersatz = persSteuersatz + (persSteuersatz * kirchensteuer / 100) + (persSteuersatz * soli / 100);
+        const gewerbesteuer = 14;
+        const gewerbesteuerFreibetrag = 24500;
         
-        const ergebnisse = [];
         let steuer = 0;
         let steuerfrei = haltedauer >= 10;
         if (!steuerfrei) {
             steuer = bruttogewinn * gesamtsteuersatz / 100;
         }
 
-        // Alle 14 Strukturen berechnen (kompakte Version)
-        const alleStrukturen = [
-            {
-                typ: 'Privatverkauf',
-                steuer: steuer,
-                besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren' : '⏰ Spekulationssteuer'
-            },
-            {
-                typ: 'VV GbR',
-                steuer: steuer,
-                besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren' : '⏰ Transparente Besteuerung'
-            },
-            {
-                typ: 'VV GmbH & Co. KG',
-                steuer: haltedauer >= 10 ? 0 : steuer,
-                besonderheiten: '🏆 BFH 2025: Gewerbesteuerfrei!'
-            },
-            {
-                typ: 'VV KG',
-                steuer: steuer,
-                besonderheiten: 'Wie GbR, aber mit Komplementär'
-            },
-            {
-                typ: 'VV OHG',
-                steuer: steuer,
-                besonderheiten: '⚠️ Vollhaftung aller Gesellschafter'
-            },
-            {
-                typ: 'VV PartG',
-                steuer: steuer,
-                besonderheiten: 'Nur für Freiberufler'
-            },
-            {
-                typ: 'Familienpool KG',
-                steuer: Math.max(0, steuer - bruttogewinn * 0.05),
-                besonderheiten: '👨‍👩‍👧‍👦 Optimal für Nachfolge'
-            },
-            {
-                typ: 'VV GmbH',
-                steuer: bruttogewinn * 0.48,
-                besonderheiten: '❌ Doppelbesteuerung ~48%'
-            },
-            {
-                typ: 'VV UG',
-                steuer: bruttogewinn * 0.45,
-                besonderheiten: 'Wie GmbH, günstiger in Gründung'
-            },
-            {
-                typ: 'VV Holding-GmbH',
-                steuer: bruttogewinn * 0.40,
-                besonderheiten: '⭐ Schachtelprivileg ab 3+ Objekte'
-            },
-            {
-                typ: 'Gewerbliche GbR',
-                steuer: bruttogewinn * 0.35,
-                besonderheiten: '❌ Keine 10-Jahres-Frist'
-            },
-            {
-                typ: 'Gewerbliche GmbH',
-                steuer: bruttogewinn * 0.52,
-                besonderheiten: '❌ Höchste Belastung'
-            },
-            {
-                typ: 'Gewerbliche GmbH & Co. KG',
-                steuer: bruttogewinn * 0.38,
-                besonderheiten: 'Flexibler als reine GmbH'
-            },
-            {
-                typ: 'Cross-Border DE-LU',
-                steuer: Math.max(0, steuer - bruttogewinn * 0.15),
-                besonderheiten: '🌍 Nur bei >500k sinnvoll'
-            }
-        ];
+        // KORRIGIERT: Identische Berechnungen wie in Smart-Filterung
+        const ergebnisse = [];
 
-        // Ergebnisse mit Berechnungen
-        alleStrukturen.forEach(struktur => {
-            ergebnisse.push({
-                ...struktur,
-                bruttogewinn: bruttogewinn,
-                nettogewinn: bruttogewinn - struktur.steuer
-            });
+        // 1. Privatverkauf
+        ergebnisse.push({
+            typ: 'Privatverkauf',
+            bruttogewinn: bruttogewinn,
+            steuer: steuer,
+            nettogewinn: bruttogewinn - steuer,
+            besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (§23 EStG)' : '⏰ Spekulationssteuer - noch ' + (10 - haltedauer).toFixed(1) + ' Jahre bis steuerfrei'
         });
+
+        // 2. VV GbR
+        ergebnisse.push({
+            typ: 'VV GbR',
+            bruttogewinn: bruttogewinn,
+            steuer: steuer,
+            nettogewinn: bruttogewinn - steuer,
+            besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (transparente Besteuerung)' : '⏰ Transparente Besteuerung, noch ' + (10 - haltedauer).toFixed(1) + ' Jahre bis steuerfrei'
+        });
+
+        // 3. VV GmbH & Co. KG
+        if (haltedauer >= 10) {
+            ergebnisse.push({
+                typ: 'VV GmbH & Co. KG',
+                bruttogewinn: bruttogewinn,
+                steuer: 0,
+                nettogewinn: bruttogewinn,
+                besonderheiten: '🏆 STEUERFREI nach 10 Jahren + BFH 2025: Gewerbesteuerbefreiung!'
+            });
+        } else {
+            const steuerVVKG = bruttogewinn * gesamtsteuersatz / 100;
+            ergebnisse.push({
+                typ: 'VV GmbH & Co. KG',
+                bruttogewinn: bruttogewinn,
+                steuer: steuerVVKG,
+                nettogewinn: bruttogewinn - steuerVVKG,
+                besonderheiten: '⭐ BFH 2025: GEWERBESTEUERFREI + wird nach 10 Jahren komplett steuerfrei!'
+            });
+        }
+
+        // 4. VV GmbH - KORRIGIERT: Exakt dieselbe Berechnung wie Smart-Filterung
+        const gstBasis = Math.max(0, bruttogewinn - gewerbesteuerFreibetrag);
+        const gstBetrag = gstBasis * gewerbesteuer / 100;
+        const kstBasis = bruttogewinn - gstBetrag;
+        const kstBetrag = kstBasis * koerperschaftsteuer / 100;
+        const soli_gmbh = kstBetrag * 5.5 / 100;
+        const gesamtsteuerGmbh = gstBetrag + kstBetrag + soli_gmbh;
+        const nettoGmbh = bruttogewinn - gesamtsteuerGmbh;
+        const abgeltungsteuer = nettoGmbh * 26.375 / 100;
+        
+        let besonderheitGmbh = '❌ NIEMALS steuerfrei! Doppelbesteuerung: ~30% GmbH + ~26% Ausschüttung = ~48-50%';
+        if (einbringungNach > 0 && einbringungNach >= 10) {
+            besonderheitGmbh = `✅ Einbringung nach ${einbringungNach} Jahren war steuerfrei, ❌ aber Verkauf durch GmbH = Doppelbesteuerung`;
+        } else if (einbringungNach > 0) {
+            besonderheitGmbh = `❌ Einbringung nach ${einbringungNach} Jahren war steuerpflichtig, Verkauf auch = Doppelbesteuerung`;
+        }
+        
+        ergebnisse.push({
+            typ: 'VV GmbH',
+            bruttogewinn: bruttogewinn,
+            steuer: gesamtsteuerGmbh + abgeltungsteuer,
+            nettogewinn: nettoGmbh - abgeltungsteuer,
+            besonderheiten: besonderheitGmbh
+        });
+
+        // 5-14. Weitere Strukturen mit korrekten Berechnungen
+        const steuerVV = steuer;
+        
+        // 5. VV KG
+        ergebnisse.push({
+            typ: 'VV KG',
+            bruttogewinn: bruttogewinn,
+            steuer: steuerVV,
+            nettogewinn: bruttogewinn - steuerVV,
+            besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (transparente Besteuerung wie GbR)' : '⏰ Transparente Besteuerung, noch ' + (10 - haltedauer).toFixed(1) + ' Jahre bis steuerfrei'
+        });
+
+        // 6. VV OHG
+        ergebnisse.push({
+            typ: 'VV OHG',
+            bruttogewinn: bruttogewinn,
+            steuer: steuerVV,
+            nettogewinn: bruttogewinn - steuerVV,
+            besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (transparente Besteuerung)' : '⚠️ OHG = Vollhaftung aller Gesellschafter!'
+        });
+
+        // 7. VV PartG
+        ergebnisse.push({
+            typ: 'VV PartG',
+            bruttogewinn: bruttogewinn,
+            steuer: steuerVV,
+            nettogewinn: bruttogewinn - steuerVV,
+            besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (nur für Freiberufler)' : '⚠️ Nur für Freiberufler geeignet'
+        });
+
+        // 8. Familienpool KG
+        const familienRabatt = bruttogewinn * 0.05;
+        ergebnisse.push({
+            typ: 'Familienpool KG',
+            bruttogewinn: bruttogewinn,
+            steuer: Math.max(0, steuerVV - familienRabatt),
+            nettogewinn: bruttogewinn - Math.max(0, steuerVV - familienRabatt),
+            besonderheiten: steuerfrei ? '🏆 Steuerfrei + optimale Nachfolgeplanung für Familien' : '👨‍👩‍👧‍👦 Optimal für Generationenübergabe'
+        });
+
+        // 9. VV UG
+        const ugSteuer = gesamtsteuerGmbh * 0.8;
+        ergebnisse.push({
+            typ: 'VV UG',
+            bruttogewinn: bruttogewinn,
+            steuer: ugSteuer + abgeltungsteuer * 0.8,
+            nettogewinn: bruttogewinn - ugSteuer - abgeltungsteuer * 0.8,
+            besonderheiten: '❌ Doppelbesteuerung wie GmbH, aber günstiger in der Gründung'
+        });
+
+        // 10. VV Holding-GmbH
+        const holdingVorteil = bruttogewinn * 0.1;
+        ergebnisse.push({
+            typ: 'VV Holding-GmbH',
+            bruttogewinn: bruttogewinn,
+            steuer: Math.max(0, gesamtsteuerGmbh - holdingVorteil),
+            nettogewinn: bruttogewinn - Math.max(0, gesamtsteuerGmbh - holdingVorteil),
+            besonderheiten: '⭐ Schachtelprivileg nutzen, optimal für große Portfolios ab 3+ Objekte'
+        });
+
+        // 11. Gewerbliche GbR
+        const gewerbesteuerGesamt = bruttogewinn * gewerbesteuer / 100;
+        const anrechnungsbetrag = gewerbesteuerGesamt * 3.8;
+        const einkommensteuerBasis = bruttogewinn - Math.min(anrechnungsbetrag, gewerbesteuerGesamt);
+        const einkommensteuer = einkommensteuerBasis * gesamtsteuersatz / 100;
+        const gesamtsteuerGewerblich = gewerbesteuerGesamt + einkommensteuer;
+
+        ergebnisse.push({
+            typ: 'Gewerbliche GbR',
+            bruttogewinn: bruttogewinn,
+            steuer: gesamtsteuerGewerblich,
+            nettogewinn: bruttogewinn - gesamtsteuerGewerblich,
+            besonderheiten: '❌ Gewerblich = KEINE 10-Jahres-Frist (§23 EStG gilt nicht), aber Gewerbesteueranrechnung'
+        });
+
+        // 12. Gewerbliche GmbH
+        const gewGmbhSteuer = gesamtsteuerGmbh * 1.1;
+        ergebnisse.push({
+            typ: 'Gewerbliche GmbH',
+            bruttogewinn: bruttogewinn,
+            steuer: gewGmbhSteuer,
+            nettogewinn: bruttogewinn - gewGmbhSteuer,
+            besonderheiten: '❌ Immer gewerblich + Doppelbesteuerung = höchste Steuerbelastung'
+        });
+
+        // 13. Gewerbliche GmbH & Co. KG
+        const gewKGSteuer = gesamtsteuerGewerblich * 0.9;
+        ergebnisse.push({
+            typ: 'Gewerbliche GmbH & Co. KG',
+            bruttogewinn: bruttogewinn,
+            steuer: gewKGSteuer,
+            nettogewinn: bruttogewinn - gewKGSteuer,
+            besonderheiten: '❌ Gewerblich = keine 10-Jahres-Frist, aber flexibler als reine GmbH'
+        });
+
+        // 14. Cross-Border DE-LU Struktur
+        if (bruttogewinn > 500000) {
+            const crossBorderVorteil = bruttogewinn * 0.15;
+            ergebnisse.push({
+                typ: 'Cross-Border DE-LU',
+                bruttogewinn: bruttogewinn,
+                steuer: Math.max(0, steuerVV - crossBorderVorteil),
+                nettogewinn: bruttogewinn - Math.max(0, steuerVV - crossBorderVorteil),
+                besonderheiten: '🌍 EU-Strukturen nur bei großen Portfolios (>500k), komplexe Beratung nötig'
+            });
+        }
 
         displayAllStructuresResults(ergebnisse);
     }
