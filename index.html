@@ -623,10 +623,25 @@
         </div>
 
         <div class="warning success">
-            <strong>🏆 Empfehlung für 2025:</strong><br>
+        <div class="warning success">
+            <strong>🏆 Empfehlung für 2025 - Jetzt mit ALLEN vermögensverwaltenden Strukturen:</strong><br>
             <strong>Vor 10 Jahren:</strong> VV GmbH & Co. KG oder VV GbR (je nach Haftung)<br>
             <strong>Nach 10 Jahren:</strong> Privatverkauf oder strukturierte Übertragung<br>
-            <strong>NEU:</strong> BFH-Urteil macht VV GmbH & Co. KG gewerbesteuerfrei!
+            <strong>NEU:</strong> BFH-Urteil macht VV GmbH & Co. KG gewerbesteuerfrei!<br>
+            <strong>Familienstrukturen:</strong> Familienpool KG für Generationenübergabe<br>
+            <strong>Große Portfolios:</strong> VV Holding-GmbH mit Schachtelprivileg<br>
+            <strong>International:</strong> Cross-Border Strukturen für EU-Vorteile
+        </div>
+
+        <div class="warning info">
+            <strong>🎯 Vollständiger Strukturvergleich 2025:</strong><br>
+            Das Tool berücksichtigt jetzt ALLE 14 relevanten vermögensverwaltenden Rechtsformen:<br>
+            ✅ <strong>Transparente Strukturen:</strong> Privat, VV GbR, VV GmbH & Co. KG, VV KG, VV OHG, VV PartG, Familienpool<br>
+            ✅ <strong>Körperschaftliche:</strong> VV GmbH, VV UG, VV Holding-GmbH<br>
+            ✅ <strong>Gewerbliche:</strong> Gew. GbR, Gew. GmbH, Gew. GmbH & Co. KG<br>
+            ✅ <strong>Spezial:</strong> Cross-Border (DE-LU Strukturen)<br>
+            ✅ <strong>BFH 2025:</strong> Neueste Rechtsprechung zu Gewerbesteuerbefreiung<br>
+            ✅ <strong>Gesellschafterdarlehen:</strong> BFH-Urteil 2024 berücksichtigt
         </div>
     </div>
 
@@ -1061,16 +1076,29 @@
 
     // Hilfsfunktionen für Formatierung
     function formatCurrency(amount) {
+        // Sichere Formatierung - behandle NaN, undefined, null
+        if (isNaN(amount) || amount === null || amount === undefined) {
+            return '0 €';
+        }
+        
+        const numAmount = parseFloat(amount) || 0;
+        
         return new Intl.NumberFormat('de-DE', {
             style: 'currency',
             currency: 'EUR',
             minimumFractionDigits: 0,
             maximumFractionDigits: 0
-        }).format(amount);
+        }).format(numAmount);
     }
 
     function formatPercent(rate) {
-        return (rate).toFixed(1) + '%';
+        // Sichere Formatierung für Prozente
+        if (isNaN(rate) || rate === null || rate === undefined) {
+            return '0,0%';
+        }
+        
+        const numRate = parseFloat(rate) || 0;
+        return (numRate).toFixed(1) + '%';
     }
 
     // Verkaufssteuer Berechnung (erweitert)
@@ -1081,14 +1109,21 @@
         const nebenkostenVerkauf = parseFloat(document.getElementById('nebenkosten_verkauf').value) || 0;
         const modernisierung = parseFloat(document.getElementById('modernisierung').value) || 0;
         const haltedauer = parseFloat(document.getElementById('haltedauer').value) || 0;
-        const persSteuersatz = parseFloat(document.getElementById('persoenlicher_steuersatz').value) || 0;
-        const kirchensteuer = parseFloat(document.getElementById('kirchensteuer').value) || 0;
+        const persSteuersatz = parseFloat(document.getElementById('persoenlicher_steuersatz').value) || 42;
+        const kirchensteuer = parseFloat(document.getElementById('kirchensteuer').value) || 8;
         const einbringungNach = parseFloat(document.getElementById('einbringung_nach_jahren').value) || 0;
 
-        // Berechnungsdaten für andere Module speichern
+        // Berechnungsdaten für andere Module speichern - KORRIGIERT
         berechungsdaten.immobilie = {
-            kaufpreis, verkaufspreis, nebenkostenKauf, nebenkostenVerkauf,
-            modernisierung, haltedauer, persSteuersatz, kirchensteuer, einbringungNach
+            kaufpreis: kaufpreis,
+            verkaufspreis: verkaufspreis, 
+            nebenkosten_kauf: nebenkostenKauf,
+            nebenkosten_verkauf: nebenkostenVerkauf,
+            modernisierung: modernisierung, 
+            haltedauer: haltedauer, 
+            persSteuersatz: persSteuersatz, 
+            kirchensteuer: kirchensteuer, 
+            einbringung_nach_jahren: einbringungNach
         };
 
         const gesamtkosten = kaufpreis + nebenkostenKauf + modernisierung;
@@ -2234,36 +2269,62 @@
     // Smart-Empfehlungen basierend auf Eingaben
     function generateSmartEmpfehlungen() {
         const grunddaten = berechungsdaten.immobilie || {};
-        if (!grunddaten.kaufpreis) return;
+        
+        // Sichere Werte extrahieren mit Fallbacks
+        const kaufpreis = parseFloat(grunddaten.kaufpreis) || 0;
+        const verkaufspreis = parseFloat(grunddaten.verkaufspreis) || 0;
+        const nebenkostenKauf = parseFloat(grunddaten.nebenkosten_kauf) || 0;
+        const modernisierung = parseFloat(grunddaten.modernisierung) || 0;
+        const haltedauer = parseFloat(grunddaten.haltedauer) || 0;
+        const persSteuersatz = parseFloat(grunddaten.persSteuersatz) || 42;
+        
+        // Nur fortfahren wenn grundlegende Daten vorhanden sind
+        if (!kaufpreis || !verkaufspreis) return [];
         
         const empfehlungen = [];
         
+        // Bruttogewinn berechnen
+        const bruttogewinn = verkaufspreis - kaufpreis - nebenkostenKauf - modernisierung;
+        
         // Haltedauer-Optimierung
-        if (grunddaten.haltedauer < 10) {
-            const restzeit = 10 - grunddaten.haltedauer;
-            const potentielleErsparnis = (grunddaten.verkaufspreis - grunddaten.kaufpreis - grunddaten.nebenkosten_kauf - grunddaten.modernisierung) * grunddaten.persSteuersatz / 100;
+        if (haltedauer < 10 && bruttogewinn > 0) {
+            const restzeit = 10 - haltedauer;
+            const potentielleErsparnis = bruttogewinn * (persSteuersatz + 8 + 5.5) / 100; // Vereinfachte Steuerberechnung
             
             empfehlungen.push({
                 icon: '⏰',
                 titel: 'Verkaufstiming optimieren',
                 beschreibung: `Noch ${restzeit.toFixed(1)} Jahre bis steuerfreier Verkauf`,
-                ersparnis: potentielleErsparnis,
+                ersparnis: Math.max(0, potentielleErsparnis), // Sicherstellen dass nicht negativ
                 prioritaet: 'hoch'
             });
         }
         
         // Strukturoptimierung
-        if (grunddaten.haltedauer < 8) {
+        if (haltedauer < 8 && bruttogewinn > 0) {
+            const strukturVorteil = Math.max(0, bruttogewinn * 0.15); // 15% geschätzte Ersparnis durch optimale Struktur
             empfehlungen.push({
                 icon: '🏢',
                 titel: 'Strukturoptimierung prüfen',
                 beschreibung: 'VV GmbH & Co. KG könnte vorteilhaft sein',
-                ersparnis: grunddaten.verkaufspreis * 0.02, // Geschätzt 2%
+                ersparnis: strukturVorteil,
                 prioritaet: 'mittel'
             });
         }
         
-        return empfehlungen;
+        // Grundsteuer-Optimierung
+        if (haltedauer > 0) {
+            const grundsteuerErsparnis = Math.max(0, verkaufspreis * 0.005); // 0.5% geschätzte jährliche Grundsteuer-Optimierung
+            empfehlungen.push({
+                icon: '🏛️',
+                titel: 'Grundsteuer optimieren',
+                beschreibung: 'Neue Grundsteuer 2025 prüfen, ggf. Einspruch einlegen',
+                ersparnis: grundsteuerErsparnis,
+                prioritaet: 'mittel'
+            });
+        }
+        
+        return empfehlungen.filter(emp => emp.ersparnis > 100); // Nur Empfehlungen mit min. 100€ Potential zeigen
     }
 
     // Dashboard-Übersicht
@@ -2288,18 +2349,25 @@
             `;
             
             empfehlungen.slice(0, 2).forEach(emp => {
+                // Sichere Werte für Anzeige
+                const ersparnis = parseFloat(emp.ersparnis) || 0;
+                const beschreibung = emp.beschreibung || 'Optimierung prüfen';
+                const titel = emp.titel || 'Empfehlung';
+                const icon = emp.icon || '💡';
+                const prioritaet = emp.prioritaet || 'mittel';
+                
                 dashboardHtml += `
                     <div style="
                         padding: 10px;
                         margin: 8px 0;
                         background: #f8f9fa;
                         border-radius: 5px;
-                        border-left: 3px solid ${emp.prioritaet === 'hoch' ? '#e74c3c' : '#f39c12'};
+                        border-left: 3px solid ${prioritaet === 'hoch' ? '#e74c3c' : '#f39c12'};
                     ">
-                        <div style="font-weight: 600; font-size: 0.9em;">${emp.icon} ${emp.titel}</div>
-                        <div style="font-size: 0.8em; color: #6c757d; margin: 3px 0;">${emp.beschreibung}</div>
+                        <div style="font-weight: 600; font-size: 0.9em;">${icon} ${titel}</div>
+                        <div style="font-size: 0.8em; color: #6c757d; margin: 3px 0;">${beschreibung}</div>
                         <div style="font-size: 0.8em; font-weight: 600; color: #27ae60;">
-                            💰 Potential: ${formatCurrency(emp.ersparnis)}
+                            💰 Potential: ${formatCurrency(ersparnis)}
                         </div>
                     </div>
                 `;
