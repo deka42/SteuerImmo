@@ -537,7 +537,7 @@
                     margin: 0 10px;
                     cursor: pointer;
                     font-weight: 600;
-                ">💡 Smart-Dashboard</button>
+                ">💡 Dashboard einblenden</button>
                 <button onclick="testDashboardUpdate()" style="
                     background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
                     color: white;
@@ -547,7 +547,7 @@
                     margin: 0 10px;
                     cursor: pointer;
                     font-weight: 600;
-                ">🧪 Dashboard Testen</button>
+                ">🧪 Dashboard testen & einblenden</button>
                 <button onclick="showExtendedAnalyse()" style="
                     background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%);
                     color: white;
@@ -2933,19 +2933,35 @@
         document.body.insertAdjacentHTML('beforeend', dashboardHtml);
     }
 
-    // TEST-Funktion für Dashboard-Update (für Debugging)
+    // TEST-Funktion für Dashboard-Update - KORRIGIERT: Blendet Dashboard immer ein
     function testDashboardUpdate() {
-        console.log('=== DASHBOARD TEST ===');
+        console.log('=== DASHBOARD TEST START ===');
+        
+        // SCHRITT 1: Dashboard-Hidden Flag entfernen (falls gesetzt)
+        const warAusgeblendet = localStorage.getItem('dashboard-hidden');
+        if (warAusgeblendet) {
+            localStorage.removeItem('dashboard-hidden');
+            console.log('Dashboard war ausgeblendet - wird wieder eingeblendet');
+        }
+        
+        // SCHRITT 2: Aktuelle Werte lesen
         const haltedauer = document.getElementById('haltedauer').value;
         const kaufpreis = document.getElementById('kaufpreis').value;
         const verkaufspreis = document.getElementById('verkaufspreis').value;
         
         console.log('Aktuelle Werte:', { haltedauer, kaufpreis, verkaufspreis });
         
-        // Dashboard sofort aktualisieren
+        // SCHRITT 3: Dashboard DEFINITIV anzeigen (auch wenn ausgeblendet war)
         updateDashboard();
         
-        showAdvancedNotification(`Dashboard aktualisiert! Haltedauer: ${haltedauer} Jahre`, 'success');
+        // SCHRITT 4: Benutzer-Feedback
+        const nachricht = warAusgeblendet ? 
+            `✅ Dashboard wieder eingeblendet und aktualisiert! Haltedauer: ${haltedauer} Jahre` :
+            `✅ Dashboard aktualisiert! Haltedauer: ${haltedauer} Jahre`;
+        
+        showAdvancedNotification(nachricht, 'success');
+        
+        console.log('=== DASHBOARD TEST END ===');
     }
     function hideDashboard() {
         const dashboard = document.getElementById('smart-dashboard');
@@ -2961,10 +2977,18 @@
         localStorage.setItem('dashboard-hidden', 'true');
     }
 
-    // Dashboard wieder anzeigen (falls ausgeblendet)
+    // Dashboard wieder anzeigen - VERBESSERT: Mit Feedback
     function showDashboard() {
+        console.log('showDashboard() aufgerufen');
+        
+        // Hidden-Flag entfernen
         localStorage.removeItem('dashboard-hidden');
+        
+        // Dashboard sofort anzeigen
         updateDashboard();
+        
+        // Benutzer-Feedback
+        showAdvancedNotification('💡 Smart-Dashboard wieder eingeblendet', 'success');
     }
 
     // Initialisierung und Event-Handler - KORRIGIERT: Respektiert User-Präferenzen
