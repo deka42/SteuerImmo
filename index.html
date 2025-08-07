@@ -449,7 +449,7 @@
                 opacity: 1;
             }
         }
-
+        
         @keyframes slideOut {
             from {
                 transform: translateX(0);
@@ -1840,7 +1840,7 @@
             // Freibeträge (gleich wie Erbschaftsteuer)
             const freibetraege = {
                 'ehepartner': 500000,
-                'kind': 400000,
+                'child': 400000,
                 'enkel': 200000,
                 'eltern': 100000,
                 'geschwister': 20000,
@@ -2576,370 +2576,51 @@
             }, 50);
         }
 
-        // Erweiterte Hilfsfunktionen
-        function calculateKombiAnalyse() {
-            const grunddaten = berechungsdaten.immobilie || {};
-            if (!grunddaten.kaufpreis) {
-                alert('Bitte zuerst im "Verkaufssteuer-Vergleich" Tab eine Berechnung durchführen.');
-                return;
-            }
-
-            // Alle Module durchrechnen und vergleichen
-            const analyseErgebnisse = {
-                verkauf: calculateVerkaufInternal(grunddaten),
-                grundsteuer: calculateGrundsteuerInternal(),
-                erbschaft: calculateErbschaftsteuerInternal(),
-                schenkung: calculateSchenkungInternal(),
-                cashflow: calculateCashFlowInternal()
-            };
-
-            return analyseErgebnisse;
-        }
-
-        // Interne Berechnungsfunktionen (ohne DOM-Updates)
-        function calculateVerkaufInternal(daten) {
-            const bruttogewinn = daten.verkaufspreis - daten.kaufpreis - daten.nebenkosten_kauf - daten.modernisierung - (daten.nebenkosten_verkauf || 0);
-            const steuerfrei = daten.haltedauer >= 10;
-            const steuer = steuerfrei ? 0 : bruttogewinn * (daten.persSteuersatz + daten.kirchensteuer + 5.5) / 100;
+        // NEUE KORRIGIERTE EVENT-HANDLER
+        function attachEventHandlers() {
+            console.log('Event-Handler werden attached...');
             
-            return {
-                bruttogewinn,
-                steuer,
-                nettogewinn: bruttogewinn - steuer,
-                steuerfrei
-            };
-        }
-
-        function calculateGrundsteuerInternal() {
-            const grundstueckswert = parseFloat(document.getElementById('grundstueckswert').value) || 350000;
-            const hebesatz = parseFloat(document.getElementById('gemeinde_hebesatz').value) || 450;
-            const messzahl = 0.31; // Vereinfacht für Wohnimmobilien
+            // ALLE Input- und Select-Felder finden
+            const alleFelder = document.querySelectorAll('input, select');
+            console.log(`Gefunden: ${alleFelder.length} Eingabefelder`);
             
-            const messbetrag = grundstueckswert * messzahl / 1000;
-            const grundsteuer = messbetrag * hebesatz / 100;
-            
-            return {
-                grundsteuer,
-                messbetrag,
-                grundstueckswert
-            };
-        }
-
-        function calculateErbschaftsteuerInternal() {
-            const immobilienwert = parseFloat(document.getElementById('immobilienwert_erbe').value) || 450000;
-            const verwandtschaft = document.getElementById('verwandtschaftsgrad').value;
-            const freibetraege = {
-                'ehepartner': 500000,
-                'kind': 400000,
-                'enkel': 200000,
-                'eltern': 100000,
-                'geschwister': 20000,
-                'andere': 20000
-            };
-            
-            const freibetrag = freibetraege[verwandtschaft] || 20000;
-            const steuerpflichtig = Math.max(0, immobilienwert - freibetrag);
-            const steuer = steuerpflichtig * 0.15; // Vereinfachter Steuersatz
-            
-            return {
-                immobilienwert,
-                freibetrag,
-                steuer,
-                steuerpflichtig
-            };
-        }
-
-        function calculateSchenkungInternal() {
-            const immobilienwert = parseFloat(document.getElementById('schenkung_immobilienwert').value) || 600000;
-            const anteil = parseFloat(document.getElementById('schenkung_anteil').value) || 50;
-            const schenkungswert = immobilienwert * anteil / 100;
-            
-            return {
-                immobilienwert,
-                schenkungswert,
-                optimierung: schenkungswert * 0.1 // Geschätzte Steuerersparnis durch Optimierung
-            };
-        }
-
-        function calculateCashFlowInternal() {
-            const jahresmiete = parseFloat(document.getElementById('cf_jahresmiete').value) || 18000;
-            const ausgaben = (parseFloat(document.getElementById('cf_instandhaltung').value) || 2000) +
-                            (parseFloat(document.getElementById('cf_verwaltung').value) || 800) +
-                            (parseFloat(document.getElementById('cf_versicherung').value) || 600) +
-                            (parseFloat(document.getElementById('cf_finanzierung').value) || 8000) +
-                            (parseFloat(document.getElementById('cf_tilgung').value) || 6000);
-            
-            const nettoCashFlow = jahresmiete - ausgaben;
-            
-            return {
-                jahresmiete,
-                ausgaben,
-                nettoCashFlow,
-                rendite: (nettoCashFlow / (berechungsdaten.immobilie?.verkaufspreis || 450000)) * 100
-            };
-        }
-
-        // Erweiterte Strategieempfehlungen
-        function generateStrategieempfehlung(analyseErgebnisse) {
-            const verkauf = analyseErgebnisse.verkauf;
-            const cashflow = analyseErgebnisse.cashflow;
-            const alter = parseFloat(document.getElementById('strategie_alter').value) || 45;
-            
-            let empfehlungen = [];
-            
-            // Verkaufsstrategie
-            if (verkauf.steuerfrei) {
-                empfehlungen.push({
-                    kategorie: "Verkaufstiming",
-                    empfehlung: "✅ Optimal verkaufen - steuerfrei!",
-                    prioritaet: "hoch",
-                    ersparnis: verkauf.steuer
-                });
-            } else {
-                const wartezeit = 10 - (berechungsdaten.immobilie?.haltedauer || 0);
-                empfehlungen.push({
-                    kategorie: "Verkaufstiming",
-                    empfehlung: `⏰ Noch ${wartezeit.toFixed(1)} Jahre bis steuerfreier Verkauf warten`,
-                    prioritaet: "mittel",
-                    ersparnis: verkauf.steuer
-                });
-            }
-            
-            // Cash-Flow Optimierung
-            if (cashflow.nettoCashFlow < 0) {
-                empfehlungen.push({
-                    kategorie: "Cash-Flow",
-                    empfehlung: "🔄 Mieterhöhung oder Refinanzierung prüfen",
-                    prioritaet: "hoch",
-                    verbesserung: Math.abs(cashflow.nettoCashFlow)
-                });
-            }
-            
-            // Altersabhängige Empfehlungen
-            if (alter > 55) {
-                empfehlungen.push({
-                    kategorie: "Nachfolge",
-                    empfehlung: "👨‍👩‍👧‍👦 Schenkungsstrategie entwickeln - Freibeträge nutzen",
-                    prioritaet: "hoch",
-                    ersparnis: analyseErgebnisse.schenkung.optimierung
-                });
-            }
-            
-            return empfehlungen;
-        }
-
-        // Exportfunktion für Berichte
-        function exportBericht() {
-            const analyseErgebnisse = calculateKombiAnalyse();
-            const empfehlungen = generateStrategieempfehlung(analyseErgebnisse);
-            
-            let berichtHtml = `
-                <h1>📋 Immobilien-Steuer-Analyse Bericht</h1>
-                <h2>🏠 Immobiliendaten</h2>
-                <p>Kaufpreis: ${formatCurrency(berechungsdaten.immobilie?.kaufpreis || 0)}</p>
-                <p>Aktueller Wert: ${formatCurrency(berechungsdaten.immobilie?.verkaufspreis || 0)}</p>
-                <p>Haltedauer: ${berechungsdaten.immobilie?.haltedauer || 0} Jahre</p>
-                
-                <h2>💰 Verkaufssteuer-Analyse</h2>
-                <p>Bruttogewinn: ${formatCurrency(analyseErgebnisse.verkauf.bruttogewinn)}</p>
-                <p>Steuerbelastung: ${formatCurrency(analyseErgebnisse.verkauf.steuer)}</p>
-                <p>Nettogewinn: ${formatCurrency(analyseErgebnisse.verkauf.nettogewinn)}</p>
-                
-                <h2>🎯 Strategieempfehlungen</h2>
-            `;
-            
-            empfehlungen.forEach(emp => {
-                berichtHtml += `<p><strong>${emp.kategorie}:</strong> ${emp.empfehlung}</p>`;
-            });
-            
-            // Öffne neues Fenster für Bericht
-            const neuesFenster = window.open('', '_blank');
-            neuesFenster.document.write(`
-                <html>
-                <head><title>Immobilien-Steuer-Bericht</title>
-                <style>
-                    body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-                    h1, h2 { color: #2c3e50; }
-                    p { margin: 10px 0; }
-                </style>
-                </head>
-                <body>${berichtHtml}</body>
-                </html>
-            `);
-        }
-
-        // Steuer-Rechner für verschiedene Szenarien
-        function calculateSteuerSzenario(szenario) {
-            const grunddaten = berechungsdaten.immobilie || {};
-            
-            switch(szenario) {
-                case 'sofort_verkauf':
-                    return calculateVerkaufInternal({
-                        ...grunddaten,
-                        haltedauer: grunddaten.haltedauer || 0
-                    });
+            alleFelder.forEach((element, index) => {
+                // CHANGE Event - bei endgültiger Änderung
+                element.addEventListener('change', function() {
+                    console.log(`CHANGE Event auf ${this.id || 'unnamed field ' + index}:`, this.value);
                     
-                case 'verkauf_10_jahre':
-                    return calculateVerkaufInternal({
-                        ...grunddaten,
-                        haltedauer: 10,
-                        verkaufspreis: grunddaten.verkaufspreis * Math.pow(1.02, 10 - (grunddaten.haltedauer || 0))
-                    });
+                    // Daten speichern
+                    saveSuiteData();
                     
-                case 'schenkung_jetzt':
-                    const schenkungsdaten = calculateSchenkungInternal();
-                    return {
-                        steuerersparnis: schenkungsdaten.optimierung,
-                        empfehlung: 'Schenkung in Raten über mehrere 10-Jahres-Zyklen'
-                    };
+                    // SOFORT Dashboard aktualisieren
+                    setTimeout(updateDashboard, 50); // Kurze Verzögerung für DOM-Update
                     
-                default:
-                    return null;
-            }
-        }
-
-        // Erweiterte Benachrichtigungen
-        function showAdvancedNotification(message, type = 'info', actions = []) {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
-                color: white;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-                z-index: 1000;
-                font-weight: 500;
-                max-width: 350px;
-                animation: slideIn 0.3s ease;
-            `;
-            
-            let html = `<div style="margin-bottom: 15px;">${message}</div>`;
-            
-            if (actions.length > 0) {
-                html += '<div>';
-                actions.forEach(action => {
-                    html += `<button onclick="${action.onclick}" style="
-                        background: rgba(255,255,255,0.2);
-                        color: white;
-                        border: 1px solid rgba(255,255,255,0.3);
-                        padding: 8px 15px;
-                        margin: 5px 5px 0 0;
-                        border-radius: 5px;
-                        cursor: pointer;
-                        font-size: 0.9em;
-                    ">${action.text}</button>`;
-                });
-                html += '</div>';
-            }
-            
-            notification.innerHTML = html;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        document.body.removeChild(notification);
+                    // Berechnungen aktualisieren
+                    const activeTab = document.querySelector('.tab-content.active')?.id;
+                    if (activeTab === 'verkauf') {
+                        calculateVerkauf();
                     }
-                }, 300);
-            }, 6000);
-        }
-
-        // Smart-Empfehlungen basierend auf Eingaben - MIT DEBUG
-        function generateSmartEmpfehlungen() {
-            console.log('=== generateSmartEmpfehlungen START ===');
-            
-            // IMMER die aktuellen DOM-Werte lesen (NIEMALS gecachte Werte)
-            const kaufpreis = parseFloat(document.getElementById('kaufpreis').value) || 0;
-            const verkaufspreis = parseFloat(document.getElementById('verkaufspreis').value) || 0;
-            const nebenkostenKauf = parseFloat(document.getElementById('nebenkosten_kauf').value) || 0;
-            const modernisierung = parseFloat(document.getElementById('modernisierung').value) || 0;
-            const haltedauer = parseFloat(document.getElementById('haltedauer').value) || 0;
-            const persSteuersatz = parseFloat(document.getElementById('persoenlicher_steuersatz').value) || 42;
-            const kirchensteuer = parseFloat(document.getElementById('kirchensteuer').value) || 8;
-            
-            console.log('Gelesene Werte:', {
-                kaufpreis, verkaufspreis, nebenkostenKauf, modernisierung, 
-                haltedauer, persSteuersatz, kirchensteuer
+                });
+                
+                // INPUT Event - während dem Tippen (nur für wichtige Felder)
+                if (['kaufpreis', 'verkaufspreis', 'haltedauer', 'persoenlicher_steuersatz'].includes(element.id)) {
+                    element.addEventListener('input', function() {
+                        console.log(`INPUT Event auf ${this.id}:`, this.value);
+                        
+                        // Dashboard mit kurzer Verzögerung aktualisieren
+                        clearTimeout(window.dashboardUpdateTimeout);
+                        window.dashboardUpdateTimeout = setTimeout(() => {
+                            updateDashboard();
+                        }, 800);
+                    });
+                }
             });
-            
-            // Basis-Validierung
-            if (!kaufpreis || !verkaufspreis) {
-                console.log('Keine Empfehlungen: Kaufpreis oder Verkaufspreis fehlt');
-                return [];
-            }
-            
-            const empfehlungen = [];
-            const bruttogewinn = verkaufspreis - kaufpreis - nebenkostenKauf - modernisierung;
-            
-            console.log('Bruttogewinn berechnet:', bruttogewinn);
-            
-            // Haltedauer-Optimierung - DETAILLIERTES LOGGING
-            console.log('Prüfe Haltedauer-Optimierung:', { haltedauer, ist_unter_10: haltedauer < 10 });
-            
-            if (haltedauer < 10 && bruttogewinn > 0) {
-                const restzeit = 10 - haltedauer;
-                const gesamtsteuersatz = persSteuersatz + (persSteuersatz * kirchensteuer / 100) + (persSteuersatz * 5.5 / 100);
-                const potentielleErsparnis = bruttogewinn * gesamtsteuersatz / 100;
-                
-                console.log('Haltedauer < 10 - Empfehlung erstellt:', {
-                    restzeit, gesamtsteuersatz, potentielleErsparnis
-                });
-                
-                empfehlungen.push({
-                    icon: '⏰',
-                    titel: `Noch ${restzeit.toFixed(1)} Jahre warten = steuerfrei`,
-                    beschreibung: `Potentielle Steuerersparnis durch 10-Jahres-Frist`,
-                    ersparnis: Math.max(0, potentielleErsparnis),
-                    prioritaet: 'hoch',
-                    detail: `Bei Verkauf heute: ${formatCurrency(potentielleErsparnis)} Steuern`
-                });
-            } else if (haltedauer >= 10 && bruttogewinn > 0) {
-                console.log('Haltedauer >= 10 - Steuerfreie Empfehlung erstellt');
-                
-                empfehlungen.push({
-                    icon: '🎉',
-                    titel: 'OPTIMAL: Steuerfreier Verkauf möglich!',
-                    beschreibung: '10-Jahres-Frist erreicht - verkaufen Sie steuerfrei',
-                    ersparnis: bruttogewinn * 0.4, // Was gespart wird vs. früherem Verkauf
-                    prioritaet: 'hoch',
-                    detail: 'Komplette Steuerbefreiung nach §23 EStG'
-                });
-            }
-            
-            // Strukturoptimierung
-            if (haltedauer < 8 && bruttogewinn > 0) {
-                const strukturVorteil = Math.max(0, bruttogewinn * 0.15);
-                empfehlungen.push({
-                    icon: '🏢',
-                    titel: 'Strukturoptimierung noch möglich',
-                    beschreibung: 'VV GmbH & Co. KG = BFH 2025 gewerbesteuerfrei',
-                    ersparnis: strukturVorteil,
-                    prioritaet: 'mittel',
-                    detail: 'Umstrukturierung vor 10-Jahres-Frist'
-                });
-            } else if (haltedauer >= 8 && haltedauer < 10) {
-                empfehlungen.push({
-                    icon: '⚡',
-                    titel: 'Umstrukturierung zeitkritisch',
-                    beschreibung: `Nur noch ${(10 - haltedauer).toFixed(1)} Jahre bis steuerfreier Verkauf`,
-                    ersparnis: bruttogewinn * 0.1,
-                    prioritaet: 'hoch',
-                    detail: 'Schnelle Entscheidung erforderlich'
-                });
-            }
-            
-            console.log('Empfehlungen generiert:', empfehlungen.length);
-            console.log('=== generateSmartEmpfehlungen END ===');
-            
-            return empfehlungen.filter(emp => emp.ersparnis > 100);
         }
 
-        // Dashboard-Übersicht - KOMPLETT NEU: Garantiert aktuelle Werte
+        // KORRIGIERTE DASHBOARD-FUNKTIONEN
         function updateDashboard() {
+            console.log('updateDashboard() aufgerufen');
+            
             // SCHRITT 1: Immer zuerst altes Dashboard entfernen
             const altesDashboard = document.getElementById('smart-dashboard');
             if (altesDashboard) {
@@ -2948,7 +2629,10 @@
             
             // SCHRITT 2: Prüfen ob Dashboard gewünscht
             const dashboardHidden = localStorage.getItem('dashboard-hidden');
-            if (dashboardHidden) return;
+            if (dashboardHidden) {
+                console.log('Dashboard ist ausgeblendet - kein Update');
+                return;
+            }
             
             // SCHRITT 3: Empfehlungen generieren (IMMER mit aktuellen DOM-Werten)
             const empfehlungen = generateSmartEmpfehlungen();
@@ -3041,7 +2725,156 @@
             document.body.insertAdjacentHTML('beforeend', dashboardHtml);
         }
 
-        // TEST-Funktion für Dashboard-Update - KORRIGIERT: Blendet Dashboard immer ein
+        // KORRIGIERTE SMART-EMPFEHLUNGEN
+        function generateSmartEmpfehlungen() {
+            console.log('=== generateSmartEmpfehlungen START ===');
+            
+            // IMMER die aktuellen DOM-Werte lesen (NIEMALS gecachte Werte)
+            const kaufpreis = parseFloat(document.getElementById('kaufpreis').value) || 0;
+            const verkaufspreis = parseFloat(document.getElementById('verkaufspreis').value) || 0;
+            const nebenkostenKauf = parseFloat(document.getElementById('nebenkosten_kauf').value) || 0;
+            const modernisierung = parseFloat(document.getElementById('modernisierung').value) || 0;
+            const haltedauer = parseFloat(document.getElementById('haltedauer').value) || 0;
+            const persSteuersatz = parseFloat(document.getElementById('persoenlicher_steuersatz').value) || 42;
+            const kirchensteuer = parseFloat(document.getElementById('kirchensteuer').value) || 8;
+            
+            console.log('Gelesene Werte:', {
+                kaufpreis, verkaufspreis, nebenkostenKauf, modernisierung, 
+                haltedauer, persSteuersatz, kirchensteuer
+            });
+            
+            // Basis-Validierung
+            if (!kaufpreis || !verkaufspreis) {
+                console.log('Keine Empfehlungen: Kaufpreis oder Verkaufspreis fehlt');
+                return [];
+            }
+            
+            const empfehlungen = [];
+            const bruttogewinn = verkaufspreis - kaufpreis - nebenkostenKauf - modernisierung;
+            
+            console.log('Bruttogewinn berechnet:', bruttogewinn);
+            
+            // Haltedauer-Optimierung - DETAILLIERTES LOGGING
+            console.log('Prüfe Haltedauer-Optimierung:', { haltedauer, ist_unter_10: haltedauer < 10 });
+            
+            if (haltedauer < 10 && bruttogewinn > 0) {
+                const restzeit = 10 - haltedauer;
+                const gesamtsteuersatz = persSteuersatz + (persSteuersatz * kirchensteuer / 100) + (persSteuersatz * 5.5 / 100);
+                const potentielleErsparnis = bruttogewinn * gesamtsteuersatz / 100;
+                
+                console.log('Haltedauer < 10 - Empfehlung erstellt:', {
+                    restzeit, gesamtsteuersatz, potentielleErsparnis
+                });
+                
+                empfehlungen.push({
+                    icon: '⏰',
+                    titel: `Noch ${restzeit.toFixed(1)} Jahre warten = steuerfrei`,
+                    beschreibung: `Potentielle Steuerersparnis durch 10-Jahres-Frist`,
+                    ersparnis: Math.max(0, potentielleErsparnis),
+                    prioritaet: 'hoch',
+                    detail: `Bei Verkauf heute: ${formatCurrency(potentielleErsparnis)} Steuern`
+                });
+            } else if (haltedauer >= 10 && bruttogewinn > 0) {
+                console.log('Haltedauer >= 10 - Steuerfreie Empfehlung erstellt');
+                
+                empfehlungen.push({
+                    icon: '🎉',
+                    titel: 'OPTIMAL: Steuerfreier Verkauf möglich!',
+                    beschreibung: '10-Jahres-Frist erreicht - verkaufen Sie steuerfrei',
+                    ersparnis: bruttogewinn * 0.4, // Was gespart wird vs. früherem Verkauf
+                    prioritaet: 'hoch',
+                    detail: 'Komplette Steuerbefreiung nach §23 EStG'
+                });
+            }
+            
+            // Strukturoptimierung
+            if (haltedauer < 8 && bruttogewinn > 0) {
+                const strukturVorteil = Math.max(0, bruttogewinn * 0.15);
+                empfehlungen.push({
+                    icon: '🏢',
+                    titel: 'Strukturoptimierung noch möglich',
+                    beschreibung: 'VV GmbH & Co. KG = BFH 2025 gewerbesteuerfrei',
+                    ersparnis: strukturVorteil,
+                    prioritaet: 'mittel',
+                    detail: 'Umstrukturierung vor 10-Jahres-Frist'
+                });
+            } else if (haltedauer >= 8 && haltedauer < 10) {
+                empfehlungen.push({
+                    icon: '⚡',
+                    titel: 'Umstrukturierung zeitkritisch',
+                    beschreibung: `Nur noch ${(10 - haltedauer).toFixed(1)} Jahre bis steuerfreier Verkauf`,
+                    ersparnis: bruttogewinn * 0.1,
+                    prioritaet: 'hoch',
+                    detail: 'Schnelle Entscheidung erforderlich'
+                });
+            }
+            
+            console.log('Empfehlungen generiert:', empfehlungen.length);
+            console.log('=== generateSmartEmpfehlungen END ===');
+            
+            return empfehlungen.filter(emp => emp.ersparnis > 100);
+        }
+
+        // Initialisierung und Event-Handler - KORRIGIERT
+        function initializeSuite() {
+            console.log('Initialisierung gestartet');
+            
+            // Lade gespeicherte Daten
+            const gespeicherteDaten = localStorage.getItem('immobilien-suite-daten');
+            if (gespeicherteDaten) {
+                try {
+                    berechungsdaten = JSON.parse(gespeicherteDaten);
+                    // Lade Daten in Formulare
+                    if (berechungsdaten.immobilie) {
+                        Object.keys(berechungsdaten.immobilie).forEach(key => {
+                            const element = document.getElementById(key);
+                            if (element) element.value = berechungsdaten.immobilie[key];
+                        });
+                    }
+                } catch(e) {
+                    console.log('Gespeicherte Daten konnten nicht geladen werden');
+                }
+            }
+            
+            // Erste Berechnung
+            calculateVerkauf();
+            
+            // Event-Handler setzen
+            attachEventHandlers();
+            
+            // Smart Dashboard anzeigen - KORRIGIERT: Nur wenn nicht ausgeblendet
+            setTimeout(() => {
+                const dashboardHidden = localStorage.getItem('dashboard-hidden');
+                if (!dashboardHidden) {
+                    updateDashboard();
+                }
+            }, 2000);
+        }
+
+        // Daten speichern
+        function saveSuiteData() {
+            try {
+                // Sammle alle aktuellen Werte
+                const aktuelleDaten = {
+                    immobilie: {
+                        kaufpreis: parseFloat(document.getElementById('kaufpreis').value) || 0,
+                        verkaufspreis: parseFloat(document.getElementById('verkaufspreis').value) || 0,
+                        nebenkosten_kauf: parseFloat(document.getElementById('nebenkosten_kauf').value) || 0,
+                        nebenkosten_verkauf: parseFloat(document.getElementById('nebenkosten_verkauf').value) || 0,
+                        modernisierung: parseFloat(document.getElementById('modernisierung').value) || 0,
+                        haltedauer: parseFloat(document.getElementById('haltedauer').value) || 0,
+                        persSteuersatz: parseFloat(document.getElementById('persoenlicher_steuersatz').value) || 42,
+                        kirchensteuer: parseFloat(document.getElementById('kirchensteuer').value) || 8
+                    }
+                };
+                
+                localStorage.setItem('immobilien-suite-daten', JSON.stringify(aktuelleDaten));
+            } catch(e) {
+                console.log('Daten konnten nicht gespeichert werden');
+            }
+        }
+
+        // TEST-Funktion für Dashboard-Update - KORRIGIERT
         function testDashboardUpdate() {
             console.log('=== DASHBOARD TEST START ===');
             
@@ -3071,6 +2904,7 @@
             
             console.log('=== DASHBOARD TEST END ===');
         }
+
         function hideDashboard() {
             const dashboard = document.getElementById('smart-dashboard');
             if (dashboard) {
@@ -3085,7 +2919,7 @@
             localStorage.setItem('dashboard-hidden', 'true');
         }
 
-        // Dashboard wieder anzeigen - VERBESSERT: Mit Feedback
+        // Dashboard wieder anzeigen - VERBESSERT
         function showDashboard() {
             console.log('showDashboard() aufgerufen');
             
@@ -3099,98 +2933,61 @@
             showAdvancedNotification('💡 Smart-Dashboard wieder eingeblendet', 'success');
         }
 
-        // Initialisierung und Event-Handler - KORRIGIERT: Respektiert User-Präferenzen
-        function initializeSuite() {
-            // Lade gespeicherte Daten
-            const gespeicherteDaten = localStorage.getItem('immobilien-suite-daten');
-            if (gespeicherteDaten) {
-                try {
-                    berechungsdaten = JSON.parse(gespeicherteDaten);
-                    // Lade Daten in Formulare
-                    if (berechungsdaten.immobilie) {
-                        Object.keys(berechungsdaten.immobilie).forEach(key => {
-                            const element = document.getElementById(key);
-                            if (element) element.value = berechungsdaten.immobilie[key];
-                        });
-                    }
-                } catch(e) {
-                    console.log('Gespeicherte Daten konnten nicht geladen werden');
-                }
-            }
+        // Erweiterte Benachrichtigungen
+        function showAdvancedNotification(message, type = 'info', actions = []) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                font-weight: 500;
+                max-width: 350px;
+                animation: slideIn 0.3s ease;
+            `;
             
-            // Erste Berechnung
-            calculateVerkauf();
+            let html = `<div style="margin-bottom: 15px;">${message}</div>`;
             
-            // Smart Dashboard anzeigen - KORRIGIERT: Nur wenn nicht ausgeblendet
-            setTimeout(() => {
-                const dashboardHidden = localStorage.getItem('dashboard-hidden');
-                if (!dashboardHidden) {
-                    updateDashboard();
-                }
-            }, 2000);
-        }
-
-        // Daten speichern
-        function saveSuiteData() {
-            try {
-                localStorage.setItem('immobilien-suite-daten', JSON.stringify(berechungsdaten));
-            } catch(e) {
-                console.log('Daten konnten nicht gespeichert werden');
-            }
-        }
-
-        // Event-Handler - KOMPLETT NEU: Direkter Dashboard-Update
-        function attachEventHandlers() {
-            console.log('Event-Handler werden attached...');
-            
-            // ALLE Input- und Select-Felder finden
-            const alleFelder = document.querySelectorAll('input, select');
-            console.log(`Gefunden: ${alleFelder.length} Eingabefelder`);
-            
-            alleFelder.forEach((element, index) => {
-                // CHANGE Event - bei endgültiger Änderung
-                element.addEventListener('change', function() {
-                    console.log(`CHANGE Event auf ${this.id || 'unnamed field ' + index}:`, this.value);
-                    
-                    // Daten speichern
-                    saveSuiteData();
-                    
-                    // SOFORT Dashboard aktualisieren
-                    setTimeout(updateDashboard, 50); // Kurze Verzögerung für DOM-Update
-                    
-                    // Berechnungen aktualisieren
-                    const activeTab = document.querySelector('.tab-content.active')?.id;
-                    if (activeTab === 'verkauf') {
-                        calculateVerkauf();
-                    }
+            if (actions.length > 0) {
+                html += '<div>';
+                actions.forEach(action => {
+                    html += `<button onclick="${action.onclick}" style="
+                        background: rgba(255,255,255,0.2);
+                        color: white;
+                        border: 1px solid rgba(255,255,255,0.3);
+                        padding: 8px 15px;
+                        margin: 5px 5px 0 0;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-size: 0.9em;
+                    ">${action.text}</button>`;
                 });
-                
-                // INPUT Event - während dem Tippen (nur für wichtige Felder)
-                if (['kaufpreis', 'verkaufspreis', 'haltedauer', 'persoenlicher_steuersatz'].includes(element.id)) {
-                    element.addEventListener('input', function() {
-                        console.log(`INPUT Event auf ${this.id}:`, this.value);
-                        
-                        // Dashboard mit kurzer Verzögerung aktualisieren
-                        clearTimeout(window.dashboardUpdateTimeout);
-                        window.dashboardUpdateTimeout = setTimeout(() => {
-                            updateDashboard();
-                        }, 800);
-                    });
-                }
-            });
+                html += '</div>';
+            }
+            
+            notification.innerHTML = html;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 6000);
         }
 
-        // Erweiterte Event-Handler - KOMPLETT ÜBERARBEITET
+        // Event-Handler für DOM-Content-Loaded
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM Content Loaded - starte Initialisierung...');
             
             initializeSuite();
-            
-            // Event-Handler mit kurzer Verzögerung attachieren (für alle dynamischen Inhalte)
-            setTimeout(() => {
-                attachEventHandlers();
-                console.log('Event-Handler erfolgreich attached');
-            }, 100);
         });
 
         // Export-Funktion zur globalen Verfügung stellen
