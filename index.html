@@ -496,93 +496,94 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏠 Immobilien-Steuer-Suite 2025</h1>
-            <div class="subtitle">Komplettanalyse für smarte Immobilieninvestoren - Alle Steueraspekte auf einen Blick</div>
-            <div style="margin-top: 15px;">
-                <button onclick="exportBericht()" style="
-                    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 5px;
-                    margin: 0 10px;
-                    cursor: pointer;
-                    font-weight: 600;
-                ">📋 Bericht exportieren</button>
-                <button onclick="resetAllData()" style="
-                    background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 5px;
-                    margin: 0 10px;
-                    cursor: pointer;
-                    font-weight: 600;
-                ">🔄 Daten zurücksetzen</button>
-                    <button onclick="showDashboard()" style="
-                    background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 5px;
-                    margin: 0 10px;
-                    cursor: pointer;
-                    font-weight: 600;
-                ">💡 Dashboard einblenden</button>
-                <button onclick="importExample()" style="
-                    background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 5px;
-                    margin: 0 10px;
-                    cursor: pointer;
-                    font-weight: 600;
-                <button onclick="testDashboardUpdate()" style="
-                    background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 5px;
-                    margin: 0 10px;
-                    cursor: pointer;
-                    font-weight: 600;
-                ">🧪 Dashboard testen & einblenden</button>
-                <button onclick="showExtendedAnalyse()" style="
-                    background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%);
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    border-radius: 5px;
-                    margin: 0 10px;
-                    cursor: pointer;
-                    font-weight: 600;
-                ">🔍 Erweiterte Analyse</button>
-            </div>
-        </div>
+    <h1>🏠 Immobilien-Steuer-Suite 2025</h1>
+    <div class="subtitle">Komplettanalyse für smarte Immobilieninvestoren - Alle Steueraspekte auf einen Blick</div>
+    <div style="margin-top: 15px;">
+        <button onclick="exportBericht()" style="
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 0 10px;
+            cursor: pointer;
+            font-weight: 600;
+        ">📋 Bericht exportieren</button>
+        <button onclick="resetAllData()" style="
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 0 10px;
+            cursor: pointer;
+            font-weight: 600;
+        ">🔄 Daten zurücksetzen</button>
+        <button onclick="showDashboard()" style="
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 0 10px;
+            cursor: pointer;
+            font-weight: 600;
+        ">💡 Dashboard einblenden</button>
+        <button onclick="importExample()" style="
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 0 10px;
+            cursor: pointer;
+            font-weight: 600;
+        ">Beispieldaten laden</button>
+        <button onclick="testDashboardUpdate()" style="
+            background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 0 10px;
+            cursor: pointer;
+            font-weight: 600;
+        ">🧪 Dashboard testen & einblenden</button>
+        <button onclick="showExtendedAnalyse()" style="
+            background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin: 0 10px;
+            cursor: pointer;
+            font-weight: 600;
+        ">🔍 Erweiterte Analyse</button>
+    </div>
+</div>
 
 ```
     <!-- Navigation Tabs -->
     <div class="nav-tabs">
-    <button class="nav-tab active" onclick="switchTab(this, 'verkauf')">
-        <span class="tab-icon">💰</span>Verkaufssteuer-Vergleich
-    </button>
-    <button class="nav-tab" onclick="switchTab(this, 'grundsteuer')">
-        <span class="tab-icon">🏛️</span>Grundsteuer 2025
-    </button>
-    <button class="nav-tab" onclick="switchTab(this, 'erbschaft')">
-        <span class="tab-icon">👨‍👩‍👧‍👦</span>Erbschaftsteuer
-    </button>
-    <button class="nav-tab" onclick="switchTab(this, 'schenkung')">
-        <span class="tab-icon">🎁</span>Schenkungssteuer
-    </button>
-    <button class="nav-tab" onclick="switchTab(this, 'gesamtstrategie')">
-        <span class="tab-icon">🎯</span>Gesamtstrategie
-    </button>
-    <button class="nav-tab" onclick="switchTab(this, 'cashflow')">
-        <span class="tab-icon">📊</span>Cash-Flow Analyse
-    </button>
-</div>
+        <button class="nav-tab active" onclick="switchTab('verkauf')">
+            <span class="tab-icon">💰</span>Verkaufssteuer-Vergleich
+        </button>
+        <button class="nav-tab" onclick="switchTab('grundsteuer')">
+            <span class="tab-icon">🏛️</span>Grundsteuer 2025
+        </button>
+        <button class="nav-tab" onclick="switchTab('erbschaft')">
+            <span class="tab-icon">👨‍👩‍👧‍👦</span>Erbschaftsteuer
+        </button>
+        <button class="nav-tab" onclick="switchTab('schenkung')">
+            <span class="tab-icon">🎁</span>Schenkungssteuer
+        </button>
+        <button class="nav-tab" onclick="switchTab('gesamtstrategie')">
+            <span class="tab-icon">🎯</span>Gesamtstrategie
+        </button>
+        <button class="nav-tab" onclick="switchTab('cashflow')">
+            <span class="tab-icon">📊</span>Cash-Flow Analyse
+        </button>
+    </div>
 
     <!-- Tab Content -->
     
@@ -1118,21 +1119,19 @@
     let berechungsdaten = {};
 
     // Tab-Wechsel Funktionalität
-function switchTab(button, tabName) {
-    // Alle Tabs deaktivieren
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-        tab.classList.remove('active');
-    });
+    function switchTab(tabName) {
+        // Alle Tabs deaktivieren
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
 
-    // Gewählten Tab-Inhalt aktivieren
-    document.getElementById(tabName).classList.add('active');
-    
-    // Geklickten Button aktivieren
-    button.classList.add('active');
-}
+        // Gewählten Tab aktivieren
+        document.getElementById(tabName).classList.add('active');
+        event.target.closest('.nav-tab').classList.add('active');
+    }
 
     // Hilfsfunktionen für Formatierung
     function formatCurrency(amount) {
