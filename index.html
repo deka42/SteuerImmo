@@ -528,8 +528,28 @@
                     margin: 0 10px;
                     cursor: pointer;
                     font-weight: 600;
-                <button onclick="showExtendedAnalyse()" style="
+                <button onclick="showDashboard()" style="
                     background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    margin: 0 10px;
+                    cursor: pointer;
+                    font-weight: 600;
+                ">💡 Smart-Dashboard</button>
+                <button onclick="testDashboardUpdate()" style="
+                    background: linear-gradient(135deg, #e67e22 0%, #f39c12 100%);
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 5px;
+                    margin: 0 10px;
+                    cursor: pointer;
+                    font-weight: 600;
+                ">🧪 Dashboard Testen</button>
+                <button onclick="showExtendedAnalyse()" style="
+                    background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%);
                     color: white;
                     border: none;
                     padding: 10px 20px;
@@ -2720,114 +2740,168 @@
         }, 6000);
     }
 
-    // Smart-Empfehlungen basierend auf Eingaben
+    // Smart-Empfehlungen basierend auf Eingaben - MIT DEBUG
     function generateSmartEmpfehlungen() {
-        const grunddaten = berechungsdaten.immobilie || {};
+        console.log('=== generateSmartEmpfehlungen START ===');
         
-        // Sichere Werte extrahieren mit Fallbacks
-        const kaufpreis = parseFloat(grunddaten.kaufpreis) || 0;
-        const verkaufspreis = parseFloat(grunddaten.verkaufspreis) || 0;
-        const nebenkostenKauf = parseFloat(grunddaten.nebenkosten_kauf) || 0;
-        const modernisierung = parseFloat(grunddaten.modernisierung) || 0;
-        const haltedauer = parseFloat(grunddaten.haltedauer) || 0;
-        const persSteuersatz = parseFloat(grunddaten.persSteuersatz) || 42;
+        // IMMER die aktuellen DOM-Werte lesen (NIEMALS gecachte Werte)
+        const kaufpreis = parseFloat(document.getElementById('kaufpreis').value) || 0;
+        const verkaufspreis = parseFloat(document.getElementById('verkaufspreis').value) || 0;
+        const nebenkostenKauf = parseFloat(document.getElementById('nebenkosten_kauf').value) || 0;
+        const modernisierung = parseFloat(document.getElementById('modernisierung').value) || 0;
+        const haltedauer = parseFloat(document.getElementById('haltedauer').value) || 0;
+        const persSteuersatz = parseFloat(document.getElementById('persoenlicher_steuersatz').value) || 42;
+        const kirchensteuer = parseFloat(document.getElementById('kirchensteuer').value) || 8;
         
-        // Nur fortfahren wenn grundlegende Daten vorhanden sind
-        if (!kaufpreis || !verkaufspreis) return [];
+        console.log('Gelesene Werte:', {
+            kaufpreis, verkaufspreis, nebenkostenKauf, modernisierung, 
+            haltedauer, persSteuersatz, kirchensteuer
+        });
+        
+        // Basis-Validierung
+        if (!kaufpreis || !verkaufspreis) {
+            console.log('Keine Empfehlungen: Kaufpreis oder Verkaufspreis fehlt');
+            return [];
+        }
         
         const empfehlungen = [];
-        
-        // Bruttogewinn berechnen
         const bruttogewinn = verkaufspreis - kaufpreis - nebenkostenKauf - modernisierung;
         
-        // Haltedauer-Optimierung
+        console.log('Bruttogewinn berechnet:', bruttogewinn);
+        
+        // Haltedauer-Optimierung - DETAILLIERTES LOGGING
+        console.log('Prüfe Haltedauer-Optimierung:', { haltedauer, ist_unter_10: haltedauer < 10 });
+        
         if (haltedauer < 10 && bruttogewinn > 0) {
             const restzeit = 10 - haltedauer;
-            const potentielleErsparnis = bruttogewinn * (persSteuersatz + 8 + 5.5) / 100; // Vereinfachte Steuerberechnung
+            const gesamtsteuersatz = persSteuersatz + (persSteuersatz * kirchensteuer / 100) + (persSteuersatz * 5.5 / 100);
+            const potentielleErsparnis = bruttogewinn * gesamtsteuersatz / 100;
+            
+            console.log('Haltedauer < 10 - Empfehlung erstellt:', {
+                restzeit, gesamtsteuersatz, potentielleErsparnis
+            });
             
             empfehlungen.push({
                 icon: '⏰',
-                titel: 'Verkaufstiming optimieren',
-                beschreibung: `Noch ${restzeit.toFixed(1)} Jahre bis steuerfreier Verkauf`,
-                ersparnis: Math.max(0, potentielleErsparnis), // Sicherstellen dass nicht negativ
-                prioritaet: 'hoch'
+                titel: `Noch ${restzeit.toFixed(1)} Jahre warten = steuerfrei`,
+                beschreibung: `Potentielle Steuerersparnis durch 10-Jahres-Frist`,
+                ersparnis: Math.max(0, potentielleErsparnis),
+                prioritaet: 'hoch',
+                detail: `Bei Verkauf heute: ${formatCurrency(potentielleErsparnis)} Steuern`
+            });
+        } else if (haltedauer >= 10 && bruttogewinn > 0) {
+            console.log('Haltedauer >= 10 - Steuerfreie Empfehlung erstellt');
+            
+            empfehlungen.push({
+                icon: '🎉',
+                titel: 'OPTIMAL: Steuerfreier Verkauf möglich!',
+                beschreibung: '10-Jahres-Frist erreicht - verkaufen Sie steuerfrei',
+                ersparnis: bruttogewinn * 0.4, // Was gespart wird vs. früherem Verkauf
+                prioritaet: 'hoch',
+                detail: 'Komplette Steuerbefreiung nach §23 EStG'
             });
         }
         
         // Strukturoptimierung
         if (haltedauer < 8 && bruttogewinn > 0) {
-            const strukturVorteil = Math.max(0, bruttogewinn * 0.15); // 15% geschätzte Ersparnis durch optimale Struktur
+            const strukturVorteil = Math.max(0, bruttogewinn * 0.15);
             empfehlungen.push({
                 icon: '🏢',
-                titel: 'Strukturoptimierung prüfen',
-                beschreibung: 'VV GmbH & Co. KG könnte vorteilhaft sein',
+                titel: 'Strukturoptimierung noch möglich',
+                beschreibung: 'VV GmbH & Co. KG = BFH 2025 gewerbesteuerfrei',
                 ersparnis: strukturVorteil,
-                prioritaet: 'mittel'
+                prioritaet: 'mittel',
+                detail: 'Umstrukturierung vor 10-Jahres-Frist'
             });
-        }
-        
-        // Grundsteuer-Optimierung
-        if (haltedauer > 0) {
-            const grundsteuerErsparnis = Math.max(0, verkaufspreis * 0.005); // 0.5% geschätzte jährliche Grundsteuer-Optimierung
+        } else if (haltedauer >= 8 && haltedauer < 10) {
             empfehlungen.push({
-                icon: '🏛️',
-                titel: 'Grundsteuer optimieren',
-                beschreibung: 'Neue Grundsteuer 2025 prüfen, ggf. Einspruch einlegen',
-                ersparnis: grundsteuerErsparnis,
-                prioritaet: 'mittel'
+                icon: '⚡',
+                titel: 'Umstrukturierung zeitkritisch',
+                beschreibung: `Nur noch ${(10 - haltedauer).toFixed(1)} Jahre bis steuerfreier Verkauf`,
+                ersparnis: bruttogewinn * 0.1,
+                prioritaet: 'hoch',
+                detail: 'Schnelle Entscheidung erforderlich'
             });
         }
         
-        return empfehlungen.filter(emp => emp.ersparnis > 100); // Nur Empfehlungen mit min. 100€ Potential zeigen
+        console.log('Empfehlungen generiert:', empfehlungen.length);
+        console.log('=== generateSmartEmpfehlungen END ===');
+        
+        return empfehlungen.filter(emp => emp.ersparnis > 100);
     }
 
-    // Dashboard-Übersicht
+    // Dashboard-Übersicht - KOMPLETT NEU: Garantiert aktuelle Werte
     function updateDashboard() {
+        // SCHRITT 1: Immer zuerst altes Dashboard entfernen
+        const altesDashboard = document.getElementById('smart-dashboard');
+        if (altesDashboard) {
+            altesDashboard.remove();
+        }
+        
+        // SCHRITT 2: Prüfen ob Dashboard gewünscht
+        const dashboardHidden = localStorage.getItem('dashboard-hidden');
+        if (dashboardHidden) return;
+        
+        // SCHRITT 3: Empfehlungen generieren (IMMER mit aktuellen DOM-Werten)
         const empfehlungen = generateSmartEmpfehlungen();
         
-        if (empfehlungen.length > 0) {
-            let dashboardHtml = `
-                <div style="
-                    position: fixed;
-                    bottom: 20px;
-                    right: 20px;
-                    background: white;
-                    border: 2px solid #3498db;
-                    border-radius: 10px;
-                    padding: 15px;
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-                    max-width: 300px;
-                    z-index: 999;
-                " id="smart-dashboard">
-                    <h4 style="margin: 0 0 10px 0; color: #2c3e50;">💡 Smart-Empfehlungen</h4>
-            `;
-            
-            empfehlungen.slice(0, 2).forEach(emp => {
-                // Sichere Werte für Anzeige
-                const ersparnis = parseFloat(emp.ersparnis) || 0;
-                const beschreibung = emp.beschreibung || 'Optimierung prüfen';
-                const titel = emp.titel || 'Empfehlung';
-                const icon = emp.icon || '💡';
-                const prioritaet = emp.prioritaet || 'mittel';
-                
-                dashboardHtml += `
-                    <div style="
-                        padding: 10px;
-                        margin: 8px 0;
-                        background: #f8f9fa;
-                        border-radius: 5px;
-                        border-left: 3px solid ${prioritaet === 'hoch' ? '#e74c3c' : '#f39c12'};
-                    ">
-                        <div style="font-weight: 600; font-size: 0.9em;">${icon} ${titel}</div>
-                        <div style="font-size: 0.8em; color: #6c757d; margin: 3px 0;">${beschreibung}</div>
-                        <div style="font-size: 0.8em; font-weight: 600; color: #27ae60;">
-                            💰 Potential: ${formatCurrency(ersparnis)}
-                        </div>
-                    </div>
-                `;
-            });
+        // SCHRITT 4: Debug-Info in Konsole
+        console.log('Dashboard Update:', {
+            haltedauer: document.getElementById('haltedauer').value,
+            empfehlungen: empfehlungen.length
+        });
+        
+        if (empfehlungen.length === 0) {
+            console.log('Keine Empfehlungen generiert - prüfen Sie die Eingabewerte');
+            return;
+        }
+        
+        // SCHRITT 5: Dashboard HTML erstellen
+        let dashboardHtml = `
+            <div style="
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: white;
+                border: 2px solid #3498db;
+                border-radius: 10px;
+                padding: 15px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                max-width: 320px;
+                z-index: 999;
+                animation: slideIn 0.3s ease;
+            " id="smart-dashboard">
+                <h4 style="margin: 0 0 10px 0; color: #2c3e50;">
+                    💡 Live-Empfehlungen 
+                    <span style="font-size:0.7em;color:#95a5a6;">(Haltedauer: ${document.getElementById('haltedauer').value} Jahre)</span>
+                </h4>
+        `;
+        
+        empfehlungen.slice(0, 2).forEach((emp, index) => {
+            const ersparnis = parseFloat(emp.ersparnis) || 0;
+            const prioritaet = emp.prioritaet || 'mittel';
             
             dashboardHtml += `
+                <div style="
+                    padding: 12px;
+                    margin: 8px 0;
+                    background: ${index === 0 ? '#e8f5e8' : '#f8f9fa'};
+                    border-radius: 8px;
+                    border-left: 4px solid ${prioritaet === 'hoch' ? '#e74c3c' : '#f39c12'};
+                    transition: all 0.2s ease;
+                ">
+                    <div style="font-weight: 600; font-size: 0.9em; margin-bottom: 4px;">${emp.icon} ${emp.titel}</div>
+                    <div style="font-size: 0.8em; color: #6c757d; margin: 3px 0;">${emp.beschreibung}</div>
+                    ${emp.detail ? `<div style="font-size: 0.75em; color: #95a5a6; margin: 2px 0;">${emp.detail}</div>` : ''}
+                    <div style="font-size: 0.85em; font-weight: 600; color: #27ae60; margin-top: 5px;">
+                        💰 Potential: ${formatCurrency(ersparnis)}
+                    </div>
+                </div>
+            `;
+        });
+        
+        dashboardHtml += `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
                     <button onclick="showExtendedAnalyse()" 
                             style="
                                 background: #3498db;
@@ -2836,37 +2910,64 @@
                                 padding: 8px 15px;
                                 border-radius: 5px;
                                 cursor: pointer;
-                                font-size: 0.9em;
-                                margin: 5px 5px 0 0;
+                                font-size: 0.85em;
                             ">🔍 Detailanalyse</button>
-                    <button onclick="document.getElementById('smart-dashboard').style.display='none'" 
+                    <button onclick="hideDashboard()" 
                             style="
-                                float: right;
                                 background: #95a5a6;
                                 color: white;
                                 border: none;
-                                padding: 5px 10px;
+                                padding: 6px 12px;
                                 border-radius: 3px;
                                 cursor: pointer;
                                 font-size: 0.8em;
-                                margin-top: 10px;
-                            ">Schließen</button>
-                    <div style="clear: both;"></div>
+                            ">Ausblenden</button>
                 </div>
-            `;
-            
-            // Entferne altes Dashboard
-            const altesDashboard = document.getElementById('smart-dashboard');
-            if (altesDashboard) {
-                altesDashboard.remove();
-            }
-            
-            // Füge neues Dashboard hinzu
-            document.body.insertAdjacentHTML('beforeend', dashboardHtml);
-        }
+                <div style="font-size: 0.7em; color: #bdc3c7; text-align: center; margin-top: 8px;">
+                    🔄 Aktualisiert: ${new Date().toLocaleTimeString('de-DE')}
+                </div>
+            </div>
+        `;
+        
+        // SCHRITT 6: Dashboard einfügen
+        document.body.insertAdjacentHTML('beforeend', dashboardHtml);
     }
 
-    // Initialisierung und Event-Handler
+    // TEST-Funktion für Dashboard-Update (für Debugging)
+    function testDashboardUpdate() {
+        console.log('=== DASHBOARD TEST ===');
+        const haltedauer = document.getElementById('haltedauer').value;
+        const kaufpreis = document.getElementById('kaufpreis').value;
+        const verkaufspreis = document.getElementById('verkaufspreis').value;
+        
+        console.log('Aktuelle Werte:', { haltedauer, kaufpreis, verkaufspreis });
+        
+        // Dashboard sofort aktualisieren
+        updateDashboard();
+        
+        showAdvancedNotification(`Dashboard aktualisiert! Haltedauer: ${haltedauer} Jahre`, 'success');
+    }
+    function hideDashboard() {
+        const dashboard = document.getElementById('smart-dashboard');
+        if (dashboard) {
+            dashboard.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => {
+                if (dashboard.parentNode) {
+                    dashboard.remove();
+                }
+            }, 300);
+        }
+        // Merken dass User Dashboard nicht möchte
+        localStorage.setItem('dashboard-hidden', 'true');
+    }
+
+    // Dashboard wieder anzeigen (falls ausgeblendet)
+    function showDashboard() {
+        localStorage.removeItem('dashboard-hidden');
+        updateDashboard();
+    }
+
+    // Initialisierung und Event-Handler - KORRIGIERT: Respektiert User-Präferenzen
     function initializeSuite() {
         // Lade gespeicherte Daten
         const gespeicherteDaten = localStorage.getItem('immobilien-suite-daten');
@@ -2888,9 +2989,12 @@
         // Erste Berechnung
         calculateVerkauf();
         
-        // Smart Dashboard nach 2 Sekunden anzeigen
+        // Smart Dashboard anzeigen - KORRIGIERT: Nur wenn nicht ausgeblendet
         setTimeout(() => {
-            updateDashboard();
+            const dashboardHidden = localStorage.getItem('dashboard-hidden');
+            if (!dashboardHidden) {
+                updateDashboard();
+            }
         }, 2000);
     }
 
@@ -2903,39 +3007,58 @@
         }
     }
 
-    // Erweiterte Event-Handler
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeSuite();
+    // Event-Handler - KOMPLETT NEU: Direkter Dashboard-Update
+    function attachEventHandlers() {
+        console.log('Event-Handler werden attached...');
         
-        // Auto-save bei Änderungen
-        document.querySelectorAll('input, select').forEach(element => {
+        // ALLE Input- und Select-Felder finden
+        const alleFelder = document.querySelectorAll('input, select');
+        console.log(`Gefunden: ${alleFelder.length} Eingabefelder`);
+        
+        alleFelder.forEach((element, index) => {
+            // CHANGE Event - bei endgültiger Änderung
             element.addEventListener('change', function() {
-                saveSuiteData();
-                updateDashboard();
+                console.log(`CHANGE Event auf ${this.id || 'unnamed field ' + index}:`, this.value);
                 
-                const activeTab = document.querySelector('.tab-content.active').id;
-                switch(activeTab) {
-                    case 'verkauf':
-                        calculateVerkauf();
-                        break;
-                    case 'grundsteuer':
-                        calculateGrundsteuer();
-                        break;
-                    case 'erbschaft':
-                        calculateErbschaftsteuer();
-                        break;
-                    case 'schenkung':
-                        calculateSchenkung();
-                        break;
-                    case 'gesamtstrategie':
-                        calculateGesamtstrategie();
-                        break;
-                    case 'cashflow':
-                        calculateCashFlow();
-                        break;
+                // Daten speichern
+                saveSuiteData();
+                
+                // SOFORT Dashboard aktualisieren
+                setTimeout(updateDashboard, 50); // Kurze Verzögerung für DOM-Update
+                
+                // Berechnungen aktualisieren
+                const activeTab = document.querySelector('.tab-content.active')?.id;
+                if (activeTab === 'verkauf') {
+                    calculateVerkauf();
                 }
             });
+            
+            // INPUT Event - während dem Tippen (nur für wichtige Felder)
+            if (['kaufpreis', 'verkaufspreis', 'haltedauer', 'persoenlicher_steuersatz'].includes(element.id)) {
+                element.addEventListener('input', function() {
+                    console.log(`INPUT Event auf ${this.id}:`, this.value);
+                    
+                    // Dashboard mit kurzer Verzögerung aktualisieren
+                    clearTimeout(window.dashboardUpdateTimeout);
+                    window.dashboardUpdateTimeout = setTimeout(() => {
+                        updateDashboard();
+                    }, 800);
+                });
+            }
         });
+    }
+
+    // Erweiterte Event-Handler - KOMPLETT ÜBERARBEITET
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM Content Loaded - starte Initialisierung...');
+        
+        initializeSuite();
+        
+        // Event-Handler mit kurzer Verzögerung attachieren (für alle dynamischen Inhalte)
+        setTimeout(() => {
+            attachEventHandlers();
+            console.log('Event-Handler erfolgreich attached');
+        }, 100);
     });
 
     // Export-Funktion zur globalen Verfügung stellen
@@ -3287,6 +3410,9 @@
     window.showExtendedAnalyse = showExtendedAnalyse;
     window.closeExtendedAnalyse = closeExtendedAnalyse;
     window.showAllStructures = showAllStructures;
+    window.hideDashboard = hideDashboard;
+    window.showDashboard = showDashboard;
+    window.testDashboardUpdate = testDashboardUpdate;
 </script>
 ```
 
