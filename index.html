@@ -565,25 +565,25 @@
 ```
     <!-- Navigation Tabs -->
     <div class="nav-tabs">
-        <button class="nav-tab active" onclick="switchTab('verkauf')">
-            <span class="tab-icon">💰</span>Verkaufssteuer-Vergleich
-        </button>
-        <button class="nav-tab" onclick="switchTab('grundsteuer')">
-            <span class="tab-icon">🏛️</span>Grundsteuer 2025
-        </button>
-        <button class="nav-tab" onclick="switchTab('erbschaft')">
-            <span class="tab-icon">👨‍👩‍👧‍👦</span>Erbschaftsteuer
-        </button>
-        <button class="nav-tab" onclick="switchTab('schenkung')">
-            <span class="tab-icon">🎁</span>Schenkungssteuer
-        </button>
-        <button class="nav-tab" onclick="switchTab('gesamtstrategie')">
-            <span class="tab-icon">🎯</span>Gesamtstrategie
-        </button>
-        <button class="nav-tab" onclick="switchTab('cashflow')">
-            <span class="tab-icon">📊</span>Cash-Flow Analyse
-        </button>
-    </div>
+    <button class="nav-tab active" onclick="switchTab(this, 'verkauf')">
+        <span class="tab-icon">💰</span>Verkaufssteuer-Vergleich
+    </button>
+    <button class="nav-tab" onclick="switchTab(this, 'grundsteuer')">
+        <span class="tab-icon">🏛️</span>Grundsteuer 2025
+    </button>
+    <button class="nav-tab" onclick="switchTab(this, 'erbschaft')">
+        <span class="tab-icon">👨‍👩‍👧‍👦</span>Erbschaftsteuer
+    </button>
+    <button class="nav-tab" onclick="switchTab(this, 'schenkung')">
+        <span class="tab-icon">🎁</span>Schenkungssteuer
+    </button>
+    <button class="nav-tab" onclick="switchTab(this, 'gesamtstrategie')">
+        <span class="tab-icon">🎯</span>Gesamtstrategie
+    </button>
+    <button class="nav-tab" onclick="switchTab(this, 'cashflow')">
+        <span class="tab-icon">📊</span>Cash-Flow Analyse
+    </button>
+</div>
 
     <!-- Tab Content -->
     
@@ -1119,19 +1119,24 @@
     let berechungsdaten = {};
 
     // Tab-Wechsel Funktionalität
-    function switchTab(tabName) {
-        // Alle Tabs deaktivieren
-        document.querySelectorAll('.tab-content').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        document.querySelectorAll('.nav-tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
+    function switchTab(clickedButton, tabName) {
+    // Alle Tab-Inhalte ausblenden
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    // Alle Tab-Buttons deaktivieren
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
 
-        // Gewählten Tab aktivieren
-        document.getElementById(tabName).classList.add('active');
-        event.target.closest('.nav-tab').classList.add('active');
+    // Gewählten Tab-Inhalt anzeigen
+    document.getElementById(tabName).classList.add('active');
+    
+    // Geklickten Button als aktiv markieren
+    if (clickedButton) {
+        clickedButton.classList.add('active');
     }
+}
 
     // Hilfsfunktionen für Formatierung
     function formatCurrency(amount) {
