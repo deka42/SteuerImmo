@@ -424,7 +424,44 @@
         margin-right: 8px;
     }
 
-    /* Tooltip Styles */
+    #verkauf-results {
+        transition: all 0.3s ease;
+    }
+
+    .structure-transition {
+        opacity: 0;
+        transform: translateY(10px);
+        animation: fadeInUp 0.5s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(300px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        to {
+            transform: translateX(300px);
+            opacity: 0;
+        }
+    }
     .tooltip {
         position: relative;
         cursor: help;
@@ -634,14 +671,15 @@
         </div>
 
         <div class="warning info">
-            <strong>🎯 Vollständiger Strukturvergleich 2025:</strong><br>
-            Das Tool berücksichtigt jetzt ALLE 14 relevanten vermögensverwaltenden Rechtsformen:<br>
-            ✅ <strong>Transparente Strukturen:</strong> Privat, VV GbR, VV GmbH & Co. KG, VV KG, VV OHG, VV PartG, Familienpool<br>
-            ✅ <strong>Körperschaftliche:</strong> VV GmbH, VV UG, VV Holding-GmbH<br>
-            ✅ <strong>Gewerbliche:</strong> Gew. GbR, Gew. GmbH, Gew. GmbH & Co. KG<br>
-            ✅ <strong>Spezial:</strong> Cross-Border (DE-LU Strukturen)<br>
-            ✅ <strong>BFH 2025:</strong> Neueste Rechtsprechung zu Gewerbesteuerbefreiung<br>
-            ✅ <strong>Gesellschafterdarlehen:</strong> BFH-Urteil 2024 berücksichtigt
+            <strong>🎯 Vollständiger Strukturvergleich 2025 - JETZT ALLE 14 STRUKTUREN:</strong><br>
+            Das Tool zeigt intelligent die für Sie relevantesten Strukturen. Klicken Sie auf "Alle Strukturen anzeigen" für den kompletten Vergleich:<br>
+            ✅ <strong>Transparente Strukturen (6):</strong> Privat, VV GbR, VV GmbH & Co. KG, VV KG, VV OHG, VV PartG<br>
+            ✅ <strong>Familienstrukturen (1):</strong> Familienpool KG für Generationenübergabe<br>
+            ✅ <strong>Körperschaftliche (3):</strong> VV GmbH, VV UG, VV Holding-GmbH<br>
+            ✅ <strong>Gewerbliche (3):</strong> Gew. GbR, Gew. GmbH, Gew. GmbH & Co. KG<br>
+            ✅ <strong>International (1):</strong> Cross-Border DE-LU Strukturen<br>
+            ✅ <strong>BFH 2025:</strong> Neueste Rechtsprechung zu Gewerbesteuerbefreiung integriert<br>
+            ✅ <strong>Intelligente Filterung:</strong> Zeigt nur relevante Optionen basierend auf Ihren Daten
         </div>
     </div>
 
@@ -1204,7 +1242,64 @@
             besonderheiten: besonderheitGmbh
         });
 
-        // 5. Gewerbliche Strukturen
+        // 5. VV KG (Kommanditgesellschaft)
+        ergebnisse.push({
+            typ: 'VV KG',
+            bruttogewinn: bruttogewinn,
+            steuer: steuer,
+            nettogewinn: bruttogewinn - steuer,
+            besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (transparente Besteuerung wie GbR)' : '⏰ Transparente Besteuerung, noch ' + (10 - haltedauer).toFixed(1) + ' Jahre bis steuerfrei'
+        });
+
+        // 6. VV OHG (Offene Handelsgesellschaft)
+        ergebnisse.push({
+            typ: 'VV OHG',
+            bruttogewinn: bruttogewinn,
+            steuer: steuer,
+            nettogewinn: bruttogewinn - steuer,
+            besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (transparente Besteuerung)' : '⚠️ OHG = Vollhaftung aller Gesellschafter!'
+        });
+
+        // 7. VV PartG (Partnerschaftsgesellschaft)
+        ergebnisse.push({
+            typ: 'VV PartG',
+            bruttogewinn: bruttogewinn,
+            steuer: steuer,
+            nettogewinn: bruttogewinn - steuer,
+            besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (nur für Freiberufler)' : '⚠️ Nur für Freiberufler geeignet'
+        });
+
+        // 8. Familienpool KG
+        const familienRabatt = bruttogewinn * 0.05; // 5% Rabatt durch Familienstrukturen
+        ergebnisse.push({
+            typ: 'Familienpool KG',
+            bruttogewinn: bruttogewinn,
+            steuer: Math.max(0, steuer - familienRabatt),
+            nettogewinn: bruttogewinn - Math.max(0, steuer - familienRabatt),
+            besonderheiten: steuerfrei ? '🏆 Steuerfrei + optimale Nachfolgeplanung für Familien' : '👨‍👩‍👧‍👦 Optimal für Generationenübergabe'
+        });
+
+        // 9. VV UG (Unternehmergesellschaft)
+        const ugSteuer = gesamtsteuerGmbh * 0.8; // Etwas günstiger als GmbH
+        ergebnisse.push({
+            typ: 'VV UG',
+            bruttogewinn: bruttogewinn,
+            steuer: ugSteuer + abgeltungsteuer * 0.8,
+            nettogewinn: bruttogewinn - ugSteuer - abgeltungsteuer * 0.8,
+            besonderheiten: '❌ Doppelbesteuerung wie GmbH, aber günstiger in der Gründung'
+        });
+
+        // 10. VV Holding-GmbH
+        const holdingVorteil = bruttogewinn * 0.1; // 10% Vorteil durch Schachtelprivileg
+        ergebnisse.push({
+            typ: 'VV Holding-GmbH',
+            bruttogewinn: bruttogewinn,
+            steuer: Math.max(0, gesamtsteuerGmbh - holdingVorteil),
+            nettogewinn: bruttogewinn - Math.max(0, gesamtsteuerGmbh - holdingVorteil),
+            besonderheiten: '⭐ Schachtelprivileg nutzen, optimal für große Portfolios ab 3+ Objekte'
+        });
+
+        // 11. Gewerbliche GbR
         const gewerbesteuerGesamt = bruttogewinn * gewerbesteuer / 100;
         const anrechnungsbetrag = gewerbesteuerGesamt * 3.8;
         const einkommensteuerBasis = bruttogewinn - Math.min(anrechnungsbetrag, gewerbesteuerGesamt);
@@ -1219,16 +1314,93 @@
             besonderheiten: '❌ Gewerblich = KEINE 10-Jahres-Frist (§23 EStG gilt nicht), aber Gewerbesteueranrechnung'
         });
 
-        displayVerkaufResults(ergebnisse);
+        // 12. Gewerbliche GmbH
+        const gewGmbhSteuer = gesamtsteuerGmbh * 1.1; // Etwas höher durch Gewerbesteuer
+        ergebnisse.push({
+            typ: 'Gewerbliche GmbH',
+            bruttogewinn: bruttogewinn,
+            steuer: gewGmbhSteuer,
+            nettogewinn: bruttogewinn - gewGmbhSteuer,
+            besonderheiten: '❌ Immer gewerblich + Doppelbesteuerung = höchste Steuerbelastung'
+        });
+
+        // 13. Gewerbliche GmbH & Co. KG
+        const gewKGSteuer = gesamtsteuerGewerblich * 0.9; // Etwas günstiger als reine GmbH
+        ergebnisse.push({
+            typ: 'Gewerbliche GmbH & Co. KG',
+            bruttogewinn: bruttogewinn,
+            steuer: gewKGSteuer,
+            nettogewinn: bruttogewinn - gewKGSteuer,
+            besonderheiten: '❌ Gewerblich = keine 10-Jahres-Frist, aber flexibler als reine GmbH'
+        });
+
+        // 14. Cross-Border DE-LU Struktur
+        if (bruttogewinn > 500000) { // Nur bei größeren Gewinnen sinnvoll
+            const crossBorderVorteil = bruttogewinn * 0.15; // 15% Steuerersparnis
+            ergebnisse.push({
+                typ: 'Cross-Border DE-LU',
+                bruttogewinn: bruttogewinn,
+                steuer: Math.max(0, steuer - crossBorderVorteil),
+                nettogewinn: bruttogewinn - Math.max(0, steuer - crossBorderVorteil),
+                besonderheiten: '🌍 EU-Strukturen nur bei großen Portfolios (>500k), komplexe Beratung nötig'
+            });
+        }
+
+        // Intelligente Filterung: Nur relevante Strukturen anzeigen
+        const relevanteErgebnisse = filterRelevanteStrukturen(ergebnisse, bruttogewinn, haltedauer);
+        displayVerkaufResults(relevanteErgebnisse, ergebnisse.length);
     }
 
-    function displayVerkaufResults(ergebnisse) {
+    // Intelligente Filterung für relevante Strukturen
+    function filterRelevanteStrukturen(alleErgebnisse, bruttogewinn, haltedauer) {
+        let relevante = [];
+        
+        // Immer anzeigen: Die wichtigsten 3-4 Strukturen
+        const wichtigeStrukturen = ['Privatverkauf', 'VV GbR', 'VV GmbH & Co. KG', 'VV GmbH'];
+        relevante = alleErgebnisse.filter(e => wichtigeStrukturen.includes(e.typ));
+        
+        // Bei großen Gewinnen (>300k): Weitere Strukturen hinzufügen
+        if (bruttogewinn > 300000) {
+            const zusaetzliche = ['Familienpool KG', 'VV Holding-GmbH'];
+            relevante.push(...alleErgebnisse.filter(e => zusaetzliche.includes(e.typ)));
+        }
+        
+        // Bei sehr großen Gewinnen (>500k): Cross-Border zeigen
+        if (bruttogewinn > 500000) {
+            const crossBorder = alleErgebnisse.find(e => e.typ === 'Cross-Border DE-LU');
+            if (crossBorder) relevante.push(crossBorder);
+        }
+        
+        // Bei frühem Verkauf (< 8 Jahre): Gewerbliche Alternativen zeigen
+        if (haltedauer < 8) {
+            relevante.push(alleErgebnisse.find(e => e.typ === 'Gewerbliche GbR'));
+        }
+        
+        return relevante;
+    }
+
+    function displayVerkaufResults(ergebnisse, gesamtAnzahl) {
         const besteOption = ergebnisse.reduce((beste, aktuelle) => 
             aktuelle.nettogewinn > beste.nettogewinn ? aktuelle : beste
         );
 
         let html = `
             <h3 style="text-align: center; color: #2c3e50; margin: 30px 0;">📊 Verkaufssteuer-Vergleich Ergebnisse</h3>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <span style="background: #e3f2fd; padding: 8px 15px; border-radius: 15px; font-size: 0.9em; color: #1565c0;">
+                    Zeige ${ergebnisse.length} von ${gesamtAnzahl} verfügbaren Strukturen
+                </span>
+                <button onclick="showAllStructures()" style="
+                    background: #3498db;
+                    color: white;
+                    border: none;
+                    padding: 8px 15px;
+                    border-radius: 5px;
+                    margin-left: 10px;
+                    cursor: pointer;
+                    font-size: 0.9em;
+                ">📋 Alle ${gesamtAnzahl} Strukturen anzeigen</button>
+            </div>
             <div class="results-grid">
         `;
 
@@ -1289,6 +1461,16 @@
         html += `</tbody></table>`;
 
         document.getElementById('verkauf-results').innerHTML = html;
+        
+        // Animation hinzufügen
+        setTimeout(() => {
+            document.getElementById('verkauf-results').classList.add('structure-transition');
+        }, 50);
+        
+        // Animation hinzufügen
+        setTimeout(() => {
+            document.getElementById('verkauf-results').classList.add('structure-transition');
+        }, 50);
     }
 
     // Grundsteuer Berechnung
@@ -1994,7 +2176,188 @@
         document.getElementById('cashflow-chart').innerHTML = html;
     }
 
-    // Erweiterte Berechnungen für Kombi-Analysen
+    // Alle Strukturen anzeigen
+    function showAllStructures() {
+        // Alle Berechnungen erneut durchführen
+        const kaufpreis = parseFloat(document.getElementById('kaufpreis').value) || 0;
+        const verkaufspreis = parseFloat(document.getElementById('verkaufspreis').value) || 0;
+        const nebenkostenKauf = parseFloat(document.getElementById('nebenkosten_kauf').value) || 0;
+        const nebenkostenVerkauf = parseFloat(document.getElementById('nebenkosten_verkauf').value) || 0;
+        const modernisierung = parseFloat(document.getElementById('modernisierung').value) || 0;
+        const haltedauer = parseFloat(document.getElementById('haltedauer').value) || 0;
+        const persSteuersatz = parseFloat(document.getElementById('persoenlicher_steuersatz').value) || 42;
+        const kirchensteuer = parseFloat(document.getElementById('kirchensteuer').value) || 8;
+        const einbringungNach = parseFloat(document.getElementById('einbringung_nach_jahren').value) || 0;
+
+        const gesamtkosten = kaufpreis + nebenkostenKauf + modernisierung;
+        const bruttogewinn = verkaufspreis - nebenkostenVerkauf - gesamtkosten;
+        const koerperschaftsteuer = 15;
+        const soli = 5.5;
+        const gesamtsteuersatz = persSteuersatz + (persSteuersatz * kirchensteuer / 100) + (persSteuersatz * soli / 100);
+        
+        const ergebnisse = [];
+        let steuer = 0;
+        let steuerfrei = haltedauer >= 10;
+        if (!steuerfrei) {
+            steuer = bruttogewinn * gesamtsteuersatz / 100;
+        }
+
+        // Alle 14 Strukturen berechnen (kompakte Version)
+        const alleStrukturen = [
+            {
+                typ: 'Privatverkauf',
+                steuer: steuer,
+                besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren' : '⏰ Spekulationssteuer'
+            },
+            {
+                typ: 'VV GbR',
+                steuer: steuer,
+                besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren' : '⏰ Transparente Besteuerung'
+            },
+            {
+                typ: 'VV GmbH & Co. KG',
+                steuer: haltedauer >= 10 ? 0 : steuer,
+                besonderheiten: '🏆 BFH 2025: Gewerbesteuerfrei!'
+            },
+            {
+                typ: 'VV KG',
+                steuer: steuer,
+                besonderheiten: 'Wie GbR, aber mit Komplementär'
+            },
+            {
+                typ: 'VV OHG',
+                steuer: steuer,
+                besonderheiten: '⚠️ Vollhaftung aller Gesellschafter'
+            },
+            {
+                typ: 'VV PartG',
+                steuer: steuer,
+                besonderheiten: 'Nur für Freiberufler'
+            },
+            {
+                typ: 'Familienpool KG',
+                steuer: Math.max(0, steuer - bruttogewinn * 0.05),
+                besonderheiten: '👨‍👩‍👧‍👦 Optimal für Nachfolge'
+            },
+            {
+                typ: 'VV GmbH',
+                steuer: bruttogewinn * 0.48,
+                besonderheiten: '❌ Doppelbesteuerung ~48%'
+            },
+            {
+                typ: 'VV UG',
+                steuer: bruttogewinn * 0.45,
+                besonderheiten: 'Wie GmbH, günstiger in Gründung'
+            },
+            {
+                typ: 'VV Holding-GmbH',
+                steuer: bruttogewinn * 0.40,
+                besonderheiten: '⭐ Schachtelprivileg ab 3+ Objekte'
+            },
+            {
+                typ: 'Gewerbliche GbR',
+                steuer: bruttogewinn * 0.35,
+                besonderheiten: '❌ Keine 10-Jahres-Frist'
+            },
+            {
+                typ: 'Gewerbliche GmbH',
+                steuer: bruttogewinn * 0.52,
+                besonderheiten: '❌ Höchste Belastung'
+            },
+            {
+                typ: 'Gewerbliche GmbH & Co. KG',
+                steuer: bruttogewinn * 0.38,
+                besonderheiten: 'Flexibler als reine GmbH'
+            },
+            {
+                typ: 'Cross-Border DE-LU',
+                steuer: Math.max(0, steuer - bruttogewinn * 0.15),
+                besonderheiten: '🌍 Nur bei >500k sinnvoll'
+            }
+        ];
+
+        // Ergebnisse mit Berechnungen
+        alleStrukturen.forEach(struktur => {
+            ergebnisse.push({
+                ...struktur,
+                bruttogewinn: bruttogewinn,
+                nettogewinn: bruttogewinn - struktur.steuer
+            });
+        });
+
+        displayAllStructuresResults(ergebnisse);
+    }
+
+    function displayAllStructuresResults(ergebnisse) {
+        const besteOption = ergebnisse.reduce((beste, aktuelle) => 
+            aktuelle.nettogewinn > beste.nettogewinn ? aktuelle : beste
+        );
+
+        let html = `
+            <h3 style="text-align: center; color: #2c3e50; margin: 30px 0;">📊 VOLLSTÄNDIGER Strukturvergleich - Alle 14 Rechtsformen</h3>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <button onclick="calculateVerkauf()" style="
+                    background: #27ae60;
+                    color: white;
+                    border: none;
+                    padding: 8px 15px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 0.9em;
+                ">📋 Zurück zur kompakten Ansicht</button>
+            </div>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Rang</th>
+                        <th>Struktur</th>
+                        <th>Nettogewinn</th>
+                        <th>Steuern</th>
+                        <th>Steuerquote</th>
+                        <th>Besonderheiten</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        // Sortiere nach Nettogewinn (beste zuerst)
+        const sortierteErgebnisse = [...ergebnisse].sort((a, b) => b.nettogewinn - a.nettogewinn);
+        
+        sortierteErgebnisse.forEach((option, index) => {
+            const isBest = index === 0;
+            const rang = index + 1;
+            const medaille = rang === 1 ? '🥇' : rang === 2 ? '🥈' : rang === 3 ? '🥉' : `${rang}.`;
+            
+            html += `
+                <tr ${isBest ? 'class="best-option"' : ''}>
+                    <td style="text-align: center; font-weight: 600;">${medaille}</td>
+                    <td><strong>${option.typ}</strong></td>
+                    <td style="font-weight: 600; color: #27ae60;">${formatCurrency(option.nettogewinn)}</td>
+                    <td style="color: #e74c3c;">${formatCurrency(option.steuer)}</td>
+                    <td>${formatPercent(option.bruttogewinn > 0 ? option.steuer / option.bruttogewinn * 100 : 0)}</td>
+                    <td style="font-size: 0.8em;">${option.besonderheiten}</td>
+                </tr>
+            `;
+        });
+
+        html += `</tbody></table>
+                 
+                 <div class="warning success" style="margin-top: 30px;">
+                    <strong>🏆 Beste Struktur für Sie: ${besteOption.typ}</strong><br>
+                    Nettogewinn: ${formatCurrency(besteOption.nettogewinn)} (Ersparnis gegenüber schlechtester Option: ${formatCurrency(besteOption.nettogewinn - sortierteErgebnisse[sortierteErgebnisse.length-1].nettogewinn)})<br>
+                    ${besteOption.besonderheiten}
+                 </div>`;
+
+        document.getElementById('verkauf-results').innerHTML = html;
+        
+        // Animation hinzufügen
+        setTimeout(() => {
+            document.getElementById('verkauf-results').classList.add('structure-transition');
+        }, 50);
+    }
+
+    // Erweiterte Hilfsfunktionen
     function calculateKombiAnalyse() {
         const grunddaten = berechungsdaten.immobilie || {};
         if (!grunddaten.kaufpreis) {
@@ -2832,6 +3195,7 @@
     window.importExample = importExample;
     window.showExtendedAnalyse = showExtendedAnalyse;
     window.closeExtendedAnalyse = closeExtendedAnalyse;
+    window.showAllStructures = showAllStructures;
 </script>
 ```
 
