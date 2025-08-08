@@ -502,6 +502,16 @@
                 margin: 5px 0;
                 width: 100%;
             }
+            
+            .comparison-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .comparison-table th, 
+            .comparison-table td {
+                min-width: 120px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -1401,6 +1411,13 @@
             const numRate = parseFloat(rate) || 0;
             return (numRate).toFixed(1) + '%';
         }
+        
+        // Robustes Parsing von Zahlen
+        function parseNumber(value, defaultValue = 0) {
+            if (value === null || value === undefined || value === '') return defaultValue;
+            const num = parseFloat(value);
+            return isNaN(num) ? defaultValue : num;
+        }
 
         // Korrekte Spekulationssteuer-Berechnung
         function berechneSpekulationssteuer(gewinn, persSteuersatz, kirchensteuerProzent) {
@@ -1412,18 +1429,25 @@
             
             return einkommensteuer + kirchensteuerBetrag + soliBetrag;
         }
+        
+        // Gewerbesteuer-Berechnung mit Hebesatz
+        function calculateGewerbesteuer(gewinn, gemeindeHeberate) {
+            const gewerbesteuermessbetrag = gewinn * 0.035; // 3,5% Messbetrag
+            return gewerbesteuermessbetrag * (gemeindeHeberate / 100);
+        }
 
         // Verkaufssteuer Berechnung
         function calculateVerkauf() {
-            const kaufpreis = parseFloat(document.getElementById('kaufpreis').value) || 0;
-            const verkaufspreis = parseFloat(document.getElementById('verkaufspreis').value) || 0;
-            const nebenkostenKauf = parseFloat(document.getElementById('nebenkosten_kauf').value) || 0;
-            const nebenkostenVerkauf = parseFloat(document.getElementById('nebenkosten_verkauf').value) || 0;
-            const modernisierung = parseFloat(document.getElementById('modernisierung').value) || 0;
-            const haltedauer = parseFloat(document.getElementById('haltedauer').value) || 0;
-            const persSteuersatz = parseFloat(document.getElementById('persoenlicher_steuersatz').value) || 42;
-            const kirchensteuer = parseFloat(document.getElementById('kirchensteuer').value) || 8;
-            const einbringungNach = parseFloat(document.getElementById('einbringung_nach_jahren').value) || 0;
+            const kaufpreis = parseNumber(document.getElementById('kaufpreis').value);
+            const verkaufspreis = parseNumber(document.getElementById('verkaufspreis').value);
+            const nebenkostenKauf = parseNumber(document.getElementById('nebenkosten_kauf').value);
+            const nebenkostenVerkauf = parseNumber(document.getElementById('nebenkosten_verkauf').value);
+            const modernisierung = parseNumber(document.getElementById('modernisierung').value);
+            const haltedauer = parseNumber(document.getElementById('haltedauer').value);
+            const persSteuersatz = parseNumber(document.getElementById('persoenlicher_steuersatz').value, 42);
+            const kirchensteuer = parseNumber(document.getElementById('kirchensteuer').value, 8);
+            const einbringungNach = parseNumber(document.getElementById('einbringung_nach_jahren').value);
+            const bundesland = document.getElementById('bundesland').value;
 
             // Berechnungsdaten für andere Module speichern
             berechungsdaten.immobilie = {
@@ -1435,7 +1459,8 @@
                 haltedauer: haltedauer, 
                 persSteuersatz: persSteuersatz, 
                 kirchensteuer: kirchensteuer, 
-                einbringung_nach_jahren: einbringungNach
+                einbringung_nach_jahren: einbringungNach,
+                bundesland: bundesland
             };
 
             // Kaufnebenkosten als Teil der Anschaffungskosten
@@ -1494,14 +1519,18 @@
             }
 
             // 4. VV GmbH (mit Doppelbesteuerung)
-            const gewerbesteuer = 14; // Durchschnitt 2025: 350% Hebesatz
-            const gewerbesteuerFreibetrag = 24500; // 2025: Unverändert seit Jahren
-            const gstBasis = Math.max(0, bruttogewinn - gewerbesteuerFreibetrag);
-            const gstBetrag = gstBasis * gewerbesteuer / 100;
-            const kstBasis = bruttogewinn - gstBetrag;
-            const kstBetrag = kstBasis * 15 / 100; // Körperschaftsteuer 15%
+            // Bundesland-spezifischer Hebesatz
+            const bundeslaender = {
+                'bw': 380, 'by': 340, 'be': 410, 'bb': 400, 'hb': 430, 
+                'hh': 470, 'he': 420, 'mv': 350, 'ni': 380, 'nw': 450, 
+                'rp': 440, 'sl': 430, 'sn': 420, 'st': 390, 'sh': 370, 'th': 360
+            };
+            const hebesatz = bundeslaender[bundesland] || 450;
+            const gewerbesteuer = calculateGewerbesteuer(bruttogewinn, hebesatz);
+            
+            const kstBetrag = (bruttogewinn - gewerbesteuer) * 0.15; // Körperschaftsteuer 15%
             const soli_gmbh = kstBetrag * 5.5 / 100;
-            const gesamtsteuerGmbh = gstBetrag + kstBetrag + soli_gmbh;
+            const gesamtsteuerGmbh = gewerbesteuer + kstBetrag + soli_gmbh;
             const nettoGmbh = bruttogewinn - gesamtsteuerGmbh;
             // 2025: Abgeltungsteuer bei Ausschüttung = 26,375% (25% + 1,375% Soli)
             const abgeltungsteuer = nettoGmbh * 26.375 / 100;
@@ -1579,7 +1608,7 @@
             });
 
             // 11. Gewerbliche GbR
-            const gewerbesteuerGesamt = bruttogewinn * gewerbesteuer / 100;
+            const gewerbesteuerGesamt = calculateGewerbesteuer(bruttogewinn, hebesatz);
             const anrechnungsbetrag = gewerbesteuerGesamt * 3.8;
             const einkommensteuerBasis = bruttogewinn - Math.min(anrechnungsbetrag, gewerbesteuerGesamt);
             const einkommensteuer = einkommensteuerBasis * persSteuersatz / 100;
@@ -1766,9 +1795,9 @@
 
         // Grundsteuer Berechnung
         function calculateGrundsteuer() {
-            const grundstueckswert = parseFloat(document.getElementById('grundstueckswert').value) || 0;
+            const grundstueckswert = parseNumber(document.getElementById('grundstueckswert').value);
             const immobilientyp = document.getElementById('immobilientyp').value;
-            const hebesatz = parseFloat(document.getElementById('gemeinde_hebesatz').value) || 0;
+            const hebesatz = parseNumber(document.getElementById('gemeinde_hebesatz').value);
             const bundeslandModell = document.getElementById('grundsteuer_bundesland').value;
             const nutzungsart = document.getElementById('vermietung_typ').value;
 
@@ -1885,11 +1914,11 @@
 
         // Erbschaftsteuer Berechnung
         function calculateErbschaftsteuer() {
-            const immobilienwert = parseFloat(document.getElementById('immobilienwert_erbe').value) || 0;
-            const weiteresVermoegen = parseFloat(document.getElementById('weiteres_vermoegen').value) || 0;
-            const schulden = parseFloat(document.getElementById('schulden').value) || 0;
+            const immobilienwert = parseNumber(document.getElementById('immobilienwert_erbe').value);
+            const weiteresVermoegen = parseNumber(document.getElementById('weiteres_vermoegen').value);
+            const schulden = parseNumber(document.getElementById('schulden').value);
             const verwandtschaftsgrad = document.getElementById('verwandtschaftsgrad').value;
-            const wohnflaeche = parseFloat(document.getElementById('wohnflaeche').value) || 0;
+            const wohnflaeche = parseNumber(document.getElementById('wohnflaeche').value);
             const selbstnutzungErblasser = document.getElementById('selbstnutzung_erblasser').value;
             const selbstnutzungErbe = document.getElementById('selbstnutzung_erbe').value;
 
@@ -2067,14 +2096,14 @@
 
         // Schenkungssteuer Berechnung
         function calculateSchenkung() {
-            const immobilienwert = parseFloat(document.getElementById('schenkung_immobilienwert').value) || 0;
-            const schenkungsanteil = parseFloat(document.getElementById('schenkung_anteil').value) || 0;
+            const immobilienwert = parseNumber(document.getElementById('schenkung_immobilienwert').value);
+            const schenkungsanteil = parseNumber(document.getElementById('schenkung_anteil').value);
             const verwandtschaft = document.getElementById('schenkung_verwandtschaft').value;
             const niessbrauch = document.getElementById('niessbrauch').value;
-            const jahresmiete = parseFloat(document.getElementById('jahresmiete').value) || 0;
-            const alterSchenker = parseFloat(document.getElementById('alter_schenker').value) || 0;
-            const vorherigeSchenkungen = parseFloat(document.getElementById('vorherige_schenkungen').value) || 0;
-            const geplantePerioden = parseFloat(document.getElementById('geplante_schritte').value) || 1;
+            const jahresmiete = parseNumber(document.getElementById('jahresmiete').value);
+            const alterSchenker = parseNumber(document.getElementById('alter_schenker').value);
+            const vorherigeSchenkungen = parseNumber(document.getElementById('vorherige_schenkungen').value);
+            const geplantePerioden = parseNumber(document.getElementById('geplante_schritte').value);
 
             const schenkungswert = immobilienwert * schenkungsanteil / 100;
 
@@ -2214,12 +2243,12 @@
     // Gesamtstrategie Berechnung
     function calculateGesamtstrategie() {
         // Hier würde eine komplexe Gesamtanalyse erfolgen
-        const alter = parseFloat(document.getElementById('strategie_alter').value) || 45;
+        const alter = parseNumber(document.getElementById('strategie_alter').value);
         const risiko = document.getElementById('strategie_risiko').value;
         const liquiditaet = document.getElementById('strategie_liquiditaet').value;
         const nachfolge = document.getElementById('strategie_nachfolge').value;
         const weitereImmobilien = document.getElementById('strategie_weitere_immobilien').value;
-        const einkommen = parseFloat(document.getElementById('strategie_einkommen').value) || 0;
+        const einkommen = parseNumber(document.getElementById('strategie_einkommen').value);
 
         // Vereinfachte Strategieempfehlung basierend auf Parametern
         let strategieempfehlung = '';
@@ -2336,16 +2365,16 @@
 
     // Cash-Flow Analyse
     function calculateCashFlow() {
-        const jahresmiete = parseFloat(document.getElementById('cf_jahresmiete').value) || 0;
-        const mietsteigerung = parseFloat(document.getElementById('cf_mietsteigerung').value) || 0;
-        const instandhaltung = parseFloat(document.getElementById('cf_instandhaltung').value) || 0;
-        const verwaltung = parseFloat(document.getElementById('cf_verwaltung').value) || 0;
-        const versicherung = parseFloat(document.getElementById('cf_versicherung').value) || 0;
-        const leerstand = parseFloat(document.getElementById('cf_leerstand').value) || 0;
-        const zinsen = parseFloat(document.getElementById('cf_finanzierung').value) || 0;
-        const tilgung = parseFloat(document.getElementById('cf_tilgung').value) || 0;
-        const wertsteigerung = parseFloat(document.getElementById('cf_wertsteigerung').value) || 0;
-        const betrachtungszeitraum = parseFloat(document.getElementById('cf_betrachtungszeitraum').value) || 15;
+        const jahresmiete = parseNumber(document.getElementById('cf_jahresmiete').value);
+        const mietsteigerung = parseNumber(document.getElementById('cf_mietsteigerung').value);
+        const instandhaltung = parseNumber(document.getElementById('cf_instandhaltung').value);
+        const verwaltung = parseNumber(document.getElementById('cf_verwaltung').value);
+        const versicherung = parseNumber(document.getElementById('cf_versicherung').value);
+        const leerstand = parseNumber(document.getElementById('cf_leerstand').value);
+        const zinsen = parseNumber(document.getElementById('cf_finanzierung').value);
+        const tilgung = parseNumber(document.getElementById('cf_tilgung').value);
+        const wertsteigerung = parseNumber(document.getElementById('cf_wertsteigerung').value);
+        const betrachtungszeitraum = parseNumber(document.getElementById('cf_betrachtungszeitraum').value);
 
         const grunddaten = berechungsdaten.immobilie || {};
         const immobilienwert = grunddaten.verkaufspreis || 450000;
@@ -2541,15 +2570,16 @@
     // Alle Strukturen anzeigen
     function showAllStructures() {
         // Exakt dieselben Parameter wie in der Smart-Filterung
-        const kaufpreis = parseFloat(document.getElementById('kaufpreis').value) || 0;
-        const verkaufspreis = parseFloat(document.getElementById('verkaufspreis').value) || 0;
-        const nebenkostenKauf = parseFloat(document.getElementById('nebenkosten_kauf').value) || 0;
-        const nebenkostenVerkauf = parseFloat(document.getElementById('nebenkosten_verkauf').value) || 0;
-        const modernisierung = parseFloat(document.getElementById('modernisierung').value) || 0;
-        const haltedauer = parseFloat(document.getElementById('haltedauer').value) || 0;
-        const persSteuersatz = parseFloat(document.getElementById('persoenlicher_steuersatz').value) || 42;
-        const kirchensteuer = parseFloat(document.getElementById('kirchensteuer').value) || 8;
-        const einbringungNach = parseFloat(document.getElementById('einbringung_nach_jahren').value) || 0;
+        const kaufpreis = parseNumber(document.getElementById('kaufpreis').value);
+        const verkaufspreis = parseNumber(document.getElementById('verkaufspreis').value);
+        const nebenkostenKauf = parseNumber(document.getElementById('nebenkosten_kauf').value);
+        const nebenkostenVerkauf = parseNumber(document.getElementById('nebenkosten_verkauf').value);
+        const modernisierung = parseNumber(document.getElementById('modernisierung').value);
+        const haltedauer = parseNumber(document.getElementById('haltedauer').value);
+        const persSteuersatz = parseNumber(document.getElementById('persoenlicher_steuersatz').value, 42);
+        const kirchensteuer = parseNumber(document.getElementById('kirchensteuer').value, 8);
+        const einbringungNach = parseNumber(document.getElementById('einbringung_nach_jahren').value);
+        const bundesland = document.getElementById('bundesland').value;
 
         // Kaufnebenkosten als Teil der Anschaffungskosten
         const anschaffungskosten = kaufpreis + nebenkostenKauf + modernisierung;
@@ -2607,14 +2637,17 @@
         }
 
         // 4. VV GmbH (mit Doppelbesteuerung)
-        const gewerbesteuer = 14; // Durchschnitt 2025: 350% Hebesatz
-        const gewerbesteuerFreibetrag = 24500; // 2025: Unverändert seit Jahren
-        const gstBasis = Math.max(0, bruttogewinn - gewerbesteuerFreibetrag);
-        const gstBetrag = gstBasis * gewerbesteuer / 100;
-        const kstBasis = bruttogewinn - gstBetrag;
-        const kstBetrag = kstBasis * 15 / 100; // Körperschaftsteuer 15%
+        const bundeslaender = {
+            'bw': 380, 'by': 340, 'be': 410, 'bb': 400, 'hb': 430, 
+            'hh': 470, 'he': 420, 'mv': 350, 'ni': 380, 'nw': 450, 
+            'rp': 440, 'sl': 430, 'sn': 420, 'st': 390, 'sh': 370, 'th': 360
+        };
+        const hebesatz = bundeslaender[bundesland] || 450;
+        const gewerbesteuer = calculateGewerbesteuer(bruttogewinn, hebesatz);
+        
+        const kstBetrag = (bruttogewinn - gewerbesteuer) * 0.15; // Körperschaftsteuer 15%
         const soli_gmbh = kstBetrag * 5.5 / 100;
-        const gesamtsteuerGmbh = gstBetrag + kstBetrag + soli_gmbh;
+        const gesamtsteuerGmbh = gewerbesteuer + kstBetrag + soli_gmbh;
         const nettoGmbh = bruttogewinn - gesamtsteuerGmbh;
         const abgeltungsteuer = nettoGmbh * 26.375 / 100;
         
@@ -2694,7 +2727,7 @@
         });
 
         // 11. Gewerbliche GbR
-        const gewerbesteuerGesamt = bruttogewinn * gewerbesteuer / 100;
+        const gewerbesteuerGesamt = calculateGewerbesteuer(bruttogewinn, hebesatz);
         const anrechnungsbetrag = gewerbesteuerGesamt * 3.8;
         const einkommensteuerBasis = bruttogewinn - Math.min(anrechnungsbetrag, gewerbesteuerGesamt);
         const einkommensteuer = einkommensteuerBasis * persSteuersatz / 100;
@@ -2910,13 +2943,13 @@
     }
     
     function generateSmartEmpfehlungen() {
-        const kaufpreis = parseFloat(document.getElementById('kaufpreis').value) || 0;
-        const verkaufspreis = parseFloat(document.getElementById('verkaufspreis').value) || 0;
-        const nebenkostenKauf = parseFloat(document.getElementById('nebenkosten_kauf').value) || 0;
-        const modernisierung = parseFloat(document.getElementById('modernisierung').value) || 0;
-        const haltedauer = parseFloat(document.getElementById('haltedauer').value) || 0;
-        const persSteuersatz = parseFloat(document.getElementById('persoenlicher_steuersatz').value) || 42;
-        const kirchensteuer = parseFloat(document.getElementById('kirchensteuer').value) || 8;
+        const kaufpreis = parseNumber(document.getElementById('kaufpreis').value);
+        const verkaufspreis = parseNumber(document.getElementById('verkaufspreis').value);
+        const nebenkostenKauf = parseNumber(document.getElementById('nebenkosten_kauf').value);
+        const modernisierung = parseNumber(document.getElementById('modernisierung').value);
+        const haltedauer = parseNumber(document.getElementById('haltedauer').value);
+        const persSteuersatz = parseNumber(document.getElementById('persoenlicher_steuersatz').value, 42);
+        const kirchensteuer = parseNumber(document.getElementById('kirchensteuer').value, 8);
         
         // Basis-Validierung
         if (!kaufpreis || !verkaufspreis) {
@@ -3029,8 +3062,8 @@
     // Erweiterte Analyse
     function showExtendedAnalyse() {
         // Berechnungsergebnisse sammeln
-        const kaufpreis = parseFloat(document.getElementById('kaufpreis').value) || 0;
-        const verkaufspreis = parseFloat(document.getElementById('verkaufspreis').value) || 0;
+        const kaufpreis = parseNumber(document.getElementById('kaufpreis').value);
+        const verkaufspreis = parseNumber(document.getElementById('verkaufspreis').value);
         const gewinn = verkaufspreis - kaufpreis;
         
         // Strategieempfehlung basierend auf Gewinn
@@ -3193,10 +3226,10 @@
             try {
                 berechungsdaten = JSON.parse(gespeicherteDaten);
                 // Lade Daten in Formulare
-                if (berechungsdaten.immobilie) {
-                    Object.keys(berechungsdaten.immobilie).forEach(key => {
-                        const element = document.getElementById(key);
-                        if (element) element.value = berechungsdaten.immobilie[key];
+                if (berechungsdaten.formulare) {
+                    Object.entries(berechungsdaten.formulare).forEach(([id, value]) => {
+                        const element = document.getElementById(id);
+                        if (element) element.value = value;
                     });
                 }
             } catch(e) {
@@ -3218,11 +3251,15 @@
 
     // Daten speichern
     function saveSuiteData() {
-        try {
-            localStorage.setItem('immobilien-suite-daten', JSON.stringify(berechungsdaten));
-        } catch(e) {
-            console.log('Daten konnten nicht gespeichert werden');
-        }
+        const allInputs = document.querySelectorAll('input, select');
+        const formulareDaten = {};
+        
+        allInputs.forEach(input => {
+            if (input.id) formulareDaten[input.id] = input.value;
+        });
+        
+        berechungsdaten.formulare = formulareDaten;
+        localStorage.setItem('immobilien-suite-daten', JSON.stringify(berechungsdaten));
     }
 
     // Event-Handler
@@ -3298,9 +3335,9 @@
         };
         
         // Daten in Formular eintragen
-        Object.keys(beispielDaten).forEach(key => {
+        Object.entries(beispielDaten).forEach(([key, value]) => {
             const element = document.getElementById(key);
-            if (element) element.value = beispielDaten[key];
+            if (element) element.value = value;
         });
         
         // Zusätzliche Beispieldaten für andere Tabs
