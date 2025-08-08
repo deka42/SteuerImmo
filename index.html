@@ -1420,15 +1420,45 @@
         }
 
         // Korrekte Spekulationssteuer-Berechnung
-        function berechneSpekulationssteuer(gewinn, persSteuersatz, kirchensteuerProzent) {
-            if (gewinn <= 0) return 0;
-            
-            const einkommensteuer = gewinn * persSteuersatz / 100;
-            const kirchensteuerBetrag = einkommensteuer * kirchensteuerProzent / 100;
-            const soliBetrag = einkommensteuer * 5.5 / 100;
-            
-            return einkommensteuer + kirchensteuerBetrag + soliBetrag;
-        }
+function berechneSpekulationssteuer(gewinn, persSteuersatz, kirchensteuerProzent) {
+  if(gewinn <= 0) return 0;
+  
+  const einkommensteuer = gewinn * persSteuersatz / 100;
+  const kirchensteuerBetrag = einkommensteuer * kirchensteuerProzent / 100;
+  const soliBetrag = einkommensteuer * 5.5 / 100;
+  
+  return einkommensteuer + kirchensteuerBetrag + soliBetrag;
+}
+
+// Bundeslandspezifische Gewerbesteuer
+function calculateGewerbesteuer(gewinn, gemeindeHeberate) {
+  const gewerbesteuermessbetrag = gewinn * 0.035;
+  return gewerbesteuermessbetrag * (gemeindeHeberate / 100);
+}
+
+// Nießbrauchberechnung mit aktualisierten Zinssätzen
+function calculateNießbrauch(alter, jahresmiete, basiszins = 2.5) {
+  const kapitalisierungsfaktor = Math.max(8, 20 - (alter - 40) * 0.4 - basiszins);
+  return jahresmiete * kapitalisierungsfaktor;
+}
+
+// Intelligentes Empfehlungs-Dashboard
+function generateSmartEmpfehlungen() {
+  const empfehlungen = [];
+  const bruttogewinn = berechungsdaten.immobilie?.verkaufspreis - berechungsdaten.immobilie?.kaufpreis;
+  
+  if(berechungsdaten.immobilie?.haltedauer < 10 && bruttogewinn > 0) {
+    empfehlungen.push({
+      icon: '⏰',
+      titel: `Noch ${10-berechungsdaten.immobilie.haltedauer} Jahre warten`,
+      beschreibung: `Steuerersparnis bis zu ${formatCurrency(bruttogewinn * 0.4)}`,
+      prioritaet: 'hoch'
+    });
+  }
+  
+  // Weitere personalisierte Empfehlungen...
+  return empfehlungen;
+}
         
         // Gewerbesteuer-Berechnung mit Hebesatz
         function calculateGewerbesteuer(gewinn, gemeindeHeberate) {
