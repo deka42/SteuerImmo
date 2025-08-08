@@ -2598,17 +2598,23 @@
 
         // Interne Berechnungsfunktionen (ohne DOM-Updates)
         function calculateVerkaufInternal(daten) {
-            const bruttogewinn = daten.verkaufspreis - daten.kaufpreis - daten.nebenkosten_kauf - daten.modernisierung - (daten.nebenkosten_verkauf || 0);
-            const steuerfrei = daten.haltedauer >= 10;
-            const steuer = steuerfrei ? 0 : bruttogewinn * (daten.persSteuersatz + daten.kirchensteuer + 5.5) / 100;
-            
-            return {
-                bruttogewinn,
-                steuer,
-                nettogewinn: bruttogewinn - steuer,
-                steuerfrei
-            };
-        }
+             // KORREKTUR: Kaufnebenkosten als Teil der Anschaffungskosten
+const anschaffungskosten = daten.kaufpreis + daten.nebenkosten_kauf + daten.modernisierung;
+    const bruttogewinn = daten.verkaufspreis - (daten.nebenkosten_verkauf || 0) - anschaffungskosten;
+            // Korrekte Steuersatz-Berechnung
+    const soli = 5.5;
+    const gesamtsteuersatz = daten.persSteuersatz + 
+                            (daten.persSteuersatz * daten.kirchensteuer / 100) + 
+                            (daten.persSteuersatz * soli / 100);
+    const steuer = steuerfrei ? 0 : bruttogewinn * gesamtsteuersatz / 100;
+    
+    return {
+        bruttogewinn,
+        steuer,
+        nettogewinn: bruttogewinn - steuer,
+        steuerfrei
+    };
+}
 
         function calculateGrundsteuerInternal() {
             const grundstueckswert = parseFloat(document.getElementById('grundstueckswert').value) || 350000;
