@@ -1420,45 +1420,45 @@
         }
 
         // Korrekte Spekulationssteuer-Berechnung
-function berechneSpekulationssteuer(gewinn, persSteuersatz, kirchensteuerProzent) {
-  if(gewinn <= 0) return 0;
-  
-  const einkommensteuer = gewinn * persSteuersatz / 100;
-  const kirchensteuerBetrag = einkommensteuer * kirchensteuerProzent / 100;
-  const soliBetrag = einkommensteuer * 5.5 / 100;
-  
-  return einkommensteuer + kirchensteuerBetrag + soliBetrag;
-}
+        function berechneSpekulationssteuer(gewinn, persSteuersatz, kirchensteuerProzent) {
+          if(gewinn <= 0) return 0;
+          
+          const einkommensteuer = gewinn * persSteuersatz / 100;
+          const kirchensteuerBetrag = einkommensteuer * kirchensteuerProzent / 100;
+          const soliBetrag = einkommensteuer * 5.5 / 100;
+          
+          return einkommensteuer + kirchensteuerBetrag + soliBetrag;
+        }
 
-// Bundeslandspezifische Gewerbesteuer
-function calculateGewerbesteuer(gewinn, gemeindeHeberate) {
-  const gewerbesteuermessbetrag = gewinn * 0.035;
-  return gewerbesteuermessbetrag * (gemeindeHeberate / 100);
-}
+        // Bundeslandspezifische Gewerbesteuer
+        function calculateGewerbesteuer(gewinn, gemeindeHeberate) {
+          const gewerbesteuermessbetrag = gewinn * 0.035;
+          return gewerbesteuermessbetrag * (gemeindeHeberate / 100);
+        }
 
-// Nießbrauchberechnung mit aktualisierten Zinssätzen
-function calculateNießbrauch(alter, jahresmiete, basiszins = 2.5) {
-  const kapitalisierungsfaktor = Math.max(8, 20 - (alter - 40) * 0.4 - basiszins);
-  return jahresmiete * kapitalisierungsfaktor;
-}
+        // Nießbrauchberechnung mit aktualisierten Zinssätzen
+        function calculateNießbrauch(alter, jahresmiete, basiszins = 2.5) {
+          const kapitalisierungsfaktor = Math.max(8, 20 - (alter - 40) * 0.4 - basiszins);
+          return jahresmiete * kapitalisierungsfaktor;
+        }
 
-// Intelligentes Empfehlungs-Dashboard
-function generateSmartEmpfehlungen() {
-  const empfehlungen = [];
-  const bruttogewinn = berechungsdaten.immobilie?.verkaufspreis - berechungsdaten.immobilie?.kaufpreis;
-  
-  if(berechungsdaten.immobilie?.haltedauer < 10 && bruttogewinn > 0) {
-    empfehlungen.push({
-      icon: '⏰',
-      titel: `Noch ${10-berechungsdaten.immobilie.haltedauer} Jahre warten`,
-      beschreibung: `Steuerersparnis bis zu ${formatCurrency(bruttogewinn * 0.4)}`,
-      prioritaet: 'hoch'
-    });
-  }
-  
-  // Weitere personalisierte Empfehlungen...
-  return empfehlungen;
-}
+        // Intelligentes Empfehlungs-Dashboard
+        function generateSmartEmpfehlungen() {
+          const empfehlungen = [];
+          const bruttogewinn = berechungsdaten.immobilie?.verkaufspreis - berechungsdaten.immobilie?.kaufpreis;
+          
+          if(berechungsdaten.immobilie?.haltedauer < 10 && bruttogewinn > 0) {
+            empfehlungen.push({
+              icon: '⏰',
+              titel: `Noch ${10-berechungsdaten.immobilie.haltedauer} Jahre warten`,
+              beschreibung: `Steuerersparnis bis zu ${formatCurrency(bruttogewinn * 0.4)}`,
+              prioritaet: 'hoch'
+            });
+          }
+          
+          // Weitere personalisierte Empfehlungen...
+          return empfehlungen;
+        }
         
         // Gewerbesteuer-Berechnung mit Hebesatz
         function calculateGewerbesteuer(gewinn, gemeindeHeberate) {
@@ -2599,813 +2599,812 @@ function generateSmartEmpfehlungen() {
 
     // Alle Strukturen anzeigen
     function showAllStructures() {
-        // Exakt dieselben Parameter wie in der Smart-Filterung
-        const kaufpreis = parseNumber(document.getElementById('kaufpreis').value);
-        const verkaufspreis = parseNumber(document.getElementById('verkaufspreis').value);
-        const nebenkostenKauf = parseNumber(document.getElementById('nebenkosten_kauf').value);
-        const nebenkostenVerkauf = parseNumber(document.getElementById('nebenkosten_verkauf').value);
-        const modernisierung = parseNumber(document.getElementById('modernisierung').value);
-        const haltedauer = parseNumber(document.getElementById('haltedauer').value);
-        const persSteuersatz = parseNumber(document.getElementById('persoenlicher_steuersatz').value, 42);
-        const kirchensteuer = parseNumber(document.getElementById('kirchensteuer').value, 8);
-        const einbringungNach = parseNumber(document.getElementById('einbringung_nach_jahren').value);
-        const bundesland = document.getElementById('bundesland').value;
+            const kaufpreis = parseNumber(document.getElementById('kaufpreis').value);
+            const verkaufspreis = parseNumber(document.getElementById('verkaufspreis').value);
+            const nebenkostenKauf = parseNumber(document.getElementById('nebenkosten_kauf').value);
+            const nebenkostenVerkauf = parseNumber(document.getElementById('nebenkosten_verkauf').value);
+            const modernisierung = parseNumber(document.getElementById('modernisierung').value);
+            const haltedauer = parseNumber(document.getElementById('haltedauer').value);
+            const persSteuersatz = parseNumber(document.getElementById('persoenlicher_steuersatz').value, 42);
+            const kirchensteuer = parseNumber(document.getElementById('kirchensteuer').value, 8);
+            const einbringungNach = parseNumber(document.getElementById('einbringung_nach_jahren').value);
+            const bundesland = document.getElementById('bundesland').value;
 
-        // Kaufnebenkosten als Teil der Anschaffungskosten
-        const anschaffungskosten = kaufpreis + nebenkostenKauf + modernisierung;
-        const bruttogewinn = verkaufspreis - nebenkostenVerkauf - anschaffungskosten;
-        
-        // Korrekte Steuersatz-Berechnung
-        const steuerfrei = haltedauer >= 10;
-        let steuer = 0;
-        
-        if (!steuerfrei) {
-            steuer = berechneSpekulationssteuer(
-                bruttogewinn, 
-                persSteuersatz, 
-                kirchensteuer
-            );
-        }
-        
-        const ergebnisse = [];
+            // Kaufnebenkosten als Teil der Anschaffungskosten
+            const anschaffungskosten = kaufpreis + nebenkostenKauf + modernisierung;
+            const bruttogewinn = verkaufspreis - nebenkostenVerkauf - anschaffungskosten;
+            
+            // Korrekte Steuersatz-Berechnung
+            const steuerfrei = haltedauer >= 10;
+            let steuer = 0;
+            
+            if (!steuerfrei) {
+                steuer = berechneSpekulationssteuer(
+                    bruttogewinn, 
+                    persSteuersatz, 
+                    kirchensteuer
+                );
+            }
+            
+            const ergebnisse = [];
 
-        // 1. Privatverkauf
-        ergebnisse.push({
-            typ: 'Privatverkauf',
-            bruttogewinn: bruttogewinn,
-            steuer: steuer,
-            nettogewinn: bruttogewinn - steuer,
-            besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (§23 EStG)' : '⏰ Spekulationssteuer - noch ' + (10 - haltedauer).toFixed(1) + ' Jahre bis steuerfrei'
-        });
-
-        // 2. VV GbR
-        ergebnisse.push({
-            typ: 'VV GbR',
-            bruttogewinn: bruttogewinn,
-            steuer: steuer,
-            nettogewinn: bruttogewinn - steuer,
-            besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (transparente Besteuerung)' : '⏰ Transparente Besteuerung, noch ' + (10 - haltedauer).toFixed(1) + ' Jahre bis steuerfrei'
-        });
-
-        // 3. VV GmbH & Co. KG
-        if (haltedauer >= 10) {
+            // 1. Privatverkauf
             ergebnisse.push({
-                typ: 'VV GmbH & Co. KG',
-                bruttogewinn: bruttogewinn,
-                steuer: 0,
-                nettogewinn: bruttogewinn,
-                besonderheiten: '🏆 STEUERFREI nach 10 Jahren + BFH 2025: Gewerbesteuerbefreiung!'
-            });
-        } else {
-            ergebnisse.push({
-                typ: 'VV GmbH & Co. KG',
+                typ: 'Privatverkauf',
                 bruttogewinn: bruttogewinn,
                 steuer: steuer,
                 nettogewinn: bruttogewinn - steuer,
-                besonderheiten: '⭐ BFH 2025: GEWERBESTEUERFREI + wird nach 10 Jahren komplett steuerfrei!'
+                besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (§23 EStG)' : '⏰ Spekulationssteuer - noch ' + (10 - haltedauer).toFixed(1) + ' Jahre bis steuerfrei'
             });
-        }
 
-        // 4. VV GmbH (mit Doppelbesteuerung)
-        const bundeslaender = {
-            'bw': 380, 'by': 340, 'be': 410, 'bb': 400, 'hb': 430, 
-            'hh': 470, 'he': 420, 'mv': 350, 'ni': 380, 'nw': 450, 
-            'rp': 440, 'sl': 430, 'sn': 420, 'st': 390, 'sh': 370, 'th': 360
-        };
-        const hebesatz = bundeslaender[bundesland] || 450;
-        const gewerbesteuer = calculateGewerbesteuer(bruttogewinn, hebesatz);
-        
-        const kstBetrag = (bruttogewinn - gewerbesteuer) * 0.15; // Körperschaftsteuer 15%
-        const soli_gmbh = kstBetrag * 5.5 / 100;
-        const gesamtsteuerGmbh = gewerbesteuer + kstBetrag + soli_gmbh;
-        const nettoGmbh = bruttogewinn - gesamtsteuerGmbh;
-        const abgeltungsteuer = nettoGmbh * 26.375 / 100;
-        
-        let besonderheitGmbh = '❌ NIEMALS steuerfrei! Doppelbesteuerung: ~30% GmbH + ~26% Ausschüttung = ~48-50%';
-        if (einbringungNach > 0 && einbringungNach >= 10) {
-            besonderheitGmbh = `✅ Einbringung nach ${einbringungNach} Jahren war steuerfrei, ❌ aber Verkauf durch GmbH = Doppelbesteuerung`;
-        } else if (einbringungNach > 0) {
-            besonderheitGmbh = `❌ Einbringung nach ${einbringungNach} Jahren war steuerpflichtig, Verkauf auch = Doppelbesteuerung`;
-        }
-        
-        ergebnisse.push({
-            typ: 'VV GmbH',
-            bruttogewinn: bruttogewinn,
-            steuer: gesamtsteuerGmbh + abgeltungsteuer,
-            nettogewinn: nettoGmbh - abgeltungsteuer,
-            besonderheiten: besonderheitGmbh
-        });
+            // 2. VV GbR
+            ergebnisse.push({
+                typ: 'VV GbR',
+                bruttogewinn: bruttogewinn,
+                steuer: steuer,
+                nettogewinn: bruttogewinn - steuer,
+                besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (transparente Besteuerung)' : '⏰ Transparente Besteuerung, noch ' + (10 - haltedauer).toFixed(1) + ' Jahre bis steuerfrei'
+            });
 
-        // 5-14. Weitere Strukturen mit korrekten Berechnungen
-        const steuerVV = steuer;
-        
-        // 5. VV KG
-        ergebnisse.push({
-            typ: 'VV KG',
-            bruttogewinn: bruttogewinn,
-            steuer: steuerVV,
-            nettogewinn: bruttogewinn - steuerVV,
-            besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (transparente Besteuerung wie GbR)' : '⏰ Transparente Besteuerung, noch ' + (10 - haltedauer).toFixed(1) + ' Jahre bis steuerfrei'
-        });
+            // 3. VV GmbH & Co. KG
+            if (haltedauer >= 10) {
+                ergebnisse.push({
+                    typ: 'VV GmbH & Co. KG',
+                    bruttogewinn: bruttogewinn,
+                    steuer: 0,
+                    nettogewinn: bruttogewinn,
+                    besonderheiten: '🏆 STEUERFREI nach 10 Jahren + BFH 2025: Gewerbesteuerbefreiung!'
+                });
+            } else {
+                ergebnisse.push({
+                    typ: 'VV GmbH & Co. KG',
+                    bruttogewinn: bruttogewinn,
+                    steuer: steuer,
+                    nettogewinn: bruttogewinn - steuer,
+                    besonderheiten: '⭐ BFH 2025: GEWERBESTEUERFREI + wird nach 10 Jahren komplett steuerfrei!'
+                });
+            }
 
-        // 6. VV OHG
-        ergebnisse.push({
-            typ: 'VV OHG',
-            bruttogewinn: bruttogewinn,
-            steuer: steuerVV,
-            nettogewinn: bruttogewinn - steuerVV,
-            besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (transparente Besteuerung)' : '⚠️ OHG = Vollhaftung aller Gesellschafter!'
-        });
-
-        // 7. VV PartG
-        ergebnisse.push({
-            typ: 'VV PartG',
-            bruttogewinn: bruttogewinn,
-            steuer: steuerVV,
-            nettogewinn: bruttogewinn - steuerVV,
-            besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (nur für Freiberufler)' : '⚠️ Nur für Freiberufler geeignet'
-        });
-
-        // 8. Familienpool KG
-        const familienRabatt = bruttogewinn * 0.05;
-        ergebnisse.push({
-            typ: 'Familienpool KG',
-            bruttogewinn: bruttogewinn,
-            steuer: Math.max(0, steuerVV - familienRabatt),
-            nettogewinn: bruttogewinn - Math.max(0, steuerVV - familienRabatt),
-            besonderheiten: steuerfrei ? '🏆 Steuerfrei + optimale Nachfolgeplanung für Familien' : '👨‍👩‍👧‍👦 Optimal für Generationenübergabe'
-        });
-
-        // 9. VV UG
-        const ugSteuer = gesamtsteuerGmbh * 0.8;
-        ergebnisse.push({
-            typ: 'VV UG',
-            bruttogewinn: bruttogewinn,
-            steuer: ugSteuer + abgeltungsteuer * 0.8,
-            nettogewinn: bruttogewinn - ugSteuer - abgeltungsteuer * 0.8,
-            besonderheiten: '❌ Doppelbesteuerung wie GmbH, aber günstiger in der Gründung'
-        });
-
-        // 10. VV Holding-GmbH
-        const holdingVorteil = bruttogewinn * 0.1;
-        ergebnisse.push({
-            typ: 'VV Holding-GmbH',
-            bruttogewinn: bruttogewinn,
-            steuer: Math.max(0, gesamtsteuerGmbh - holdingVorteil),
-            nettogewinn: bruttogewinn - Math.max(0, gesamtsteuerGmbh - holdingVorteil),
-            besonderheiten: '⭐ Schachtelprivileg nutzen, optimal für große Portfolios ab 3+ Objekte'
-        });
-
-        // 11. Gewerbliche GbR
-        const gewerbesteuerGesamt = calculateGewerbesteuer(bruttogewinn, hebesatz);
-        const anrechnungsbetrag = gewerbesteuerGesamt * 3.8;
-        const einkommensteuerBasis = bruttogewinn - Math.min(anrechnungsbetrag, gewerbesteuerGesamt);
-        const einkommensteuer = einkommensteuerBasis * persSteuersatz / 100;
-        const gesamtsteuerGewerblich = gewerbesteuerGesamt + einkommensteuer;
-
-        ergebnisse.push({
-            typ: 'Gewerbliche GbR',
-            bruttogewinn: bruttogewinn,
-            steuer: gesamtsteuerGewerblich,
-            nettogewinn: bruttogewinn - gesamtsteuerGewerblich,
-            besonderheiten: '❌ Gewerblich = KEINE 10-Jahres-Frist (§23 EStG gilt nicht), aber Gewerbesteueranrechnung'
-        });
-
-        // 12. Gewerbliche GmbH
-        const gewGmbhSteuer = gesamtsteuerGmbh * 1.1;
-        ergebnisse.push({
-            typ: 'Gewerbliche GmbH',
-            bruttogewinn: bruttogewinn,
-            steuer: gewGmbhSteuer,
-            nettogewinn: bruttogewinn - gewGmbhSteuer,
-            besonderheiten: '❌ Immer gewerblich + Doppelbesteuerung = höchste Steuerbelastung'
-        });
-
-        // 13. Gewerbliche GmbH & Co. KG
-        const gewKGSteuer = gesamtsteuerGewerblich * 0.9;
-        ergebnisse.push({
-            typ: 'Gewerbliche GmbH & Co. KG',
-            bruttogewinn: bruttogewinn,
-            steuer: gewKGSteuer,
-            nettogewinn: bruttogewinn - gewKGSteuer,
-            besonderheiten: '❌ Gewerblich = keine 10-Jahres-Frist, aber flexibler als reine GmbH'
-        });
-
-        // 14. Cross-Border DE-LU Struktur
-        let crossBorderVorteil = 0;
-        let crossBorderBesonderheiten = '';
-        
-        if (bruttogewinn > 500000) {
-            crossBorderVorteil = bruttogewinn * 0.15; // 15% Steuerersparnis bei großen Portfolios
-            crossBorderBesonderheiten = '🌍 OPTIMAL für große Portfolios! 15% Steuerersparnis durch EU-Strukturoptimierung';
-        } else if (bruttogewinn > 200000) {
-            crossBorderVorteil = bruttogewinn * 0.08; // 8% Steuerersparnis bei mittleren Portfolios
-            crossBorderBesonderheiten = '🌍 Mittelgroße Portfolios: 8% Ersparnis, aber hohe Komplexität - prüfen!';
-        } else {
-            crossBorderVorteil = bruttogewinn * 0.03; // Minimaler Vorteil bei kleinen Portfolios
-            crossBorderBesonderheiten = '🌍 Kleine Portfolios: Minimaler Vorteil, hohe Kosten - meist nicht wirtschaftlich';
-        }
-        
-        ergebnisse.push({
-            typ: 'Cross-Border DE-LU',
-            bruttogewinn: bruttogewinn,
-            steuer: Math.max(0, steuerVV - crossBorderVorteil),
-            nettogewinn: bruttogewinn - Math.max(0, steuerVV - crossBorderVorteil),
-            besonderheiten: crossBorderBesonderheiten
-        });
-
-        displayAllStructuresResults(ergebnisse);
-    }
-
-    function displayAllStructuresResults(ergebnisse) {
-        const besteOption = ergebnisse.reduce((beste, aktuelle) => 
-            aktuelle.nettogewinn > beste.nettogewinn ? aktuelle : beste
-        );
-
-        let html = `
-            <h3 style="text-align: center; color: #2c3e50; margin: 30px 0;">📊 VOLLSTÄNDIGER Strukturvergleich - Alle 14 Rechtsformen</h3>
-            <div style="text-align: center; margin-bottom: 20px;">
-                <button onclick="calculateVerkauf()" style="
-                    background: #27ae60;
-                    color: white;
-                    border: none;
-                    padding: 8px 15px;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    font-size: 0.9em;
-                ">📋 Zurück zur kompakten Ansicht</button>
-            </div>
+            // 4. VV GmbH (mit Doppelbesteuerung)
+            const bundeslaender = {
+                'bw': 380, 'by': 340, 'be': 410, 'bb': 400, 'hb': 430, 
+                'hh': 470, 'he': 420, 'mv': 350, 'ni': 380, 'nw': 450, 
+                'rp': 440, 'sl': 430, 'sn': 420, 'st': 390, 'sh': 370, 'th': 360
+            };
+            const hebesatz = bundeslaender[bundesland] || 450;
+            const gewerbesteuer = calculateGewerbesteuer(bruttogewinn, hebesatz);
             
-            <table class="comparison-table">
-                <thead>
-                    <tr>
-                        <th>Rang</th>
-                        <th>Struktur</th>
-                        <th>Nettogewinn</th>
-                        <th>Steuern</th>
-                        <th>Steuerquote</th>
-                        <th>Besonderheiten</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        // Sortiere nach Nettogewinn (beste zuerst)
-        const sortierteErgebnisse = [...ergebnisse].sort((a, b) => b.nettogewinn - a.nettogewinn);
-        
-        sortierteErgebnisse.forEach((option, index) => {
-            const isBest = index === 0;
-            const rang = index + 1;
-            const medaille = rang === 1 ? '🥇' : rang === 2 ? '🥈' : rang === 3 ? '🥉' : `${rang}.`;
+            const kstBetrag = (bruttogewinn - gewerbesteuer) * 0.15; // Körperschaftsteuer 15%
+            const soli_gmbh = kstBetrag * 5.5 / 100;
+            const gesamtsteuerGmbh = gewerbesteuer + kstBetrag + soli_gmbh;
+            const nettoGmbh = bruttogewinn - gesamtsteuerGmbh;
+            const abgeltungsteuer = nettoGmbh * 26.375 / 100;
             
-            html += `
-                <tr ${isBest ? 'class="best-option"' : ''}>
-                    <td style="text-align: center; font-weight: 600;">${medaille}</td>
-                    <td><strong>${option.typ}</strong></td>
-                    <td style="font-weight: 600; color: #27ae60;">${formatCurrency(option.nettogewinn)}</td>
-                    <td style="color: #e74c3c;">${formatCurrency(option.steuer)}</td>
-                    <td>${formatPercent(option.bruttogewinn > 0 ? option.steuer / option.bruttogewinn * 100 : 0)}</td>
-                    <td style="font-size: 0.8em;">${option.besonderheiten}</td>
-                </tr>
-            `;
-        });
+            let besonderheitGmbh = '❌ NIEMALS steuerfrei! Doppelbesteuerung: ~30% GmbH + ~26% Ausschüttung = ~48-50%';
+            if (einbringungNach > 0 && einbringungNach >= 10) {
+                besonderheitGmbh = `✅ Einbringung nach ${einbringungNach} Jahren war steuerfrei, ❌ aber Verkauf durch GmbH = Doppelbesteuerung`;
+            } else if (einbringungNach > 0) {
+                besonderheitGmbh = `❌ Einbringung nach ${einbringungNach} Jahren war steuerpflichtig, Verkauf auch = Doppelbesteuerung`;
+            }
+            
+            ergebnisse.push({
+                typ: 'VV GmbH',
+                bruttogewinn: bruttogewinn,
+                steuer: gesamtsteuerGmbh + abgeltungsteuer,
+                nettogewinn: nettoGmbh - abgeltungsteuer,
+                besonderheiten: besonderheitGmbh
+            });
 
-        html += `</tbody></table>
-                 
-                 <div class="warning success" style="margin-top: 30px;">
-                    <strong>🏆 Beste Struktur für Sie: ${besteOption.typ}</strong><br>
-                    Nettogewinn: ${formatCurrency(besteOption.nettogewinn)} (Ersparnis gegenüber schlechtester Option: ${formatCurrency(besteOption.nettogewinn - sortierteErgebnisse[sortierteErgebnisse.length-1].nettogewinn)})<br>
-                    ${besteOption.besonderheiten}
-                 </div>`;
+            // 5-14. Weitere Strukturen mit korrekten Berechnungen
+            const steuerVV = steuer;
+            
+            // 5. VV KG
+            ergebnisse.push({
+                typ: 'VV KG',
+                bruttogewinn: bruttogewinn,
+                steuer: steuerVV,
+                nettogewinn: bruttogewinn - steuerVV,
+                besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (transparente Besteuerung wie GbR)' : '⏰ Transparente Besteuerung, noch ' + (10 - haltedauer).toFixed(1) + ' Jahre bis steuerfrei'
+            });
 
-        document.getElementById('verkauf-results').innerHTML = html;
-        
-        // Animation hinzufügen
-        setTimeout(() => {
-            document.getElementById('verkauf-results').classList.add('structure-transition');
-        }, 50);
-    }
+            // 6. VV OHG
+            ergebnisse.push({
+                typ: 'VV OHG',
+                bruttogewinn: bruttogewinn,
+                steuer: steuerVV,
+                nettogewinn: bruttogewinn - steuerVV,
+                besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (transparente Besteuerung)' : '⚠️ OHG = Vollhaftung aller Gesellschafter!'
+            });
 
-    // Dashboard Funktionen
-    function hideDashboard() {
-        const dashboard = document.getElementById('smart-dashboard');
-        if (dashboard) {
-            dashboard.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => {
-                if (dashboard.parentNode) {
-                    dashboard.remove();
-                }
-            }, 300);
+            // 7. VV PartG
+            ergebnisse.push({
+                typ: 'VV PartG',
+                bruttogewinn: bruttogewinn,
+                steuer: steuerVV,
+                nettogewinn: bruttogewinn - steuerVV,
+                besonderheiten: steuerfrei ? '✅ Steuerfrei nach 10 Jahren (nur für Freiberufler)' : '⚠️ Nur für Freiberufler geeignet'
+            });
+
+            // 8. Familienpool KG
+            const familienRabatt = bruttogewinn * 0.05;
+            ergebnisse.push({
+                typ: 'Familienpool KG',
+                bruttogewinn: bruttogewinn,
+                steuer: Math.max(0, steuerVV - familienRabatt),
+                nettogewinn: bruttogewinn - Math.max(0, steuerVV - familienRabatt),
+                besonderheiten: steuerfrei ? '🏆 Steuerfrei + optimale Nachfolgeplanung für Familien' : '👨‍👩‍👧‍👦 Optimal für Generationenübergabe'
+            });
+
+            // 9. VV UG
+            const ugSteuer = gesamtsteuerGmbh * 0.8;
+            ergebnisse.push({
+                typ: 'VV UG',
+                bruttogewinn: bruttogewinn,
+                steuer: ugSteuer + abgeltungsteuer * 0.8,
+                nettogewinn: bruttogewinn - ugSteuer - abgeltungsteuer * 0.8,
+                besonderheiten: '❌ Doppelbesteuerung wie GmbH, aber günstiger in der Gründung'
+            });
+
+            // 10. VV Holding-GmbH
+            const holdingVorteil = bruttogewinn * 0.1;
+            ergebnisse.push({
+                typ: 'VV Holding-GmbH',
+                bruttogewinn: bruttogewinn,
+                steuer: Math.max(0, gesamtsteuerGmbh - holdingVorteil),
+                nettogewinn: bruttogewinn - Math.max(0, gesamtsteuerGmbh - holdingVorteil),
+                besonderheiten: '⭐ Schachtelprivileg nutzen, optimal für große Portfolios ab 3+ Objekte'
+            });
+
+            // 11. Gewerbliche GbR
+            const gewerbesteuerGesamt = calculateGewerbesteuer(bruttogewinn, hebesatz);
+            const anrechnungsbetrag = gewerbesteuerGesamt * 3.8;
+            const einkommensteuerBasis = bruttogewinn - Math.min(anrechnungsbetrag, gewerbesteuerGesamt);
+            const einkommensteuer = einkommensteuerBasis * persSteuersatz / 100;
+            const gesamtsteuerGewerblich = gewerbesteuerGesamt + einkommensteuer;
+
+            ergebnisse.push({
+                typ: 'Gewerbliche GbR',
+                bruttogewinn: bruttogewinn,
+                steuer: gesamtsteuerGewerblich,
+                nettogewinn: bruttogewinn - gesamtsteuerGewerblich,
+                besonderheiten: '❌ Gewerblich = KEINE 10-Jahres-Frist (§23 EStG gilt nicht), aber Gewerbesteueranrechnung'
+            });
+
+            // 12. Gewerbliche GmbH
+            const gewGmbhSteuer = gesamtsteuerGmbh * 1.1;
+            ergebnisse.push({
+                typ: 'Gewerbliche GmbH',
+                bruttogewinn: bruttogewinn,
+                steuer: gewGmbhSteuer,
+                nettogewinn: bruttogewinn - gewGmbhSteuer,
+                besonderheiten: '❌ Immer gewerblich + Doppelbesteuerung = höchste Steuerbelastung'
+            });
+
+            // 13. Gewerbliche GmbH & Co. KG
+            const gewKGSteuer = gesamtsteuerGewerblich * 0.9;
+            ergebnisse.push({
+                typ: 'Gewerbliche GmbH & Co. KG',
+                bruttogewinn: bruttogewinn,
+                steuer: gewKGSteuer,
+                nettogewinn: bruttogewinn - gewKGSteuer,
+                besonderheiten: '❌ Gewerblich = keine 10-Jahres-Frist, aber flexibler als reine GmbH'
+            });
+
+            // 14. Cross-Border DE-LU Struktur
+            let crossBorderVorteil = 0;
+            let crossBorderBesonderheiten = '';
+            
+            if (bruttogewinn > 500000) {
+                crossBorderVorteil = bruttogewinn * 0.15; // 15% Steuerersparnis bei großen Portfolios
+                crossBorderBesonderheiten = '🌍 OPTIMAL für große Portfolios! 15% Steuerersparnis durch EU-Strukturoptimierung';
+            } else if (bruttogewinn > 200000) {
+                crossBorderVorteil = bruttogewinn * 0.08; // 8% Steuerersparnis bei mittleren Portfolios
+                crossBorderBesonderheiten = '🌍 Mittelgroße Portfolios: 8% Ersparnis, aber hohe Komplexität - prüfen!';
+            } else {
+                crossBorderVorteil = bruttogewinn * 0.03; // Minimaler Vorteil bei kleinen Portfolios
+                crossBorderBesonderheiten = '🌍 Kleine Portfolios: Minimaler Vorteil, hohe Kosten - meist nicht wirtschaftlich';
+            }
+            
+            ergebnisse.push({
+                typ: 'Cross-Border DE-LU',
+                bruttogewinn: bruttogewinn,
+                steuer: Math.max(0, steuerVV - crossBorderVorteil),
+                nettogewinn: bruttogewinn - Math.max(0, steuerVV - crossBorderVorteil),
+                besonderheiten: crossBorderBesonderheiten
+            });
+
+            displayAllStructuresResults(ergebnisse);
         }
-        // Merken dass User Dashboard nicht möchte
-        localStorage.setItem('dashboard-hidden', 'true');
-    }
 
-    function showDashboard() {
-        // Hidden-Flag entfernen
-        localStorage.removeItem('dashboard-hidden');
-        
-        // Dashboard sofort anzeigen
-        updateDashboard();
-        
-        // Benutzer-Feedback
-        showAdvancedNotification('💡 Smart-Dashboard wieder eingeblendet', 'success');
-    }
-    
-    function updateDashboard() {
-        // Altes Dashboard entfernen
-        const altesDashboard = document.getElementById('smart-dashboard');
-        if (altesDashboard) {
-            altesDashboard.remove();
-        }
-        
-        // Prüfen ob Dashboard gewünscht
-        const dashboardHidden = localStorage.getItem('dashboard-hidden');
-        if (dashboardHidden) return;
-        
-        // Empfehlungen generieren
-        const empfehlungen = generateSmartEmpfehlungen();
-        
-        if (empfehlungen.length === 0) {
-            return;
-        }
-        
-        // Dashboard HTML erstellen
-        let dashboardHtml = `
-            <div id="smart-dashboard">
-                <div class="dashboard-header">
-                    <h4 style="margin: 0; color: #2c3e50;">
-                        💡 Live-Empfehlungen 
-                        <span style="font-size:0.7em;color:#95a5a6;">(Haltedauer: ${document.getElementById('haltedauer').value} Jahre)</span>
-                    </h4>
+        function displayAllStructuresResults(ergebnisse) {
+            const besteOption = ergebnisse.reduce((beste, aktuelle) => 
+                aktuelle.nettogewinn > beste.nettogewinn ? aktuelle : beste
+            );
+
+            let html = `
+                <h3 style="text-align: center; color: #2c3e50; margin: 30px 0;">📊 VOLLSTÄNDIGER Strukturvergleich - Alle 14 Rechtsformen</h3>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <button onclick="calculateVerkauf()" style="
+                        background: #27ae60;
+                        color: white;
+                        border: none;
+                        padding: 8px 15px;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-size: 0.9em;
+                    ">📋 Zurück zur kompakten Ansicht</button>
                 </div>
-        `;
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Rang</th>
+                            <th>Struktur</th>
+                            <th>Nettogewinn</th>
+                            <th>Steuern</th>
+                            <th>Steuerquote</th>
+                            <th>Besonderheiten</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            // Sortiere nach Nettogewinn (beste zuerst)
+            const sortierteErgebnisse = [...ergebnisse].sort((a, b) => b.nettogewinn - a.nettogewinn);
+            
+            sortierteErgebnisse.forEach((option, index) => {
+                const isBest = index === 0;
+                const rang = index + 1;
+                const medaille = rang === 1 ? '🥇' : rang === 2 ? '🥈' : rang === 3 ? '🥉' : `${rang}.`;
+                
+                html += `
+                    <tr ${isBest ? 'class="best-option"' : ''}>
+                        <td style="text-align: center; font-weight: 600;">${medaille}</td>
+                        <td><strong>${option.typ}</strong></td>
+                        <td style="font-weight: 600; color: #27ae60;">${formatCurrency(option.nettogewinn)}</td>
+                        <td style="color: #e74c3c;">${formatCurrency(option.steuer)}</td>
+                        <td>${formatPercent(option.bruttogewinn > 0 ? option.steuer / option.bruttogewinn * 100 : 0)}</td>
+                        <td style="font-size: 0.8em;">${option.besonderheiten}</td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>
+                     
+                     <div class="warning success" style="margin-top: 30px;">
+                        <strong>🏆 Beste Struktur für Sie: ${besteOption.typ}</strong><br>
+                        Nettogewinn: ${formatCurrency(besteOption.nettogewinn)} (Ersparnis gegenüber schlechtester Option: ${formatCurrency(besteOption.nettogewinn - sortierteErgebnisse[sortierteErgebnisse.length-1].nettogewinn)})<br>
+                        ${besteOption.besonderheiten}
+                     </div>`;
+
+            document.getElementById('verkauf-results').innerHTML = html;
+            
+            // Animation hinzufügen
+            setTimeout(() => {
+                document.getElementById('verkauf-results').classList.add('structure-transition');
+            }, 50);
+        }
+
+        // Dashboard Funktionen
+        function hideDashboard() {
+            const dashboard = document.getElementById('smart-dashboard');
+            if (dashboard) {
+                dashboard.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (dashboard.parentNode) {
+                        dashboard.remove();
+                    }
+                }, 300);
+            }
+            // Merken dass User Dashboard nicht möchte
+            localStorage.setItem('dashboard-hidden', 'true');
+        }
+
+        function showDashboard() {
+            // Hidden-Flag entfernen
+            localStorage.removeItem('dashboard-hidden');
+            
+            // Dashboard sofort anzeigen
+            updateDashboard();
+            
+            // Benutzer-Feedback
+            showAdvancedNotification('💡 Smart-Dashboard wieder eingeblendet', 'success');
+        }
         
-        empfehlungen.slice(0, 2).forEach((emp, index) => {
-            const ersparnis = parseFloat(emp.ersparnis) || 0;
-            const prioritaet = emp.prioritaet || 'mittel';
+        function updateDashboard() {
+            // Altes Dashboard entfernen
+            const altesDashboard = document.getElementById('smart-dashboard');
+            if (altesDashboard) {
+                altesDashboard.remove();
+            }
+            
+            // Prüfen ob Dashboard gewünscht
+            const dashboardHidden = localStorage.getItem('dashboard-hidden');
+            if (dashboardHidden) return;
+            
+            // Empfehlungen generieren
+            const empfehlungen = generateSmartEmpfehlungen();
+            
+            if (empfehlungen.length === 0) {
+                return;
+            }
+            
+            // Dashboard HTML erstellen
+            let dashboardHtml = `
+                <div id="smart-dashboard">
+                    <div class="dashboard-header">
+                        <h4 style="margin: 0; color: #2c3e50;">
+                            💡 Live-Empfehlungen 
+                            <span style="font-size:0.7em;color:#95a5a6;">(Haltedauer: ${document.getElementById('haltedauer').value} Jahre)</span>
+                        </h4>
+                    </div>
+            `;
+            
+            empfehlungen.slice(0, 2).forEach((emp, index) => {
+                const ersparnis = parseFloat(emp.ersparnis) || 0;
+                const prioritaet = emp.prioritaet || 'mittel';
+                
+                dashboardHtml += `
+                    <div class="dashboard-item">
+                        <div style="font-weight: 600; font-size: 0.9em; margin-bottom: 4px;">${emp.icon} ${emp.titel}</div>
+                        <div style="font-size: 0.8em; color: #6c757d; margin: 3px 0;">${emp.beschreibung}</div>
+                        ${emp.detail ? `<div style="font-size: 0.75em; color: #95a5a6; margin: 2px 0;">${emp.detail}</div>` : ''}
+                        <div style="font-size: 0.85em; font-weight: 600; color: #27ae60; margin-top: 5px;">
+                            💰 Potential: ${formatCurrency(ersparnis)}
+                        </div>
+                    </div>
+                `;
+            });
             
             dashboardHtml += `
-                <div class="dashboard-item">
-                    <div style="font-weight: 600; font-size: 0.9em; margin-bottom: 4px;">${emp.icon} ${emp.titel}</div>
-                    <div style="font-size: 0.8em; color: #6c757d; margin: 3px 0;">${emp.beschreibung}</div>
-                    ${emp.detail ? `<div style="font-size: 0.75em; color: #95a5a6; margin: 2px 0;">${emp.detail}</div>` : ''}
-                    <div style="font-size: 0.85em; font-weight: 600; color: #27ae60; margin-top: 5px;">
-                        💰 Potential: ${formatCurrency(ersparnis)}
+                    <div class="dashboard-footer">
+                        <button onclick="showExtendedAnalyse()" class="dashboard-btn">🔍 Detailanalyse</button>
+                        <button onclick="hideDashboard()" class="dashboard-close">Ausblenden</button>
+                    </div>
+                    <div class="dashboard-update">
+                        🔄 Aktualisiert: ${new Date().toLocaleTimeString('de-DE')}
                     </div>
                 </div>
             `;
-        });
-        
-        dashboardHtml += `
-                <div class="dashboard-footer">
-                    <button onclick="showExtendedAnalyse()" class="dashboard-btn">🔍 Detailanalyse</button>
-                    <button onclick="hideDashboard()" class="dashboard-close">Ausblenden</button>
-                </div>
-                <div class="dashboard-update">
-                    🔄 Aktualisiert: ${new Date().toLocaleTimeString('de-DE')}
-                </div>
-            </div>
-        `;
-        
-        // Dashboard einfügen
-        document.body.insertAdjacentHTML('beforeend', dashboardHtml);
-    }
-    
-    function generateSmartEmpfehlungen() {
-        const kaufpreis = parseNumber(document.getElementById('kaufpreis').value);
-        const verkaufspreis = parseNumber(document.getElementById('verkaufspreis').value);
-        const nebenkostenKauf = parseNumber(document.getElementById('nebenkosten_kauf').value);
-        const modernisierung = parseNumber(document.getElementById('modernisierung').value);
-        const haltedauer = parseNumber(document.getElementById('haltedauer').value);
-        const persSteuersatz = parseNumber(document.getElementById('persoenlicher_steuersatz').value, 42);
-        const kirchensteuer = parseNumber(document.getElementById('kirchensteuer').value, 8);
-        
-        // Basis-Validierung
-        if (!kaufpreis || !verkaufspreis) {
-            return [];
-        }
-        
-        const empfehlungen = [];
-        const anschaffungskosten = kaufpreis + nebenkostenKauf + modernisierung;
-        const bruttogewinn = verkaufspreis - anschaffungskosten;
-        
-        // Haltedauer-Optimierung
-        if (haltedauer < 10 && bruttogewinn > 0) {
-            const restzeit = 10 - haltedauer;
-            const gesamtsteuersatz = persSteuersatz + (persSteuersatz * kirchensteuer / 100) + (persSteuersatz * 5.5 / 100);
-            const potentielleErsparnis = bruttogewinn * gesamtsteuersatz / 100;
             
-            empfehlungen.push({
-                icon: '⏰',
-                titel: `Noch ${restzeit.toFixed(1)} Jahre warten = steuerfrei`,
-                beschreibung: `Potentielle Steuerersparnis durch 10-Jahres-Frist`,
-                ersparnis: Math.max(0, potentielleErsparnis),
-                prioritaet: 'hoch',
-                detail: `Bei Verkauf heute: ${formatCurrency(potentielleErsparnis)} Steuern`
-            });
-        } else if (haltedauer >= 10 && bruttogewinn > 0) {
-            empfehlungen.push({
-                icon: '🎉',
-                titel: 'OPTIMAL: Steuerfreier Verkauf möglich!',
-                beschreibung: '10-Jahres-Frist erreicht - verkaufen Sie steuerfrei',
-                ersparnis: bruttogewinn * 0.4, // Was gespart wird vs. früherem Verkauf
-                prioritaet: 'hoch',
-                detail: 'Komplette Steuerbefreiung nach §23 EStG'
-            });
+            // Dashboard einfügen
+            document.body.insertAdjacentHTML('beforeend', dashboardHtml);
         }
         
-        // Strukturoptimierung
-        if (haltedauer < 8 && bruttogewinn > 0) {
-            const strukturVorteil = Math.max(0, bruttogewinn * 0.15);
-            empfehlungen.push({
-                icon: '🏢',
-                titel: 'Strukturoptimierung noch möglich',
-                beschreibung: 'VV GmbH & Co. KG = BFH 2025 gewerbesteuerfrei',
-                ersparnis: strukturVorteil,
-                prioritaet: 'mittel',
-                detail: 'Umstrukturierung vor 10-Jahres-Frist'
-            });
-        } else if (haltedauer >= 8 && haltedauer < 10) {
-            empfehlungen.push({
-                icon: '⚡',
-                titel: 'Umstrukturierung zeitkritisch',
-                beschreibung: `Nur noch ${(10 - haltedauer).toFixed(1)} Jahre bis steuerfreier Verkauf`,
-                ersparnis: bruttogewinn * 0.1,
-                prioritaet: 'hoch',
-                detail: 'Schnelle Entscheidung erforderlich'
-            });
-        }
-        
-        return empfehlungen.filter(emp => emp.ersparnis > 100);
-    }
-    
-    function showAdvancedNotification(message, type = 'info', actions = []) {
-        const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            z-index: 1000;
-            font-weight: 500;
-            max-width: 350px;
-            animation: slideIn 0.3s ease;
-        `;
-        
-        let html = `<div style="margin-bottom: 15px;">${message}</div>`;
-        
-        if (actions.length > 0) {
-            html += '<div>';
-            actions.forEach(action => {
-                html += `<button onclick="${action.onclick}" style="
-                    background: rgba(255,255,255,0.2);
-                    color: white;
-                    border: 1px solid rgba(255,255,255,0.3);
-                    padding: 8px 15px;
-                    margin: 5px 5px 0 0;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    font-size: 0.9em;
-                ">${action.text}</button>`;
-            });
-            html += '</div>';
-        }
-        
-        notification.innerHTML = html;
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => {
-                if (notification.parentNode) {
-                    document.body.removeChild(notification);
-                }
-            }, 300);
-        }, 6000);
-    }
-
-    // Erweiterte Analyse
-    function showExtendedAnalyse() {
-        // Berechnungsergebnisse sammeln
-        const kaufpreis = parseNumber(document.getElementById('kaufpreis').value);
-        const verkaufspreis = parseNumber(document.getElementById('verkaufspreis').value);
-        const gewinn = verkaufspreis - kaufpreis;
-        
-        // Strategieempfehlung basierend auf Gewinn
-        let empfehlung = '';
-        if (gewinn > 500000) {
-            empfehlung = '🏆 Cross-Border DE-LU Struktur mit Holding';
-        } else if (gewinn > 200000) {
-            empfehlung = '🏢 VV GmbH & Co. KG mit Schachtelprivileg';
-        } else {
-            empfehlung = '🏠 VV GbR oder Privatstruktur';
-        }
-
-        // Erweiterte Analyse erstellen
-        const analyseHTML = `
-            <div class="warning success">
-                <h3>🔍 Erweiterte Analyse - BFH-Rechtsprechung 2025</h3>
-                <div style="margin-top: 15px;">
-                    <strong>📈 Portfolio-Analyse:</strong><br>
-                    • Geschätzter Verkaufsgewinn: ${formatCurrency(gewinn)}<br>
-                    • Optimale Rechtsform: ${empfehlung}<br>
-                    • Steuerersparnis-Potential: ${formatCurrency(gewinn * 0.15)}
-                </div>
-                
-                <div style="margin-top: 15px;">
-                    <strong>⚖️ Rechtliche Rahmenbedingungen:</strong><br>
-                    • BFH Urteil 2025: VV GmbH & Co. KG gewerbesteuerfrei bei reiner Vermietung<br>
-                    • Neue Grundsteuer: Unterschiede bis zu 300% je Bundesland<br>
-                    • Schenkungsteuer: Nießbrauch bei hohen Zinsen besonders attraktiv
-                </div>
-                
-                <div style="margin-top: 15px;">
-                    <strong>💡 Optimierungsvorschläge:</strong><br>
-                    1. Strukturwechsel innerhalb der nächsten 6 Monate<br>
-                    2. Schrittweise Übertragung an Nachfolger<br>
-                    3. Nutzung von Abschreibungsoptimierungen
-                </div>
-            </div>
+        function generateSmartEmpfehlungen() {
+            const kaufpreis = parseNumber(document.getElementById('kaufpreis').value);
+            const verkaufspreis = parseNumber(document.getElementById('verkaufspreis').value);
+            const nebenkostenKauf = parseNumber(document.getElementById('nebenkosten_kauf').value);
+            const modernisierung = parseNumber(document.getElementById('modernisierung').value);
+            const haltedauer = parseNumber(document.getElementById('haltedauer').value);
+            const persSteuersatz = parseNumber(document.getElementById('persoenlicher_steuersatz').value, 42);
+            const kirchensteuer = parseNumber(document.getElementById('kirchensteuer').value, 8);
             
-            <div class="input-section">
-                <h3>📝 Maßnahmenplan</h3>
-                <table class="comparison-table">
-                    <tr>
-                        <th>Maßnahme</th>
-                        <th>Zeitrahmen</th>
-                        <th>Kosten</th>
-                        <th>Ersparnis</th>
-                    </tr>
-                    <tr>
-                        <td>Rechtsformwechsel</td>
-                        <td>3-6 Monate</td>
-                        <td>${formatCurrency(2500)}</td>
-                        <td>${formatCurrency(gewinn * 0.12)}</td>
-                    </tr>
-                    <tr>
-                        <td>Steuergutachten</td>
-                        <td>1-2 Monate</td>
-                        <td>${formatCurrency(1500)}</td>
-                        <td>${formatCurrency(gewinn * 0.08)}</td>
-                    </tr>
-                    <tr>
-                        <td>Nachfolgeplanung</td>
-                        <td>6-12 Monate</td>
-                        <td>${formatCurrency(3500)}</td>
-                        <td>${formatCurrency(gewinn * 0.2)}</td>
-                    </tr>
-                </table>
-            </div>
-        `;
-
-        // Tab wechseln und Analyse anzeigen
-        switchTab(null, 'gesamtstrategie');
-        document.getElementById('strategie-results').innerHTML = analyseHTML;
-        
-        // Benachrichtigung
-        showAdvancedNotification('🔍 Erweiterte Analyse wurde geladen', 'success');
-    }
-
-    // Export-Funktion
-    function exportBericht() {
-        // Daten sammeln
-        const grunddaten = {
-            kaufpreis: document.getElementById('kaufpreis').value,
-            verkaufspreis: document.getElementById('verkaufspreis').value,
-            haltedauer: document.getElementById('haltedauer').value,
-            steuersatz: document.getElementById('persoenlicher_steuersatz').value
-        };
-        
-        // Ergebnisse sammeln
-        const ergebnisse = document.getElementById('verkauf-results')?.innerHTML || "Keine Ergebnisse";
-        
-        // PDF-Inhalt erstellen
-        const inhalt = `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <title>Immobilien-Steuer-Bericht</title>
-                <style>
-                    body { font-family: Arial, sans-serif; margin: 20px; }
-                    h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
-                    .section { margin-bottom: 30px; }
-                    table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                    th { background-color: #3498db; color: white; }
-                </style>
-            </head>
-            <body>
-                <h1>Immobilien-Steuer-Bericht</h1>
-                <p>Erstellt am ${new Date().toLocaleDateString('de-DE')}</p>
-                
-                <div class="section">
-                    <h2>Grunddaten</h2>
-                    <table>
-                        <tr><th>Parameter</th><th>Wert</th></tr>
-                        <tr><td>Kaufpreis</td><td>${formatCurrency(grunddaten.kaufpreis)}</td></tr>
-                        <tr><td>Verkaufspreis</td><td>${formatCurrency(grunddaten.verkaufspreis)}</td></tr>
-                        <tr><td>Haltedauer</td><td>${grunddaten.haltedauer} Jahre</td></tr>
-                        <tr><td>Persönlicher Steuersatz</td><td>${grunddaten.steuersatz}%</td></tr>
-                    </table>
-                </div>
-                
-                <div class="section">
-                    <h2>Ergebnisse</h2>
-                    ${ergebnisse}
-                </div>
-                
-                <div class="section">
-                    <h2>Empfehlungen</h2>
-                    <p>Basierend auf der aktuellen BFH-Rechtsprechung 2025:</p>
-                    <ul>
-                        <li>VV GmbH & Co. KG für gewerbesteuerfreie Strukturen</li>
-                        <li>Schrittweise Übertragung bei Nachfolgeplanung</li>
-                        <li>Cross-Border-Lösungen bei Portfolios > 500.000€</li>
-                    </ul>
-                </div>
-            </body>
-            </html>
-        `;
-        
-        // PDF erstellen und herunterladen
-        const blob = new Blob([inhalt], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Immobilien-Steuer-Bericht-${new Date().toISOString().slice(0,10)}.html`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        // Benachrichtigung
-        showAdvancedNotification('📋 Bericht wurde erstellt und heruntergeladen', 'success');
-    }
-
-    // Initialisierung und Event-Handler
-    function initializeSuite() {
-        // Lade gespeicherte Daten
-        const gespeicherteDaten = localStorage.getItem('immobilien-suite-daten');
-        if (gespeicherteDaten) {
-            try {
-                berechungsdaten = JSON.parse(gespeicherteDaten);
-                // Lade Daten in Formulare
-                if (berechungsdaten.formulare) {
-                    Object.entries(berechungsdaten.formulare).forEach(([id, value]) => {
-                        const element = document.getElementById(id);
-                        if (element) element.value = value;
-                    });
-                }
-            } catch(e) {
-                console.log('Gespeicherte Daten konnten nicht geladen werden');
+            // Basis-Validierung
+            if (!kaufpreis || !verkaufspreis) {
+                return [];
             }
-        }
-        
-        // Erste Berechnung
-        calculateVerkauf();
-        
-        // Smart Dashboard anzeigen - Nur wenn nicht ausgeblendet
-        setTimeout(() => {
-            const dashboardHidden = localStorage.getItem('dashboard-hidden');
-            if (!dashboardHidden) {
-                updateDashboard();
-            }
-        }, 2000);
-    }
-
-    // Daten speichern
-    function saveSuiteData() {
-        const allInputs = document.querySelectorAll('input, select');
-        const formulareDaten = {};
-        
-        allInputs.forEach(input => {
-            if (input.id) formulareDaten[input.id] = input.value;
-        });
-        
-        berechungsdaten.formulare = formulareDaten;
-        localStorage.setItem('immobilien-suite-daten', JSON.stringify(berechungsdaten));
-    }
-
-    // Event-Handler
-    function attachEventHandlers() {
-        // ALLE Input- und Select-Felder finden
-        const alleFelder = document.querySelectorAll('input, select');
-        
-        alleFelder.forEach((element, index) => {
-            // CHANGE Event - bei endgültiger Änderung
-            element.addEventListener('change', function() {
-                // Daten speichern
-                saveSuiteData();
-                
-                // SOFORT Dashboard aktualisieren
-                setTimeout(updateDashboard, 50);
-                
-                // Berechnungen aktualisieren
-                const activeTab = document.querySelector('.tab-content.active')?.id;
-                if (activeTab === 'verkauf') {
-                    calculateVerkauf();
-                }
-            });
             
-            // INPUT Event - während dem Tippen (nur für wichtige Felder)
-            if (['kaufpreis', 'verkaufspreis', 'haltedauer', 'persoenlicher_steuersatz'].includes(element.id)) {
-                element.addEventListener('input', function() {
-                    // Dashboard mit kurzer Verzögerung aktualisieren
-                    clearTimeout(window.dashboardUpdateTimeout);
-                    window.dashboardUpdateTimeout = setTimeout(() => {
-                        updateDashboard();
-                    }, 800);
+            const empfehlungen = [];
+            const anschaffungskosten = kaufpreis + nebenkostenKauf + modernisierung;
+            const bruttogewinn = verkaufspreis - anschaffungskosten;
+            
+            // Haltedauer-Optimierung
+            if (haltedauer < 10 && bruttogewinn > 0) {
+                const restzeit = 10 - haltedauer;
+                const gesamtsteuersatz = persSteuersatz + (persSteuersatz * kirchensteuer / 100) + (persSteuersatz * 5.5 / 100);
+                const potentielleErsparnis = bruttogewinn * gesamtsteuersatz / 100;
+                
+                empfehlungen.push({
+                    icon: '⏰',
+                    titel: `Noch ${restzeit.toFixed(1)} Jahre warten = steuerfrei`,
+                    beschreibung: `Potentielle Steuerersparnis durch 10-Jahres-Frist`,
+                    ersparnis: Math.max(0, potentielleErsparnis),
+                    prioritaet: 'hoch',
+                    detail: `Bei Verkauf heute: ${formatCurrency(potentielleErsparnis)} Steuern`
+                });
+            } else if (haltedauer >= 10 && bruttogewinn > 0) {
+                empfehlungen.push({
+                    icon: '🎉',
+                    titel: 'OPTIMAL: Steuerfreier Verkauf möglich!',
+                    beschreibung: '10-Jahres-Frist erreicht - verkaufen Sie steuerfrei',
+                    ersparnis: bruttogewinn * 0.4, // Was gespart wird vs. früherem Verkauf
+                    prioritaet: 'hoch',
+                    detail: 'Komplette Steuerbefreiung nach §23 EStG'
                 });
             }
-        });
-    }
+            
+            // Strukturoptimierung
+            if (haltedauer < 8 && bruttogewinn > 0) {
+                const strukturVorteil = Math.max(0, bruttogewinn * 0.15);
+                empfehlungen.push({
+                    icon: '🏢',
+                    titel: 'Strukturoptimierung noch möglich',
+                    beschreibung: 'VV GmbH & Co. KG = BFH 2025 gewerbesteuerfrei',
+                    ersparnis: strukturVorteil,
+                    prioritaet: 'mittel',
+                    detail: 'Umstrukturierung vor 10-Jahres-Frist'
+                });
+            } else if (haltedauer >= 8 && haltedauer < 10) {
+                empfehlungen.push({
+                    icon: '⚡',
+                    titel: 'Umstrukturierung zeitkritisch',
+                    beschreibung: `Nur noch ${(10 - haltedauer).toFixed(1)} Jahre bis steuerfreier Verkauf`,
+                    ersparnis: bruttogewinn * 0.1,
+                    prioritaet: 'hoch',
+                    detail: 'Schnelle Entscheidung erforderlich'
+                });
+            }
+            
+            return empfehlungen.filter(emp => emp.ersparnis > 100);
+        }
+        
+        function showAdvancedNotification(message, type = 'info', actions = []) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#27ae60' : type === 'error' ? '#e74c3c' : '#3498db'};
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                z-index: 1000;
+                font-weight: 500;
+                max-width: 350px;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            let html = `<div style="margin-bottom: 15px;">${message}</div>`;
+            
+            if (actions.length > 0) {
+                html += '<div>';
+                actions.forEach(action => {
+                    html += `<button onclick="${action.onclick}" style="
+                        background: rgba(255,255,255,0.2);
+                        color: white;
+                        border: 1px solid rgba(255,255,255,0.3);
+                        padding: 8px 15px;
+                        margin: 5px 5px 0 0;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        font-size: 0.9em;
+                    ">${action.text}</button>`;
+                });
+                html += '</div>';
+            }
+            
+            notification.innerHTML = html;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 6000);
+        }
 
-    // Zusätzliche Hilfsfunktionen
-    function resetAllData() {
-        if (confirm('Möchten Sie wirklich alle Daten zurücksetzen?')) {
-            localStorage.removeItem('immobilien-suite-daten');
-            berechungsdaten = {};
+        // Erweiterte Analyse
+        function showExtendedAnalyse() {
+            // Berechnungsergebnisse sammeln
+            const kaufpreis = parseNumber(document.getElementById('kaufpreis').value);
+            const verkaufspreis = parseNumber(document.getElementById('verkaufspreis').value);
+            const gewinn = verkaufspreis - kaufpreis;
             
-            // Alle Eingabefelder zurücksetzen
-            document.querySelectorAll('input').forEach(input => {
-                if (input.type === 'number') {
-                    input.value = input.getAttribute('value') || '';
+            // Strategieempfehlung basierend auf Gewinn
+            let empfehlung = '';
+            if (gewinn > 500000) {
+                empfehlung = '🏆 Cross-Border DE-LU Struktur mit Holding';
+            } else if (gewinn > 200000) {
+                empfehlung = '🏢 VV GmbH & Co. KG mit Schachtelprivileg';
+            } else {
+                empfehlung = '🏠 VV GbR oder Privatstruktur';
+            }
+
+            // Erweiterte Analyse erstellen
+            const analyseHTML = `
+                <div class="warning success">
+                    <h3>🔍 Erweiterte Analyse - BFH-Rechtsprechung 2025</h3>
+                    <div style="margin-top: 15px;">
+                        <strong>📈 Portfolio-Analyse:</strong><br>
+                        • Geschätzter Verkaufsgewinn: ${formatCurrency(gewinn)}<br>
+                        • Optimale Rechtsform: ${empfehlung}<br>
+                        • Steuerersparnis-Potential: ${formatCurrency(gewinn * 0.15)}
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <strong>⚖️ Rechtliche Rahmenbedingungen:</strong><br>
+                        • BFH Urteil 2025: VV GmbH & Co. KG gewerbesteuerfrei bei reiner Vermietung<br>
+                        • Neue Grundsteuer: Unterschiede bis zu 300% je Bundesland<br>
+                        • Schenkungsteuer: Nießbrauch bei hohen Zinsen besonders attraktiv
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <strong>💡 Optimierungsvorschläge:</strong><br>
+                        1. Strukturwechsel innerhalb der nächsten 6 Monate<br>
+                        2. Schrittweise Übertragung an Nachfolger<br>
+                        3. Nutzung von Abschreibungsoptimierungen
+                    </div>
+                </div>
+                
+                <div class="input-section">
+                    <h3>📝 Maßnahmenplan</h3>
+                    <table class="comparison-table">
+                        <tr>
+                            <th>Maßnahme</th>
+                            <th>Zeitrahmen</th>
+                            <th>Kosten</th>
+                            <th>Ersparnis</th>
+                        </tr>
+                        <tr>
+                            <td>Rechtsformwechsel</td>
+                            <td>3-6 Monate</td>
+                            <td>${formatCurrency(2500)}</td>
+                            <td>${formatCurrency(gewinn * 0.12)}</td>
+                        </tr>
+                        <tr>
+                            <td>Steuergutachten</td>
+                            <td>1-2 Monate</td>
+                            <td>${formatCurrency(1500)}</td>
+                            <td>${formatCurrency(gewinn * 0.08)}</td>
+                        </tr>
+                        <tr>
+                            <td>Nachfolgeplanung</td>
+                            <td>6-12 Monate</td>
+                            <td>${formatCurrency(3500)}</td>
+                            <td>${formatCurrency(gewinn * 0.2)}</td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+
+            // Tab wechseln und Analyse anzeigen
+            switchTab(null, 'gesamtstrategie');
+            document.getElementById('strategie-results').innerHTML = analyseHTML;
+            
+            // Benachrichtigung
+            showAdvancedNotification('🔍 Erweiterte Analyse wurde geladen', 'success');
+        }
+
+        // Export-Funktion
+        function exportBericht() {
+            // Daten sammeln
+            const grunddaten = {
+                kaufpreis: document.getElementById('kaufpreis').value,
+                verkaufspreis: document.getElementById('verkaufspreis').value,
+                haltedauer: document.getElementById('haltedauer').value,
+                steuersatz: document.getElementById('persoenlicher_steuersatz').value
+            };
+            
+            // Ergebnisse sammeln
+            const ergebnisse = document.getElementById('verkauf-results')?.innerHTML || "Keine Ergebnisse";
+            
+            // PDF-Inhalt erstellen
+            const inhalt = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Immobilien-Steuer-Bericht</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 20px; }
+                        h1 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+                        .section { margin-bottom: 30px; }
+                        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #3498db; color: white; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Immobilien-Steuer-Bericht</h1>
+                    <p>Erstellt am ${new Date().toLocaleDateString('de-DE')}</p>
+                    
+                    <div class="section">
+                        <h2>Grunddaten</h2>
+                        <table>
+                            <tr><th>Parameter</th><th>Wert</th></tr>
+                            <tr><td>Kaufpreis</td><td>${formatCurrency(grunddaten.kaufpreis)}</td></tr>
+                            <tr><td>Verkaufspreis</td><td>${formatCurrency(grunddaten.verkaufspreis)}</td></tr>
+                            <tr><td>Haltedauer</td><td>${grunddaten.haltedauer} Jahre</td></tr>
+                            <tr><td>Persönlicher Steuersatz</td><td>${grunddaten.steuersatz}%</td></tr>
+                        </table>
+                    </div>
+                    
+                    <div class="section">
+                        <h2>Ergebnisse</h2>
+                        ${ergebnisse}
+                    </div>
+                    
+                    <div class="section">
+                        <h2>Empfehlungen</h2>
+                        <p>Basierend auf der aktuellen BFH-Rechtsprechung 2025:</p>
+                        <ul>
+                            <li>VV GmbH & Co. KG für gewerbesteuerfreie Strukturen</li>
+                            <li>Schrittweise Übertragung bei Nachfolgeplanung</li>
+                            <li>Cross-Border-Lösungen bei Portfolios > 500.000€</li>
+                        </ul>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            // PDF erstellen und herunterladen
+            const blob = new Blob([inhalt], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Immobilien-Steuer-Bericht-${new Date().toISOString().slice(0,10)}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // Benachrichtigung
+            showAdvancedNotification('📋 Bericht wurde erstellt und heruntergeladen', 'success');
+        }
+
+        // Initialisierung und Event-Handler
+        function initializeSuite() {
+            // Lade gespeicherte Daten
+            const gespeicherteDaten = localStorage.getItem('immobilien-suite-daten');
+            if (gespeicherteDaten) {
+                try {
+                    berechungsdaten = JSON.parse(gespeicherteDaten);
+                    // Lade Daten in Formulare
+                    if (berechungsdaten.formulare) {
+                        Object.entries(berechungsdaten.formulare).forEach(([id, value]) => {
+                            const element = document.getElementById(id);
+                            if (element) element.value = value;
+                        });
+                    }
+                } catch(e) {
+                    console.log('Gespeicherte Daten konnten nicht geladen werden');
                 }
-            });
+            }
             
-            document.querySelectorAll('select').forEach(select => {
-                select.selectedIndex = 0;
-            });
-            
-            // Neuberechwung durchführen
+            // Erste Berechnung
             calculateVerkauf();
             
-            showAdvancedNotification('✅ Alle Daten wurden zurückgesetzt', 'success');
+            // Smart Dashboard anzeigen - Nur wenn nicht ausgeblendet
+            setTimeout(() => {
+                const dashboardHidden = localStorage.getItem('dashboard-hidden');
+                if (!dashboardHidden) {
+                    updateDashboard();
+                }
+            }, 2000);
         }
-    }
 
-    function importExample() {
-        // Beispieldaten laden
-        const beispielDaten = {
-            kaufpreis: 400000,
-            verkaufspreis: 580000,
-            nebenkosten_kauf: 40000,
-            nebenkosten_verkauf: 29000,
-            modernisierung: 35000,
-            haltedauer: 6,
-            persoenlicher_steuersatz: 42,
-            kirchensteuer: 8,
-            bundesland: 'by'
-        };
-        
-        // Daten in Formular eintragen
-        Object.entries(beispielDaten).forEach(([key, value]) => {
-            const element = document.getElementById(key);
-            if (element) element.value = value;
+        // Daten speichern
+        function saveSuiteData() {
+            const allInputs = document.querySelectorAll('input, select');
+            const formulareDaten = {};
+            
+            allInputs.forEach(input => {
+                if (input.id) formulareDaten[input.id] = input.value;
+            });
+            
+            berechungsdaten.formulare = formulareDaten;
+            localStorage.setItem('immobilien-suite-daten', JSON.stringify(berechungsdaten));
+        }
+
+        // Event-Handler
+        function attachEventHandlers() {
+            // ALLE Input- und Select-Felder finden
+            const alleFelder = document.querySelectorAll('input, select');
+            
+            alleFelder.forEach((element, index) => {
+                // CHANGE Event - bei endgültiger Änderung
+                element.addEventListener('change', function() {
+                    // Daten speichern
+                    saveSuiteData();
+                    
+                    // SOFORT Dashboard aktualisieren
+                    setTimeout(updateDashboard, 50);
+                    
+                    // Berechnungen aktualisieren
+                    const activeTab = document.querySelector('.tab-content.active')?.id;
+                    if (activeTab === 'verkauf') {
+                        calculateVerkauf();
+                    }
+                });
+                
+                // INPUT Event - während dem Tippen (nur für wichtige Felder)
+                if (['kaufpreis', 'verkaufspreis', 'haltedauer', 'persoenlicher_steuersatz'].includes(element.id)) {
+                    element.addEventListener('input', function() {
+                        // Dashboard mit kurzer Verzögerung aktualisieren
+                        clearTimeout(window.dashboardUpdateTimeout);
+                        window.dashboardUpdateTimeout = setTimeout(() => {
+                            updateDashboard();
+                        }, 800);
+                    });
+                }
+            });
+        }
+
+        // Zusätzliche Hilfsfunktionen
+        function resetAllData() {
+            if (confirm('Möchten Sie wirklich alle Daten zurücksetzen?')) {
+                localStorage.removeItem('immobilien-suite-daten');
+                berechungsdaten = {};
+                
+                // Alle Eingabefelder zurücksetzen
+                document.querySelectorAll('input').forEach(input => {
+                    if (input.type === 'number') {
+                        input.value = input.getAttribute('value') || '';
+                    }
+                });
+                
+                document.querySelectorAll('select').forEach(select => {
+                    select.selectedIndex = 0;
+                });
+                
+                // Neuberechwung durchführen
+                calculateVerkauf();
+                
+                showAdvancedNotification('✅ Alle Daten wurden zurückgesetzt', 'success');
+            }
+        }
+
+        function importExample() {
+            // Beispieldaten laden
+            const beispielDaten = {
+                kaufpreis: 400000,
+                verkaufspreis: 580000,
+                nebenkosten_kauf: 40000,
+                nebenkosten_verkauf: 29000,
+                modernisierung: 35000,
+                haltedauer: 6,
+                persoenlicher_steuersatz: 42,
+                kirchensteuer: 8,
+                bundesland: 'by'
+            };
+            
+            // Daten in Formular eintragen
+            Object.entries(beispielDaten).forEach(([key, value]) => {
+                const element = document.getElementById(key);
+                if (element) element.value = value;
+            });
+            
+            // Zusätzliche Beispieldaten für andere Tabs
+            document.getElementById('grundstueckswert').value = 420000;
+            document.getElementById('gemeinde_hebesatz').value = 520;
+            document.getElementById('immobilienwert_erbe').value = 580000;
+            document.getElementById('verwandtschaftsgrad').value = 'kind';
+            document.getElementById('schenkung_immobilienwert').value = 580000;
+            document.getElementById('jahresmiete').value = 22000;
+            document.getElementById('cf_jahresmiete').value = 22000;
+            document.getElementById('cf_instandhaltung').value = 2500;
+            document.getElementById('strategie_alter').value = 48;
+            
+            // Berechnungen aktualisieren
+            calculateVerkauf();
+            
+            showAdvancedNotification('💡 Beispieldaten wurden geladen - München, Mehrfamilienhaus, 6 Jahre Haltedauer', 'success');
+        }
+
+        // Initialisierung und Event-Handler
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSuite();
+            
+            // Event-Handler mit kurzer Verzögerung attachieren (für alle dynamischen Inhalte)
+            setTimeout(() => {
+                attachEventHandlers();
+            }, 100);
         });
-        
-        // Zusätzliche Beispieldaten für andere Tabs
-        document.getElementById('grundstueckswert').value = 420000;
-        document.getElementById('gemeinde_hebesatz').value = 520;
-        document.getElementById('immobilienwert_erbe').value = 580000;
-        document.getElementById('verwandtschaftsgrad').value = 'kind';
-        document.getElementById('schenkung_immobilienwert').value = 580000;
-        document.getElementById('jahresmiete').value = 22000;
-        document.getElementById('cf_jahresmiete').value = 22000;
-        document.getElementById('cf_instandhaltung').value = 2500;
-        document.getElementById('strategie_alter').value = 48;
-        
-        // Berechnungen aktualisieren
-        calculateVerkauf();
-        
-        showAdvancedNotification('💡 Beispieldaten wurden geladen - München, Mehrfamilienhaus, 6 Jahre Haltedauer', 'success');
-    }
 
-    // Initialisierung und Event-Handler
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeSuite();
-        
-        // Event-Handler mit kurzer Verzögerung attachieren (für alle dynamischen Inhalte)
-        setTimeout(() => {
-            attachEventHandlers();
-        }, 100);
-    });
-
-    // Globale Funktionen verfügbar machen
-    window.resetAllData = resetAllData;
-    window.importExample = importExample;
-    window.showExtendedAnalyse = showExtendedAnalyse;
-    window.showAllStructures = showAllStructures;
-    window.hideDashboard = hideDashboard;
-    window.showDashboard = showDashboard;
-    window.updateDashboard = updateDashboard;
-    window.exportBericht = exportBericht;
-</script>
+        // Globale Funktionen verfügbar machen
+        window.resetAllData = resetAllData;
+        window.importExample = importExample;
+        window.showExtendedAnalyse = showExtendedAnalyse;
+        window.showAllStructures = showAllStructures;
+        window.hideDashboard = hideDashboard;
+        window.showDashboard = showDashboard;
+        window.updateDashboard = updateDashboard;
+        window.exportBericht = exportBericht;
+    </script>
 </body>
 </html>
