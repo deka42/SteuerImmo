@@ -512,6 +512,23 @@
             .comparison-table td {
                 min-width: 120px;
             }
+
+            /* Popup für Mobile optimieren */
+            .popup-content {
+                width: 95%;
+                padding: 15px;
+            }
+            
+            .popup-table th, 
+            .popup-table td {
+                padding: 8px;
+                font-size: 12px;
+            }
+            
+            .popup-download-btn {
+                padding: 12px 20px;
+                font-size: 16px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -858,6 +875,20 @@
             text-align: center;
             color: #7f8c8d;
             font-size: 0.9em;
+        }
+        
+        .popup-download-btn {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -1491,6 +1522,11 @@
             </div>
             <div class="popup-body" id="report-content">
                 <!-- Hier wird der Berichtsinhalt eingefügt -->
+            </div>
+            <div class="popup-footer">
+                <button onclick="downloadReportForIOS()" class="popup-download-btn">
+                    📥 Bericht herunterladen
+                </button>
             </div>
         </div>
     </div>
@@ -2202,7 +2238,7 @@
                             <span class="result-value">${formatCurrency(freibetrag)}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">Steuerklasse:</span>
+                            <span class="result-label">Steuerklasse:</th>
                             <span class="result-value">${steuerklasse}</span>
                         </div>
                         <div class="result-item">
