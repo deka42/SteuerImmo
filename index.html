@@ -735,6 +735,130 @@
             text-align: center;
             margin-top: 8px;
         }
+        
+        /* Popup Styles */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .popup-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90vh;
+            overflow: auto;
+            padding: 30px;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        
+        .popup-overlay.active .popup-content {
+            transform: scale(1);
+        }
+        
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .popup-title {
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .popup-close {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2em;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .popup-close:hover {
+            background: #c0392b;
+            transform: rotate(90deg);
+        }
+        
+        .popup-body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .popup-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .popup-section-title {
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .popup-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        .popup-table th, .popup-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        .popup-table th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .popup-recommendations {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .popup-footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
@@ -1357,6 +1481,19 @@
             </div>
         </div>
     </div>
+    
+    <!-- Popup für den Bericht -->
+    <div class="popup-overlay" id="report-popup">
+        <div class="popup-content">
+            <div class="popup-header">
+                <h2 class="popup-title">Immobilien-Steuer-Bericht</h2>
+                <button class="popup-close" onclick="closeReportPopup()">×</button>
+            </div>
+            <div class="popup-body" id="report-content">
+                <!-- Hier wird der Berichtsinhalt eingefügt -->
+            </div>
+        </div>
+    </div>
 
     <script>
         // Globale Variablen für Berechnungen
@@ -1442,42 +1579,18 @@
           return jahresmiete * kapitalisierungsfaktor;
         }
 
-        // Intelligentes Empfehlungs-Dashboard
-        function generateSmartEmpfehlungen() {
-          const empfehlungen = [];
-          const bruttogewinn = berechungsdaten.immobilie?.verkaufspreis - berechungsdaten.immobilie?.kaufpreis;
-          
-          if(berechungsdaten.immobilie?.haltedauer < 10 && bruttogewinn > 0) {
-            empfehlungen.push({
-              icon: '⏰',
-              titel: `Noch ${10-berechungsdaten.immobilie.haltedauer} Jahre warten`,
-              beschreibung: `Steuerersparnis bis zu ${formatCurrency(bruttogewinn * 0.4)}`,
-              prioritaet: 'hoch'
-            });
-          }
-          
-          // Weitere personalisierte Empfehlungen...
-          return empfehlungen;
-        }
-        
-        // Gewerbesteuer-Berechnung mit Hebesatz
-        function calculateGewerbesteuer(gewinn, gemeindeHeberate) {
-            const gewerbesteuermessbetrag = gewinn * 0.035; // 3,5% Messbetrag
-            return gewerbesteuermessbetrag * (gemeindeHeberate / 100);
-        }
-
         // Verkaufssteuer Berechnung
         function calculateVerkauf() {
-            const kaufpreis = parseNumber(document.getElementById('kaufpreis').value);
-            const verkaufspreis = parseNumber(document.getElementById('verkaufspreis').value);
-            const nebenkostenKauf = parseNumber(document.getElementById('nebenkosten_kauf').value);
-            const nebenkostenVerkauf = parseNumber(document.getElementById('nebenkosten_verkauf').value);
-            const modernisierung = parseNumber(document.getElementById('modernisierung').value);
-            const haltedauer = parseNumber(document.getElementById('haltedauer').value);
+            const kaufpreis = parseNumber(document.getElementById('kaufpreis').value, 300000);
+            const verkaufspreis = parseNumber(document.getElementById('verkaufspreis').value, 450000);
+            const nebenkostenKauf = parseNumber(document.getElementById('nebenkosten_kauf').value, 30000);
+            const nebenkostenVerkauf = parseNumber(document.getElementById('nebenkosten_verkauf').value, 22500);
+            const modernisierung = parseNumber(document.getElementById('modernisierung').value, 50000);
+            const haltedauer = parseNumber(document.getElementById('haltedauer').value, 8);
             const persSteuersatz = parseNumber(document.getElementById('persoenlicher_steuersatz').value, 42);
             const kirchensteuer = parseNumber(document.getElementById('kirchensteuer').value, 8);
             const einbringungNach = parseNumber(document.getElementById('einbringung_nach_jahren').value);
-            const bundesland = document.getElementById('bundesland').value;
+            const bundesland = document.getElementById('bundesland').value || 'nw';
 
             // Berechnungsdaten für andere Module speichern
             berechungsdaten.immobilie = {
