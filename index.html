@@ -1731,7 +1731,8 @@
 
 <!-- Enhanced Progress Overlay for Long Operations -->
 <div id="progress-overlay" class="d-none" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;">
-    <div style="background: white; padding: 2rem; border-radius: var(--border-radius); box-shadow: var(--shadow-xl); text-align: center; min-width: 300px;">
+    <div style="background: white; padding: 2rem; border-radius: var(--border-radius); box-shadow: var(--shadow-xl); text-align: center; min-width: 300px; position: relative;">
+        <button onclick="window.appInstance && window.appInstance.hideCalculationProgress()" style="position: absolute; top: 10px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #999;" aria-label="Schließen">×</button>
         <div class="loading-spinner" style="margin: 0 auto 1rem;"></div>
         <h4 id="progress-title" data-i18n="progress.title">Berechnung läuft...</h4>
         <div class="progress-container">
@@ -3250,12 +3251,17 @@
                 
                 this.showCalculationProgress('Berechnung abgeschlossen!', 100);
                 
-                // Hide progress after short delay
+                // Hide progress immediately and with backup timeout
                 setTimeout(() => {
                     this.hideCalculationProgress();
                     this.showToast('🧮 Berechnung erfolgreich abgeschlossen', 'success');
                     console.log('✅ Calculation process completed successfully');
-                }, 1000);
+                    
+                    // Backup hide after additional delay
+                    setTimeout(() => {
+                        this.hideCalculationProgress();
+                    }, 500);
+                }, 500);
                 
             } catch (error) {
                 console.error('❌ Calculation error:', error);
@@ -3407,8 +3413,13 @@
                 const fill = document.getElementById('progress-fill');
 
                 if (overlay && title && text && fill) {
+                    // Show overlay with multiple methods
                     overlay.style.display = 'flex';
+                    overlay.style.visibility = 'visible';
+                    overlay.style.opacity = '1';
                     overlay.classList.remove('d-none');
+                    overlay.removeAttribute('hidden');
+                    
                     title.textContent = 'Berechnung läuft...';
                     text.textContent = message;
                     fill.style.width = percentage + '%';
@@ -3440,9 +3451,15 @@
                 
                 const overlay = document.getElementById('progress-overlay');
                 if (overlay) {
+                    // Forcefully hide the overlay with multiple methods
                     overlay.style.display = 'none';
+                    overlay.style.visibility = 'hidden';
+                    overlay.style.opacity = '0';
                     overlay.classList.add('d-none');
+                    overlay.setAttribute('hidden', 'true');
                     console.log('✅ Progress overlay hidden');
+                } else {
+                    console.warn('⚠️ Progress overlay element not found');
                 }
 
                 if (this.progressTimeout) {
