@@ -4482,42 +4482,21 @@ List available plugins
 
         // Navigation and Content Loading
         navigateToSection(section) {
-            console.log(`Navigating to section: ${section}`);
-            
             // Track section navigation
             this.gaTracker.trackUserJourney('navigation', 'section_changed', {
                 from_section: this.getCurrentSection(),
                 to_section: section
             });
             
-            // Update navigation UI
-            this.updateNavigationUI(section);
-            
-            // Load section content
-            this.loadSectionContent(section);
-            
-            // Update current section
-            this.currentSection = section;
-            
-            this.showToast(`📍 Navigation zu ${this.getSectionDisplayName(section)}`, 'info');
-        }
-        
-        updateNavigationUI(activeSection) {
             // Save current section data before switching
             this.saveCurrentSectionData();
             
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
-                link.setAttribute('aria-current', 'false');
             });
-            
             const activeLink = document.querySelector(`[data-section="${section}"]`);
             if (activeLink) {
                 activeLink.classList.add('active');
-                activeLink.setAttribute('aria-current', 'page');
-                console.log(`Activated nav link for: ${activeSection}`);
-            } else {
-                console.warn(`No nav link found for section: ${activeSection}`);
             }
             
             this.loadSectionContent(section);
@@ -4525,28 +4504,14 @@ List available plugins
             // Restore data for the new section after content is loaded
             setTimeout(() => {
                 this.restoreSectionData(section);
-        }
-        
-        getSectionDisplayName(section) {
-            const names = {
-                'verkauf': 'Verkaufssteuer',
-                'grundsteuer': 'Grundsteuer',
-                'erbschaft': 'Erbschaftsteuer',
-                'schenkung': 'Schenkungssteuer',
-                'cashflow': 'Cash-Flow Analyse',
-                'strategie': 'Gesamtstrategie'
-            };
-            return names[section] || section;
+            }, 100);
+            
+            this.showToast(`📍 Navigation zu ${section}`, 'info');
         }
 
         loadSectionContent(section) {
             const contentArea = document.getElementById('dynamic-content');
-            if (!contentArea) {
-                console.error('Content area not found');
-                return;
-            }
-            
-            console.log(`Loading content for section: ${section}`);
+            if (!contentArea) return;
             
             // Track page view for section
             this.gaTracker.trackPageView(`Section: ${section}`, 'Tax Calculation');
@@ -4573,27 +4538,27 @@ List available plugins
                     content = this.generateStrategieContent();
                     break;
                 default:
-                    console.warn(`Unknown section: ${section}, loading verkauf`);
                     content = this.generateVerkaufContent();
             }
             
-            // Add loading animation
-            contentArea.style.opacity = '0.5';
             contentArea.innerHTML = content;
             
-            // Restore section data and setup event listeners
+            // Re-setup event listeners for new content
             setTimeout(() => {
-                contentArea.style.opacity = '1';
                 this.setupRealtimeValidation();
                 this.setupSectionSpecificHandlers(section);
-                this.restoreSectionData(section);
-                console.log(`Content loaded and setup completed for: ${section}`);
             }, 100);
         }
 
         getCurrentSection() {
+            if (this.currentSection) {
+                return this.currentSection;
+            }
+            
             const activeLink = document.querySelector('.nav-link.active');
-            return activeLink ? activeLink.getAttribute('data-section') : 'verkauf';
+            const section = activeLink ? activeLink.getAttribute('data-section') : 'verkauf';
+            this.currentSection = section;
+            return section;
         }
 
         setupSectionSpecificHandlers(section) {
