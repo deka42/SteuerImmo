@@ -3076,7 +3076,7 @@
                 this.initializeUIComponents();
                 
                 // Load saved data
-                await this.loadSavedData();
+                this.loadSavedData();
                 
                 // Setup event listeners
                 this.setupEventListeners();
@@ -3087,12 +3087,16 @@
                 // Initialize first view
                 this.navigate('verkauf');
                 
+                // Hide loading screen
+                this.hideLoadingScreen();
+                
                 this.showToast('🚀 Immobilien-Suite 2025 Enterprise geladen', 'success');
                 
                 console.log('✅ Enterprise Suite initialized successfully');
                 
             } catch (error) {
                 console.error('Initialization error:', error);
+                this.hideLoadingScreen();
                 this.showToast('❌ Fehler beim Laden: ' + error.message, 'error');
                 this.fallbackInitialization();
             }
@@ -3257,10 +3261,23 @@
         }
 
         /**
+         * Hide loading screen
+         */
+        hideLoadingScreen() {
+            const content = document.getElementById('app-content');
+            if (content) {
+                const loadingContainer = content.querySelector('.loading-container');
+                if (loadingContainer) {
+                    loadingContainer.style.display = 'none';
+                }
+            }
+        }
+
+        /**
          * Enhanced calculation with comprehensive error handling
          * @returns {Promise<void>}
          */
-        async calculateVerkauf() {
+        calculateVerkauf() {
             console.log('🧮 Starting calculation...');
             
             // Clear any existing timeouts
@@ -3291,7 +3308,7 @@
                 console.log('🔄 Starting actual calculation...');
                 const results = this.performSyncCalculation(data);
                 console.log('✓ Calculation completed:', results);
-                
+                const results = this.performSyncCalculation(data);
                 this.showCalculationProgress('Erstelle Ergebnisse...', 90);
                 
                 // Display results
@@ -3301,12 +3318,7 @@
                 
                 this.showCalculationProgress('Berechnung abgeschlossen!', 100);
                 
-                // Hide progress after short delay
-                setTimeout(() => {
-                    this.hideCalculationProgress();
-                    this.showToast('🧮 Berechnung erfolgreich abgeschlossen', 'success');
-                    console.log('✅ Calculation process completed successfully');
-                }, 800);
+                }, 200);
                 
             } catch (error) {
                 console.error('❌ Calculation error:', error);
