@@ -3183,20 +3183,14 @@
         /**
          * Load saved data from storage
          */
-        loadSavedData() {
+        async loadSavedData() {
             try {
-                // Simplified - load data after UI is ready
-                setTimeout(() => {
-                    if (this.modules.storage) {
-                        this.modules.storage.load('formData').then(savedData => {
-                            if (savedData) {
-                                this.populateFormData(savedData);
-                            }
-                        }).catch(error => {
-                            console.warn('Could not load saved data:', error);
-                        });
+                if (this.modules.storage) {
+                    const savedData = await this.modules.storage.load('formData');
+                    if (savedData) {
+                        this.populateFormData(savedData);
                     }
-                }, 100);
+                }
             } catch (error) {
                 console.warn('Could not load saved data:', error);
             }
@@ -3242,6 +3236,27 @@
                     this.modules.analytics.trackError('global_error', event.error);
                 }
             });
+        }
+
+        /**
+         * Hide loading screen
+         */
+        hideLoadingScreen() {
+            try {
+                const loadingContainer = document.querySelector('.loading-container');
+                if (loadingContainer) {
+                    loadingContainer.style.display = 'none';
+                }
+                
+                const appContent = document.getElementById('app-content');
+                if (appContent) {
+                    appContent.style.opacity = '1';
+                }
+                
+                console.log('✅ Loading screen hidden');
+            } catch (error) {
+                console.error('Error hiding loading screen:', error);
+            }
         }
 
         /**
