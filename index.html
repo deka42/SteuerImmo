@@ -6950,18 +6950,13 @@
         console.error('Unhandled promise rejection:', event.reason);
         
         // Auto-hide progress overlay
-        try {
             if (window.appInstance && window.appInstance.hideCalculationProgress) {
                 window.appInstance.hideCalculationProgress();
-            } else {
-                // Fallback
-        if (window.appInstance && window.appInstance.hideCalculationProgress) {
-            window.appInstance.hideCalculationProgress();
-        }
-        
-        if (window.appInstance && window.appInstance.showToast) {
-            window.appInstance.showToast('❌ Berechnung fehlgeschlagen', 'error');
-        }
+            }
+            
+            if (window.appInstance && window.appInstance.showToast) {
+                window.appInstance.showToast('❌ Berechnung fehlgeschlagen', 'error');
+            }
     });
 
     // Cleanup on page unload
