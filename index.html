@@ -2933,8 +2933,11 @@
          * Update results display
          */
         updateResultsDisplay() {
+            console.log('Displaying results:', result);
+            
             const content = document.getElementById('test-results-content');
             if (!content) return;
+                console.error('Results div not found');
 
             const passedTests = this.results.filter(r => r.passed).length;
             const totalTests = this.results.length;
