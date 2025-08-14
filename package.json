@@ -1,0 +1,24 @@
+{
+  "name": "immobilien-steuer-suite",
+  "version": "3.0.0",
+  "description": "Immobilien-Steuer-Suite 2025 - Premium Edition",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx http-server . -p 3000 -o",
+    "start": "npx http-server . -p 3000 -o",
+    "build": "echo 'Build complete - static HTML application'",
+    "test": "echo 'No tests specified'"
+  },
+  "keywords": [
+    "immobilien",
+    "steuer",
+    "tax",
+    "calculator",
+    "real-estate"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}
