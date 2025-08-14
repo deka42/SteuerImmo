@@ -3455,7 +3455,7 @@
                 console.error('Schenkung calculation error:', error);
                 this.showToast('❌ Fehler bei der Schenkungssteuer-Berechnung: ' + error.message, 'error');
             } finally {
-                this.hideCalculationProgress();
+                setTimeout(() => this.hideCalculationProgress(), 500);
             }
         }
 
@@ -3470,7 +3470,7 @@
                 console.error('Cash-Flow calculation error:', error);
                 this.showToast('❌ Fehler bei der Cash-Flow-Analyse: ' + error.message, 'error');
             } finally {
-                setTimeout(() => this.hideCalculationProgress(), 500);
+                this.hideCalculationProgress();
             }
         }
 
