@@ -5827,13 +5827,18 @@
         // Export and utility methods
         exportReport() {
             try {
+                this.manualSave = true;
                 const reportData = {
                     formData: this.collectAllFormData(),
                     timestamp: new Date().toISOString(),
                     version: this.config.version
                 };
                 
-                this.modules.export.generatePDFReport(reportData);
+                if (this.modules.export) {
+                    this.modules.export.generatePDFReport(reportData);
+                } else {
+                    throw new Error('Export-Modul nicht verfügbar');
+                }
                 this.showToast('📋 Bericht wurde erstellt', 'success');
             } catch (error) {
                 console.error('Export error:', error);
@@ -5843,7 +5848,9 @@
 
         resetData() {
             if (confirm('Möchten Sie wirklich alle Daten zurücksetzen?')) {
-                this.modules.storage.clear();
+                if (this.modules.storage) {
+                    this.modules.storage.clear();
+                }
                 
                 document.querySelectorAll('input').forEach(input => {
                     if (input.type === 'number') {
@@ -5866,6 +5873,7 @@
         }
 
         loadExample() {
+            this.manualSave = true;
             const exampleData = {
                 kaufpreis: 450000,
                 verkaufspreis: 650000,
@@ -5903,6 +5911,33 @@
             }, 500);
         }
 
+        // Cleanup method for proper resource management
+        destroy() {
+            // Clear all intervals
+            if (this.autoSaveInterval) {
+                clearInterval(this.autoSaveInterval);
+            }
+            if (this.dashboardInterval) {
+                clearInterval(this.dashboardInterval);
+            }
+            if (this.progressTimeout) {
+                clearTimeout(this.progressTimeout);
+            }
+            if (this.autoCalculateTimeout) {
+                clearTimeout(this.autoCalculateTimeout);
+            }
+            if (this.immediateUpdateTimeout) {
+                clearTimeout(this.immediateUpdateTimeout);
+            }
+            
+            // Clear cache
+            this.cache.clear();
+            
+            // Destroy modules
+            if (this.modules.dashboard && this.modules.dashboard.destroy) {
+                this.modules.dashboard.destroy();
+            }
+        }
         showExtendedAnalyse() {
             try {
                 const formData = this.collectAllFormData();
