@@ -3445,6 +3445,7 @@ List available plugins
             this.workerMessageId = 0;
             this.workerCallbacks = new Map();
             this.cache = new Map();
+            this.sectionData = new Map(); // Store data for each section
             this.analytics = {
                 calculations: 0,
                 cacheHits: 0,
@@ -3703,6 +3704,10 @@ List available plugins
                        this.saveCurrentState();
                    }
                    
+                    if (data.sectionData) {
+                        this.sectionData = new Map(Object.entries(data.sectionData));
+                    }
+                    
                     if (this.realtimeEnabled) {
                         this.debouncedCalculate();
                     }
@@ -4490,6 +4495,9 @@ List available plugins
 
         // Navigation and Content Loading
         navigateToSection(section) {
+            // Save current section data before switching
+            this.saveCurrentSectionData();
+            
             // Track section navigation
             this.gaTracker.trackUserJourney('navigation', 'section_changed', {
                 from_section: this.getCurrentSection(),
@@ -4505,9 +4513,57 @@ List available plugins
             }
             
             this.loadSectionContent(section);
+            
+            // Restore data for the new section after content is loaded
+            setTimeout(() => {
+                this.restoreSectionData(section);
+            }, 100);
+            
             this.showToast(`📍 Navigation zu ${section}`, 'info');
         }
 
+        saveCurrentSectionData() {
+            const currentSection = this.getCurrentSection();
+            const formData = this.collectFormData();
+            
+            // Store section-specific data
+            if (!this.sectionData) {
+                this.sectionData = new Map();
+            }
+            
+            this.sectionData.set(currentSection, formData);
+            
+            // Also save to localStorage for persistence
+            try {
+                const allSectionData = Object.fromEntries(this.sectionData);
+                localStorage.setItem('immobilien-suite-section-data', JSON.stringify(allSectionData));
+            } catch (error) {
+                console.warn('Could not save section data:', error);
+            }
+        }
+
+        restoreSectionData(section) {
+            if (!this.sectionData) {
+                this.sectionData = new Map();
+                
+                // Try to load from localStorage
+                try {
+                    const saved = localStorage.getItem('immobilien-suite-section-data');
+                    if (saved) {
+                        const data = JSON.parse(saved);
+                        this.sectionData = new Map(Object.entries(data));
+                    }
+                } catch (error) {
+                    console.warn('Could not load section data:', error);
+                }
+            }
+            
+            const sectionData = this.sectionData.get(section);
+            if (sectionData && Object.keys(sectionData).length > 0) {
+                this.populateForm(sectionData);
+                this.showToast(`📋 Daten für ${section} wiederhergestellt`, 'success');
+            }
+        }
         loadSectionContent(section) {
             const contentArea = document.getElementById('dynamic-content');
             if (!contentArea) return;
@@ -6111,6 +6167,9 @@ List available plugins
 
         // Reset Methods
         resetForm() {
+            // Save current state before reset
+            this.saveCurrentSectionData();
+            
             this.saveCurrentState();
             
             const inputs = document.querySelectorAll('.form-input, .form-select');
@@ -6130,8 +6189,18 @@ List available plugins
                 this.clearFieldError(input);
             });
 
-            document.getElementById('results-container').innerHTML = '';
+            const resultsContainer = document.getElementById('results-container');
+            if (resultsContainer) {
+                resultsContainer.innerHTML = '';
+            }
+            
             this.updateAnalytics({ structures: [] }, 0);
+            
+            // Clear section data for current section
+            const currentSection = this.getCurrentSection();
+            if (this.sectionData) {
+                this.sectionData.delete(currentSection);
+            }
             
             this.showToast('🔄 Formular zurückgesetzt', 'info');
         }
@@ -6139,6 +6208,7 @@ List available plugins
         resetAll() {
             this.resetForm();
             this.cache.clear();
+            this.sectionData = new Map(); // Clear all section data
             this.appState.history = [];
             this.appState.historyIndex = -1;
             this.updateHistoryButtons();
@@ -6150,6 +6220,14 @@ List available plugins
             };
             this.errorHandler.clearErrors();
             this.updateSessionMetrics();
+            
+            // Clear localStorage section data
+            try {
+                localStorage.removeItem('immobilien-suite-section-data');
+            } catch (error) {
+                console.warn('Could not clear section data:', error);
+            }
+            
             this.showToast('🔄 Alles zurückgesetzt', 'info');
         }
 
@@ -6159,6 +6237,8 @@ List available plugins
             const inputs = document.querySelectorAll('.form-input, .form-select');
             
             inputs.forEach(input => {
+                if (!input.id) return; // Skip inputs without IDs
+                
                 if (input.type === 'number') {
                     data[input.id] = parseFloat(input.value) || 0;
                 } else if (input.type === 'checkbox') {
@@ -6172,6 +6252,8 @@ List available plugins
         }
 
         populateForm(data) {
+            this.isRestoringState = true; // Flag to prevent validation during restoration
+            
             Object.keys(data).forEach(key => {
                 const element = document.getElementById(key);
                 if (element) {
@@ -6181,11 +6263,16 @@ List available plugins
                         element.value = data[key];
                     }
                     
+                    // Only validate if not restoring state
                     if (!this.isRestoringState) {
+                        this.validateField(element);
+                    }
                         this.validateField(element);
                     }
                 }
             });
+            
+            this.isRestoringState = false;
         }
 
         formatCurrency(amount) {
@@ -6422,6 +6509,7 @@ List available plugins
             const data = {
                 scenarios: Object.fromEntries(this.scenarios),
                 currentScenario: this.currentScenario,
+                sectionData: Object.fromEntries(this.sectionData || new Map()),
                 settings: {
                     realtimeEnabled: this.realtimeEnabled
                 },
