@@ -3669,8 +3669,8 @@ List available plugins
             // Real-time validation setup
             this.setupRealtimeValidation();
             
-            // Navigation
-            this.setupNavigationEventListeners();
+            // Navigation - Setup with retry mechanism
+            this.setupNavigation();
 
             // Plugin items
             document.querySelectorAll('.plugin-item').forEach(item => {
@@ -3733,6 +3733,18 @@ List available plugins
             });
 
             console.log('✅ Enhanced event listeners setup completed');
+        }
+
+        setupNavigationEventListeners() {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const section = link.getAttribute('data-section');
+                    if (section) {
+                        this.navigateToSection(section);
+                    }
+                });
+            });
         }
 
         setupRealtimeValidation() {
