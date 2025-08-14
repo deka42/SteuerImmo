@@ -3732,15 +3732,29 @@
                 }
             } catch (error) {
                 console.error('Progress hide error:', error);
-                // Force hide even if error occurs
-                try {
-                    const overlay = document.getElementById('progress-overlay');
-                    if (overlay) {
-                        overlay.style.display = 'none';
-                    }
-                } catch (e) {
-                    console.error('Force hide failed:', e);
+            }
+            
+            // Force hide even if error occurs - separate try block
+            try {
+                const overlay = document.getElementById('progress-overlay');
+                if (overlay) {
+                    overlay.style.display = 'none';
+                    overlay.classList.add('d-none');
+                    // Force remove any inline styles that might interfere
+                    overlay.removeAttribute('style');
+                    overlay.style.display = 'none';
                 }
+            } catch (e) {
+                console.error('Force hide failed:', e);
+                // Last resort - try to find and hide any progress overlay
+                const overlays = document.querySelectorAll('[id*="progress"]');
+                overlays.forEach(el => {
+                    try {
+                        el.style.display = 'none';
+                    } catch (err) {
+                        // Silent fail
+                    }
+                });
             }
         }
 
