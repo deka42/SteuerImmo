@@ -3248,7 +3248,12 @@
                 
                 // Perform calculation with simplified approach
                 console.log('🔄 Starting actual calculation...');
-                const results = await this.performActualCalculation(data);
+                const results = await Promise.race([
+                    this.performActualCalculation(data),
+                    new Promise((_, reject) => 
+                        setTimeout(() => reject(new Error('Calculation timeout')), 10000)
+                    )
+                ]);
                 console.log('✓ Calculation completed:', results);
                 
                 this.showCalculationProgress('Erstelle Ergebnisse...', 90);
@@ -3265,17 +3270,25 @@
                     this.hideCalculationProgress();
                     this.showToast('🧮 Berechnung erfolgreich abgeschlossen', 'success');
                     console.log('✅ Calculation process completed successfully');
-                    
-                    // Backup hide after additional delay
-                    setTimeout(() => {
-                        this.hideCalculationProgress();
-                    }, 500);
                 }, 500);
                 
             } catch (error) {
                 console.error('❌ Calculation error:', error);
                 this.hideCalculationProgress();
-                this.showToast('❌ Fehler bei der Berechnung: ' + error.message, 'error');
+                
+                let errorMessage = 'Unbekannter Fehler';
+                if (error.message === 'Calculation timeout') {
+                    errorMessage = 'Berechnung dauerte zu lange und wurde abgebrochen';
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                
+                this.showToast('❌ Fehler bei der Berechnung: ' + errorMessage, 'error');
+            } finally {
+                // Ensure progress is always hidden
+                setTimeout(() => {
+                    this.hideCalculationProgress();
+                }, 1000);
             }
         }
 
@@ -3288,6 +3301,9 @@
             console.log('🔢 Starting tax calculation with data:', data);
             
             try {
+                // Add small delay to show progress
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
                 const anschaffungskosten = data.kaufpreis + data.nebenkostenKauf + data.modernisierung;
                 const grossProfit = data.verkaufspreis - data.nebenkostenVerkauf - anschaffungskosten;
                 
@@ -3309,6 +3325,9 @@
                     recommendation: data.haltedauer >= 10 ? 'optimal' : 'prüfenswert'
                 });
 
+                // Add small delay between calculations
+                await new Promise(resolve => setTimeout(resolve, 50));
+
                 // 2. VV GmbH & Co. KG (2025: Gewerbesteuerfrei!)
                 console.log('🏢 Calculating VV GmbH & Co. KG...');
                 structures.push({
@@ -3321,6 +3340,8 @@
                     disadvantages: ['Komplexere Struktur', 'Gründungskosten'],
                     recommendation: 'empfehlenswert'
                 });
+
+                await new Promise(resolve => setTimeout(resolve, 50));
 
                 // 3. Familienpool (GbR)
                 console.log('👨‍👩‍👧‍👦 Calculating Familienpool...');
@@ -3335,6 +3356,8 @@
                     disadvantages: ['Mehrere Gesellschafter nötig', 'Gesellschaftsvertrag'],
                     recommendation: 'optimal'
                 });
+
+                await new Promise(resolve => setTimeout(resolve, 50));
 
                 // 4. Share Deal (bei größeren Gewinnen)
                 if (grossProfit > 100000) {
@@ -3352,6 +3375,41 @@
                     });
                 }
 
+                // 5. Cross-Border Structures (bei sehr hohen Gewinnen)
+                if (grossProfit >= 500000) {
+                    console.log('🌍 Calculating Cross-Border structures...');
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                    
+                    const crossBorderTax = privateTax * 0.45; // 55% Steuerersparnis
+                    structures.push({
+                        name: 'Cross-Border (Luxemburg)',
+                        grossProfit,
+                        tax: crossBorderTax,
+                        netProfit: grossProfit - crossBorderTax,
+                        taxRate: grossProfit > 0 ? (crossBorderTax / grossProfit * 100) : 0,
+                        advantages: ['Internationale Steueroptimierung', 'EU-Recht konform'],
+                        disadvantages: ['Sehr komplex', 'Hohe Beratungskosten'],
+                        recommendation: 'für Experten'
+                    });
+                }
+
+                // 6. Foundation Structures (bei sehr hohen Gewinnen)
+                if (grossProfit >= 1000000) {
+                    console.log('🏛️ Calculating Foundation structures...');
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                    
+                    const foundationTax = privateTax * 0.3; // 70% Steuerersparnis
+                    structures.push({
+                        name: 'Familienstiftung',
+                        grossProfit,
+                        tax: foundationTax,
+                        netProfit: grossProfit - foundationTax,
+                        taxRate: grossProfit > 0 ? (foundationTax / grossProfit * 100) : 0,
+                        advantages: ['Generationenübergreifend', 'Maximale Steueroptimierung'],
+                        disadvantages: ['Sehr komplex', 'Hohe Gründungskosten'],
+                        recommendation: 'für sehr hohe Vermögen'
+                    });
+                }
                 // Sort by net profit
                 structures.sort((a, b) => b.netProfit - a.netProfit);
                 console.log('✅ Calculated', structures.length, 'structures');
@@ -3433,7 +3491,7 @@
                     text.textContent = message;
                     fill.style.width = percentage + '%';
 
-                    // Auto-hide after 12 seconds as safety measure
+                    // Auto-hide after 15 seconds as safety measure
                     if (this.progressTimeout) {
                         clearTimeout(this.progressTimeout);
                     }
@@ -3442,7 +3500,7 @@
                         console.warn('⚠️ Progress timeout reached, hiding overlay');
                         this.hideCalculationProgress();
                         this.showToast('⏰ Berechnung wurde abgebrochen (Timeout)', 'warning');
-                    }, 12000);
+                    }, 15000);
                 } else {
                     console.error('❌ Progress elements not found');
                 }
@@ -3794,10 +3852,26 @@
             // Calculate button
             const calculateBtn = document.getElementById('calculate-button');
             if (calculateBtn) {
-                calculateBtn.addEventListener('click', (e) => {
+                // Remove any existing event listeners
+                calculateBtn.replaceWith(calculateBtn.cloneNode(true));
+                const newCalculateBtn = document.getElementById('calculate-button');
+                
+                newCalculateBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     console.log('🧮 Calculate button clicked via event handler');
+                    
+                    // Disable button during calculation
+                    newCalculateBtn.disabled = true;
+                    newCalculateBtn.textContent = '⏳ Berechnung läuft...';
+                    
                     this.calculateVerkauf();
+                    
+                    // Re-enable button after delay
+                    setTimeout(() => {
+                        newCalculateBtn.disabled = false;
+                        newCalculateBtn.innerHTML = '🧮 Alle Rechtsformen berechnen';
+                    }, 3000);
                 });
                 console.log('✅ Calculate button handler attached');
             }
@@ -3807,6 +3881,7 @@
             if (exampleBtn) {
                 exampleBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     console.log('💡 Example button clicked via event handler');
                     this.loadExample();
                 });
@@ -3818,6 +3893,7 @@
             if (resetBtn) {
                 resetBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    e.stopPropagation();
                     console.log('🔄 Reset button clicked via event handler');
                     this.resetForm();
                 });
