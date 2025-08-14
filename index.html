@@ -3904,35 +3904,79 @@
          * @returns {string} HTML string
          */
         generateResultsGrid(results) {
+            console.log('Displaying results:', data);
+            
+            // Validate data object
+            if (!data || typeof data !== 'object') {
+                console.error('Invalid data object for results display');
+                return;
+            }
+            
             let html = '<div class="results-grid">';
+            if (!resultsDiv) {
+                console.error('Results div not found');
+                return;
+            }
+            
+            // Ensure all required properties exist with defaults
+            const {
+                kaufpreis = 0,
+                verkaufspreis = 0,
+                gewinn = 0,
+                steuer = 0,
+                steuersatz = 0,
+                steuerart = 'Unbekannt',
+                nettogewinn = 0,
+                haltedauer = 0,
+                werbungskosten = 0,
+                abschreibungen = 0,
+                modernisierung = 0,
+                strukturen = []
+            } = data;
             
             results.structures.forEach((structure, index) => {
-                const cardClass = index === 0 ? 'result-card best-option' : 'result-card';
+            if (strukturen && Array.isArray(strukturen) && strukturen.length > 0) {
                 const badgeClass = index === 0 ? 'result-badge success' : 'result-badge';
                 const badge = index === 0 ? '👑 BESTE WAHL' : `#${index + 1}`;
                 
                 html += `
-                    <div class="${cardClass}">
+                            ${strukturen.map(struktur => {
+                                // Validate structure object
+                                if (!struktur || typeof struktur !== 'object') {
+                                    return '';
+                                }
+                                
+                                const {
+                                    name = 'Unbekannte Struktur',
+                                    beschreibung = 'Keine Beschreibung verfügbar',
+                                    steuerbelastung = 0,
+                                    ersparnis = 0,
+                                    empfohlen = false,
+                                    details = []
+                                } = struktur;
+                                
+                                return `
                         <div class="result-header">
                             <h3 class="result-title">${structure.name}</h3>
                             <span class="${badgeClass}">${badge}</span>
                         </div>
                         <div class="result-item">
                             <span class="result-label">Bruttogewinn:</span>
-                            <span class="result-value">${this.formatCurrency(structure.grossProfit)}</span>
+                                            <span class="value">${steuerbelastung.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
                         </div>
                         <div class="result-item">
                             <span class="result-label">Steuer:</span>
-                            <span class="result-value">${this.formatCurrency(structure.tax)}</span>
+                                            <span class="value savings">${ersparnis.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}</span>
                         </div>
                         <div class="result-item">
-                            <span class="result-label">Nettogewinn:</span>
+                                    ${details && Array.isArray(details) && details.length > 0 ? `
                             <span class="result-value text-success">${this.formatCurrency(structure.netProfit)}</span>
-                        </div>
+                                            ${details.map(detail => `<li>${detail || ''}</li>`).join('')}
                         <div class="result-item">
                             <span class="result-label">Steuersatz:</span>
                             <span class="result-value">${structure.taxRate.toFixed(1)}%</span>
-                        </div>
+                                `;
+                            }).join('')}
                         ${this.generateAdvantagesDisadvantages(structure)}
                     </div>
                 `;
