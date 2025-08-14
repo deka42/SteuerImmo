@@ -1636,19 +1636,19 @@
 
 POST /api/v4/calculate
 {
-“kaufpreis”: 400000,
-“verkaufspreis”: 600000,
-“haltedauer”: 8,
-“steuersatz”: 42,
-“bundesland”: “nw”
+"kaufpreis": 400000,
+"verkaufspreis": 600000,
+"haltedauer": 8,
+"steuersatz": 42,
+"bundesland": "nw"
 }
 
 Response:
 {
-“structures”: […],
-“optimal”: {…},
-“savings”: 45000,
-“calculationTime”: “45ms”
+"structures": […],
+"optimal": {…},
+"savings": 45000,
+"calculationTime": "45ms"
 }
 </pre>
 </div>
@@ -1973,6 +1973,54 @@ Response:
                 'Familienstiftung': ['Generationenübergreifend', 'Maximale Steueroptimierung']
             };
             return advantages[structureName] || [];
+        }
+
+        setupEventListeners() {
+            console.log('🔧 Setting up event listeners...');
+            
+            // Wait for DOM to be ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => this.setupEventListenersInternal());
+            } else {
+                this.setupEventListenersInternal();
+            }
+        }
+
+        setupEventListenersInternal() {
+            // Real-time validation setup
+            this.setupRealtimeValidation();
+            
+            // Navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const section = link.getAttribute('data-section');
+                    if (section) {
+                        this.navigateToSection(section);
+                    }
+                });
+            });
+
+            // Form changes for real-time calculation
+            document.addEventListener('input', (e) => {
+                if (e.target.matches('.form-input, .form-select')) {
+                    if (this.realtimeEnabled) {
+                        this.debouncedCalculate();
+                    }
+                }
+            });
+
+            // Scroll effects
+            window.addEventListener('scroll', () => {
+                const header = document.getElementById('app-header');
+                if (window.scrollY > 10) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+
+            console.log('✅ Event listeners setup completed');
         }
 
         // Enhanced Debounced Real-time Calculation
@@ -2852,26 +2900,31 @@ Response:
         // Event Handlers für alle Module
         setupGrundsteuerEventHandlers() {
             // Grundsteuer Event Handlers
+            this.setupRealtimeValidation();
             console.log('Setting up Grundsteuer event handlers');
         }
 
         setupErbschaftEventHandlers() {
             // Erbschaft Event Handlers
+            this.setupRealtimeValidation();
             console.log('Setting up Erbschaft event handlers');
         }
 
         setupSchenkungEventHandlers() {
             // Schenkung Event Handlers
+            this.setupRealtimeValidation();
             console.log('Setting up Schenkung event handlers');
         }
 
         setupCashflowEventHandlers() {
             // Cashflow Event Handlers
+            this.setupRealtimeValidation();
             console.log('Setting up Cashflow event handlers');
         }
 
         setupStrategieEventHandlers() {
             // Strategie Event Handlers (renamed from setupStrategiesEventHandlers)
+            this.setupRealtimeValidation();
             console.log('Setting up Strategie event handlers');
         }
 
@@ -4028,38 +4081,6 @@ Response:
             document.getElementById('strategy-results').innerHTML = '';
             this.showToast('🔄 Strategie-Formular zurückgesetzt', 'info');
         }
-            // Navigation
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const section = link.getAttribute('data-section');
-                    if (section) {
-                        this.navigateToSection(section);
-                    }
-                });
-            });
-
-            // Form changes for real-time calculation
-            document.addEventListener('input', (e) => {
-                if (e.target.matches('.form-input, .form-select')) {
-                    if (this.realtimeEnabled) {
-                        this.debouncedCalculate();
-                    }
-                }
-            });
-
-            // Scroll effects
-            window.addEventListener('scroll', () => {
-                const header = document.getElementById('app-header');
-                if (window.scrollY > 10) {
-                    header.classList.add('scrolled');
-                } else {
-                    header.classList.remove('scrolled');
-                }
-            });
-
-            console.log('✅ Event listeners setup completed');
-        }
 
         // Debounced calculation for real-time updates
         get debouncedCalculate() {
@@ -4256,6 +4277,259 @@ Response:
                     contentArea.innerHTML = this.generateVerkaufContent();
                     this.setupRealtimeValidation();
             }
+        }
+
+        generateVerkaufContent() {
+            return `
+                <!-- Multi-Scenario Tabs -->
+                <div class="scenario-tabs">
+                    <button class="scenario-tab active" data-scenario="scenario1" onclick="app.switchScenario('scenario1')">
+                        Szenario 1
+                    </button>
+                    <button class="scenario-tab" data-scenario="scenario2" onclick="app.switchScenario('scenario2')">
+                        Szenario 2
+                    </button>
+                    <button class="scenario-tab" data-scenario="scenario3" onclick="app.switchScenario('scenario3')">
+                        Szenario 3
+                    </button>
+                    <button class="btn btn-outline" onclick="app.addScenario()" style="margin-left: auto; padding: 0.5rem 1rem; font-size: 0.9rem;">
+                        ➕ Szenario hinzufügen
+                    </button>
+                </div>
+
+                <!-- Main Form Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>💰</span>
+                            <span>KI-Optimierte Verkaufssteuer-Berechnung 2025</span>
+                        </div>
+                    </div>
+
+                    <!-- Real-time Calculation Toggle -->
+                    <div class="alert alert-info">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>🤖 Real-time KI-Berechnung aktiviert - Optimale Strukturen werden automatisch berechnet</span>
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" id="realtime-calc" checked onchange="app.toggleRealtime()">
+                                <span>Real-time</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="scenario-content active" id="scenario1-content">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    🏠 Kaufpreis <span class="required">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" id="kaufpreis" class="form-input" placeholder="z.B. 400.000" min="0" step="1000" data-shortcut="k">
+                                    <div class="validation-indicator" id="kaufpreis-indicator"></div>
+                                </div>
+                                <div class="form-help">Ursprünglicher Kaufpreis der Immobilie</div>
+                                <div class="form-error" id="kaufpreis-error"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    💵 Verkaufspreis <span class="required">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" id="verkaufspreis" class="form-input" placeholder="z.B. 600.000" min="0" step="1000" data-shortcut="v">
+                                    <div class="validation-indicator" id="verkaufspreis-indicator"></div>
+                                </div>
+                                <div class="form-help">Aktueller Verkaufspreis</div>
+                                <div class="form-error" id="verkaufspreis-error"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    📋 Nebenkosten Kauf
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" id="nebenkosten_kauf" class="form-input" placeholder="z.B. 40.000" min="0" step="1000">
+                                    <div class="validation-indicator" id="nebenkosten_kauf-indicator"></div>
+                                </div>
+                                <div class="form-help">Notar, Grunderwerbsteuer, Makler beim Kauf</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    🤝 Nebenkosten Verkauf
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" id="nebenkosten_verkauf" class="form-input" placeholder="z.B. 30.000" min="0" step="1000">
+                                    <div class="validation-indicator" id="nebenkosten_verkauf-indicator"></div>
+                                </div>
+                                <div class="form-help">Makler, Notar, Inserate beim Verkauf</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    🔨 Modernisierung/Renovierung
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" id="modernisierung" class="form-input" placeholder="z.B. 35.000" min="0" step="1000">
+                                    <div class="validation-indicator" id="modernisierung-indicator"></div>
+                                </div>
+                                <div class="form-help">Steuerlich absetzbare Investitionen</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    ⏱️ Haltedauer (Jahre) <span class="required">*</span>
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" id="haltedauer" class="form-input" placeholder="z.B. 8" min="0" max="50" step="0.1" data-shortcut="h">
+                                    <div class="validation-indicator" id="haltedauer-indicator"></div>
+                                </div>
+                                <div class="form-help">Zeit zwischen Kauf und Verkauf</div>
+                                <div class="form-error" id="haltedauer-error"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    💼 Persönlicher Steuersatz (%)
+                                </label>
+                                <select id="steuersatz" class="form-select">
+                                    <option value="14">14% (Eingangssteuersatz)</option>
+                                    <option value="24">24% (Mittlerer Bereich)</option>
+                                    <option value="32">32% (Höherer Bereich)</option>
+                                    <option value="42" selected>42% (Spitzensteuersatz)</option>
+                                    <option value="45">45% (Reichensteuer)</option>
+                                </select>
+                                <div class="form-help">Ihr aktueller Einkommensteuersatz</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    ⛪ Kirchensteuer (%)
+                                </label>
+                                <select id="kirchensteuer" class="form-select">
+                                    <option value="0">0% (Konfessionslos)</option>
+                                    <option value="8" selected>8% (Bayern, BW)</option>
+                                    <option value="9">9% (Andere Bundesländer)</option>
+                                </select>
+                                <div class="form-help">Kirchensteuer je nach Bundesland</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    🗺️ Bundesland
+                                </label>
+                                <select id="bundesland" class="form-select">
+                                    <option value="bw">Baden-Württemberg</option>
+                                    <option value="by">Bayern</option>
+                                    <option value="be">Berlin</option>
+                                    <option value="bb">Brandenburg</option>
+                                    <option value="hb">Bremen</option>
+                                    <option value="hh">Hamburg</option>
+                                    <option value="he">Hessen</option>
+                                    <option value="mv">Mecklenburg-Vorpommern</option>
+                                    <option value="ni">Niedersachsen</option>
+                                    <option value="nw" selected>Nordrhein-Westfalen</option>
+                                    <option value="rp">Rheinland-Pfalz</option>
+                                    <option value="sl">Saarland</option>
+                                    <option value="sn">Sachsen</option>
+                                    <option value="st">Sachsen-Anhalt</option>
+                                    <option value="sh">Schleswig-Holstein</option>
+                                    <option value="th">Thüringen</option>
+                                </select>
+                                <div class="form-help">Für bundeslandspezifische Steuerberechnung</div>
+                            </div>
+                        </div>
+
+                        <!-- Progressive Disclosure for Advanced Options -->
+                        <div class="advanced-options">
+                            <button class="disclosure-toggle" onclick="app.toggleAdvanced()">
+                                <span class="disclosure-arrow">▶</span>
+                                Erweiterte Optionen
+                            </button>
+                            <div class="disclosure-content" id="advanced-content">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            💰 Zusätzliche Werbungskosten
+                                        </label>
+                                        <input type="number" id="werbungskosten" class="form-input" placeholder="z.B. 5.000" min="0" step="100">
+                                        <div class="form-help">Weitere steuerlich absetzbare Kosten</div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            📊 Abschreibungen (AfA)
+                                        </label>
+                                        <input type="number" id="abschreibungen" class="form-input" placeholder="z.B. 12.000" min="0" step="100">
+                                        <div class="form-help">Jährliche Abschreibungen bei Vermietung</div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            🏗️ Immobilientyp
+                                        </label>
+                                        <select id="immobilientyp" class="form-select">
+                                            <option value="eigenheim">Eigenheim/Privatnutzung</option>
+                                            <option value="vermietung">Vermietungsimmobilie</option>
+                                            <option value="gewerbe">Gewerbeimmobilie</option>
+                                            <option value="mischnutzung">Mischnutzung</option>
+                                        </select>
+                                        <div class="form-help">Art der Immobiliennutzung</div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            💱 Inflationsbereinigung
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="checkbox" id="inflation-adjustment">
+                                            <span>Kaufpreis inflationsbereinigt berechnen</span>
+                                        </label>
+                                        <div class="form-help">Automatische Anpassung an Inflation seit Kauf</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="app.calculateOptimal()" title="Optimale Berechnung starten (Ctrl+Enter)">
+                                🧮 KI-Optimierung starten
+                            </button>
+                            <button class="btn btn-success" onclick="app.loadExample()" title="Beispieldaten laden (Ctrl+E)">
+                                💡 Beispiel laden
+                            </button>
+                            <button class="btn btn-warning" onclick="app.exportPDFReport()" title="PDF-Bericht erstellen (Ctrl+P)">
+                                📊 PDF-Report
+                            </button>
+                            <button class="btn btn-secondary" onclick="app.resetForm()" title="Formular zurücksetzen (Ctrl+R)">
+                                🔄 Zurücksetzen
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Additional Scenario Contents (placeholders) -->
+                    <div class="scenario-content" id="scenario2-content">
+                        <div class="alert alert-info">
+                            <h3>📊 Szenario 2</h3>
+                            <p>Vergleichsszenario für What-If-Analysen. Kopieren Sie Werte aus Szenario 1 und modifizieren Sie einzelne Parameter.</p>
+                        </div>
+                        <!-- Form would be duplicated here -->
+                    </div>
+
+                    <div class="scenario-content" id="scenario3-content">
+                        <div class="alert alert-info">
+                            <h3>🎯 Szenario 3</h3>
+                            <p>Drittes Szenario für umfassende Vergleichsanalysen.</p>
+                        </div>
+                        <!-- Form would be duplicated here -->
+                    </div>
+                </div>
+
+                <!-- Results Container -->
+                <div class="results-container" id="results-container">
+                    <!-- Results will be dynamically inserted here -->
+                </div>
+            `;
         }
 
         generateGrundsteuerContent() {
