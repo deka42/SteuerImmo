@@ -2503,6 +2503,17 @@
             this.modules = {};
             this.cache = new Map();
             this.eventListeners = new Map();
+            this.manualSave = false;
+            this.progressTimeout = null;
+            this.autoCalculateTimeout = null;
+            this.immediateUpdateTimeout = null;
+            
+            // Constants
+            this.CACHE_TIMEOUT = 30000;
+            this.DASHBOARD_UPDATE_INTERVAL = 3000;
+            this.AUTO_SAVE_INTERVAL = 30000;
+            this.DEBOUNCE_DELAY = 300;
+            
             this.config = {
                 taxYear: 2025,
                 baseInterestRate: 2.5,
@@ -2510,7 +2521,7 @@
                 debug: false,
                 enableAnalytics: true,
                 autoSave: true,
-                cacheTimeout: 30000
+                cacheTimeout: this.CACHE_TIMEOUT
             };
             this.state = {
                 currentSection: 'verkauf',
@@ -4047,20 +4058,21 @@
                                 <input type="number" id="grundstueckswert" class="form-input" value="420000" min="0" required>
                                 <span class="input-icon">€</span>
                             </div>
-                            <div class="form-help">Laut Grundsteuerwertbescheid 2022/2023</div>
+                            <div class="form-help" id="grundstueckswert-help">Laut Grundsteuerwertbescheid 2022/2023</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label" for="immobilientyp">
                                 <span>🏗️</span> Immobilientyp
                             </label>
-                            <select id="immobilientyp" class="form-select">
+                            <select id="immobilientyp" class="form-select" aria-describedby="immobilientyp-help">
                                 <option value="einfamilienhaus">Ein-/Zweifamilienhaus</option>
                                 <option value="mietwohnung" selected>Mietwohngrundstück</option>
                                 <option value="eigentumswohnung">Eigentumswohnung</option>
                                 <option value="gewerbe">Gewerbegrundstück</option>
                                 <option value="unbebaut">Unbebautes Grundstück</option>
                             </select>
+                            <div class="form-help" id="immobilientyp-help">Art der Immobilie für Grundsteuerberechnung</div>
                         </div>
 
                         <div class="form-group">
