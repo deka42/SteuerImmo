@@ -2601,8 +2601,11 @@ Response:
                     jsPDFConstructor = jsPDF;
                 } else {
                     // Try to load jsPDF dynamically
-                    this.showToast('📥 Lade PDF-Bibliothek...', 'info');
-                    await this.loadJsPDFDynamic();
+                const doc = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
                     
                     if (window.jspdf && window.jspdf.jsPDF) {
                         jsPDFConstructor = window.jspdf.jsPDF;
@@ -2618,11 +2621,11 @@ Response:
                 const doc = new jsPDFConstructor();
                 // Header
                 doc.setFontSize(20);
-                doc.setTextColor(102, 126, 234);
+                doc.setTextColor('#667eea');
                 doc.text('🏠 Immobilien-Steuer-Suite 2025', 20, 30);
                 
                 doc.setFontSize(12);
-                doc.setTextColor(0);
+                doc.setTextColor('#000000');
                 doc.text('Ultimate Enterprise Edition - Steueroptimierung Bericht', 20, 40);
                 doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 20, 50);
 
@@ -2633,12 +2636,12 @@ Response:
                 let yPos = 70;
                 
                 doc.setFontSize(16);
-                doc.setTextColor(44, 62, 80);
+                doc.setTextColor('#2c3e50');
                 doc.text('Eingabedaten:', 20, yPos);
                 yPos += 15;
                 
                 doc.setFontSize(10);
-                doc.setTextColor(0);
+                doc.setTextColor('#000000');
                 doc.text(`Kaufpreis: ${this.formatCurrency(data.kaufpreis)}`, 25, yPos);
                 doc.text(`Verkaufspreis: ${this.formatCurrency(data.verkaufspreis)}`, 25, yPos + 10);
                 doc.text(`Haltedauer: ${data.haltedauer} Jahre`, 25, yPos + 20);
@@ -2654,19 +2657,19 @@ Response:
                     yPos += 60;
                     
                     doc.setFontSize(16);
-                    doc.setTextColor(44, 62, 80);
+                    doc.setTextColor('#2c3e50');
                     doc.text('Optimierungsergebnisse:', 20, yPos);
                     yPos += 15;
                     
                     // Best structure
                     const best = results.structures[0];
                     doc.setFontSize(12);
-                    doc.setTextColor(17, 153, 142);
+                    doc.setTextColor('#11998e');
                     doc.text(`BESTE OPTION: ${best.name}`, 25, yPos);
                     yPos += 10;
                     
                     doc.setFontSize(10);
-                    doc.setTextColor(0);
+                    doc.setTextColor('#000000');
                     doc.text(`Nettogewinn: ${this.formatCurrency(best.netProfit)}`, 25, yPos);
                     doc.text(`Steuersatz: ${best.taxRate.toFixed(1)}%`, 25, yPos + 10);
                     doc.text(`Steuerbelastung: ${this.formatCurrency(best.tax)}`, 25, yPos + 20);
@@ -2675,12 +2678,13 @@ Response:
                     
                     // All structures table
                     doc.setFontSize(12);
-                    doc.setTextColor(44, 62, 80);
+                    doc.setTextColor('#2c3e50');
                     doc.text('Alle Rechtsformen im Vergleich:', 20, yPos);
                     yPos += 15;
                     
                     // Table headers
                     doc.setFontSize(8);
+                    doc.setTextColor('#000000');
                     doc.text('Struktur', 25, yPos);
                     doc.text('Nettogewinn', 80, yPos);
                     doc.text('Steuer', 130, yPos);
@@ -2693,7 +2697,7 @@ Response:
                             yPos = 30;
                         }
                         
-                        doc.setTextColor(index === 0 ? [17, 153, 142] : [0, 0, 0]);
+                        doc.setTextColor(index === 0 ? '#11998e' : '#000000');
                         doc.text(structure.name.substring(0, 25), 25, yPos);
                         doc.text(this.formatCurrency(structure.netProfit), 80, yPos);
                         doc.text(this.formatCurrency(structure.tax), 130, yPos);
@@ -2709,7 +2713,7 @@ Response:
                 for (let i = 1; i <= pageCount; i++) {
                     doc.setPage(i);
                     doc.setFontSize(8);
-                    doc.setTextColor(108, 117, 125);
+                    doc.setTextColor('#6c757d');
                     doc.text(`Seite ${i} von ${pageCount}`, 20, 285);
                     doc.text('Immobilien-Steuer-Suite 2025 Ultimate Enterprise', 120, 285);
                 }
