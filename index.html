@@ -4058,21 +4058,20 @@
                                 <input type="number" id="grundstueckswert" class="form-input" value="420000" min="0" required>
                                 <span class="input-icon">€</span>
                             </div>
-                            <div class="form-help" id="grundstueckswert-help">Laut Grundsteuerwertbescheid 2022/2023</div>
+                            <div class="form-help">Laut Grundsteuerwertbescheid 2022/2023</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label" for="immobilientyp">
                                 <span>🏗️</span> Immobilientyp
                             </label>
-                            <select id="immobilientyp" class="form-select" aria-describedby="immobilientyp-help">
+                            <select id="immobilientyp" class="form-select">
                                 <option value="einfamilienhaus">Ein-/Zweifamilienhaus</option>
                                 <option value="mietwohnung" selected>Mietwohngrundstück</option>
                                 <option value="eigentumswohnung">Eigentumswohnung</option>
                                 <option value="gewerbe">Gewerbegrundstück</option>
                                 <option value="unbebaut">Unbebautes Grundstück</option>
                             </select>
-                            <div class="form-help" id="immobilientyp-help">Art der Immobilie für Grundsteuerberechnung</div>
                         </div>
 
                         <div class="form-group">
@@ -5440,121 +5439,6 @@
         // Critical calculation and data methods
         collectVerkaufData() {
             return {
-                kaufpreis: this.parseNumber(this.getElementValue('kaufpreis'), 0),
-                verkaufspreis: this.parseNumber(this.getElementValue('verkaufspreis'), 0),
-                nebenkostenKauf: this.parseNumber(this.getElementValue('nebenkosten_kauf'), 0),
-                nebenkostenVerkauf: this.parseNumber(this.getElementValue('nebenkosten_verkauf'), 0),
-                modernisierung: this.parseNumber(this.getElementValue('modernisierung'), 0),
-                haltedauer: this.parseNumber(this.getElementValue('haltedauer'), 0),
-                steuersatz: this.parseNumber(this.getElementValue('steuersatz'), 42),
-                kirchensteuer: this.parseNumber(this.getElementValue('kirchensteuer'), 8),
-                bundesland: this.getElementValue('bundesland', 'nw')
-            };
-        }
-
-        hasMinimumData(section) {
-            switch (section) {
-                case 'verkauf':
-                    return this.parseNumber(this.getElementValue('kaufpreis')) > 0 && 
-                           this.parseNumber(this.getElementValue('verkaufspreis')) > 0;
-                case 'grundsteuer':
-                    return this.parseNumber(this.getElementValue('grundstueckswert')) > 0;
-                case 'erbschaft':
-                    return this.parseNumber(this.getElementValue('immobilienwert_erbe')) > 0;
-                case 'schenkung':
-                    return this.parseNumber(this.getElementValue('schenkung_immobilienwert')) > 0;
-                case 'cashflow':
-                    return this.parseNumber(this.getElementValue('cf_jahresmiete')) > 0;
-                case 'strategie':
-                    return this.parseNumber(this.getElementValue('strategie_alter')) > 0;
-                default:
-                    return false;
-            }
-        }
-
-        collectAllFormData() {
-            const data = {};
-            document.querySelectorAll('input, select').forEach(element => {
-                if (element.id) {
-                    data[element.id] = element.value;
-                }
-            });
-            return data;
-        }
-
-        populateFormData(data) {
-            Object.entries(data).forEach(([id, value]) => {
-                const element = document.getElementById(id);
-                if (element) {
-                    element.value = value;
-                }
-            });
-        }
-
-        // Generate essential insights for dashboard
-        generateVerkaufInsights() {
-            const kaufpreis = this.parseNumber(this.getElementValue('kaufpreis'), 0);
-            const verkaufspreis = this.parseNumber(this.getElementValue('verkaufspreis'), 0);
-            const haltedauer = this.parseNumber(this.getElementValue('haltedauer'), 0);
-            
-            if (kaufpreis > 0 && verkaufspreis > 0) {
-                const gewinn = verkaufspreis - kaufpreis;
-                
-                if (haltedauer < 10 && gewinn > 0) {
-                    const restzeit = 10 - haltedauer;
-                    return `
-                        <div class="widget-item warning">
-                            <div style="font-weight: 600; color: #e67e22; margin-bottom: 5px;">⏰ Timing-Optimierung</div>
-                            <div style="font-size: 0.9em;">Noch ${restzeit.toFixed(1)} Jahre bis steuerfrei</div>
-                            <div style="font-weight: 600; color: #27ae60; margin-top: 5px;">
-                                💰 Ersparnis: ${this.formatCurrency(gewinn * 0.4)}
-                            </div>
-                        </div>
-                        <div class="widget-item">
-                            <div style="font-weight: 600; color: #3498db; margin-bottom: 5px;">🏆 BFH 2025</div>
-                            <div style="font-size: 0.9em;">VV GmbH & Co. KG gewerbesteuerfrei</div>
-                            <div style="font-weight: 600; color: #3498db; margin-top: 5px;">
-                                Sofort optimieren
-                            </div>
-                        </div>
-                    `;
-                } else if (haltedauer >= 10) {
-                    return `
-                        <div class="widget-item success">
-                            <div style="font-weight: 600; color: #27ae60; margin-bottom: 5px;">🎉 Steuerfrei!</div>
-                            <div style="font-size: 0.9em;">10-Jahres-Frist erreicht</div>
-                            <div style="font-weight: 600; color: #27ae60; margin-top: 5px;">
-                                ${this.formatCurrency(gewinn)} steuerfrei
-                            </div>
-                        </div>
-                        <div class="widget-item">
-                            <div style="font-weight: 600; color: #3498db; margin-bottom: 5px;">🏆 Optimaler Zeitpunkt</div>
-                            <div style="font-size: 0.9em;">Verkauf jetzt steuerfrei</div>
-                            <div style="font-weight: 600; color: #3498db; margin-top: 5px;">
-                                Keine Spekulationssteuer
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    return `
-                        <div class="widget-item success">
-                            <div style="font-weight: 600; color: #27ae60; margin-bottom: 5px;">💰 Gewinn: ${this.formatCurrency(gewinn)}</div>
-                            <div style="font-size: 0.9em;">Geschätzter Verkaufsgewinn</div>
-                        </div>
-                        <div class="widget-item">
-                            <div style="font-weight: 600; color: #3498db; margin-bottom: 5px;">🏆 BFH 2025</div>
-                            <div style="font-size: 0.9em;">VV GmbH & Co. KG optimal</div>
-                            <div style="font-weight: 600; color: #3498db; margin-top: 5px;">
-                                Gewerbesteuerfrei
-                            </div>
-                        </div>
-                    `;
-                }
-            }
-            
-            return this.generateDefaultInsights();
-        }
-
         // Generate insights for different sections
         generateVerkaufInsights() {
             try {
