@@ -3408,9 +3408,7 @@
                 this.showToast('❌ Fehler bei der Berechnung: ' + error.message, 'error');
             } finally {
                 // Always hide progress, regardless of success or failure
-                setTimeout(() => {
-                    this.hideCalculationProgress();
-                }, 500);
+                this.hideCalculationProgress();
             }
         }
 
@@ -3718,55 +3716,50 @@
         }
 
         hideCalculationProgress() {
-            try {
-                // Clear timeout first
-                if (this.progressTimeout) {
-                    clearTimeout(this.progressTimeout);
-                    this.progressTimeout = null;
-                }
+            // Clear timeout first
+            if (this.progressTimeout) {
+                clearTimeout(this.progressTimeout);
+                this.progressTimeout = null;
+            }
+            
+            // Multiple attempts to hide the overlay
+            const overlay = document.getElementById('progress-overlay');
+            if (overlay) {
+                // Method 1: Standard hiding
+                overlay.classList.add('d-none');
+                overlay.style.display = 'none';
+                overlay.style.visibility = 'hidden';
                 
-                // Multiple attempts to hide the overlay
-                const overlay = document.getElementById('progress-overlay');
-                if (overlay) {
-                    // Method 1: Standard hiding
-                    overlay.classList.add('d-none');
+                // Method 2: Force hide with important styles
+                overlay.setAttribute('style', 'display: none !important; visibility: hidden !important;');
+                
+                // Method 3: Remove from DOM temporarily then restore (nuclear option)
+                setTimeout(() => {
+                    if (overlay.style.display !== 'none') {
+                        const parent = overlay.parentNode;
+                        const nextSibling = overlay.nextSibling;
+                        parent.removeChild(overlay);
+                        setTimeout(() => {
+                            parent.insertBefore(overlay, nextSibling);
+                            overlay.classList.add('d-none');
+                            overlay.style.display = 'none';
+                        }, 100);
+                    }
+                }, 100);
+            }
                     overlay.style.display = 'none';
-                    overlay.style.visibility = 'hidden';
-                    
-                    // Method 2: Force hide with important styles
-                    overlay.setAttribute('style', 'display: none !important; visibility: hidden !important;');
-                    
-                    // Method 3: Nuclear option if still visible
-                    setTimeout(() => {
-                        if (overlay.offsetParent !== null) {
-                            const parent = overlay.parentNode;
-                            const nextSibling = overlay.nextSibling;
-                            parent.removeChild(overlay);
-                            setTimeout(() => {
-                                parent.insertBefore(overlay, nextSibling);
-                                overlay.classList.add('d-none');
-                                overlay.style.display = 'none';
-                            }, 100);
-                        }
-                    }, 100);
                 }
-            } catch (error) {
-                console.error('Progress hide error:', error);
-                        overlay.style.visibility = 'hidden';
-                        overlay.classList.add('d-none');
-                // Force hide even if error occurs
-                try {
-                    console.error('Force hide failed:', e);
-                    // Last resort - try to find and hide any progress overlay
-                    const overlays = document.querySelectorAll('[id*="progress"]');
-                    overlays.forEach(el => {
-                        try {
-                            el.style.display = 'none';
-                        } catch (err) {
-                            // Silent fail
-                        }
-                    });
-                }
+            } catch (e) {
+                console.error('Force hide failed:', e);
+                // Last resort - try to find and hide any progress overlay
+                const overlays = document.querySelectorAll('[id*="progress"]');
+                overlays.forEach(el => {
+                    try {
+                        el.style.display = 'none';
+                    } catch (err) {
+                        // Silent fail
+                    }
+                });
             }
         }
 
@@ -5465,6 +5458,67 @@
         // Critical calculation and data methods
         collectVerkaufData() {
             return {
+                kaufpreis: this.parseNumber(this.getElementValue('kaufpreis'), 0),
+                verkaufspreis: this.parseNumber(this.getElementValue('verkaufspreis'), 0),
+                nebenkostenKauf: this.parseNumber(this.getElementValue('nebenkosten_kauf'), 0),
+                nebenkostenVerkauf: this.parseNumber(this.getElementValue('nebenkosten_verkauf'), 0),
+                modernisierung: this.parseNumber(this.getElementValue('modernisierung'), 0),
+                haltedauer: this.parseNumber(this.getElementValue('haltedauer'), 0),
+                steuersatz: this.parseNumber(this.getElementValue('steuersatz'), 42),
+                kirchensteuer: this.parseNumber(this.getElementValue('kirchensteuer'), 8),
+                bundesland: this.getElementValue('bundesland', 'nw')
+            };
+        }
+
+        collectAllFormData() {
+            const allInputs = document.querySelectorAll('input, select');
+            const data = {};
+            
+            allInputs.forEach(input => {
+                if (input.id) {
+                    data[input.id] = input.value;
+                }
+            });
+            
+            return data;
+        }
+
+        populateFormData(data) {
+            Object.entries(data).forEach(([key, value]) => {
+                const element = document.getElementById(key);
+                if (element && value !== null && value !== undefined) {
+                    element.value = value;
+                }
+            });
+        }
+
+        hasMinimumData(section) {
+            const requirements = {
+                'verkauf': ['kaufpreis', 'verkaufspreis'],
+                'grundsteuer': ['grundstueckswert'],
+                'erbschaft': ['immobilienwert_erbe'],
+                'schenkung': ['schenkung_immobilienwert'],
+                'cashflow': ['cf_jahresmiete'],
+                'strategie': ['strategie_alter']
+            };
+            
+            const required = requirements[section] || [];
+            return required.every(field => {
+                const value = this.parseNumber(this.getElementValue(field), 0);
+                return value > 0;
+            });
+        }
+
+        getSectionName(section) {
+            const names = {
+                'verkauf': 'Verkaufssteuer',
+                'grundsteuer': 'Grundsteuer',
+                'erbschaft': 'Erbschaftsteuer',
+                'schenkung': 'Schenkungssteuer',
+                'cashflow': 'Cash-Flow',
+                'strategie': 'Gesamtstrategie'
+            };
+            return names[section] || section;
         // Generate insights for different sections
         generateVerkaufInsights() {
             try {
