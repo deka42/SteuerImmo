@@ -3408,7 +3408,9 @@
                 this.showToast('❌ Fehler bei der Berechnung: ' + error.message, 'error');
             } finally {
                 // Always hide progress, regardless of success or failure
-                this.hideCalculationProgress();
+                setTimeout(() => {
+                    this.hideCalculationProgress();
+                }, 500);
             }
         }
 
