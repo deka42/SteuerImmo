@@ -3702,14 +3702,14 @@
                     progressText.textContent = text;
                     progressFill.style.width = percentage + '%';
                     
-                    // Failsafe: Auto-hide after 10 seconds
+                    // Failsafe: Auto-hide after 5 seconds
                     if (this.progressTimeout) {
                         clearTimeout(this.progressTimeout);
                     }
                     this.progressTimeout = setTimeout(() => {
                         this.hideCalculationProgress();
                         this.showToast('⚠️ Berechnung dauerte zu lange - bitte erneut versuchen', 'warning');
-                    }, 10000);
+                    }, 5000);
                 }
             } catch (error) {
                 console.error('Progress display error:', error);
@@ -3718,30 +3718,37 @@
         }
 
         hideCalculationProgress() {
-            try {
-                const overlay = document.getElementById('progress-overlay');
-                if (overlay) {
-                    overlay.classList.add('d-none');
-                    overlay.style.display = 'none';
-                }
-                
-                // Clear timeout
-                if (this.progressTimeout) {
-                    clearTimeout(this.progressTimeout);
-                    this.progressTimeout = null;
-                }
-            } catch (error) {
-                console.error('Progress hide error:', error);
+            // Clear timeout first
+            if (this.progressTimeout) {
+                clearTimeout(this.progressTimeout);
+                this.progressTimeout = null;
             }
             
-            // Force hide even if error occurs - separate try block
-            try {
-                const overlay = document.getElementById('progress-overlay');
-                if (overlay) {
-                    overlay.style.display = 'none';
-                    overlay.classList.add('d-none');
-                    // Force remove any inline styles that might interfere
-                    overlay.removeAttribute('style');
+            // Multiple attempts to hide the overlay
+            const overlay = document.getElementById('progress-overlay');
+            if (overlay) {
+                // Method 1: Standard hiding
+                overlay.classList.add('d-none');
+                overlay.style.display = 'none';
+                overlay.style.visibility = 'hidden';
+                
+                // Method 2: Force hide with important styles
+                overlay.setAttribute('style', 'display: none !important; visibility: hidden !important;');
+                
+                // Method 3: Remove from DOM temporarily then restore (nuclear option)
+                setTimeout(() => {
+                    if (overlay.style.display !== 'none') {
+                        const parent = overlay.parentNode;
+                        const nextSibling = overlay.nextSibling;
+                        parent.removeChild(overlay);
+                        setTimeout(() => {
+                            parent.insertBefore(overlay, nextSibling);
+                            overlay.classList.add('d-none');
+                            overlay.style.display = 'none';
+                        }, 100);
+                    }
+                }, 100);
+            }
                     overlay.style.display = 'none';
                 }
             } catch (e) {
