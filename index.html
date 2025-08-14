@@ -3666,8 +3666,16 @@ List available plugins
             // Real-time validation setup
             this.setupRealtimeValidation();
             
-            // Navigation - Setup with retry mechanism
-            this.setupNavigation();
+            // Navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const section = link.getAttribute('data-section');
+                    if (section) {
+                        this.navigateToSection(section);
+                    }
+                });
+            });
 
             // Plugin items
             document.querySelectorAll('.plugin-item').forEach(item => {
@@ -3730,6 +3738,47 @@ List available plugins
             });
 
             console.log('✅ Enhanced event listeners setup completed');
+        }
+
+        setupNavigation() {
+            const setupNavLinks = () => {
+                const navLinks = document.querySelectorAll('.nav-link');
+                console.log(`Found ${navLinks.length} navigation links`);
+                
+                navLinks.forEach((link, index) => {
+                    const section = link.getAttribute('data-section');
+                    console.log(`Setting up nav link ${index}: ${section}`);
+                    
+                    // Remove existing listeners
+                    const newLink = link.cloneNode(true);
+                    link.parentNode.replaceChild(newLink, link);
+                    
+                    // Add new listener
+                    newLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        console.log(`Navigation clicked: ${section}`);
+                        if (section) {
+                            this.navigateToSection(section);
+                        }
+                    });
+                    
+                    // Add keyboard support
+                    newLink.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            if (section) {
+                                this.navigateToSection(section);
+                            }
+                        }
+                    });
+                });
+            };
+            
+            // Try to setup navigation immediately
+            setupNavLinks();
+            
+            // Also setup after a delay to catch dynamically loaded content
+            setTimeout(setupNavLinks, 1000);
         }
 
         setupRealtimeValidation() {
