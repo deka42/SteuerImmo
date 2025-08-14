@@ -3477,6 +3477,15 @@ List available plugins
                 this.gaTracker.trackUserJourney('app_start', 'initialization_started');
                 
                 await this.initializeWebWorker();
+                
+                // Initialize Google Analytics
+                this.gaTracker.init();
+                
+                // Load initial content
+                this.currentSection = 'verkauf';
+                this.loadSectionContent('verkauf');
+                
+                // Setup other components
                 this.setupEventListeners();
                 this.setupKeyboardShortcuts();
                 this.setupScenarios();
@@ -3485,12 +3494,6 @@ List available plugins
                 this.loadSavedData();
                 this.setupAutoSave();
                 this.setupPerformanceMonitoring();
-                
-                // Initialize Google Analytics
-                this.gaTracker.init();
-                
-                // Load initial content
-                this.loadSectionContent('verkauf');
                 
                 this.showToast('🚀 Ultimate Enterprise Suite Enhanced geladen', 'success');
                 this.updatePerformanceIndicator('Ready');
@@ -4551,14 +4554,8 @@ List available plugins
         }
 
         getCurrentSection() {
-            if (this.currentSection) {
-                return this.currentSection;
-            }
-            
             const activeLink = document.querySelector('.nav-link.active');
-            const section = activeLink ? activeLink.getAttribute('data-section') : 'verkauf';
-            this.currentSection = section;
-            return section;
+            return activeLink ? activeLink.getAttribute('data-section') : 'verkauf';
         }
 
         setupSectionSpecificHandlers(section) {
