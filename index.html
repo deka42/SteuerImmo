@@ -3666,16 +3666,8 @@ List available plugins
             // Real-time validation setup
             this.setupRealtimeValidation();
             
-            // Navigation
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const section = link.getAttribute('data-section');
-                    if (section) {
-                        this.navigateToSection(section);
-                    }
-                });
-            });
+            // Navigation - Setup with retry mechanism
+            this.setupNavigation();
 
             // Plugin items
             document.querySelectorAll('.plugin-item').forEach(item => {
@@ -3738,47 +3730,6 @@ List available plugins
             });
 
             console.log('✅ Enhanced event listeners setup completed');
-        }
-
-        setupNavigation() {
-            const setupNavLinks = () => {
-                const navLinks = document.querySelectorAll('.nav-link');
-                console.log(`Found ${navLinks.length} navigation links`);
-                
-                navLinks.forEach((link, index) => {
-                    const section = link.getAttribute('data-section');
-                    console.log(`Setting up nav link ${index}: ${section}`);
-                    
-                    // Remove existing listeners
-                    const newLink = link.cloneNode(true);
-                    link.parentNode.replaceChild(newLink, link);
-                    
-                    // Add new listener
-                    newLink.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        console.log(`Navigation clicked: ${section}`);
-                        if (section) {
-                            this.navigateToSection(section);
-                        }
-                    });
-                    
-                    // Add keyboard support
-                    newLink.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            if (section) {
-                                this.navigateToSection(section);
-                            }
-                        }
-                    });
-                });
-            };
-            
-            // Try to setup navigation immediately
-            setupNavLinks();
-            
-            // Also setup after a delay to catch dynamically loaded content
-            setTimeout(setupNavLinks, 1000);
         }
 
         setupRealtimeValidation() {
@@ -4531,21 +4482,42 @@ List available plugins
 
         // Navigation and Content Loading
         navigateToSection(section) {
+            console.log(`Navigating to section: ${section}`);
+            
             // Track section navigation
             this.gaTracker.trackUserJourney('navigation', 'section_changed', {
                 from_section: this.getCurrentSection(),
                 to_section: section
             });
             
+            // Update navigation UI
+            this.updateNavigationUI(section);
+            
+            // Load section content
+            this.loadSectionContent(section);
+            
+            // Update current section
+            this.currentSection = section;
+            
+            this.showToast(`📍 Navigation zu ${this.getSectionDisplayName(section)}`, 'info');
+        }
+        
+        updateNavigationUI(activeSection) {
             // Save current section data before switching
             this.saveCurrentSectionData();
             
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
+                link.setAttribute('aria-current', 'false');
             });
+            
             const activeLink = document.querySelector(`[data-section="${section}"]`);
             if (activeLink) {
                 activeLink.classList.add('active');
+                activeLink.setAttribute('aria-current', 'page');
+                console.log(`Activated nav link for: ${activeSection}`);
+            } else {
+                console.warn(`No nav link found for section: ${activeSection}`);
             }
             
             this.loadSectionContent(section);
@@ -4553,14 +4525,28 @@ List available plugins
             // Restore data for the new section after content is loaded
             setTimeout(() => {
                 this.restoreSectionData(section);
-            }, 100);
-            
-            this.showToast(`📍 Navigation zu ${section}`, 'info');
+        }
+        
+        getSectionDisplayName(section) {
+            const names = {
+                'verkauf': 'Verkaufssteuer',
+                'grundsteuer': 'Grundsteuer',
+                'erbschaft': 'Erbschaftsteuer',
+                'schenkung': 'Schenkungssteuer',
+                'cashflow': 'Cash-Flow Analyse',
+                'strategie': 'Gesamtstrategie'
+            };
+            return names[section] || section;
         }
 
         loadSectionContent(section) {
             const contentArea = document.getElementById('dynamic-content');
-            if (!contentArea) return;
+            if (!contentArea) {
+                console.error('Content area not found');
+                return;
+            }
+            
+            console.log(`Loading content for section: ${section}`);
             
             // Track page view for section
             this.gaTracker.trackPageView(`Section: ${section}`, 'Tax Calculation');
@@ -4587,15 +4573,21 @@ List available plugins
                     content = this.generateStrategieContent();
                     break;
                 default:
+                    console.warn(`Unknown section: ${section}, loading verkauf`);
                     content = this.generateVerkaufContent();
             }
             
+            // Add loading animation
+            contentArea.style.opacity = '0.5';
             contentArea.innerHTML = content;
             
-            // Re-setup event listeners for new content
+            // Restore section data and setup event listeners
             setTimeout(() => {
+                contentArea.style.opacity = '1';
                 this.setupRealtimeValidation();
                 this.setupSectionSpecificHandlers(section);
+                this.restoreSectionData(section);
+                console.log(`Content loaded and setup completed for: ${section}`);
             }, 100);
         }
 
