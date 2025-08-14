@@ -5473,6 +5473,67 @@
         }
 
         collectAllFormData() {
+            const formData = {};
+            const inputs = document.querySelectorAll('input, select');
+            
+            inputs.forEach(input => {
+                if (input.id) {
+                    formData[input.id] = input.value;
+                }
+            });
+            
+            return formData;
+        }
+
+        populateFormData(data) {
+            Object.entries(data).forEach(([key, value]) => {
+                const element = document.getElementById(key);
+                if (element && value !== null && value !== undefined) {
+                    element.value = value;
+                }
+            });
+        }
+
+        hasMinimumData(section) {
+            const requirements = {
+                'verkauf': ['kaufpreis', 'verkaufspreis'],
+                'grundsteuer': ['grundstueckswert'],
+                'erbschaft': ['immobilienwert_erbe'],
+                'schenkung': ['schenkung_immobilienwert'],
+                'cashflow': ['cf_jahresmiete'],
+                'strategie': ['strategie_alter']
+            };
+            
+            const required = requirements[section] || [];
+            return required.every(field => {
+                const value = this.parseNumber(this.getElementValue(field), 0);
+                return value > 0;
+            });
+        }
+
+        getSectionName(section) {
+            const names = {
+                'verkauf': 'Verkaufssteuer',
+                'grundsteuer': 'Grundsteuer',
+                'erbschaft': 'Erbschaftsteuer',
+                'schenkung': 'Schenkungssteuer',
+                'cashflow': 'Cash-Flow',
+                'strategie': 'Gesamtstrategie'
+            };
+            return names[section] || section;
+                kaufpreis: this.parseNumber(this.getElementValue('kaufpreis'), 0),
+                verkaufspreis: this.parseNumber(this.getElementValue('verkaufspreis'), 0),
+                nebenkostenKauf: this.parseNumber(this.getElementValue('nebenkosten_kauf'), 0),
+                nebenkostenVerkauf: this.parseNumber(this.getElementValue('nebenkosten_verkauf'), 0),
+                modernisierung: this.parseNumber(this.getElementValue('modernisierung'), 0),
+                haltedauer: this.parseNumber(this.getElementValue('haltedauer'), 0),
+                steuersatz: this.parseNumber(this.getElementValue('steuersatz'), 42),
+                kirchensteuer: this.parseNumber(this.getElementValue('kirchensteuer'), 8),
+                bundesland: this.getElementValue('bundesland', 'nw')
+            };
+        }
+
+        collectAllFormData() {
             const allInputs = document.querySelectorAll('input, select');
             const data = {};
             
