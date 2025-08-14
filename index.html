@@ -2923,7 +2923,7 @@
         hideResults() {
             const overlay = document.getElementById('test-overlay');
             if (overlay) {
-                overlay.remove();
+                overlay.style.display = 'none';
             }
         }
 
@@ -3071,11 +3071,10 @@
                 
                 // Initialize core modules with simplified approach
                 this.initializeCoreModules();
-                
+        document.addEventListener('DOMContentLoaded', function() {
                 // Initialize essential UI components
                 this.initializeUIComponents();
                 
-                // Load saved data
                 this.loadSavedData();
                 
                 // Setup event listeners
@@ -3086,13 +3085,12 @@
                 
                 // Initialize first view
                 this.navigate('verkauf');
+                // Hide loading screen immediately
+                hideLoadingScreen();
+                console.log('Application initialized successfully');
                 
-                // Hide loading screen
-                this.hideLoadingScreen();
-                
-                this.showToast('🚀 Immobilien-Suite 2025 Enterprise geladen', 'success');
-                
-                console.log('✅ Enterprise Suite initialized successfully');
+                // Load saved data after a short delay
+                setTimeout(loadSavedData, 100);
                 
             } catch (error) {
                 console.error('Initialization error:', error);
