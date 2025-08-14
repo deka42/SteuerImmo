@@ -53,10 +53,12 @@ body.dark-mode {
 }
 
 .dark-mode .header h1 {
-    background: linear-gradient(45deg, #74b9ff, #0984e3);
+    background: linear-gradient(45deg, #74b9ff, #00cec9);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    /* Fallback für bessere Lesbarkeit */
+    color: #74b9ff;
 }
 
 .header p {
@@ -66,7 +68,9 @@ body.dark-mode {
 }
 
 .dark-mode .header p {
-    color: #ecf0f1;
+    color: #ddd;
+    opacity: 1;
+    font-weight: 500;
 }
 
 /* Dark Mode Toggle */
