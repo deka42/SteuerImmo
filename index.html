@@ -6120,9 +6120,6 @@ List available plugins
 
         // Reset Methods
         resetForm() {
-            // Save current section before reset
-            const currentSection = this.getCurrentSection();
-            
             this.saveCurrentState();
             
             const inputs = document.querySelectorAll('.form-input, .form-select');
@@ -6142,16 +6139,8 @@ List available plugins
                 this.clearFieldError(input);
             });
 
-            const resultsContainer = document.getElementById('results-container');
-            if (resultsContainer) {
-                resultsContainer.innerHTML = '';
-            }
+            document.getElementById('results-container').innerHTML = '';
             this.updateAnalytics({ structures: [] }, 0);
-            
-            // Clear section data for current section
-            if (currentSection) {
-                this.sectionData.delete(currentSection);
-            }
             
             this.showToast('🔄 Formular zurückgesetzt', 'info');
         }
@@ -6159,6 +6148,7 @@ List available plugins
         resetAll() {
             this.resetForm();
             this.cache.clear();
+            this.sectionData.clear();
             this.appState.history = [];
             this.appState.historyIndex = -1;
             this.updateHistoryButtons();
