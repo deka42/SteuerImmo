@@ -3261,23 +3261,10 @@
         }
 
         /**
-         * Hide loading screen
-         */
-        hideLoadingScreen() {
-            const content = document.getElementById('app-content');
-            if (content) {
-                const loadingContainer = content.querySelector('.loading-container');
-                if (loadingContainer) {
-                    loadingContainer.style.display = 'none';
-                }
-            }
-        }
-
-        /**
          * Enhanced calculation with comprehensive error handling
          * @returns {Promise<void>}
          */
-        calculateVerkauf() {
+        async calculateVerkauf() {
             console.log('🧮 Starting calculation...');
             
             // Clear any existing timeouts
@@ -3308,7 +3295,7 @@
                 console.log('🔄 Starting actual calculation...');
                 const results = this.performSyncCalculation(data);
                 console.log('✓ Calculation completed:', results);
-                const results = this.performSyncCalculation(data);
+                
                 this.showCalculationProgress('Erstelle Ergebnisse...', 90);
                 
                 // Display results
@@ -3318,7 +3305,12 @@
                 
                 this.showCalculationProgress('Berechnung abgeschlossen!', 100);
                 
-                }, 200);
+                // Hide progress after short delay
+                setTimeout(() => {
+                    this.hideCalculationProgress();
+                    this.showToast('🧮 Berechnung erfolgreich abgeschlossen', 'success');
+                    console.log('✅ Calculation process completed successfully');
+                }, 800);
                 
             } catch (error) {
                 console.error('❌ Calculation error:', error);
@@ -3478,9 +3470,9 @@
         /**
          * Perform the actual tax calculation
          * @param {Object} data - Input data
-         * @returns {Promise<Object>} Calculation results
+         * @returns {Object} Calculation results
          */
-        async performActualCalculation(data) {
+        performSyncCalculation(data) {
             console.log('🔢 Starting tax calculation with data:', data);
             
             try {
