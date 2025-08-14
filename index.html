@@ -3425,7 +3425,7 @@
                 console.error('Grundsteuer calculation error:', error);
                 this.showToast('❌ Fehler bei der Grundsteuer-Berechnung: ' + error.message, 'error');
             } finally {
-                this.hideCalculationProgress();
+                setTimeout(() => this.hideCalculationProgress(), 500);
             }
         }
 
@@ -3440,7 +3440,7 @@
                 console.error('Erbschaft calculation error:', error);
                 this.showToast('❌ Fehler bei der Erbschaftsteuer-Berechnung: ' + error.message, 'error');
             } finally {
-                setTimeout(() => this.hideCalculationProgress(), 500);
+                this.hideCalculationProgress();
             }
         }
 
