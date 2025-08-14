@@ -19,6 +19,99 @@
 <meta name="author" content="Immobilien-Steuer-Suite Ultimate Enhanced">
 <meta name="robots" content="index, follow">
 
+<!-- Google Analytics 4 (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    
+    // Initialize GA4 with enhanced configuration
+    gtag('config', 'GA_MEASUREMENT_ID', {
+        // Enhanced Measurement
+        enhanced_measurement: true,
+        
+        // Privacy Settings (GDPR Compliant)
+        anonymize_ip: true,
+        allow_ad_personalization_signals: false,
+        allow_google_signals: false,
+        
+        // Custom Configuration
+        custom_map: {
+            'custom_parameter_1': 'calculation_type',
+            'custom_parameter_2': 'user_segment',
+            'custom_parameter_3': 'feature_usage'
+        },
+        
+        // Enhanced E-commerce for Premium Features
+        send_page_view: true,
+        
+        // Performance Tracking
+        site_speed_sample_rate: 100
+    });
+
+    // GDPR Consent Management
+    window.cookieConsent = {
+        analytics: false,
+        marketing: false,
+        functional: true
+    };
+
+    // Initialize analytics only with consent
+    function initializeAnalytics() {
+        if (window.cookieConsent.analytics) {
+            gtag('consent', 'update', {
+                'analytics_storage': 'granted'
+            });
+        }
+    }
+
+    // Custom Event Tracking Functions
+    window.trackEvent = function(eventName, parameters = {}) {
+        if (window.cookieConsent.analytics) {
+            gtag('event', eventName, {
+                event_category: parameters.category || 'User Interaction',
+                event_label: parameters.label || '',
+                value: parameters.value || 0,
+                custom_parameter_1: parameters.calculation_type || '',
+                custom_parameter_2: parameters.user_segment || '',
+                custom_parameter_3: parameters.feature_usage || '',
+                ...parameters
+            });
+        }
+    };
+
+    // Enhanced E-commerce Tracking
+    window.trackPurchase = function(transactionId, items, value) {
+        if (window.cookieConsent.analytics) {
+            gtag('event', 'purchase', {
+                transaction_id: transactionId,
+                value: value,
+                currency: 'EUR',
+                items: items
+            });
+        }
+    };
+
+    // User Engagement Tracking
+    window.trackEngagement = function(engagementTime, scrollDepth) {
+        if (window.cookieConsent.analytics) {
+            gtag('event', 'user_engagement', {
+                engagement_time_msec: engagementTime,
+                scroll_depth: scrollDepth,
+                event_category: 'Engagement'
+            });
+        }
+    };
+</script>
+
+<!-- Google Tag Manager (Optional for advanced tracking) -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-XXXXXXX');</script>
+
 <!-- Favicon -->
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏠</text></svg>">
 
@@ -2058,7 +2151,473 @@ List available plugins
      * With all improvements and suggestions integrated
      */
     
-    // Enhanced Error Handler
+    // Enhanced Google Analytics Tracker
+    class GoogleAnalyticsTracker {
+        constructor() {
+            this.isInitialized = false;
+            this.sessionStartTime = Date.now();
+            this.pageLoadTime = performance.timing ? 
+                performance.timing.loadEventEnd - performance.timing.navigationStart : 0;
+            this.userSegment = this.determineUserSegment();
+            this.setupEngagementTracking();
+            this.setupPerformanceTracking();
+        }
+
+        init() {
+            if (typeof gtag !== 'undefined' && window.cookieConsent.analytics) {
+                this.isInitialized = true;
+                this.trackPageLoad();
+                this.trackUserSegment();
+                console.log('✅ Google Analytics tracking initialized');
+            }
+        }
+
+        // Core Event Tracking
+        trackEvent(eventName, parameters = {}) {
+            if (!this.isInitialized || typeof gtag === 'undefined') return;
+
+            const enrichedParams = {
+                ...parameters,
+                user_segment: this.userSegment,
+                session_duration: this.getSessionDuration(),
+                page_load_time: this.pageLoadTime,
+                timestamp: new Date().toISOString()
+            };
+
+            gtag('event', eventName, enrichedParams);
+            console.log(`📊 Analytics Event: ${eventName}`, enrichedParams);
+        }
+
+        // Tax Calculation Tracking
+        trackCalculation(calculationType, inputData, results) {
+            this.trackEvent('tax_calculation', {
+                event_category: 'Tax Calculations',
+                calculation_type: calculationType,
+                input_value: inputData.verkaufspreis || inputData.immobilienwert || 0,
+                calculation_complexity: this.getCalculationComplexity(inputData),
+                result_count: results?.structures?.length || 0,
+                max_savings: results?.totalSavings || 0,
+                calculation_time: results?.calculationTime || 0,
+                cache_hit: results?.cacheHit || false
+            });
+
+            // Track specific calculation milestones
+            if (inputData.verkaufspreis > 1000000) {
+                this.trackEvent('high_value_calculation', {
+                    event_category: 'Premium Usage',
+                    value: inputData.verkaufspreis
+                });
+            }
+        }
+
+        // User Journey Tracking
+        trackUserJourney(step, action, details = {}) {
+            this.trackEvent('user_journey', {
+                event_category: 'User Journey',
+                journey_step: step,
+                journey_action: action,
+                ...details
+            });
+        }
+
+        // Feature Usage Tracking
+        trackFeatureUsage(feature, action, value = null) {
+            this.trackEvent('feature_usage', {
+                event_category: 'Feature Interaction',
+                feature_name: feature,
+                feature_action: action,
+                feature_value: value,
+                user_segment: this.userSegment
+            });
+        }
+
+        // PDF Export Tracking
+        trackPDFExport(success, calculationType, dataSize) {
+            this.trackEvent('pdf_export', {
+                event_category: 'Document Generation',
+                export_success: success,
+                calculation_type: calculationType,
+                data_size: dataSize,
+                export_timestamp: new Date().toISOString()
+            });
+
+            if (success) {
+                // Track as conversion
+                this.trackConversion('pdf_generated', 1);
+            }
+        }
+
+        // Error Tracking
+        trackError(errorType, errorMessage, errorContext = {}) {
+            this.trackEvent('error_occurred', {
+                event_category: 'Errors',
+                error_type: errorType,
+                error_message: errorMessage.substring(0, 150), // Limit length
+                error_context: JSON.stringify(errorContext).substring(0, 500),
+                user_agent: navigator.userAgent.substring(0, 100)
+            });
+        }
+
+        // Performance Tracking
+        trackPerformance(metricName, value, context = {}) {
+            this.trackEvent('performance_metric', {
+                event_category: 'Performance',
+                metric_name: metricName,
+                metric_value: value,
+                ...context
+            });
+        }
+
+        // Conversion Tracking
+        trackConversion(conversionType, value = 1) {
+            this.trackEvent('conversion', {
+                event_category: 'Conversions',
+                conversion_type: conversionType,
+                value: value,
+                user_segment: this.userSegment
+            });
+        }
+
+        // Plugin Usage Tracking
+        trackPluginUsage(pluginName, action) {
+            this.trackEvent('plugin_interaction', {
+                event_category: 'Plugins',
+                plugin_name: pluginName,
+                plugin_action: action,
+                user_segment: this.userSegment
+            });
+        }
+
+        // Search and Discovery
+        trackSearch(searchType, searchQuery, resultsCount) {
+            this.trackEvent('site_search', {
+                event_category: 'Search',
+                search_type: searchType,
+                search_term: searchQuery,
+                results_count: resultsCount
+            });
+        }
+
+        // Engagement Tracking
+        setupEngagementTracking() {
+            let maxScrollDepth = 0;
+            let totalTimeOnPage = 0;
+            let lastActiveTime = Date.now();
+
+            // Scroll depth tracking
+            window.addEventListener('scroll', () => {
+                const scrollPercent = Math.round(
+                    (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100
+                );
+                maxScrollDepth = Math.max(maxScrollDepth, scrollPercent);
+            });
+
+            // Time on page tracking
+            setInterval(() => {
+                if (document.hasFocus()) {
+                    totalTimeOnPage += 1000;
+                    lastActiveTime = Date.now();
+                }
+            }, 1000);
+
+            // Page unload tracking
+            window.addEventListener('beforeunload', () => {
+                this.trackEngagement(totalTimeOnPage, maxScrollDepth);
+            });
+
+            // Periodic engagement tracking (every 30 seconds)
+            setInterval(() => {
+                if (Date.now() - lastActiveTime < 5000) { // Active in last 5 seconds
+                    this.trackEngagement(totalTimeOnPage, maxScrollDepth);
+                }
+            }, 30000);
+        }
+
+        trackEngagement(timeOnPage, scrollDepth) {
+            this.trackEvent('user_engagement', {
+                event_category: 'Engagement',
+                engagement_time_msec: timeOnPage,
+                scroll_depth: scrollDepth,
+                session_duration: this.getSessionDuration()
+            });
+        }
+
+        // Advanced User Segmentation
+        determineUserSegment() {
+            const userAgent = navigator.userAgent;
+            const screenWidth = window.screen.width;
+            const language = navigator.language;
+            
+            let segment = 'standard_user';
+
+            // Device-based segmentation
+            if (screenWidth < 768) segment = 'mobile_user';
+            else if (screenWidth > 1920) segment = 'desktop_power_user';
+
+            // Professional vs Personal use detection
+            if (userAgent.includes('Chrome') && screenWidth > 1440) {
+                segment = 'professional_user';
+            }
+
+            // International users
+            if (!language.startsWith('de')) {
+                segment = 'international_user';
+            }
+
+            return segment;
+        }
+
+        // Performance Monitoring
+        setupPerformanceTracking() {
+            // Core Web Vitals
+            if ('PerformanceObserver' in window) {
+                // Largest Contentful Paint (LCP)
+                new PerformanceObserver((list) => {
+                    for (const entry of list.getEntries()) {
+                        this.trackPerformance('LCP', entry.startTime, {
+                            element: entry.element?.tagName || 'unknown'
+                        });
+                    }
+                }).observe({ entryTypes: ['largest-contentful-paint'] });
+
+                // First Input Delay (FID)
+                new PerformanceObserver((list) => {
+                    for (const entry of list.getEntries()) {
+                        this.trackPerformance('FID', entry.processingStart - entry.startTime);
+                    }
+                }).observe({ entryTypes: ['first-input'] });
+
+                // Cumulative Layout Shift (CLS)
+                new PerformanceObserver((list) => {
+                    let clsValue = 0;
+                    for (const entry of list.getEntries()) {
+                        if (!entry.hadRecentInput) {
+                            clsValue += entry.value;
+                        }
+                    }
+                    if (clsValue > 0) {
+                        this.trackPerformance('CLS', clsValue);
+                    }
+                }).observe({ entryTypes: ['layout-shift'] });
+            }
+
+            // Custom performance metrics
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    const perfData = performance.getEntriesByType('navigation')[0];
+                    if (perfData) {
+                        this.trackPerformance('DOM_Load', perfData.domContentLoadedEventEnd - perfData.domContentLoadedEventStart);
+                        this.trackPerformance('Page_Load', perfData.loadEventEnd - perfData.loadEventStart);
+                        this.trackPerformance('DNS_Lookup', perfData.domainLookupEnd - perfData.domainLookupStart);
+                    }
+                }, 1000);
+            });
+        }
+
+        // Helper Methods
+        getSessionDuration() {
+            return Math.round((Date.now() - this.sessionStartTime) / 1000);
+        }
+
+        getCalculationComplexity(inputData) {
+            let complexity = 'basic';
+            const keys = Object.keys(inputData);
+            
+            if (keys.length > 8) complexity = 'advanced';
+            if (inputData.verkaufspreis > 1000000) complexity = 'high_value';
+            if (inputData.international) complexity = 'international';
+            
+            return complexity;
+        }
+
+        // A/B Testing Support
+        trackExperiment(experimentName, variant) {
+            this.trackEvent('experiment_exposure', {
+                event_category: 'Experiments',
+                experiment_name: experimentName,
+                experiment_variant: variant
+            });
+        }
+
+        // Custom Dimensions for Business Intelligence
+        setCustomDimensions(userId, userType, subscriptionLevel) {
+            if (this.isInitialized) {
+                gtag('config', 'GA_MEASUREMENT_ID', {
+                    custom_map: {
+                        dimension1: userId,
+                        dimension2: userType,
+                        dimension3: subscriptionLevel,
+                        dimension4: this.userSegment
+                    }
+                });
+            }
+        }
+
+        // Enhanced E-commerce for Premium Features
+        trackPremiumFeatureUsage(featureName, featureValue) {
+            this.trackEvent('premium_feature_usage', {
+                event_category: 'Premium Features',
+                item_name: featureName,
+                value: featureValue,
+                currency: 'EUR'
+            });
+        }
+
+        // Funnel Tracking
+        trackFunnelStep(funnelName, stepNumber, stepName, completed = false) {
+            this.trackEvent('funnel_step', {
+                event_category: 'Conversion Funnel',
+                funnel_name: funnelName,
+                funnel_step: stepNumber,
+                step_name: stepName,
+                step_completed: completed
+            });
+        }
+
+        // Page/Section Tracking
+        trackPageView(pageName, pageCategory) {
+            if (this.isInitialized) {
+                gtag('config', 'GA_MEASUREMENT_ID', {
+                    page_title: pageName,
+                    page_location: window.location.href,
+                    content_group1: pageCategory
+                });
+            }
+        }
+
+        trackPageLoad() {
+            this.trackEvent('page_load_complete', {
+                event_category: 'Page Performance',
+                page_load_time: this.pageLoadTime,
+                user_segment: this.userSegment
+            });
+        }
+
+        trackUserSegment() {
+            this.trackEvent('user_segment_identified', {
+                event_category: 'User Segmentation',
+                segment: this.userSegment,
+                screen_resolution: `${window.screen.width}x${window.screen.height}`,
+                language: navigator.language
+            });
+        }
+    }
+
+    // GDPR Cookie Consent Banner
+    class CookieConsentManager {
+        constructor() {
+            this.consentGiven = false;
+            this.showBanner();
+        }
+
+        showBanner() {
+            // Only show if consent not already given
+            const existingConsent = localStorage.getItem('cookie_consent');
+            if (existingConsent) {
+                const consent = JSON.parse(existingConsent);
+                window.cookieConsent = consent;
+                if (consent.analytics) {
+                    this.initializeAnalytics();
+                }
+                return;
+            }
+
+            const banner = document.createElement('div');
+            banner.id = 'cookie-consent-banner';
+            banner.style.cssText = `
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 1rem 2rem;
+                z-index: 10000;
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 1rem;
+            `;
+
+            banner.innerHTML = `
+                <div style="flex: 1; min-width: 300px;">
+                    <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem;">🍪 Cookie-Einstellungen</h3>
+                    <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">
+                        Wir verwenden Cookies für Analytics und zur Verbesserung der Benutzererfahrung. 
+                        Sie können Ihre Präferenzen jederzeit anpassen.
+                    </p>
+                </div>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button id="accept-all-cookies" style="background: white; color: #667eea; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                        Alle akzeptieren
+                    </button>
+                    <button id="accept-necessary-cookies" style="background: transparent; color: white; border: 2px solid white; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                        Nur notwendige
+                    </button>
+                    <button id="customize-cookies" style="background: transparent; color: white; border: 1px solid rgba(255,255,255,0.5); padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer;">
+                        Anpassen
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(banner);
+
+            // Event listeners
+            document.getElementById('accept-all-cookies').onclick = () => this.acceptAll();
+            document.getElementById('accept-necessary-cookies').onclick = () => this.acceptNecessary();
+            document.getElementById('customize-cookies').onclick = () => this.showCustomizeModal();
+        }
+
+        acceptAll() {
+            window.cookieConsent = {
+                analytics: true,
+                marketing: true,
+                functional: true
+            };
+            this.saveConsent();
+            this.initializeAnalytics();
+            this.removeBanner();
+        }
+
+        acceptNecessary() {
+            window.cookieConsent = {
+                analytics: false,
+                marketing: false,
+                functional: true
+            };
+            this.saveConsent();
+            this.removeBanner();
+        }
+
+        showCustomizeModal() {
+            // Implementation for detailed cookie preferences
+            this.acceptNecessary(); // Fallback for now
+        }
+
+        saveConsent() {
+            localStorage.setItem('cookie_consent', JSON.stringify(window.cookieConsent));
+            localStorage.setItem('cookie_consent_date', new Date().toISOString());
+        }
+
+        initializeAnalytics() {
+            if (typeof gtag !== 'undefined') {
+                gtag('consent', 'update', {
+                    'analytics_storage': 'granted',
+                    'ad_storage': window.cookieConsent.marketing ? 'granted' : 'denied'
+                });
+            }
+        }
+
+        removeBanner() {
+            const banner = document.getElementById('cookie-consent-banner');
+            if (banner) {
+                banner.style.transform = 'translateY(100%)';
+                setTimeout(() => banner.remove(), 300);
+            }
+        }
+    }
     class EnhancedErrorHandler {
         constructor() {
             this.errorLog = [];
@@ -2857,6 +3416,10 @@ List available plugins
             this.appState = new ApplicationState();
             this.calculationEngine = new TaxCalculationEngine();
             
+            // Google Analytics Integration
+            this.gaTracker = new GoogleAnalyticsTracker();
+            this.cookieManager = new CookieConsentManager();
+            
             this.init();
         }
 
@@ -2864,6 +3427,9 @@ List available plugins
             console.log('🚀 Initializing Ultimate Enterprise Suite Enhanced...');
             
             try {
+                // Track app initialization
+                this.gaTracker.trackUserJourney('app_start', 'initialization_started');
+                
                 await this.initializeWebWorker();
                 this.setupEventListeners();
                 this.setupKeyboardShortcuts();
@@ -2874,16 +3440,26 @@ List available plugins
                 this.setupAutoSave();
                 this.setupPerformanceMonitoring();
                 
+                // Initialize Google Analytics
+                this.gaTracker.init();
+                
                 // Load initial content
                 this.loadSectionContent('verkauf');
                 
                 this.showToast('🚀 Ultimate Enterprise Suite Enhanced geladen', 'success');
                 this.updatePerformanceIndicator('Ready');
                 
+                // Track successful initialization
+                this.gaTracker.trackUserJourney('app_start', 'initialization_completed', {
+                    version: this.version,
+                    load_time: Date.now() - this.analytics.startTime
+                });
+                
                 console.log('✅ Ultimate Suite Enhanced initialized successfully');
             } catch (error) {
                 console.error('❌ Initialization error:', error);
                 this.errorHandler.logError(error);
+                this.gaTracker.trackError('initialization_error', error.message, { version: this.version });
                 this.showToast('❌ Fehler beim Laden: ' + error.message, 'danger');
                 this.updatePerformanceIndicator('Error', 'error');
             }
@@ -3251,7 +3827,14 @@ List available plugins
                 
                 const data = this.collectFormData();
                 
+                // Track calculation start
+                this.gaTracker.trackUserJourney('calculation', 'calculation_started', {
+                    calculation_type: 'verkaufssteuer',
+                    input_value: data.verkaufspreis || 0
+                });
+                
                 if (!this.validateFormData(data)) {
+                    this.gaTracker.trackError('validation_error', 'Form validation failed', data);
                     throw new Error('Bitte korrigieren Sie die Eingabefehler');
                 }
 
@@ -3266,6 +3849,11 @@ List available plugins
                     results = this.cache.get(cacheKey);
                     this.analytics.cacheHits++;
                     this.showProgress('Cache-Treffer gefunden...', 60);
+                    
+                    // Track cache hit
+                    this.gaTracker.trackPerformance('cache_hit', 1, {
+                        calculation_type: 'verkaufssteuer'
+                    });
                 } else {
                     results = await this.calculateInWorker(data);
                     this.cache.set(cacheKey, results);
@@ -3280,6 +3868,18 @@ List available plugins
                 this.displayResults(results);
                 this.updateAnalytics(results, calculationTime);
                 
+                // Track successful calculation
+                this.gaTracker.trackCalculation('verkaufssteuer', data, results);
+                this.gaTracker.trackPerformance('calculation_time', calculationTime);
+                
+                // Track funnel step completion
+                this.gaTracker.trackFunnelStep('tax_optimization', 2, 'calculation_completed', true);
+                
+                // Track conversion if significant savings
+                if (results.totalSavings > 10000) {
+                    this.gaTracker.trackConversion('significant_savings_found', results.totalSavings);
+                }
+                
                 this.showProgress('Fertig!', 100);
                 
                 setTimeout(() => {
@@ -3291,6 +3891,10 @@ List available plugins
                 console.error('❌ Calculation error:', error);
                 this.analytics.errors++;
                 this.errorHandler.logError(error);
+                this.gaTracker.trackError('calculation_error', error.message, {
+                    calculation_type: 'verkaufssteuer',
+                    calculation_time: performance.now() - startTime
+                });
                 this.hideProgress();
                 this.updatePerformanceIndicator('Fehler', 'error');
                 this.showToast('❌ Berechnung fehlgeschlagen: ' + error.message, 'danger');
@@ -3462,6 +4066,12 @@ List available plugins
                 const data = this.collectFormData();
                 const results = this.cache.get(JSON.stringify(data));
                 
+                // Track PDF export start
+                this.gaTracker.trackUserJourney('pdf_export', 'export_started', {
+                    calculation_type: 'verkaufssteuer',
+                    has_results: !!results
+                });
+                
                 this.showProgress('Generiere PDF...', 50);
                 
                 const pdfData = {
@@ -3475,6 +4085,11 @@ List available plugins
                 
                 this.showProgress('Download startet...', 100);
                 
+                // Track successful PDF export
+                this.gaTracker.trackPDFExport(true, 'verkaufssteuer', JSON.stringify(pdfData).length);
+                this.gaTracker.trackConversion('pdf_download', 1);
+                this.gaTracker.trackFunnelStep('tax_optimization', 3, 'pdf_exported', true);
+                
                 setTimeout(() => {
                     this.hideProgress();
                     this.showToast(`📄 PDF-Bericht "${result.filename}" erfolgreich erstellt`, 'success');
@@ -3483,6 +4098,8 @@ List available plugins
             } catch (error) {
                 console.error('PDF Export Error:', error);
                 this.errorHandler.logError(error);
+                this.gaTracker.trackPDFExport(false, 'verkaufssteuer', 0);
+                this.gaTracker.trackError('pdf_export_error', error.message);
                 this.hideProgress();
                 this.showToast('❌ PDF-Export fehlgeschlagen: ' + error.message, 'danger');
             }
@@ -3754,16 +4371,22 @@ List available plugins
             const plugin = this.plugins.get(pluginId);
             if (plugin) {
                 try {
+                    // Track plugin usage
+                    this.gaTracker.trackPluginUsage(plugin.name, 'loaded');
+                    this.gaTracker.trackFeatureUsage('plugin_system', 'plugin_activated', pluginId);
+                    
                     plugin.load();
                     this.showToast(`🔌 Plugin "${plugin.name}" v${plugin.version} geladen`, 'success');
                 } catch (error) {
                     this.errorHandler.logError(error);
+                    this.gaTracker.trackError('plugin_load_error', error.message, { plugin: pluginId });
                     this.showToast(`❌ Fehler beim Laden von Plugin "${plugin.name}": ${error.message}`, 'danger');
                 }
             }
         }
 
         loadBundeslandAnalyzer() {
+            this.gaTracker.trackFeatureUsage('bundesland_analyzer', 'opened');
             this.showModal('comparison-modal');
             document.getElementById('comparison-content').innerHTML = `
                 <h3>🗺️ Bundesland-Steuer-Vergleich</h3>
@@ -3792,6 +4415,7 @@ List available plugins
         }
 
         loadInflationCalculator() {
+            this.gaTracker.trackFeatureUsage('inflation_calculator', 'activated');
             const checkbox = document.getElementById('inflation-adjustment');
             if (checkbox) {
                 checkbox.checked = true;
@@ -3800,16 +4424,26 @@ List available plugins
         }
 
         loadAIOptimizer() {
+            this.gaTracker.trackFeatureUsage('ai_optimizer', 'activated');
+            this.gaTracker.trackPremiumFeatureUsage('AI Optimizer', 1);
             this.updatePerformanceIndicator('KI-Modus aktiv');
             this.showToast('🤖 KI-Optimierer aktiviert - Erweiterte Berechnungen verfügbar', 'success');
         }
 
         loadInternationalTax() {
+            this.gaTracker.trackFeatureUsage('international_tax', 'activated');
+            this.gaTracker.trackPremiumFeatureUsage('International Tax', 1);
             this.showToast('🌍 International Tax Plugin aktiviert - Cross-Border Strukturen verfügbar', 'success');
         }
 
         // Navigation and Content Loading
         navigateToSection(section) {
+            // Track section navigation
+            this.gaTracker.trackUserJourney('navigation', 'section_changed', {
+                from_section: this.getCurrentSection(),
+                to_section: section
+            });
+            
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
             });
@@ -3825,6 +4459,9 @@ List available plugins
         loadSectionContent(section) {
             const contentArea = document.getElementById('dynamic-content');
             if (!contentArea) return;
+            
+            // Track page view for section
+            this.gaTracker.trackPageView(`Section: ${section}`, 'Tax Calculation');
             
             let content = '';
             
@@ -3858,6 +4495,11 @@ List available plugins
                 this.setupRealtimeValidation();
                 this.setupSectionSpecificHandlers(section);
             }, 100);
+        }
+
+        getCurrentSection() {
+            const activeLink = document.querySelector('.nav-link.active');
+            return activeLink ? activeLink.getAttribute('data-section') : 'verkauf';
         }
 
         setupSectionSpecificHandlers(section) {
@@ -5916,7 +6558,6 @@ List available plugins
     console.log('⌨️ Keyboard shortcuts available - Press F1 for help');
     console.log('🔧 Enhanced with all suggested improvements and enterprise features');
 </script>
-```
 
 </body>
 </html>
