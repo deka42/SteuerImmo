@@ -6868,15 +6868,10 @@
         
         // Auto-hide progress overlay on any error
         try {
-            if (window.appInstance && window.appInstance.hideCalculationProgress) {
-                window.appInstance.hideCalculationProgress();
-            } else {
-                // Fallback if appInstance not available
-                const overlay = document.getElementById('progress-overlay');
-                if (overlay) {
-                    overlay.style.display = 'none';
-                    overlay.classList.add('d-none');
-                }
+            const overlay = document.getElementById('progress-overlay');
+            if (overlay && !overlay.classList.contains('d-none')) {
+                overlay.classList.add('d-none');
+                overlay.style.display = 'none';
             }
         } catch (e) {
             console.error('Error hiding progress overlay:', e);
@@ -6894,10 +6889,15 @@
         
         // Auto-hide progress overlay
         try {
-            const overlay = document.getElementById('progress-overlay');
-            if (overlay && !overlay.classList.contains('d-none')) {
-                overlay.classList.add('d-none');
-                overlay.style.display = 'none';
+            if (window.appInstance && window.appInstance.hideCalculationProgress) {
+                window.appInstance.hideCalculationProgress();
+            } else {
+                // Fallback
+                const overlay = document.getElementById('progress-overlay');
+                if (overlay) {
+                    overlay.style.display = 'none';
+                    overlay.classList.add('d-none');
+                }
             }
         } catch (e) {
             console.error('Error hiding progress overlay:', e);
