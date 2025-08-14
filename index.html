@@ -3474,43 +3474,41 @@ List available plugins
             console.log('🚀 Initializing Ultimate Enterprise Suite Enhanced...');
             
             try {
-                // Initialize core components first
-                this.setupScenarios();
-                this.setupEventListeners();
+                // Track app initialization
+                this.gaTracker.trackUserJourney('app_start', 'initialization_started');
                 
-                // Load initial content immediately
+                await this.initializeWebWorker();
+                this.setupEventListeners();
+                this.setupKeyboardShortcuts();
+                this.setupScenarios();
+                this.setupPluginArchitecture();
+                this.initializeAnalytics();
+                this.loadSavedData();
+                this.setupAutoSave();
+                this.setupPerformanceMonitoring();
+                
+                // Initialize Google Analytics
+                this.gaTracker.init();
+                
+                // Load initial content
                 this.loadSectionContent('verkauf');
+                
+                this.showToast('🚀 Ultimate Enterprise Suite Enhanced geladen', 'success');
                 this.updatePerformanceIndicator('Ready');
                 
-                // Initialize other components asynchronously
-                setTimeout(async () => {
-                    try {
-                        await this.initializeWebWorker();
-                        this.setupKeyboardShortcuts();
-                        this.setupPluginArchitecture();
-                        this.initializeAnalytics();
-                        this.loadSavedData();
-                        this.setupAutoSave();
-                        this.setupPerformanceMonitoring();
-                        
-                        // Initialize Google Analytics
-                        if (this.gaTracker) {
-                            this.gaTracker.init();
-                        }
-                        
-                        this.showToast('🚀 Ultimate Enterprise Suite Enhanced geladen', 'success');
-                        console.log('✅ Ultimate Suite Enhanced initialized successfully');
-                    } catch (error) {
-                        console.warn('Some features may not be available:', error);
-                    }
-                }, 100);
+                // Track successful initialization
+                this.gaTracker.trackUserJourney('app_start', 'initialization_completed', {
+                    version: this.version,
+                    load_time: Date.now() - this.analytics.startTime
+                });
                 
+                console.log('✅ Ultimate Suite Enhanced initialized successfully');
             } catch (error) {
                 console.error('❌ Initialization error:', error);
-                // Still load basic content even if initialization fails
-                this.loadSectionContent('verkauf');
-                this.updatePerformanceIndicator('Teilweise geladen', 'warning');
-                this.showToast('⚠️ Einige Features sind möglicherweise nicht verfügbar', 'warning');
+                this.errorHandler.logError(error);
+                this.gaTracker.trackError('initialization_error', error.message, { version: this.version });
+                this.showToast('❌ Fehler beim Laden: ' + error.message, 'danger');
+                this.updatePerformanceIndicator('Error', 'error');
             }
         }
 
@@ -3666,9 +3664,6 @@ List available plugins
         }
 
         setupEventListenersInternal() {
-            // Real-time validation setup
-            this.setupRealtimeValidation();
-            
             // Navigation
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.addEventListener('click', (e) => {
@@ -3680,6 +3675,9 @@ List available plugins
                 });
             });
 
+            // Real-time validation setup (after navigation is set up)
+            setTimeout(() => this.setupRealtimeValidation(), 100);
+            
             // Plugin items
             document.querySelectorAll('.plugin-item').forEach(item => {
                 item.addEventListener('keydown', (e) => {
