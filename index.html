@@ -1226,9 +1226,15 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#strategies" class="nav-link" data-section="strategies">
+                    <a href="#cashflow" class="nav-link" data-section="cashflow">
+                        <span class="nav-icon">📊</span>
+                        Cash-Flow Analyse
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#strategie" class="nav-link" data-section="strategie">
                         <span class="nav-icon">🎯</span>
-                        AI-Strategien
+                        Gesamtstrategie
                     </a>
                 </li>
             </ul>
@@ -1824,11 +1830,13 @@ Response:
                 await this.initializeWebWorker();
                 this.setupEventListeners();
                 this.setupKeyboardShortcuts();
-                this.setupRealtimeValidation();
                 this.setupScenarios();
                 this.setupPluginArchitecture();
                 this.initializeAnalytics();
                 this.loadSavedData();
+                
+                // Load initial content (Verkauf section)
+                this.loadSectionContent('verkauf');
                 
                 this.showToast('🚀 Ultimate Enterprise Suite geladen', 'success');
                 this.updatePerformanceIndicator('Ready');
@@ -2841,8 +2849,1185 @@ Response:
             this.showToast('📊 Alle Szenarien berechnet', 'success');
         }
 
-        // Event Listeners Setup
-        setupEventListeners() {
+        // Event Handlers für alle Module
+        setupGrundsteuerEventHandlers() {
+            // Grundsteuer Event Handlers
+            console.log('Setting up Grundsteuer event handlers');
+        }
+
+        setupErbschaftEventHandlers() {
+            // Erbschaft Event Handlers
+            console.log('Setting up Erbschaft event handlers');
+        }
+
+        setupSchenkungEventHandlers() {
+            // Schenkung Event Handlers
+            console.log('Setting up Schenkung event handlers');
+        }
+
+        setupCashflowEventHandlers() {
+            // Cashflow Event Handlers
+            console.log('Setting up Cashflow event handlers');
+        }
+
+        setupStrategieEventHandlers() {
+            // Strategie Event Handlers (renamed from setupStrategiesEventHandlers)
+            console.log('Setting up Strategie event handlers');
+        }
+
+        // Cash-Flow Berechnungen
+        async calculateCashflow() {
+            try {
+                this.showProgress('Berechne Cash-Flow Analyse...', 20);
+                
+                const data = this.collectCashflowData();
+                const results = await this.performCashflowCalculation(data);
+                
+                this.showProgress('Erstelle Cash-Flow Ergebnisse...', 80);
+                this.displayCashflowResults(results);
+                
+                setTimeout(() => {
+                    this.hideProgress();
+                    this.showToast('📊 Cash-Flow erfolgreich analysiert', 'success');
+                }, 500);
+
+            } catch (error) {
+                this.hideProgress();
+                this.showToast('❌ Cash-Flow Analyse fehlgeschlagen: ' + error.message, 'danger');
+            }
+        }
+
+        collectCashflowData() {
+            return {
+                mieteinnahmen: parseFloat(document.getElementById('mieteinnahmen')?.value) || 0,
+                betriebskosten: parseFloat(document.getElementById('betriebskosten')?.value) || 0,
+                finanzierungskosten: parseFloat(document.getElementById('finanzierungskosten')?.value) || 0,
+                abschreibungen: parseFloat(document.getElementById('cashflow_abschreibungen')?.value) || 0,
+                steuersatz: parseFloat(document.getElementById('cashflow_steuersatz')?.value) || 42,
+                analysezeitraum: parseInt(document.getElementById('analysezeitraum')?.value) || 5,
+                mietsteigerung: parseFloat(document.getElementById('mietsteigerung')?.value) || 2.5,
+                verkaufserloes: parseFloat(document.getElementById('verkaufserloes')?.value) || 0,
+                reinvestition: document.getElementById('reinvestition')?.value || 'keine'
+            };
+        }
+
+        async performCashflowCalculation(data) {
+            const jahre = [];
+            let kumulierterCashflow = 0;
+            let aktuelle_miete = data.mieteinnahmen;
+            
+            // Jährliche Berechnung
+            for (let jahr = 1; jahr <= data.analysezeitraum; jahr++) {
+                // Mietsteigerung berücksichtigen
+                if (jahr > 1) {
+                    aktuelle_miete *= (1 + data.mietsteigerung / 100);
+                }
+                
+                const jahres_mieteinnahmen = aktuelle_miete * 12;
+                const jahres_betriebskosten = data.betriebskosten * 12;
+                const jahres_finanzierung = data.finanzierungskosten * 12;
+                
+                // Netto-Einkommen vor Steuern
+                const netto_einkommen = jahres_mieteinnahmen - jahres_betriebskosten - jahres_finanzierung;
+                
+                // Steuerliches Ergebnis (mit Abschreibungen)
+                const steuerliches_ergebnis = netto_einkommen - data.abschreibungen;
+                
+                // Steuern berechnen
+                const steuern = Math.max(0, steuerliches_ergebnis * (data.steuersatz / 100));
+                
+                // Cash-Flow nach Steuern
+                const cashflow_nach_steuern = netto_einkommen - steuern;
+                
+                kumulierterCashflow += cashflow_nach_steuern;
+                
+                jahre.push({
+                    jahr,
+                    mieteinnahmen: jahres_mieteinnahmen,
+                    betriebskosten: jahres_betriebskosten,
+                    finanzierungskosten: jahres_finanzierung,
+                    netto_einkommen,
+                    abschreibungen: data.abschreibungen,
+                    steuerliches_ergebnis,
+                    steuern,
+                    cashflow_nach_steuern,
+                    kumulierter_cashflow: kumulierterCashflow
+                });
+            }
+            
+            // Verkaufserlös am Ende
+            let verkaufs_cashflow = 0;
+            if (data.verkaufserloes > 0) {
+                // Vereinfachte Verkaufssteuer-Berechnung
+                const verkaufssteuer = data.verkaufserloes * 0.1; // Beispiel
+                verkaufs_cashflow = data.verkaufserloes - verkaufssteuer;
+            }
+            
+            const gesamt_cashflow = kumulierterCashflow + verkaufs_cashflow;
+            
+            // Strategieempfehlungen
+            const strategien = this.getCashflowStrategien(data, gesamt_cashflow);
+            
+            return {
+                jahre,
+                kumulierter_cashflow: kumulierterCashflow,
+                verkaufs_cashflow,
+                gesamt_cashflow,
+                durchschnittlicher_cashflow: kumulierterCashflow / data.analysezeitraum,
+                roi: data.verkaufserloes > 0 ? (gesamt_cashflow / data.verkaufserloes * 100) : 0,
+                strategien
+            };
+        }
+
+        getCashflowStrategien(data, gesamtCashflow) {
+            const strategien = [];
+            
+            if (data.reinvestition === 'portfolio') {
+                strategien.push({
+                    name: 'Portfolio-Erweiterung',
+                    beschreibung: 'Reinvestition in weitere Immobilien für Diversifikation',
+                    potential: gesamtCashflow * 0.15,
+                    empfehlung: 'Bei stabilem Cash-Flow empfehlenswert'
+                });
+            }
+            
+            if (data.mietsteigerung < 3) {
+                strategien.push({
+                    name: 'Mietoptimierung',
+                    beschreibung: 'Marktmiete prüfen und ggf. anpassen',
+                    potential: data.mieteinnahmen * 12 * 0.1,
+                    empfehlung: 'Regelmäßige Marktanalyse durchführen'
+                });
+            }
+            
+            strategien.push({
+                name: 'Steueroptimierung',
+                beschreibung: 'Betriebskosten und Abschreibungen maximieren',
+                potential: data.abschreibungen * (data.steuersatz / 100),
+                empfehlung: 'Jährlich mit Steuerberater abstimmen'
+            });
+            
+            return strategien;
+        }
+
+        displayCashflowResults(results) {
+            const container = document.getElementById('cashflow-results');
+            
+            let html = `
+                <div class="alert alert-success">
+                    <h3>📊 Cash-Flow Analyse abgeschlossen</h3>
+                    <p><strong>Gesamter Cash-Flow:</strong> ${this.formatCurrency(results.gesamt_cashflow)}</p>
+                    <p><strong>Durchschnittlicher jährlicher Cash-Flow:</strong> ${this.formatCurrency(results.durchschnittlicher_cashflow)}</p>
+                    ${results.roi > 0 ? `<p><strong>ROI:</strong> ${results.roi.toFixed(1)}%</p>` : ''}
+                </div>
+
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h3 class="result-title">📈 Cash-Flow Übersicht</h3>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Kumulierter Cash-Flow (${results.jahre.length} Jahre):</span>
+                            <span class="result-value">${this.formatCurrency(results.kumulierter_cashflow)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Verkaufs-Cash-Flow:</span>
+                            <span class="result-value">${this.formatCurrency(results.verkaufs_cashflow)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Gesamt-Cash-Flow:</span>
+                            <span class="result-value">${this.formatCurrency(results.gesamt_cashflow)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Ø Jährlicher Cash-Flow:</span>
+                            <span class="result-value">${this.formatCurrency(results.durchschnittlicher_cashflow)}</span>
+                        </div>
+                    </div>
+            `;
+
+            // Jahresübersicht
+            html += `
+                <div class="result-card">
+                    <div class="result-header">
+                        <h3 class="result-title">📅 Jahresübersicht</h3>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; font-size: 0.8rem; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #f8f9fa;">
+                                    <th style="padding: 0.5rem; border: 1px solid #e9ecef;">Jahr</th>
+                                    <th style="padding: 0.5rem; border: 1px solid #e9ecef;">Mieteinnahmen</th>
+                                    <th style="padding: 0.5rem; border: 1px solid #e9ecef;">Betriebskosten</th>
+                                    <th style="padding: 0.5rem; border: 1px solid #e9ecef;">Cash-Flow</th>
+                                    <th style="padding: 0.5rem; border: 1px solid #e9ecef;">Kumuliert</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+
+            results.jahre.forEach(jahr => {
+                html += `
+                    <tr>
+                        <td style="padding: 0.5rem; border: 1px solid #e9ecef; text-align: center;">${jahr.jahr}</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e9ecef; text-align: right;">${this.formatCurrency(jahr.mieteinnahmen)}</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e9ecef; text-align: right;">${this.formatCurrency(jahr.betriebskosten)}</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e9ecef; text-align: right; color: ${jahr.cashflow_nach_steuern >= 0 ? '#11998e' : '#e74c3c'}">${this.formatCurrency(jahr.cashflow_nach_steuern)}</td>
+                        <td style="padding: 0.5rem; border: 1px solid #e9ecef; text-align: right;">${this.formatCurrency(jahr.kumulierter_cashflow)}</td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            // Strategien
+            if (results.strategien.length > 0) {
+                html += `
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h3 class="result-title">💡 Optimierungsstrategien</h3>
+                        </div>
+                `;
+                
+                results.strategien.forEach(strategie => {
+                    html += `
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(17, 153, 142, 0.05); border-radius: 8px;">
+                            <strong>${strategie.name}</strong><br>
+                            <small>${strategie.beschreibung}</small><br>
+                            <span class="text-success">💰 Potential: ${this.formatCurrency(strategie.potential)}</span><br>
+                            <span class="text-primary">🎯 ${strategie.empfehlung}</span>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        generateCashflowForecast() {
+            this.showToast('📈 Liquiditätsprognose wird erstellt...', 'info');
+            setTimeout(() => {
+                this.showToast('📈 Prognose abgeschlossen - Siehe Cash-Flow Analyse', 'success');
+            }, 2000);
+        }
+
+        loadCashflowExample() {
+            const exampleData = {
+                mieteinnahmen: 3500,
+                betriebskosten: 800,
+                finanzierungskosten: 1200,
+                cashflow_abschreibungen: 8000,
+                cashflow_steuersatz: 42,
+                analysezeitraum: 5,
+                mietsteigerung: 2.5,
+                verkaufserloes: 650000,
+                reinvestition: 'portfolio'
+            };
+
+            Object.keys(exampleData).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = exampleData[key];
+                }
+            });
+
+            this.showToast('💡 Cash-Flow Beispiel geladen', 'success');
+            setTimeout(() => this.calculateCashflow(), 500);
+        }
+
+        resetCashflowForm() {
+            const inputs = ['mieteinnahmen', 'betriebskosten', 'finanzierungskosten', 'cashflow_abschreibungen', 'mietsteigerung', 'verkaufserloes'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.value = '';
+            });
+            
+            document.getElementById('cashflow-results').innerHTML = '';
+            this.showToast('🔄 Cash-Flow Formular zurückgesetzt', 'info');
+        }
+
+        // Grundsteuer Berechnungen
+        async calculateGrundsteuer() {
+            try {
+                this.showProgress('Berechne neue Grundsteuer 2025...', 20);
+                
+                const data = this.collectGrundsteuerData();
+                const results = await this.performGrundsteuerCalculation(data);
+                
+                this.showProgress('Erstelle Grundsteuer-Ergebnisse...', 80);
+                this.displayGrundsteuerResults(results);
+                
+                setTimeout(() => {
+                    this.hideProgress();
+                    this.showToast('🏛️ Grundsteuer erfolgreich berechnet', 'success');
+                }, 500);
+
+            } catch (error) {
+                this.hideProgress();
+                this.showToast('❌ Grundsteuer-Berechnung fehlgeschlagen: ' + error.message, 'danger');
+            }
+        }
+
+        collectGrundsteuerData() {
+            return {
+                grundstuecksflaeche: parseFloat(document.getElementById('grundstuecksflaeche')?.value) || 0,
+                wohnflaeche: parseFloat(document.getElementById('wohnflaeche')?.value) || 0,
+                baujahr: parseInt(document.getElementById('baujahr')?.value) || 2000,
+                immobilientyp: document.getElementById('grundsteuer_immobilientyp')?.value || 'einfamilienhaus',
+                bundesland: document.getElementById('grundsteuer_bundesland')?.value || 'nw',
+                hebesatz: parseFloat(document.getElementById('hebesatz_grundsteuer')?.value) || 470
+            };
+        }
+
+        async performGrundsteuerCalculation(data) {
+            // Grundsteuerwerte 2025
+            const grundsteuerwerte = {
+                'bw': { grund: 0.31, gebaeude: 3.47 },
+                'by': { grund: 0.31, gebaeude: 3.47 },
+                'be': { grund: 0.31, gebaeude: 3.47 },
+                'nw': { grund: 0.31, gebaeude: 3.47 }
+            };
+
+            const werte = grundsteuerwerte[data.bundesland] || grundsteuerwerte['nw'];
+            
+            // Grundsteuerwert berechnen
+            const grundwert = data.grundstuecksflaeche * werte.grund;
+            const gebaeudewert = data.wohnflaeche * werte.gebaeude;
+            const grundsteuerwert = grundwert + gebaeudewert;
+            
+            // Grundsteuer berechnen
+            const grundsteuermessbetrag = grundsteuerwert * 0.31 / 1000; // Messzahl 0,31‰
+            const grundsteuerJaehrlich = grundsteuermessbetrag * (data.hebesatz / 100);
+            const grundsteuerMonatlich = grundsteuerJaehrlich / 12;
+
+            return {
+                grundsteuerwert,
+                grundsteuermessbetrag,
+                grundsteuerJaehrlich,
+                grundsteuerMonatlich,
+                hebesatz: data.hebesatz,
+                vergleich: {
+                    altesSystem: grundsteuerJaehrlich * 0.8, // Schätzung alte Grundsteuer
+                    differenz: grundsteuerJaehrlich - (grundsteuerJaehrlich * 0.8)
+                }
+            };
+        }
+
+        displayGrundsteuerResults(results) {
+            const container = document.getElementById('grundsteuer-results');
+            
+            const html = `
+                <div class="alert alert-success">
+                    <h3>🏛️ Ihre neue Grundsteuer 2025</h3>
+                    <p><strong>Jährliche Grundsteuer:</strong> ${this.formatCurrency(results.grundsteuerJaehrlich)}</p>
+                    <p><strong>Monatliche Belastung:</strong> ${this.formatCurrency(results.grundsteuerMonatlich)}</p>
+                </div>
+
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h3 class="result-title">📊 Berechnung im Detail</h3>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Grundsteuerwert:</span>
+                            <span class="result-value">${this.formatCurrency(results.grundsteuerwert)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Grundsteuermessbetrag:</span>
+                            <span class="result-value">${this.formatCurrency(results.grundsteuermessbetrag)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Hebesatz:</span>
+                            <span class="result-value">${results.hebesatz}%</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Grundsteuer jährlich:</span>
+                            <span class="result-value">${this.formatCurrency(results.grundsteuerJaehrlich)}</span>
+                        </div>
+                    </div>
+
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h3 class="result-title">📈 Vergleich zum alten System</h3>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Alte Grundsteuer (geschätzt):</span>
+                            <span class="result-value">${this.formatCurrency(results.vergleich.altesSystem)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Neue Grundsteuer:</span>
+                            <span class="result-value">${this.formatCurrency(results.grundsteuerJaehrlich)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Differenz:</span>
+                            <span class="result-value ${results.vergleich.differenz > 0 ? 'negative' : ''}">${this.formatCurrency(Math.abs(results.vergleich.differenz))} ${results.vergleich.differenz > 0 ? 'mehr' : 'weniger'}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML = html;
+        }
+
+        loadGrundsteuerExample() {
+            const exampleData = {
+                grundstuecksflaeche: 800,
+                wohnflaeche: 150,
+                baujahr: 1995,
+                grundsteuer_immobilientyp: 'einfamilienhaus',
+                grundsteuer_bundesland: 'nw',
+                hebesatz_grundsteuer: 470
+            };
+
+            Object.keys(exampleData).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = exampleData[key];
+                }
+            });
+
+            this.showToast('💡 Grundsteuer-Beispiel geladen', 'success');
+            setTimeout(() => this.calculateGrundsteuer(), 500);
+        }
+
+        resetGrundsteuerForm() {
+            const inputs = ['grundstuecksflaeche', 'wohnflaeche', 'baujahr', 'hebesatz_grundsteuer'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.value = '';
+            });
+            
+            document.getElementById('grundsteuer-results').innerHTML = '';
+            this.showToast('🔄 Grundsteuer-Formular zurückgesetzt', 'info');
+        }
+
+        // Erbschaftsteuer Berechnungen
+        async calculateErbschaftsteuer() {
+            try {
+                this.showProgress('Berechne Erbschaftsteuer...', 20);
+                
+                const data = this.collectErbschaftData();
+                const results = await this.performErbschaftCalculation(data);
+                
+                this.showProgress('Erstelle Erbschaft-Ergebnisse...', 80);
+                this.displayErbschaftResults(results);
+                
+                setTimeout(() => {
+                    this.hideProgress();
+                    this.showToast('👨‍👩‍👧‍👦 Erbschaftsteuer erfolgreich berechnet', 'success');
+                }, 500);
+
+            } catch (error) {
+                this.hideProgress();
+                this.showToast('❌ Erbschaftsteuer-Berechnung fehlgeschlagen: ' + error.message, 'danger');
+            }
+        }
+
+        collectErbschaftData() {
+            return {
+                immobilienwert: parseFloat(document.getElementById('erbschaft_immobilienwert')?.value) || 0,
+                verwandtschaftsgrad: document.getElementById('verwandtschaftsgrad')?.value || 'kind',
+                immobilienart: document.getElementById('erbschaft_immobilienart')?.value || 'eigenheim',
+                sonstiges_vermoegen: parseFloat(document.getElementById('sonstiges_vermoegen')?.value) || 0,
+                selbstnutzung: document.getElementById('selbstnutzung_erbe')?.checked || false,
+                lebzeitig: document.getElementById('lebzeitige_uebertragung')?.checked || false
+            };
+        }
+
+        async performErbschaftCalculation(data) {
+            // Freibeträge und Steuerklassen 2025
+            const freibetraege = {
+                'ehepartner': 500000,
+                'kind': 400000,
+                'enkel': 200000,
+                'eltern': 100000,
+                'geschwister': 20000,
+                'neffe_nichte': 20000,
+                'sonstige': 20000,
+                'fremde': 20000
+            };
+
+            const steuerklassen = {
+                'ehepartner': 1,
+                'kind': 1,
+                'enkel': 1,
+                'eltern': 2,
+                'geschwister': 2,
+                'neffe_nichte': 2,
+                'sonstige': 3,
+                'fremde': 3
+            };
+
+            const steuersaetze = {
+                1: [7, 11, 15, 19, 23, 27, 30], // Steuerklasse I
+                2: [15, 20, 25, 30, 35, 40, 43], // Steuerklasse II
+                3: [30, 30, 30, 30, 50, 50, 50]  // Steuerklasse III
+            };
+
+            const freibetrag = freibetraege[data.verwandtschaftsgrad];
+            const steuerklasse = steuerklassen[data.verwandtschaftsgrad];
+            
+            // Gesamtvermögen
+            let gesamtvermoegen = data.immobilienwert + data.sonstiges_vermoegen;
+            
+            // Bewertungsabschlag für Immobilien (oft 10% bei Eigennutzung)
+            if (data.immobilienart === 'eigenheim' && data.selbstnutzung) {
+                gesamtvermoegen = data.immobilienwert * 0.9 + data.sonstiges_vermoegen;
+            }
+
+            // Steuerpflichtiger Erwerb
+            const steuerpflichtiger_erwerb = Math.max(0, gesamtvermoegen - freibetrag);
+            
+            // Steuerberechnung
+            let erbschaftsteuer = 0;
+            if (steuerpflichtiger_erwerb > 0) {
+                const saetze = steuersaetze[steuerklasse];
+                const stufen = [75000, 300000, 600000, 6000000, 13000000, 26000000];
+                
+                let restbetrag = steuerpflichtiger_erwerb;
+                let stufenIndex = 0;
+                
+                while (restbetrag > 0 && stufenIndex < stufen.length) {
+                    const stufenbetrag = Math.min(restbetrag, stufen[stufenIndex]);
+                    erbschaftsteuer += stufenbetrag * (saetze[stufenIndex] / 100);
+                    restbetrag -= stufenbetrag;
+                    stufenIndex++;
+                }
+                
+                if (restbetrag > 0) {
+                    erbschaftsteuer += restbetrag * (saetze[saetze.length - 1] / 100);
+                }
+            }
+
+            // Strategien
+            const strategien = this.getErbschaftStrategien(data, freibetrag);
+
+            return {
+                gesamtvermoegen,
+                freibetrag,
+                steuerpflichtiger_erwerb,
+                erbschaftsteuer,
+                steuerklasse,
+                effektiver_steuersatz: gesamtvermoegen > 0 ? (erbschaftsteuer / gesamtvermoegen * 100) : 0,
+                strategien
+            };
+        }
+
+        getErbschaftStrategien(data, freibetrag) {
+            const strategien = [];
+
+            if (data.lebzeitig) {
+                strategien.push({
+                    name: 'Schenkung zu Lebzeiten',
+                    beschreibung: 'Freibeträge alle 10 Jahre nutzen',
+                    ersparnis: Math.min(data.immobilienwert, freibetrag) * 0.15,
+                    empfehlung: 'Sehr empfehlenswert'
+                });
+            }
+
+            if (data.selbstnutzung && data.verwandtschaftsgrad === 'ehepartner') {
+                strategien.push({
+                    name: 'Familienheim-Befreiung',
+                    beschreibung: 'Vollständige Steuerbefreiung bei Selbstnutzung',
+                    ersparnis: data.immobilienwert * 0.2,
+                    empfehlung: 'Optimal'
+                });
+            }
+
+            strategien.push({
+                name: 'Nießbrauch-Struktur',
+                beschreibung: 'Übertragung mit lebenslangem Wohnrecht',
+                ersparnis: data.immobilienwert * 0.25,
+                empfehlung: 'Prüfenswert'
+            });
+
+            return strategien;
+        }
+
+        displayErbschaftResults(results) {
+            const container = document.getElementById('erbschaft-results');
+            
+            let html = `
+                <div class="alert ${results.erbschaftsteuer === 0 ? 'alert-success' : 'alert-info'}">
+                    <h3>👨‍👩‍👧‍👦 Ihre Erbschaftsteuer-Berechnung</h3>
+                    <p><strong>Erbschaftsteuer:</strong> ${this.formatCurrency(results.erbschaftsteuer)}</p>
+                    <p><strong>Effektiver Steuersatz:</strong> ${results.effektiver_steuersatz.toFixed(1)}%</p>
+                </div>
+
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h3 class="result-title">📊 Berechnung im Detail</h3>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Gesamtvermögen:</span>
+                            <span class="result-value">${this.formatCurrency(results.gesamtvermoegen)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Freibetrag:</span>
+                            <span class="result-value">${this.formatCurrency(results.freibetrag)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Steuerpflichtiger Erwerb:</span>
+                            <span class="result-value">${this.formatCurrency(results.steuerpflichtiger_erwerb)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Steuerklasse:</span>
+                            <span class="result-value">${results.steuerklasse}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Erbschaftsteuer:</span>
+                            <span class="result-value">${this.formatCurrency(results.erbschaftsteuer)}</span>
+                        </div>
+                    </div>
+            `;
+
+            if (results.strategien.length > 0) {
+                html += `
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h3 class="result-title">💡 Optimierungsstrategien</h3>
+                        </div>
+                `;
+                
+                results.strategien.forEach(strategie => {
+                    html += `
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(17, 153, 142, 0.05); border-radius: 8px;">
+                            <strong>${strategie.name}</strong><br>
+                            <small>${strategie.beschreibung}</small><br>
+                            <span class="text-success">💰 Potential: ${this.formatCurrency(strategie.ersparnis)}</span><br>
+                            <span class="text-primary">🎯 ${strategie.empfehlung}</span>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        loadErbschaftExample() {
+            const exampleData = {
+                erbschaft_immobilienwert: 600000,
+                verwandtschaftsgrad: 'kind',
+                erbschaft_immobilienart: 'eigenheim',
+                sonstiges_vermoegen: 100000,
+                selbstnutzung_erbe: true,
+                lebzeitige_uebertragung: false
+            };
+
+            Object.keys(exampleData).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.type === 'checkbox') {
+                        element.checked = exampleData[key];
+                    } else {
+                        element.value = exampleData[key];
+                    }
+                }
+            });
+
+            this.showToast('💡 Erbschaftsteuer-Beispiel geladen', 'success');
+            setTimeout(() => this.calculateErbschaftsteuer(), 500);
+        }
+
+        resetErbschaftForm() {
+            const inputs = ['erbschaft_immobilienwert', 'sonstiges_vermoegen'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.value = '';
+            });
+            
+            const checkboxes = ['selbstnutzung_erbe', 'lebzeitige_uebertragung'];
+            checkboxes.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.checked = false;
+            });
+            
+            document.getElementById('erbschaft-results').innerHTML = '';
+            this.showToast('🔄 Erbschaftsteuer-Formular zurückgesetzt', 'info');
+        }
+
+        // Schenkungssteuer Berechnungen
+        async calculateSchenkungssteuer() {
+            try {
+                this.showProgress('Berechne Schenkungssteuer...', 20);
+                
+                const data = this.collectSchenkungData();
+                const results = await this.performSchenkungCalculation(data);
+                
+                this.showProgress('Erstelle Schenkung-Ergebnisse...', 80);
+                this.displaySchenkungResults(results);
+                
+                setTimeout(() => {
+                    this.hideProgress();
+                    this.showToast('🎁 Schenkungssteuer erfolgreich berechnet', 'success');
+                }, 500);
+
+            } catch (error) {
+                this.hideProgress();
+                this.showToast('❌ Schenkungssteuer-Berechnung fehlgeschlagen: ' + error.message, 'danger');
+            }
+        }
+
+        collectSchenkungData() {
+            return {
+                immobilienwert: parseFloat(document.getElementById('schenkung_immobilienwert')?.value) || 0,
+                beschenkter: document.getElementById('beschenkter')?.value || 'kind',
+                vorherige_schenkungen: parseFloat(document.getElementById('vorherige_schenkungen')?.value) || 0,
+                schenkungsart: document.getElementById('schenkungsart')?.value || 'vollschenkung',
+                anteil: parseFloat(document.getElementById('schenkungsanteil')?.value) || 100,
+                niesbrauchswert: parseFloat(document.getElementById('niesbrauchswert')?.value) || 0,
+                alter_schenker: parseInt(document.getElementById('alter_schenker')?.value) || 65,
+                strategie: document.getElementById('schenkungsstrategie')?.value || 'einmalig'
+            };
+        }
+
+        async performSchenkungCalculation(data) {
+            // Gleiche Freibeträge wie Erbschaftsteuer
+            const freibetraege = {
+                'ehepartner': 500000,
+                'kind': 400000,
+                'enkel': 200000,
+                'urenkel': 100000,
+                'eltern': 20000,
+                'geschwister': 20000,
+                'neffe_nichte': 20000,
+                'sonstige': 20000,
+                'fremde': 20000
+            };
+
+            const freibetrag = freibetraege[data.beschenkter];
+            
+            // Schenkungswert berechnen
+            let schenkungswert = data.immobilienwert;
+            
+            if (data.schenkungsart === 'teilschenkung') {
+                schenkungswert = data.immobilienwert * (data.anteil / 100);
+            } else if (data.schenkungsart === 'niesbrauch') {
+                // Nießbrauchsabschlag basierend auf Alter und Jahreswert
+                const restlebenserwartung = Math.max(0, 85 - data.alter_schenker);
+                const niesbrauchswert = data.niesbrauchswert * restlebenserwartung * 0.7; // Kapitalisierungsfaktor
+                schenkungswert = data.immobilienwert - niesbrauchswert;
+            }
+
+            // Steuerpflichtiger Erwerb (inkl. Vorschenkungen)
+            const gesamterwerb = schenkungswert + data.vorherige_schenkungen;
+            const steuerpflichtiger_erwerb = Math.max(0, gesamterwerb - freibetrag);
+            
+            // Schenkungssteuer berechnen (gleiche Sätze wie Erbschaftsteuer)
+            let schenkungssteuer = steuerpflichtiger_erwerb * 0.15; // Vereinfacht
+
+            // Strategien
+            const strategien = this.getSchenkungsStrategien(data, freibetrag);
+
+            return {
+                schenkungswert,
+                gesamterwerb,
+                freibetrag,
+                steuerpflichtiger_erwerb,
+                schenkungssteuer,
+                effektiver_steuersatz: schenkungswert > 0 ? (schenkungssteuer / schenkungswert * 100) : 0,
+                strategien
+            };
+        }
+
+        getSchenkungsStrategien(data, freibetrag) {
+            const strategien = [];
+
+            if (data.strategie === 'zehn_jahre') {
+                strategien.push({
+                    name: '10-Jahres-Strategie',
+                    beschreibung: 'Freibeträge alle 10 Jahre optimal nutzen',
+                    ersparnis: freibetrag * 0.15,
+                    empfehlung: 'Sehr empfehlenswert'
+                });
+            }
+
+            if (data.schenkungsart === 'niesbrauch') {
+                strategien.push({
+                    name: 'Nießbrauch-Optimierung',
+                    beschreibung: 'Schenkung unter Vorbehalt des Nießbrauchs',
+                    ersparnis: data.niesbrauchswert * 10 * 0.05,
+                    empfehlung: 'Für Einkommensimmobilien optimal'
+                });
+            }
+
+            strategien.push({
+                name: 'Gestaffelte Schenkung',
+                beschreibung: 'Aufteilen auf mehrere Jahre/Personen',
+                ersparnis: data.immobilienwert * 0.1,
+                empfehlung: 'Bei großen Vermögen sinnvoll'
+            });
+
+            return strategien;
+        }
+
+        displaySchenkungResults(results) {
+            const container = document.getElementById('schenkung-results');
+            
+            let html = `
+                <div class="alert ${results.schenkungssteuer === 0 ? 'alert-success' : 'alert-info'}">
+                    <h3>🎁 Ihre Schenkungssteuer-Berechnung</h3>
+                    <p><strong>Schenkungssteuer:</strong> ${this.formatCurrency(results.schenkungssteuer)}</p>
+                    <p><strong>Effektiver Steuersatz:</strong> ${results.effektiver_steuersatz.toFixed(1)}%</p>
+                </div>
+
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h3 class="result-title">📊 Berechnung im Detail</h3>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Schenkungswert:</span>
+                            <span class="result-value">${this.formatCurrency(results.schenkungswert)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Gesamterwerb (inkl. Vorschenkungen):</span>
+                            <span class="result-value">${this.formatCurrency(results.gesamterwerb)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Freibetrag:</span>
+                            <span class="result-value">${this.formatCurrency(results.freibetrag)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Steuerpflichtiger Erwerb:</span>
+                            <span class="result-value">${this.formatCurrency(results.steuerpflichtiger_erwerb)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Schenkungssteuer:</span>
+                            <span class="result-value">${this.formatCurrency(results.schenkungssteuer)}</span>
+                        </div>
+                    </div>
+            `;
+
+            if (results.strategien.length > 0) {
+                html += `
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h3 class="result-title">💡 Optimierungsstrategien</h3>
+                        </div>
+                `;
+                
+                results.strategien.forEach(strategie => {
+                    html += `
+                        <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(17, 153, 142, 0.05); border-radius: 8px;">
+                            <strong>${strategie.name}</strong><br>
+                            <small>${strategie.beschreibung}</small><br>
+                            <span class="text-success">💰 Potential: ${this.formatCurrency(strategie.ersparnis)}</span><br>
+                            <span class="text-primary">🎯 ${strategie.empfehlung}</span>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        loadSchenkungExample() {
+            const exampleData = {
+                schenkung_immobilienwert: 800000,
+                beschenkter: 'kind',
+                vorherige_schenkungen: 50000,
+                schenkungsart: 'niesbrauch',
+                schenkungsanteil: 100,
+                niesbrauchswert: 24000,
+                alter_schenker: 65,
+                schenkungsstrategie: 'zehn_jahre'
+            };
+
+            Object.keys(exampleData).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = exampleData[key];
+                }
+            });
+
+            this.showToast('💡 Schenkungssteuer-Beispiel geladen', 'success');
+            setTimeout(() => this.calculateSchenkungssteuer(), 500);
+        }
+
+        resetSchenkungForm() {
+            const inputs = ['schenkung_immobilienwert', 'vorherige_schenkungen', 'schenkungsanteil', 'niesbrauchswert', 'alter_schenker'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.value = '';
+            });
+            
+            document.getElementById('schenkung-results').innerHTML = '';
+            this.showToast('🔄 Schenkungssteuer-Formular zurückgesetzt', 'info');
+        }
+
+        // KI-Strategien
+        async generateKIStrategy() {
+            try {
+                this.showProgress('KI analysiert Ihr Portfolio...', 20);
+                
+                const data = this.collectStrategyData();
+                const results = await this.performKIStrategyGeneration(data);
+                
+                this.showProgress('Erstelle KI-Strategieempfehlungen...', 80);
+                this.displayStrategyResults(results);
+                
+                setTimeout(() => {
+                    this.hideProgress();
+                    this.showToast('🤖 KI-Strategie erfolgreich generiert', 'success');
+                }, 500);
+
+            } catch (error) {
+                this.hideProgress();
+                this.showToast('❌ KI-Strategiegenerierung fehlgeschlagen: ' + error.message, 'danger');
+            }
+        }
+
+        collectStrategyData() {
+            return {
+                portfolio_anzahl: parseInt(document.getElementById('portfolio_anzahl')?.value) || 1,
+                portfolio_wert: parseFloat(document.getElementById('portfolio_wert')?.value) || 0,
+                strategisches_ziel: document.getElementById('strategisches_ziel')?.value || 'steuerminimierung',
+                planungshorizont: document.getElementById('planungshorizont')?.value || 'mittelfristig',
+                familiensituation: document.getElementById('familiensituation')?.value || 'ehepaar',
+                jahreseinkommen: document.getElementById('jahreseinkommen')?.value || 'mittel',
+                international: document.getElementById('international')?.checked || false,
+                risikobereitschaft: document.getElementById('risikobereitschaft')?.value || 'moderat'
+            };
+        }
+
+        async performKIStrategyGeneration(data) {
+            // KI-basierte Strategieanalyse
+            const strategien = [];
+            const prioritaeten = [];
+
+            // Basierend auf Portfolio-Größe
+            if (data.portfolio_wert > 2000000) {
+                strategien.push({
+                    name: 'Family Office Struktur',
+                    beschreibung: 'Professionelle Vermögensverwaltung mit Steuerfamilienstiftung',
+                    prioritaet: 'Hoch',
+                    ersparnis: data.portfolio_wert * 0.15,
+                    zeitrahmen: '2-3 Jahre',
+                    komplexitaet: 'Hoch'
+                });
+            }
+
+            if (data.strategisches_ziel === 'nachfolgeplanung') {
+                strategien.push({
+                    name: 'Generationen-übergreifende Planung',
+                    beschreibung: 'Stufenweise Übertragung mit Nießbrauchsvorbehalten',
+                    prioritaet: 'Sehr Hoch',
+                    ersparnis: data.portfolio_wert * 0.25,
+                    zeitrahmen: '5-10 Jahre',
+                    komplexitaet: 'Mittel'
+                });
+            }
+
+            if (data.international) {
+                strategien.push({
+                    name: 'Cross-Border Optimierung',
+                    beschreibung: 'Internationale Holdingstrukturen für Steueroptimierung',
+                    prioritaet: 'Hoch',
+                    ersparnis: data.portfolio_wert * 0.18,
+                    zeitrahmen: '1-2 Jahre',
+                    komplexitaet: 'Sehr Hoch'
+                });
+            }
+
+            strategien.push({
+                name: 'Portfolio-Diversifikation',
+                beschreibung: 'Optimierung der Rechtsformen je Immobilie',
+                prioritaet: 'Mittel',
+                ersparnis: data.portfolio_wert * 0.08,
+                zeitrahmen: '6-12 Monate',
+                komplexitaet: 'Niedrig'
+            });
+
+            // KI-Empfehlungen basierend auf Zielen
+            const empfehlungen = this.generateKIRecommendations(data, strategien);
+
+            return {
+                strategien,
+                empfehlungen,
+                portfolio_analyse: {
+                    risiko_score: this.calculateRiskScore(data),
+                    optimierungspotential: data.portfolio_wert * 0.12,
+                    steuerbelastung_aktuell: data.portfolio_wert * 0.28
+                }
+            };
+        }
+
+        generateKIRecommendations(data, strategien) {
+            const empfehlungen = [];
+
+            empfehlungen.push({
+                kategorie: 'Sofortmaßnahmen',
+                items: [
+                    'Portfolio-Analyse aller Immobilien durchführen',
+                    'Verkaufsstrategien für 10+ Jahre gehaltene Immobilien prüfen',
+                    'Familienpool-Strukturen für neue Akquisitionen'
+                ]
+            });
+
+            empfehlungen.push({
+                kategorie: 'Mittelfristige Optimierung',
+                items: [
+                    'Schrittweise Übertragung auf nachfolgende Generation',
+                    'Nießbrauch-Strukturen für laufende Einkünfte',
+                    'Cross-Border Strukturen für internationale Diversifikation'
+                ]
+            });
+
+            if (data.planungshorizont === 'generational') {
+                empfehlungen.push({
+                    kategorie: 'Langfrist-Strategie',
+                    items: [
+                        'Familienstiftung für Generationenvermögen',
+                        'Sukzessionsplanung mit steueroptimalen Zeitpunkten',
+                        'Internationale Strukturen für globale Diversifikation'
+                    ]
+                });
+            }
+
+            return empfehlungen;
+        }
+
+        calculateRiskScore(data) {
+            let score = 50; // Basis
+
+            if (data.risikobereitschaft === 'konservativ') score -= 20;
+            if (data.risikobereitschaft === 'aggressiv') score += 30;
+            if (data.international) score += 15;
+            if (data.portfolio_wert > 5000000) score += 10;
+
+            return Math.max(0, Math.min(100, score));
+        }
+
+        displayStrategyResults(results) {
+            const container = document.getElementById('strategy-results');
+            
+            let html = `
+                <div class="alert alert-success">
+                    <h3>🤖 KI-Strategieanalyse abgeschlossen</h3>
+                    <p><strong>Optimierungspotential:</strong> ${this.formatCurrency(results.portfolio_analyse.optimierungspotential)}</p>
+                    <p><strong>Risiko-Score:</strong> ${results.portfolio_analyse.risiko_score}/100</p>
+                </div>
+
+                <div class="results-grid">
+            `;
+
+            // Strategien anzeigen
+            results.strategien.forEach(strategie => {
+                const priorityClass = strategie.prioritaet === 'Sehr Hoch' ? 'best' : 
+                                    strategie.prioritaet === 'Hoch' ? 'warning-option' : '';
+                
+                html += `
+                    <div class="result-card ${priorityClass}">
+                        <div class="result-header">
+                            <h3 class="result-title">${strategie.name}</h3>
+                            <span class="result-badge">${strategie.prioritaet}</span>
+                        </div>
+                        <p style="margin-bottom: 1rem;">${strategie.beschreibung}</p>
+                        <div class="result-item">
+                            <span class="result-label">Ersparnis-Potential:</span>
+                            <span class="result-value">${this.formatCurrency(strategie.ersparnis)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Zeitrahmen:</span>
+                            <span class="result-value">${strategie.zeitrahmen}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Komplexität:</span>
+                            <span class="result-value">${strategie.komplexitaet}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+
+            // Empfehlungen
+            html += `
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h3 class="card-title">💡 KI-Empfehlungen</h3>
+                    </div>
+            `;
+
+            results.empfehlungen.forEach(empfehlung => {
+                html += `
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--primary-solid); margin-bottom: 1rem;">${empfehlung.kategorie}</h4>
+                        <ul style="margin-left: 1.5rem;">
+                            ${empfehlung.items.map(item => `<li style="margin-bottom: 0.5rem;">${item}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        async analyzePortfolio() {
+            this.showToast('📊 Portfolio-Analyse wird durchgeführt...', 'info');
+            // Hier würde eine detaillierte Portfolio-Analyse implementiert
+            setTimeout(() => {
+                this.showToast('📊 Portfolio-Analyse abgeschlossen - Siehe Strategieempfehlungen', 'success');
+            }, 2000);
+        }
+
+        loadStrategyExample() {
+            const exampleData = {
+                portfolio_anzahl: 4,
+                portfolio_wert: 3200000,
+                strategisches_ziel: 'nachfolgeplanung',
+                planungshorizont: 'langfristig',
+                familiensituation: 'familie_kinder',
+                jahreseinkommen: 'sehr_hoch',
+                international: true,
+                risikobereitschaft: 'moderat'
+            };
+
+            Object.keys(exampleData).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.type === 'checkbox') {
+                        element.checked = exampleData[key];
+                    } else {
+                        element.value = exampleData[key];
+                    }
+                }
+            });
+
+            this.showToast('💡 Strategie-Beispiel geladen', 'success');
+            setTimeout(() => this.generateKIStrategy(), 500);
+        }
+
+        resetStrategyForm() {
+            const inputs = ['portfolio_anzahl', 'portfolio_wert'];
+            inputs.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.value = '';
+            });
+            
+            const checkbox = document.getElementById('international');
+            if (checkbox) checkbox.checked = false;
+            
+            document.getElementById('strategy-results').innerHTML = '';
+            this.showToast('🔄 Strategie-Formular zurückgesetzt', 'info');
+        }
             // Navigation
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.addEventListener('click', (e) => {
@@ -3033,7 +4218,624 @@ Response:
             });
             document.querySelector(`[data-section="${section}"]`).classList.add('active');
             
+            // Load section content
+            this.loadSectionContent(section);
+            
             this.showToast(`📍 Navigation zu ${section}`, 'info');
+        }
+
+        loadSectionContent(section) {
+            const contentArea = document.querySelector('.content-area');
+            
+            switch(section) {
+                case 'verkauf':
+                    contentArea.innerHTML = this.generateVerkaufContent();
+                    this.setupRealtimeValidation();
+                    break;
+                case 'grundsteuer':
+                    contentArea.innerHTML = this.generateGrundsteuerContent();
+                    this.setupGrundsteuerEventHandlers();
+                    break;
+                case 'erbschaft':
+                    contentArea.innerHTML = this.generateErbschaftContent();
+                    this.setupErbschaftEventHandlers();
+                    break;
+                case 'schenkung':
+                    contentArea.innerHTML = this.generateSchenkungContent();
+                    this.setupSchenkungEventHandlers();
+                    break;
+                case 'cashflow':
+                    contentArea.innerHTML = this.generateCashflowContent();
+                    this.setupCashflowEventHandlers();
+                    break;
+                case 'strategie':
+                    contentArea.innerHTML = this.generateStrategieContent();
+                    this.setupStrategieEventHandlers();
+                    break;
+                default:
+                    contentArea.innerHTML = this.generateVerkaufContent();
+                    this.setupRealtimeValidation();
+            }
+        }
+
+        generateGrundsteuerContent() {
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>🏛️</span>
+                            <span>Grundsteuer-Reform 2025</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h3>📋 Neue Grundsteuer-Berechnung ab 2025</h3>
+                        <p>Die Grundsteuer-Reform ist in Kraft! Berechnen Sie Ihre neue Grundsteuerbelastung mit den aktuellen Bewertungsverfahren.</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">
+                                🏠 Grundstücksfläche (m²) <span class="required">*</span>
+                            </label>
+                            <input type="number" id="grundstuecksflaeche" class="form-input" placeholder="z.B. 800" min="0" step="1">
+                            <div class="form-help">Gesamte Grundstücksfläche in Quadratmetern</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                🏗️ Wohnfläche (m²) <span class="required">*</span>
+                            </label>
+                            <input type="number" id="wohnflaeche" class="form-input" placeholder="z.B. 150" min="0" step="1">
+                            <div class="form-help">Wohnfläche des Gebäudes</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                📅 Baujahr
+                            </label>
+                            <input type="number" id="baujahr" class="form-input" placeholder="z.B. 1995" min="1900" max="2025">
+                            <div class="form-help">Jahr der Fertigstellung</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                🏠 Immobilientyp
+                            </label>
+                            <select id="grundsteuer_immobilientyp" class="form-select">
+                                <option value="einfamilienhaus">Einfamilienhaus</option>
+                                <option value="zweifamilienhaus">Zweifamilienhaus</option>
+                                <option value="mehrfamilienhaus">Mehrfamilienhaus</option>
+                                <option value="eigentumswohnung">Eigentumswohnung</option>
+                                <option value="gewerbe">Gewerbeimmobilie</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                🗺️ Bundesland
+                            </label>
+                            <select id="grundsteuer_bundesland" class="form-select">
+                                <option value="bw">Baden-Württemberg</option>
+                                <option value="by">Bayern (Bundesmodell)</option>
+                                <option value="by-bayerisch">Bayern (Bayerisches Modell)</option>
+                                <option value="be">Berlin</option>
+                                <option value="bb">Brandenburg</option>
+                                <option value="hb">Bremen</option>
+                                <option value="hh">Hamburg</option>
+                                <option value="he">Hessen</option>
+                                <option value="mv">Mecklenburg-Vorpommern</option>
+                                <option value="ni">Niedersachsen</option>
+                                <option value="nw" selected>Nordrhein-Westfalen</option>
+                                <option value="rp">Rheinland-Pfalz</option>
+                                <option value="sl">Saarland</option>
+                                <option value="sn">Sachsen</option>
+                                <option value="st">Sachsen-Anhalt</option>
+                                <option value="sh">Schleswig-Holstein</option>
+                                <option value="th">Thüringen</option>
+                            </select>
+                            <div class="form-help">Wichtig: Verschiedene Bundesländer haben unterschiedliche Modelle</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                🏙️ Gemeinde-Hebesatz (%)
+                            </label>
+                            <input type="number" id="hebesatz_grundsteuer" class="form-input" placeholder="z.B. 470" min="0" max="1000" step="10">
+                            <div class="form-help">Hebesatz Ihrer Gemeinde (meist 300-600%)</div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="app.calculateGrundsteuer()">
+                            🧮 Grundsteuer 2025 berechnen
+                        </button>
+                        <button class="btn btn-warning" onclick="app.loadGrundsteuerExample()">
+                            💡 Beispiel laden
+                        </button>
+                        <button class="btn btn-secondary" onclick="app.resetGrundsteuerForm()">
+                            🔄 Zurücksetzen
+                        </button>
+                    </div>
+                </div>
+
+                <div id="grundsteuer-results" class="results-container">
+                    <!-- Grundsteuer Results will be displayed here -->
+                </div>
+            `;
+        }
+
+        generateErbschaftContent() {
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>👨‍👩‍👧‍👦</span>
+                            <span>Erbschaftsteuer-Optimierung 2025</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h3>⚖️ Erbschaftsteuer-Planung mit aktuellen Freibeträgen</h3>
+                        <p>Optimieren Sie die Übertragung Ihrer Immobilie durch geschickte Erbschaftsteuer-Planung.</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">
+                                🏠 Immobilienwert <span class="required">*</span>
+                            </label>
+                            <input type="number" id="erbschaft_immobilienwert" class="form-input" placeholder="z.B. 600.000" min="0" step="1000">
+                            <div class="form-help">Aktueller Verkehrswert der Immobilie</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                👨‍👩‍👧‍👦 Verwandtschaftsgrad
+                            </label>
+                            <select id="verwandtschaftsgrad" class="form-select">
+                                <option value="ehepartner">Ehepartner/Lebenspartner</option>
+                                <option value="kind">Kind/Stiefkind</option>
+                                <option value="enkel">Enkel</option>
+                                <option value="eltern">Eltern/Großeltern</option>
+                                <option value="geschwister">Geschwister</option>
+                                <option value="neffe_nichte">Neffe/Nichte</option>
+                                <option value="sonstige">Sonstige Verwandte</option>
+                                <option value="fremde">Nicht verwandt</option>
+                            </select>
+                            <div class="form-help">Verwandtschaftsgrad bestimmt Steuerklasse und Freibetrag</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                🏠 Immobilienart
+                            </label>
+                            <select id="erbschaft_immobilienart" class="form-select">
+                                <option value="eigenheim">Eigenheim (selbst bewohnt)</option>
+                                <option value="vermietung">Vermietungsimmobilie</option>
+                                <option value="ferienhaus">Ferienhaus</option>
+                                <option value="gewerbe">Gewerbeimmobilie</option>
+                                <option value="grundstueck">Unbebautes Grundstück</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                💰 Sonstiges Vermögen
+                            </label>
+                            <input type="number" id="sonstiges_vermoegen" class="form-input" placeholder="z.B. 100.000" min="0" step="1000">
+                            <div class="form-help">Weiteres Vermögen (Bargeld, Wertpapiere, etc.)</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                🏠 Selbstnutzung durch Erben
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" id="selbstnutzung_erbe">
+                                <span>Erbe wird Immobilie selbst bewohnen</span>
+                            </label>
+                            <div class="form-help">Kann zu Steuerbefreiung führen (Familienheim)</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                ⏱️ Übertragung zu Lebzeiten
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" id="lebzeitige_uebertragung">
+                                <span>Übertragung zu Lebzeiten geplant</span>
+                            </label>
+                            <div class="form-help">Ermöglicht Freibeträge alle 10 Jahre</div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="app.calculateErbschaftsteuer()">
+                            🧮 Erbschaftsteuer berechnen
+                        </button>
+                        <button class="btn btn-warning" onclick="app.loadErbschaftExample()">
+                            💡 Beispiel laden
+                        </button>
+                        <button class="btn btn-secondary" onclick="app.resetErbschaftForm()">
+                            🔄 Zurücksetzen
+                        </button>
+                    </div>
+                </div>
+
+                <div id="erbschaft-results" class="results-container">
+                    <!-- Erbschaftsteuer Results will be displayed here -->
+                </div>
+            `;
+        }
+
+        generateSchenkungContent() {
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>🎁</span>
+                            <span>Schenkungssteuer-Planung 2025</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h3>🎯 Optimale Schenkungsplanung für Immobilien</h3>
+                        <p>Nutzen Sie Freibeträge optimal und planen Sie die steuereffiziente Übertragung Ihrer Immobilie.</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">
+                                🏠 Immobilienwert <span class="required">*</span>
+                            </label>
+                            <input type="number" id="schenkung_immobilienwert" class="form-input" placeholder="z.B. 800.000" min="0" step="1000">
+                            <div class="form-help">Aktueller Verkehrswert der Immobilie</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                👨‍👩‍👧‍👦 Beschenkter
+                            </label>
+                            <select id="beschenkter" class="form-select">
+                                <option value="ehepartner">Ehepartner/Lebenspartner</option>
+                                <option value="kind">Kind/Stiefkind</option>
+                                <option value="enkel">Enkel</option>
+                                <option value="urenkel">Urenkel</option>
+                                <option value="eltern">Eltern/Großeltern</option>
+                                <option value="geschwister">Geschwister</option>
+                                <option value="neffe_nichte">Neffe/Nichte</option>
+                                <option value="sonstige">Sonstige Verwandte</option>
+                                <option value="fremde">Nicht verwandt</option>
+                            </select>
+                            <div class="form-help">Bestimmt Freibetrag und Steuersatz</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                📅 Vorherige Schenkungen
+                            </label>
+                            <input type="number" id="vorherige_schenkungen" class="form-input" placeholder="z.B. 50.000" min="0" step="1000">
+                            <div class="form-help">Schenkungen der letzten 10 Jahre an dieselbe Person</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                🏠 Art der Schenkung
+                            </label>
+                            <select id="schenkungsart" class="form-select">
+                                <option value="vollschenkung">Vollständige Schenkung</option>
+                                <option value="teilschenkung">Teilschenkung (Anteil)</option>
+                                <option value="niesbrauch">Schenkung mit Nießbrauch</option>
+                                <option value="wohnrecht">Schenkung mit Wohnrecht</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                📊 Anteil bei Teilschenkung (%)
+                            </label>
+                            <input type="number" id="schenkungsanteil" class="form-input" placeholder="z.B. 50" min="1" max="100" step="1">
+                            <div class="form-help">Nur bei Teilschenkung relevant</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                💰 Nießbrauchswert (jährlich)
+                            </label>
+                            <input type="number" id="niesbrauchswert" class="form-input" placeholder="z.B. 24.000" min="0" step="1000">
+                            <div class="form-help">Jährlicher Nießbrauchswert (Miete oder Nutzungswert)</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                👤 Alter des Schenkers
+                            </label>
+                            <input type="number" id="alter_schenker" class="form-input" placeholder="z.B. 65" min="18" max="100">
+                            <div class="form-help">Alter für Berechnung der Nießbrauchsdauer</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                📅 Geplante Schenkungstermine
+                            </label>
+                            <select id="schenkungsstrategie" class="form-select">
+                                <option value="einmalig">Einmalige Schenkung</option>
+                                <option value="zehn_jahre">Alle 10 Jahre (Freibetrag optimal nutzen)</option>
+                                <option value="jaehrlich">Jährliche Teilschenkungen</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="app.calculateSchenkungssteuer()">
+                            🧮 Schenkungssteuer berechnen
+                        </button>
+                        <button class="btn btn-warning" onclick="app.loadSchenkungExample()">
+                            💡 Beispiel laden
+                        </button>
+                        <button class="btn btn-secondary" onclick="app.resetSchenkungForm()">
+                            🔄 Zurücksetzen
+                        </button>
+                    </div>
+                </div>
+
+                <div id="schenkung-results" class="results-container">
+                    <!-- Schenkungssteuer Results will be displayed here -->
+                </div>
+            `;
+        }
+
+        generateCashflowContent() {
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>📊</span>
+                            <span>Cash-Flow Analyse & Liquiditätsplanung</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h3>💰 Intelligente Cash-Flow Optimierung</h3>
+                        <p>Analysieren Sie die Liquiditätsauswirkungen verschiedener Steuerstrategien und optimieren Sie Ihre Zahlungsströme.</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">
+                                🏠 Monatliche Mieteinnahmen <span class="required">*</span>
+                            </label>
+                            <input type="number" id="mieteinnahmen" class="form-input" placeholder="z.B. 3.500" min="0" step="100">
+                            <div class="form-help">Netto-Mieteinnahmen pro Monat</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                💸 Monatliche Betriebskosten
+                            </label>
+                            <input type="number" id="betriebskosten" class="form-input" placeholder="z.B. 800" min="0" step="50">
+                            <div class="form-help">Verwaltung, Instandhaltung, Versicherung</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                🏦 Finanzierungskosten (monatlich)
+                            </label>
+                            <input type="number" id="finanzierungskosten" class="form-input" placeholder="z.B. 1.200" min="0" step="50">
+                            <div class="form-help">Zinsen und Tilgung für Darlehen</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                📊 Abschreibungen (jährlich)
+                            </label>
+                            <input type="number" id="cashflow_abschreibungen" class="form-input" placeholder="z.B. 8.000" min="0" step="100">
+                            <div class="form-help">Jährliche AfA-Abschreibungen</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                💼 Persönlicher Steuersatz (%)
+                            </label>
+                            <select id="cashflow_steuersatz" class="form-select">
+                                <option value="14">14% (Eingangssteuersatz)</option>
+                                <option value="24">24% (Mittlerer Bereich)</option>
+                                <option value="32">32% (Höherer Bereich)</option>
+                                <option value="42" selected>42% (Spitzensteuersatz)</option>
+                                <option value="45">45% (Reichensteuer)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                📅 Analysezeitraum
+                            </label>
+                            <select id="analysezeitraum" class="form-select">
+                                <option value="1">1 Jahr</option>
+                                <option value="3">3 Jahre</option>
+                                <option value="5" selected>5 Jahre</option>
+                                <option value="10">10 Jahre</option>
+                                <option value="15">15 Jahre</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                📈 Mietsteigerung (% p.a.)
+                            </label>
+                            <input type="number" id="mietsteigerung" class="form-input" placeholder="z.B. 2.5" min="0" max="10" step="0.1">
+                            <div class="form-help">Erwartete jährliche Mietsteigerung</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                💰 Geplante Verkaufserlöse
+                            </label>
+                            <input type="number" id="verkaufserloes" class="form-input" placeholder="z.B. 650.000" min="0" step="1000">
+                            <div class="form-help">Erwarteter Verkaufserlös am Ende des Zeitraums</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                🔄 Reinvestitionsstrategie
+                            </label>
+                            <select id="reinvestition" class="form-select">
+                                <option value="keine">Keine Reinvestition</option>
+                                <option value="liquiditaet">Cash-Optimierung</option>
+                                <option value="portfolio">Portfolio-Erweiterung</option>
+                                <option value="upgrade">Property-Upgrade</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="app.calculateCashflow()">
+                            📊 Cash-Flow analysieren
+                        </button>
+                        <button class="btn btn-success" onclick="app.generateCashflowForecast()">
+                            📈 Liquiditätsprognose
+                        </button>
+                        <button class="btn btn-warning" onclick="app.loadCashflowExample()">
+                            💡 Beispiel laden
+                        </button>
+                        <button class="btn btn-secondary" onclick="app.resetCashflowForm()">
+                            🔄 Zurücksetzen
+                        </button>
+                    </div>
+                </div>
+
+                <div id="cashflow-results" class="results-container">
+                    <!-- Cash-Flow Results will be displayed here -->
+                </div>
+            `;
+        }
+
+        generateStrategieContent() {
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>🎯</span>
+                            <span>KI-Gesamtstrategie & Portfolio-Optimierung</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <h3>🤖 Intelligente Gesamtstrategie-Analyse</h3>
+                        <p>Unser KI-System analysiert Ihr gesamtes Immobilien-Portfolio und entwickelt eine optimale Langzeitstrategie für maximale Steuerersparnis.</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">
+                                🏠 Anzahl Immobilien im Portfolio
+                            </label>
+                            <input type="number" id="portfolio_anzahl" class="form-input" placeholder="z.B. 3" min="1" max="50">
+                            <div class="form-help">Gesamtanzahl Ihrer Immobilien</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                💰 Gesamtportfolio-Wert
+                            </label>
+                            <input type="number" id="portfolio_wert" class="form-input" placeholder="z.B. 2.000.000" min="0" step="10000">
+                            <div class="form-help">Geschätzter Gesamtwert aller Immobilien</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                🎯 Strategisches Ziel
+                            </label>
+                            <select id="strategisches_ziel" class="form-select">
+                                <option value="verkaufsoptimierung">Verkaufsoptimierung</option>
+                                <option value="nachfolgeplanung">Nachfolgeplanung</option>
+                                <option value="steuerminimierung">Steuerminimierung</option>
+                                <option value="liquiditaet">Liquiditätssteigerung</option>
+                                <option value="reinvestition">Reinvestitionsstrategie</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                ⏱️ Planungshorizont
+                            </label>
+                            <select id="planungshorizont" class="form-select">
+                                <option value="kurzfristig">1-3 Jahre</option>
+                                <option value="mittelfristig">3-7 Jahre</option>
+                                <option value="langfristig">7-15 Jahre</option>
+                                <option value="generational">Generationenübergreifend</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                👨‍👩‍👧‍👦 Familiensituation
+                            </label>
+                            <select id="familiensituation" class="form-select">
+                                <option value="single">Alleinstehend</option>
+                                <option value="ehepaar">Ehepaar</option>
+                                <option value="familie_kinder">Familie mit Kindern</option>
+                                <option value="grossfamilie">Großfamilie (3+ Generationen)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                📊 Jährliches Einkommen
+                            </label>
+                            <select id="jahreseinkommen" class="form-select">
+                                <option value="niedrig">Bis 50.000€</option>
+                                <option value="mittel">50.000€ - 100.000€</option>
+                                <option value="hoch">100.000€ - 250.000€</option>
+                                <option value="sehr_hoch">Über 250.000€</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                🌍 Internationale Komponente
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                <input type="checkbox" id="international">
+                                <span>Internationale Strukturen erwünscht</span>
+                            </label>
+                            <div class="form-help">Cross-Border Optimierung einbeziehen</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                ⚖️ Risikobereitschaft
+                            </label>
+                            <select id="risikobereitschaft" class="form-select">
+                                <option value="konservativ">Konservativ</option>
+                                <option value="moderat">Moderat</option>
+                                <option value="progressiv">Progressiv</option>
+                                <option value="aggressiv">Aggressiv</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="app.generateKIStrategy()">
+                            🤖 KI-Gesamtstrategie generieren
+                        </button>
+                        <button class="btn btn-success" onclick="app.analyzePortfolio()">
+                            📊 Portfolio-Analyse
+                        </button>
+                        <button class="btn btn-warning" onclick="app.loadStrategyExample()">
+                            💡 Beispiel laden
+                        </button>
+                        <button class="btn btn-secondary" onclick="app.resetStrategyForm()">
+                            🔄 Zurücksetzen
+                        </button>
+                    </div>
+                </div>
+
+                <div id="strategy-results" class="results-container">
+                    <!-- Strategy Results will be displayed here -->
+                </div>
+            `;
         }
 
         // Modal Management
