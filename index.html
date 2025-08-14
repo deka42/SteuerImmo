@@ -6428,14 +6428,9 @@ List available plugins
 
         // Data Persistence
         saveData() {
-            // Save current section data before saving everything
-            this.saveCurrentSectionData();
-            
             const data = {
                 scenarios: Object.fromEntries(this.scenarios),
                 currentScenario: this.currentScenario,
-                currentSection: this.currentSection,
-                sectionData: Object.fromEntries(this.sectionData),
                 settings: {
                     realtimeEnabled: this.realtimeEnabled
                 },
@@ -6445,7 +6440,7 @@ List available plugins
             
             try {
                 localStorage.setItem('immobilien-suite-enhanced-data', JSON.stringify(data));
-                console.log('💾 Data saved to localStorage');
+                this.showToast('💾 Daten gespeichert', 'success');
             } catch (error) {
                 console.warn('Could not save to localStorage:', error);
                 this.errorHandler.logError(error);
@@ -6464,6 +6459,14 @@ List available plugins
                     
                     if (data.currentScenario) {
                         this.currentScenario = data.currentScenario;
+                    }
+                    
+                    if (data.currentSection) {
+                        this.currentSection = data.currentSection;
+                    }
+                    
+                    if (data.sectionData) {
+                        this.sectionData = new Map(Object.entries(data.sectionData));
                     }
                     
                     if (data.settings) {
