@@ -3477,15 +3477,6 @@ List available plugins
                 this.gaTracker.trackUserJourney('app_start', 'initialization_started');
                 
                 await this.initializeWebWorker();
-                
-                // Initialize Google Analytics
-                this.gaTracker.init();
-                
-                // Load initial content
-                this.currentSection = 'verkauf';
-                this.loadSectionContent('verkauf');
-                
-                // Setup other components
                 this.setupEventListeners();
                 this.setupKeyboardShortcuts();
                 this.setupScenarios();
@@ -3494,6 +3485,12 @@ List available plugins
                 this.loadSavedData();
                 this.setupAutoSave();
                 this.setupPerformanceMonitoring();
+                
+                // Initialize Google Analytics
+                this.gaTracker.init();
+                
+                // Load initial content
+                this.loadSectionContent('verkauf');
                 
                 this.showToast('🚀 Ultimate Enterprise Suite Enhanced geladen', 'success');
                 this.updatePerformanceIndicator('Ready');
@@ -3669,8 +3666,16 @@ List available plugins
             // Real-time validation setup
             this.setupRealtimeValidation();
             
-            // Navigation - Setup with retry mechanism
-            this.setupNavigation();
+            // Navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const section = link.getAttribute('data-section');
+                    if (section) {
+                        this.navigateToSection(section);
+                    }
+                });
+            });
 
             // Plugin items
             document.querySelectorAll('.plugin-item').forEach(item => {
@@ -3733,18 +3738,6 @@ List available plugins
             });
 
             console.log('✅ Enhanced event listeners setup completed');
-        }
-
-        setupNavigationEventListeners() {
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const section = link.getAttribute('data-section');
-                    if (section) {
-                        this.switchToSection(section);
-                    }
-                });
-            });
         }
 
         setupRealtimeValidation() {
@@ -4503,9 +4496,6 @@ List available plugins
                 to_section: section
             });
             
-            // Save current section data before switching
-            this.saveCurrentSectionData();
-            
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
             });
@@ -4515,12 +4505,6 @@ List available plugins
             }
             
             this.loadSectionContent(section);
-            
-            // Restore data for the new section after content is loaded
-            setTimeout(() => {
-                this.restoreSectionData(section);
-            }, 100);
-            
             this.showToast(`📍 Navigation zu ${section}`, 'info');
         }
 
@@ -6155,7 +6139,6 @@ List available plugins
         resetAll() {
             this.resetForm();
             this.cache.clear();
-            this.sectionData.clear();
             this.appState.history = [];
             this.appState.historyIndex = -1;
             this.updateHistoryButtons();
