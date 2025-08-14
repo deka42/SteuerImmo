@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Immobilien-Steuer-Suite 2025 - Ultimate Enterprise Edition</title>
 
-```
 <!-- PWA Meta Tags -->
 <meta name="theme-color" content="#3498db">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -23,7 +22,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏠</text></svg>">
 
 <!-- External Libraries -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 
 <style>
@@ -1159,7 +1158,6 @@
     .p-3 { padding: 1.5rem; }
     .p-4 { padding: 2rem; }
 </style>
-```
 
 </head>
 <body>
@@ -1195,7 +1193,6 @@
             </div>
         </header>
 
-```
     <div class="main-content">
         <!-- Enhanced Sidebar with Navigation -->
         <aside class="sidebar">
@@ -1632,8 +1629,6 @@
             <div id="api-docs-content">
                 <h3>Immobilien-Steuer-Suite API v4.0</h3>
                 <pre style="background: #f8f9fa; padding: 1rem; border-radius: 8px; overflow-x: auto;">
-```
-
 POST /api/v4/calculate
 {
 "kaufpreis": 400000,
@@ -1656,7 +1651,6 @@ Response:
 </div>
 </div>
 
-```
 <!-- Web Worker for Background Calculations -->
 <script id="worker-script" type="text/plain">
     // Tax Calculator Web Worker
@@ -2593,22 +2587,34 @@ Response:
         // PDF Export with jsPDF
         async exportPDFReport() {
             try {
-                // Check if jsPDF is available
-                if (typeof window.jsPDF === 'undefined' && typeof jsPDF === 'undefined') {
-                    // Try to load jsPDF dynamically
-                    await this.loadJsPDF();
-                }
+                // Wait a moment for libraries to load
+                await new Promise(resolve => setTimeout(resolve, 100));
                 
-                // Check again after potential dynamic loading
-                if (typeof window.jsPDF === 'undefined' && typeof jsPDF === 'undefined') {
-                    this.showToast('❌ PDF-Bibliothek konnte nicht geladen werden. Bitte Seite neu laden.', 'danger');
-                    return;
+                // Check for jsPDF availability
+                let jsPDFConstructor = null;
+                
+                if (window.jspdf && window.jspdf.jsPDF) {
+                    jsPDFConstructor = window.jspdf.jsPDF;
+                } else if (window.jsPDF) {
+                    jsPDFConstructor = window.jsPDF;
+                } else if (typeof jsPDF !== 'undefined') {
+                    jsPDFConstructor = jsPDF;
+                } else {
+                    // Try to load jsPDF dynamically
+                    this.showToast('📥 Lade PDF-Bibliothek...', 'info');
+                    await this.loadJsPDFDynamic();
+                    
+                    if (window.jspdf && window.jspdf.jsPDF) {
+                        jsPDFConstructor = window.jspdf.jsPDF;
+                    } else if (window.jsPDF) {
+                        jsPDFConstructor = window.jsPDF;
+                    } else {
+                        throw new Error('PDF-Bibliothek konnte nicht geladen werden');
+                    }
                 }
 
                 this.showProgress('Erstelle PDF-Bericht...', 20);
 
-                // Get jsPDF constructor
-                const jsPDFConstructor = window.jsPDF || jsPDF;
                 const doc = new jsPDFConstructor();
                 // Header
                 doc.setFontSize(20);
@@ -2726,25 +2732,21 @@ Response:
             }
         }
 
-        // Dynamic jsPDF loading fallback
-        async loadJsPDF() {
+        async loadJsPDFDynamic() {
             return new Promise((resolve, reject) => {
-                if (typeof window.jsPDF !== 'undefined') {
-                    resolve();
-                    return;
-                }
-                
                 const script = document.createElement('script');
-                script.src = 'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js';
-                script.crossOrigin = 'anonymous';
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
                 script.onload = () => {
-                    console.log('✅ jsPDF loaded dynamically');
-                    resolve();
+                    // Give the library time to initialize
+                    setTimeout(() => {
+                        if (window.jspdf || window.jsPDF || typeof jsPDF !== 'undefined') {
+                            resolve();
+                        } else {
+                            reject(new Error('jsPDF failed to initialize'));
+                        }
+                    }, 200);
                 };
-                script.onerror = () => {
-                    console.error('❌ Failed to load jsPDF dynamically');
-                    reject(new Error('Failed to load jsPDF'));
-                };
+                script.onerror = () => reject(new Error('Failed to load jsPDF script'));
                 document.head.appendChild(script);
             });
         }
@@ -5347,7 +5349,6 @@ Response:
     console.log('📊 Features: Real-time AI, PDF Export, Multi-Scenario, Plugin Architecture');
     console.log('⌨️ Keyboard shortcuts available - Press F1 for help');
 </script>
-```
 
 </body>
 </html>
