@@ -3445,7 +3445,6 @@ List available plugins
             this.workerMessageId = 0;
             this.workerCallbacks = new Map();
             this.cache = new Map();
-            this.sectionData = new Map(); // Store data for each section
             this.analytics = {
                 calculations: 0,
                 cacheHits: 0,
@@ -3474,43 +3473,41 @@ List available plugins
             console.log('🚀 Initializing Ultimate Enterprise Suite Enhanced...');
             
             try {
-                // Initialize core components first
-                this.setupScenarios();
-                this.setupEventListeners();
+                // Track app initialization
+                this.gaTracker.trackUserJourney('app_start', 'initialization_started');
                 
-                // Load initial content immediately
+                await this.initializeWebWorker();
+                this.setupEventListeners();
+                this.setupKeyboardShortcuts();
+                this.setupScenarios();
+                this.setupPluginArchitecture();
+                this.initializeAnalytics();
+                this.loadSavedData();
+                this.setupAutoSave();
+                this.setupPerformanceMonitoring();
+                
+                // Initialize Google Analytics
+                this.gaTracker.init();
+                
+                // Load initial content
                 this.loadSectionContent('verkauf');
+                
+                this.showToast('🚀 Ultimate Enterprise Suite Enhanced geladen', 'success');
                 this.updatePerformanceIndicator('Ready');
                 
-                // Initialize other components asynchronously
-                setTimeout(async () => {
-                    try {
-                        await this.initializeWebWorker();
-                        this.setupKeyboardShortcuts();
-                        this.setupPluginArchitecture();
-                        this.initializeAnalytics();
-                        this.loadSavedData();
-                        this.setupAutoSave();
-                        this.setupPerformanceMonitoring();
-                        
-                        // Initialize Google Analytics
-                        if (this.gaTracker) {
-                            this.gaTracker.init();
-                        }
-                        
-                        this.showToast('🚀 Ultimate Enterprise Suite Enhanced geladen', 'success');
-                        console.log('✅ Ultimate Suite Enhanced initialized successfully');
-                    } catch (error) {
-                        console.warn('Some features may not be available:', error);
-                    }
-                }, 100);
+                // Track successful initialization
+                this.gaTracker.trackUserJourney('app_start', 'initialization_completed', {
+                    version: this.version,
+                    load_time: Date.now() - this.analytics.startTime
+                });
                 
+                console.log('✅ Ultimate Suite Enhanced initialized successfully');
             } catch (error) {
                 console.error('❌ Initialization error:', error);
-                // Still load basic content even if initialization fails
-                this.loadSectionContent('verkauf');
-                this.updatePerformanceIndicator('Teilweise geladen', 'warning');
-                this.showToast('⚠️ Einige Features sind möglicherweise nicht verfügbar', 'warning');
+                this.errorHandler.logError(error);
+                this.gaTracker.trackError('initialization_error', error.message, { version: this.version });
+                this.showToast('❌ Fehler beim Laden: ' + error.message, 'danger');
+                this.updatePerformanceIndicator('Error', 'error');
             }
         }
 
@@ -3706,10 +3703,6 @@ List available plugins
                        this.saveCurrentState();
                    }
                    
-                    if (data.sectionData) {
-                        this.sectionData = new Map(Object.entries(data.sectionData));
-                    }
-                    
                     if (this.realtimeEnabled) {
                         this.debouncedCalculate();
                     }
@@ -3750,35 +3743,25 @@ List available plugins
         setupRealtimeValidation() {
             const inputs = document.querySelectorAll('.form-input, .form-select');
             
-            if (inputs.length === 0) {
-                // No inputs found, try again later
-                setTimeout(() => this.setupRealtimeValidation(), 500);
-                return;
-            }
-            
             inputs.forEach(input => {
-                try {
-                    input.addEventListener('input', this.debounce((e) => {
-                        this.validateField(e.target);
-                        if (this.realtimeEnabled) {
-                            this.calculateOptimal();
-                        }
-                    }, 300));
+                input.addEventListener('input', this.debounce((e) => {
+                    this.validateField(e.target);
+                    if (this.realtimeEnabled) {
+                        this.calculateOptimal();
+                    }
+                }, 300));
 
-                    input.addEventListener('input', (e) => {
-                        this.showValidationIndicator(e.target);
-                    });
+                input.addEventListener('input', (e) => {
+                    this.showValidationIndicator(e.target);
+                });
 
-                    input.addEventListener('blur', (e) => {
-                        this.validateField(e.target);
-                    });
+                input.addEventListener('blur', (e) => {
+                    this.validateField(e.target);
+                });
 
-                    input.addEventListener('focus', (e) => {
-                        this.clearFieldError(e.target);
-                    });
-                } catch (error) {
-                    console.warn('Failed to setup validation for input:', input.id, error);
-                }
+                input.addEventListener('focus', (e) => {
+                    this.clearFieldError(e.target);
+                });
             });
         }
 
@@ -4507,9 +4490,6 @@ List available plugins
 
         // Navigation and Content Loading
         navigateToSection(section) {
-            // Save current section data before switching
-            this.saveCurrentSectionData();
-            
             // Track section navigation
             this.gaTracker.trackUserJourney('navigation', 'section_changed', {
                 from_section: this.getCurrentSection(),
@@ -4525,57 +4505,9 @@ List available plugins
             }
             
             this.loadSectionContent(section);
-            
-            // Restore data for the new section after content is loaded
-            setTimeout(() => {
-                this.restoreSectionData(section);
-            }, 100);
-            
             this.showToast(`📍 Navigation zu ${section}`, 'info');
         }
 
-        saveCurrentSectionData() {
-            const currentSection = this.getCurrentSection();
-            const formData = this.collectFormData();
-            
-            // Store section-specific data
-            if (!this.sectionData) {
-                this.sectionData = new Map();
-            }
-            
-            this.sectionData.set(currentSection, formData);
-            
-            // Also save to localStorage for persistence
-            try {
-                const allSectionData = Object.fromEntries(this.sectionData);
-                localStorage.setItem('immobilien-suite-section-data', JSON.stringify(allSectionData));
-            } catch (error) {
-                console.warn('Could not save section data:', error);
-            }
-        }
-
-        restoreSectionData(section) {
-            if (!this.sectionData) {
-                this.sectionData = new Map();
-                
-                // Try to load from localStorage
-                try {
-                    const saved = localStorage.getItem('immobilien-suite-section-data');
-                    if (saved) {
-                        const data = JSON.parse(saved);
-                        this.sectionData = new Map(Object.entries(data));
-                    }
-                } catch (error) {
-                    console.warn('Could not load section data:', error);
-                }
-            }
-            
-            const sectionData = this.sectionData.get(section);
-            if (sectionData && Object.keys(sectionData).length > 0) {
-                this.populateForm(sectionData);
-                this.showToast(`📋 Daten für ${section} wiederhergestellt`, 'success');
-            }
-        }
         loadSectionContent(section) {
             const contentArea = document.getElementById('dynamic-content');
             if (!contentArea) return;
@@ -6179,9 +6111,6 @@ List available plugins
 
         // Reset Methods
         resetForm() {
-            // Save current state before reset
-            this.saveCurrentSectionData();
-            
             this.saveCurrentState();
             
             const inputs = document.querySelectorAll('.form-input, .form-select');
@@ -6201,18 +6130,8 @@ List available plugins
                 this.clearFieldError(input);
             });
 
-            const resultsContainer = document.getElementById('results-container');
-            if (resultsContainer) {
-                resultsContainer.innerHTML = '';
-            }
-            
+            document.getElementById('results-container').innerHTML = '';
             this.updateAnalytics({ structures: [] }, 0);
-            
-            // Clear section data for current section
-            const currentSection = this.getCurrentSection();
-            if (this.sectionData) {
-                this.sectionData.delete(currentSection);
-            }
             
             this.showToast('🔄 Formular zurückgesetzt', 'info');
         }
@@ -6220,7 +6139,6 @@ List available plugins
         resetAll() {
             this.resetForm();
             this.cache.clear();
-            this.sectionData = new Map(); // Clear all section data
             this.appState.history = [];
             this.appState.historyIndex = -1;
             this.updateHistoryButtons();
@@ -6232,14 +6150,6 @@ List available plugins
             };
             this.errorHandler.clearErrors();
             this.updateSessionMetrics();
-            
-            // Clear localStorage section data
-            try {
-                localStorage.removeItem('immobilien-suite-section-data');
-            } catch (error) {
-                console.warn('Could not clear section data:', error);
-            }
-            
             this.showToast('🔄 Alles zurückgesetzt', 'info');
         }
 
@@ -6249,8 +6159,6 @@ List available plugins
             const inputs = document.querySelectorAll('.form-input, .form-select');
             
             inputs.forEach(input => {
-                if (!input.id) return; // Skip inputs without IDs
-                
                 if (input.type === 'number') {
                     data[input.id] = parseFloat(input.value) || 0;
                 } else if (input.type === 'checkbox') {
@@ -6264,8 +6172,6 @@ List available plugins
         }
 
         populateForm(data) {
-            this.isRestoringState = true; // Flag to prevent validation during restoration
-            
             Object.keys(data).forEach(key => {
                 const element = document.getElementById(key);
                 if (element) {
@@ -6275,16 +6181,11 @@ List available plugins
                         element.value = data[key];
                     }
                     
-                    // Only validate if not restoring state
                     if (!this.isRestoringState) {
-                        this.validateField(element);
-                    }
                         this.validateField(element);
                     }
                 }
             });
-            
-            this.isRestoringState = false;
         }
 
         formatCurrency(amount) {
@@ -6521,7 +6422,6 @@ List available plugins
             const data = {
                 scenarios: Object.fromEntries(this.scenarios),
                 currentScenario: this.currentScenario,
-                sectionData: Object.fromEntries(this.sectionData || new Map()),
                 settings: {
                     realtimeEnabled: this.realtimeEnabled
                 },
