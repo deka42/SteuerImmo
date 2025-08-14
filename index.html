@@ -1651,563 +1651,6 @@ Response:
 </div>
 </div>
 
-    <!-- Enhanced Error Handling and Module Structure -->
-    <script>
-        // Enhanced Error Handling and Module Structure Improvements
-        class EnhancedErrorHandler {
-            constructor() {
-                this.errorLog = [];
-                this.setupGlobalHandlers();
-            }
-
-            setupGlobalHandlers() {
-                window.addEventListener('error', (event) => {
-                    this.logError({
-                        type: 'JavaScript Error',
-                        message: event.message,
-                        filename: event.filename,
-                        lineno: event.lineno,
-                        timestamp: new Date().toISOString()
-                    });
-                });
-
-                window.addEventListener('unhandledrejection', (event) => {
-                    this.logError({
-                        type: 'Unhandled Promise Rejection',
-                        message: event.reason?.message || event.reason,
-                        timestamp: new Date().toISOString()
-                    });
-                });
-            }
-
-            logError(error) {
-                this.errorLog.push(error);
-                console.error('Application Error:', error);
-                
-                // Send to analytics service (if available)
-                this.reportToAnalytics(error);
-            }
-
-            reportToAnalytics(error) {
-                // Implementation for error reporting service
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'exception', {
-                        description: error.message,
-                        fatal: false
-                    });
-                }
-            }
-        }
-
-        // Improved PDF Export with Better Error Handling
-        class EnhancedPDFExporter {
-            constructor() {
-                this.jsPDFLibrary = null;
-                this.loadAttempts = 0;
-                this.maxLoadAttempts = 3;
-            }
-
-            async ensureLibraryLoaded() {
-                if (this.jsPDFLibrary) return this.jsPDFLibrary;
-
-                // Try multiple CDN sources
-                const cdnSources = [
-                    'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-                    'https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js',
-                    'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js'
-                ];
-
-                for (const source of cdnSources) {
-                    try {
-                        await this.loadFromCDN(source);
-                        this.jsPDFLibrary = this.getJsPDFConstructor();
-                        if (this.jsPDFLibrary) return this.jsPDFLibrary;
-                    } catch (error) {
-                        console.warn(`Failed to load jsPDF from ${source}:`, error);
-                        continue;
-                    }
-                }
-
-                throw new Error('Failed to load jsPDF library from any CDN source');
-            }
-
-            loadFromCDN(url) {
-                return new Promise((resolve, reject) => {
-                    const script = document.createElement('script');
-                    script.src = url;
-                    script.onload = () => {
-                        setTimeout(resolve, 200); // Give library time to initialize
-                    };
-                    script.onerror = () => reject(new Error(`Failed to load ${url}`));
-                    document.head.appendChild(script);
-                });
-            }
-
-            getJsPDFConstructor() {
-                // Try different ways jsPDF might be exposed
-                if (window.jspdf?.jsPDF) return window.jspdf.jsPDF;
-                if (window.jsPDF) return window.jsPDF;
-                if (typeof jsPDF !== 'undefined') return jsPDF;
-                return null;
-            }
-
-            async exportReport(data) {
-                try {
-                    const jsPDFConstructor = await this.ensureLibraryLoaded();
-                    const doc = new jsPDFConstructor({
-                        orientation: 'portrait',
-                        unit: 'mm',
-                        format: 'a4'
-                    });
-
-                    await this.generatePDFContent(doc, data);
-                    
-                    const filename = `Steueroptimierung_${new Date().toISOString().split('T')[0]}.pdf`;
-                    doc.save(filename);
-                    
-                    return { success: true, filename };
-                } catch (error) {
-                    console.error('PDF Export failed:', error);
-                    throw new Error(`PDF-Export fehlgeschlagen: ${error.message}`);
-                }
-            }
-
-            async generatePDFContent(doc, data) {
-                // Enhanced PDF generation with better error handling
-                try {
-                    this.addHeader(doc);
-                    this.addInputData(doc, data);
-                    
-                    if (data.results) {
-                        this.addResults(doc, data.results);
-                    }
-                    
-                    this.addFooter(doc);
-                } catch (error) {
-                    console.error('Error generating PDF content:', error);
-                    throw error;
-                }
-            }
-
-            addHeader(doc) {
-                doc.setFontSize(20);
-                doc.setTextColor('#667eea');
-                doc.text('🏠 Immobilien-Steuer-Suite 2025', 20, 30);
-                
-                doc.setFontSize(12);
-                doc.setTextColor('#000000');
-                doc.text('Ultimate Enterprise Edition - Steueroptimierung Bericht', 20, 40);
-                doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 20, 50);
-            }
-
-            addInputData(doc, data) {
-                let yPos = 70;
-                doc.setFontSize(16);
-                doc.setTextColor('#2c3e50');
-                doc.text('Eingabedaten:', 20, yPos);
-                yPos += 15;
-                
-                doc.setFontSize(10);
-                doc.setTextColor('#000000');
-                
-                if (data.kaufpreis) {
-                    doc.text(`Kaufpreis: ${this.formatCurrency(data.kaufpreis)}`, 25, yPos);
-                    yPos += 10;
-                }
-                if (data.verkaufspreis) {
-                    doc.text(`Verkaufspreis: ${this.formatCurrency(data.verkaufspreis)}`, 25, yPos);
-                    yPos += 10;
-                }
-                if (data.haltedauer) {
-                    doc.text(`Haltedauer: ${data.haltedauer} Jahre`, 25, yPos);
-                    yPos += 10;
-                }
-                if (data.steuersatz) {
-                    doc.text(`Steuersatz: ${data.steuersatz}%`, 25, yPos);
-                    yPos += 10;
-                }
-            }
-
-            addResults(doc, results) {
-                let yPos = 140;
-                doc.setFontSize(16);
-                doc.setTextColor('#2c3e50');
-                doc.text('Berechnungsergebnisse:', 20, yPos);
-                yPos += 15;
-                
-                doc.setFontSize(10);
-                doc.setTextColor('#000000');
-                
-                if (results.structures && results.structures.length > 0) {
-                    results.structures.forEach((structure, index) => {
-                        if (yPos > 250) {
-                            doc.addPage();
-                            yPos = 30;
-                        }
-                        
-                        doc.setFontSize(12);
-                        doc.setTextColor(structure.isBest ? '#27ae60' : '#2c3e50');
-                        doc.text(`${index + 1}. ${structure.name}${structure.isBest ? ' (OPTIMAL)' : ''}`, 25, yPos);
-                        yPos += 10;
-                        
-                        doc.setFontSize(10);
-                        doc.setTextColor('#000000');
-                        doc.text(`   Nettogewinn: ${this.formatCurrency(structure.netProfit)}`, 30, yPos);
-                        yPos += 8;
-                        doc.text(`   Steuerlast: ${this.formatCurrency(structure.tax)}`, 30, yPos);
-                        yPos += 8;
-                        doc.text(`   Steuersatz: ${structure.taxRate.toFixed(2)}%`, 30, yPos);
-                        yPos += 15;
-                    });
-                }
-            }
-
-            addFooter(doc) {
-                const pageCount = doc.internal.getNumberOfPages();
-                for (let i = 1; i <= pageCount; i++) {
-                    doc.setPage(i);
-                    doc.setFontSize(8);
-                    doc.setTextColor('#6c757d');
-                    doc.text(`Seite ${i} von ${pageCount}`, 20, 285);
-                    doc.text('Immobilien-Steuer-Suite 2025 Ultimate Enterprise', 120, 285);
-                }
-            }
-
-            formatCurrency(amount) {
-                return new Intl.NumberFormat('de-DE', {
-                    style: 'currency',
-                    currency: 'EUR',
-                    minimumFractionDigits: 0,
-                    maximumFractionDigits: 0
-                }).format(amount || 0);
-            }
-        }
-
-        // Modular Calculation System
-        class TaxCalculationEngine {
-            constructor() {
-                this.calculators = new Map();
-                this.registerCalculators();
-            }
-
-            registerCalculators() {
-                this.calculators.set('verkauf', new VerkaufsteuerCalculator());
-                this.calculators.set('grundsteuer', new GrundsteuerCalculator());
-                this.calculators.set('erbschaft', new ErbschaftsteuerCalculator());
-                this.calculators.set('schenkung', new SchenkungsteuerCalculator());
-                this.calculators.set('cashflow', new CashflowCalculator());
-            }
-
-            async calculate(type, data) {
-                const calculator = this.calculators.get(type);
-                if (!calculator) {
-                    throw new Error(`Unknown calculation type: ${type}`);
-                }
-
-                try {
-                    return await calculator.calculate(data);
-                } catch (error) {
-                    console.error(`Calculation error for ${type}:`, error);
-                    throw new Error(`Fehler bei ${type}-Berechnung: ${error.message}`);
-                }
-            }
-
-            getAvailableCalculators() {
-                return Array.from(this.calculators.keys());
-            }
-        }
-
-        // Base Calculator Class
-        class BaseCalculator {
-            constructor(name) {
-                this.name = name;
-                this.validationRules = new Map();
-            }
-
-            addValidationRule(field, rule) {
-                this.validationRules.set(field, rule);
-            }
-
-            validate(data) {
-                const errors = [];
-                
-                for (const [field, rule] of this.validationRules) {
-                    try {
-                        if (!rule.validator(data[field])) {
-                            errors.push({
-                                field,
-                                message: rule.message
-                            });
-                        }
-                    } catch (error) {
-                        errors.push({
-                            field,
-                            message: `Validation error: ${error.message}`
-                        });
-                    }
-                }
-
-                return {
-                    isValid: errors.length === 0,
-                    errors
-                };
-            }
-
-            async calculate(data) {
-                const validation = this.validate(data);
-                if (!validation.isValid) {
-                    throw new Error(`Validation failed: ${validation.errors.map(e => e.message).join(', ')}`);
-                }
-
-                return this.performCalculation(data);
-            }
-
-            performCalculation(data) {
-                throw new Error('performCalculation must be implemented by subclass');
-            }
-        }
-
-        // Enhanced Verkaufsteuer Calculator
-        class VerkaufsteuerCalculator extends BaseCalculator {
-            constructor() {
-                super('verkaufsteuer');
-                this.setupValidation();
-            }
-
-            setupValidation() {
-                this.addValidationRule('kaufpreis', {
-                    validator: (value) => value > 0,
-                    message: 'Kaufpreis muss größer als 0 sein'
-                });
-
-                this.addValidationRule('verkaufspreis', {
-                    validator: (value) => value > 0,
-                    message: 'Verkaufspreis muss größer als 0 sein'
-                });
-
-                this.addValidationRule('haltedauer', {
-                    validator: (value) => value >= 0 && value <= 100,
-                    message: 'Haltedauer muss zwischen 0 und 100 Jahren liegen'
-                });
-            }
-
-            performCalculation(data) {
-                const anschaffungskosten = data.kaufpreis + (data.nebenkosten_kauf || 0) + (data.modernisierung || 0);
-                const grossProfit = data.verkaufspreis - (data.nebenkosten_verkauf || 0) - anschaffungskosten;
-                
-                if (grossProfit <= 0) {
-                    return { 
-                        grossProfit, 
-                        structures: [],
-                        message: 'Kein steuerpflichtiger Gewinn vorhanden'
-                    };
-                }
-
-                const structures = this.calculateStructures(grossProfit, data);
-                
-                return {
-                    grossProfit,
-                    structures,
-                    maxNetProfit: structures.length > 0 ? structures[0].netProfit : 0,
-                    totalSavings: structures.length > 1 ? structures[0].netProfit - structures[structures.length - 1].netProfit : 0
-                };
-            }
-
-            calculateStructures(grossProfit, data) {
-                const baseTax = this.calculateSpeculationTax(grossProfit, data.haltedauer, data.steuersatz, data.kirchensteuer);
-                const structures = [];
-
-                const structureConfigs = [
-                    { name: 'Privatverkauf', factor: 1.0, minProfit: 0 },
-                    { name: 'VV GmbH & Co. KG (BFH 2025)', factor: 0.85, minProfit: 0 },
-                    { name: 'Familienpool (GbR)', factor: 0.75, minProfit: 50000 },
-                    { name: 'Share Deal (GmbH)', factor: 0.60, minProfit: 100000 },
-                    { name: 'Cross-Border Holding', factor: 0.45, minProfit: 500000 },
-                    { name: 'Cross-Border Struktur (Niederlande)', factor: 0.40, minProfit: 750000 },
-                    { name: 'Familienstiftung', factor: 0.35, minProfit: 1000000 },
-                    { name: 'Stiftung & Co. KG', factor: 0.30, minProfit: 1500000 }
-                ];
-
-                for (const config of structureConfigs) {
-                    if (grossProfit >= config.minProfit) {
-                        const tax = baseTax * config.factor;
-                        const netProfit = grossProfit - tax;
-                        
-                        structures.push({
-                            name: config.name,
-                            grossProfit,
-                            tax,
-                            netProfit,
-                            taxRate: grossProfit > 0 ? (tax / grossProfit * 100) : 0,
-                            isBest: false
-                        });
-                    }
-                }
-
-                structures.sort((a, b) => b.netProfit - a.netProfit);
-                if (structures.length > 0) {
-                    structures[0].isBest = true;
-                }
-
-                return structures;
-            }
-
-            calculateSpeculationTax(profit, holdingPeriod, taxRate, churchTax) {
-                if (holdingPeriod >= 10) return 0;
-                
-                const incomeTax = profit * (taxRate / 100);
-                const churchTaxAmount = incomeTax * (churchTax / 100);
-                const solidarityTax = incomeTax * 0.055;
-                
-                return incomeTax + churchTaxAmount + solidarityTax;
-            }
-        }
-
-        // Placeholder calculators for other modules
-        class GrundsteuerCalculator extends BaseCalculator {
-            constructor() {
-                super('grundsteuer');
-            }
-
-            performCalculation(data) {
-                // Implementation for Grundsteuer calculation
-                return { message: 'Grundsteuer calculation not yet implemented' };
-            }
-        }
-
-        class ErbschaftsteuerCalculator extends BaseCalculator {
-            constructor() {
-                super('erbschaftsteuer');
-            }
-
-            performCalculation(data) {
-                // Implementation for Erbschaftsteuer calculation
-                return { message: 'Erbschaftsteuer calculation not yet implemented' };
-            }
-        }
-
-        class SchenkungsteuerCalculator extends BaseCalculator {
-            constructor() {
-                super('schenkungsteuer');
-            }
-
-            performCalculation(data) {
-                // Implementation for Schenkungsteuer calculation
-                return { message: 'Schenkungsteuer calculation not yet implemented' };
-            }
-        }
-
-        class CashflowCalculator extends BaseCalculator {
-            constructor() {
-                super('cashflow');
-            }
-
-            performCalculation(data) {
-                // Implementation for Cashflow calculation
-                return { message: 'Cashflow calculation not yet implemented' };
-            }
-        }
-
-        // Enhanced State Management
-        class ApplicationState {
-            constructor() {
-                this.state = new Proxy({}, {
-                    set: (target, property, value) => {
-                        const oldValue = target[property];
-                        target[property] = value;
-                        this.notify(property, value, oldValue);
-                        return true;
-                    }
-                });
-
-                this.subscribers = new Map();
-                this.history = [];
-                this.historyIndex = -1;
-            }
-
-            subscribe(property, callback) {
-                if (!this.subscribers.has(property)) {
-                    this.subscribers.set(property, new Set());
-                }
-                this.subscribers.get(property).add(callback);
-            }
-
-            unsubscribe(property, callback) {
-                const callbacks = this.subscribers.get(property);
-                if (callbacks) {
-                    callbacks.delete(callback);
-                }
-            }
-
-            notify(property, newValue, oldValue) {
-                const callbacks = this.subscribers.get(property);
-                if (callbacks) {
-                    callbacks.forEach(callback => {
-                        try {
-                            callback(newValue, oldValue, property);
-                        } catch (error) {
-                            console.error('Error in state subscriber:', error);
-                        }
-                    });
-                }
-            }
-
-            set(property, value) {
-                this.saveToHistory();
-                this.state[property] = value;
-            }
-
-            get(property) {
-                return this.state[property];
-            }
-
-            saveToHistory() {
-                if (this.historyIndex < this.history.length - 1) {
-                    this.history = this.history.slice(0, this.historyIndex + 1);
-                }
-                
-                this.history.push(JSON.parse(JSON.stringify(this.state)));
-                this.historyIndex = this.history.length - 1;
-                
-                // Limit history size
-                if (this.history.length > 50) {
-                    this.history.shift();
-                    this.historyIndex--;
-                }
-            }
-
-            undo() {
-                if (this.historyIndex > 0) {
-                    this.historyIndex--;
-                    this.state = { ...this.history[this.historyIndex] };
-                    return true;
-                }
-                return false;
-            }
-
-            redo() {
-                if (this.historyIndex < this.history.length - 1) {
-                    this.historyIndex++;
-                    this.state = { ...this.history[this.historyIndex] };
-                    return true;
-                }
-                return false;
-            }
-        }
-
-        // Initialize enhanced modules
-        const errorHandler = new EnhancedErrorHandler();
-        const enhancedPdfExporter = new EnhancedPDFExporter();
-        const calculationEngine = new TaxCalculationEngine();
-        const appState = new ApplicationState();
-
-        // Make them globally available
-        window.errorHandler = errorHandler;
-        window.enhancedPdfExporter = enhancedPdfExporter;
-        window.calculationEngine = calculationEngine;
-        window.appState = appState;
-    </script>
-
 <!-- Web Worker for Background Calculations -->
 <script id="worker-script" type="text/plain">
     // Tax Calculator Web Worker
@@ -5778,3 +5221,138 @@ Response:
             toast.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span>${icons[type] || 'ℹ️'} ${message}</span>
+                    <button onclick="document.getElementById('${toastId}').remove()" 
+                            style="background: none; border: none; font-size: 1.2rem; cursor: pointer;">×</button>
+                </div>
+            `;
+
+            container.appendChild(toast);
+
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (document.getElementById(toastId)) {
+                    toast.style.animation = 'slideOutToast 0.3s ease forwards';
+                    setTimeout(() => toast.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // API Documentation
+        showAPIDocumentation() {
+            this.showModal('api-docs-modal');
+        }
+
+        // Format Utilities
+        formatCurrency(amount) {
+            return new Intl.NumberFormat('de-DE', {
+                style: 'currency',
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount || 0);
+        }
+
+        // Save/Load Data
+        saveData() {
+            const data = {
+                scenarios: Object.fromEntries(this.scenarios),
+                currentScenario: this.currentScenario,
+                settings: {
+                    realtimeEnabled: this.realtimeEnabled
+                }
+            };
+            
+            try {
+                localStorage.setItem('immobilien-suite-data', JSON.stringify(data));
+                this.showToast('💾 Daten gespeichert', 'success');
+            } catch (error) {
+                console.warn('Could not save to localStorage:', error);
+            }
+        }
+
+        loadSavedData() {
+            try {
+                const saved = localStorage.getItem('immobilien-suite-data');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    
+                    if (data.scenarios) {
+                        this.scenarios = new Map(Object.entries(data.scenarios));
+                    }
+                    
+                    if (data.currentScenario) {
+                        this.currentScenario = data.currentScenario;
+                    }
+                    
+                    if (data.settings) {
+                        this.realtimeEnabled = data.settings.realtimeEnabled !== false;
+                        const checkbox = document.getElementById('realtime-calc');
+                        if (checkbox) {
+                            checkbox.checked = this.realtimeEnabled;
+                        }
+                    }
+                    
+                    console.log('✅ Saved data loaded');
+                }
+            } catch (error) {
+                console.warn('Could not load saved data:', error);
+            }
+        }
+
+        // Auto-save
+        setupAutoSave() {
+            setInterval(() => {
+                this.saveData();
+            }, 30000); // Save every 30 seconds
+        }
+
+        // Help System
+        showHelp() {
+            this.showToast(`
+                🆘 Hilfe: Nutzen Sie Tastenkürzel:
+                Ctrl+Enter: Berechnen
+                Ctrl+E: Beispiel laden
+                Ctrl+P: PDF exportieren
+                Ctrl+Z/Y: Rückgängig/Wiederholen
+            `, 'info');
+        }
+    }
+
+    // Initialize the Ultimate Suite
+    const app = new UltimateImmobilienSuite();
+    window.app = app;
+
+    // Additional CSS animations for slideOut toast
+    const additionalStyles = document.createElement('style');
+    additionalStyles.textContent = `
+        @keyframes slideOutToast {
+            to { transform: translateX(450px); opacity: 0; }
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .data-table tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+    `;
+    document.head.appendChild(additionalStyles);
+
+    console.log('🚀 Ultimate Enterprise Immobilien-Steuer-Suite 2025 loaded');
+    console.log('📊 Features: Real-time AI, PDF Export, Multi-Scenario, Plugin Architecture');
+    console.log('⌨️ Keyboard shortcuts available - Press F1 for help');
+</script>
+
+</body>
+</html>
