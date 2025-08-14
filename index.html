@@ -3458,21 +3458,14 @@ List available plugins
             this.isRestoringState = false;
             
             // Enhanced components
-            try {
-                this.errorHandler = new EnhancedErrorHandler();
-                this.pdfExporter = new EnhancedPDFExporter();
-                this.appState = new ApplicationState();
-                this.calculationEngine = new TaxCalculationEngine();
-                
-                // Google Analytics Integration
-                this.gaTracker = new GoogleAnalyticsTracker();
-                this.cookieManager = new CookieConsentManager();
-            } catch (error) {
-                console.warn('Some components failed to initialize:', error);
-                // Create minimal fallbacks
-                this.errorHandler = { logError: (e) => console.error(e) };
-                this.appState = { saveToHistory: () => {}, undo: () => false, redo: () => false };
-            }
+            this.errorHandler = new EnhancedErrorHandler();
+            this.pdfExporter = new EnhancedPDFExporter();
+            this.appState = new ApplicationState();
+            this.calculationEngine = new TaxCalculationEngine();
+            
+            // Google Analytics Integration
+            this.gaTracker = new GoogleAnalyticsTracker();
+            this.cookieManager = new CookieConsentManager();
             
             this.init();
         }
@@ -3757,25 +3750,35 @@ List available plugins
         setupRealtimeValidation() {
             const inputs = document.querySelectorAll('.form-input, .form-select');
             
+            if (inputs.length === 0) {
+                // No inputs found, try again later
+                setTimeout(() => this.setupRealtimeValidation(), 500);
+                return;
+            }
+            
             inputs.forEach(input => {
-                input.addEventListener('input', this.debounce((e) => {
-                    this.validateField(e.target);
-                    if (this.realtimeEnabled) {
-                        this.calculateOptimal();
-                    }
-                }, 300));
+                try {
+                    input.addEventListener('input', this.debounce((e) => {
+                        this.validateField(e.target);
+                        if (this.realtimeEnabled) {
+                            this.calculateOptimal();
+                        }
+                    }, 300));
 
-                input.addEventListener('input', (e) => {
-                    this.showValidationIndicator(e.target);
-                });
+                    input.addEventListener('input', (e) => {
+                        this.showValidationIndicator(e.target);
+                    });
 
-                input.addEventListener('blur', (e) => {
-                    this.validateField(e.target);
-                });
+                    input.addEventListener('blur', (e) => {
+                        this.validateField(e.target);
+                    });
 
-                input.addEventListener('focus', (e) => {
-                    this.clearFieldError(e.target);
-                });
+                    input.addEventListener('focus', (e) => {
+                        this.clearFieldError(e.target);
+                    });
+                } catch (error) {
+                    console.warn('Failed to setup validation for input:', input.id, error);
+                }
             });
         }
 
