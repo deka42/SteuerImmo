@@ -3474,41 +3474,43 @@ List available plugins
             console.log('🚀 Initializing Ultimate Enterprise Suite Enhanced...');
             
             try {
-                // Track app initialization
-                this.gaTracker.trackUserJourney('app_start', 'initialization_started');
-                
-                await this.initializeWebWorker();
-                this.setupEventListeners();
-                this.setupKeyboardShortcuts();
+                // Initialize core components first
                 this.setupScenarios();
-                this.setupPluginArchitecture();
-                this.initializeAnalytics();
-                this.loadSavedData();
-                this.setupAutoSave();
-                this.setupPerformanceMonitoring();
+                this.setupEventListeners();
                 
-                // Initialize Google Analytics
-                this.gaTracker.init();
-                
-                // Load initial content
+                // Load initial content immediately
                 this.loadSectionContent('verkauf');
-                
-                this.showToast('🚀 Ultimate Enterprise Suite Enhanced geladen', 'success');
                 this.updatePerformanceIndicator('Ready');
                 
-                // Track successful initialization
-                this.gaTracker.trackUserJourney('app_start', 'initialization_completed', {
-                    version: this.version,
-                    load_time: Date.now() - this.analytics.startTime
-                });
+                // Initialize other components asynchronously
+                setTimeout(async () => {
+                    try {
+                        await this.initializeWebWorker();
+                        this.setupKeyboardShortcuts();
+                        this.setupPluginArchitecture();
+                        this.initializeAnalytics();
+                        this.loadSavedData();
+                        this.setupAutoSave();
+                        this.setupPerformanceMonitoring();
+                        
+                        // Initialize Google Analytics
+                        if (this.gaTracker) {
+                            this.gaTracker.init();
+                        }
+                        
+                        this.showToast('🚀 Ultimate Enterprise Suite Enhanced geladen', 'success');
+                        console.log('✅ Ultimate Suite Enhanced initialized successfully');
+                    } catch (error) {
+                        console.warn('Some features may not be available:', error);
+                    }
+                }, 100);
                 
-                console.log('✅ Ultimate Suite Enhanced initialized successfully');
             } catch (error) {
                 console.error('❌ Initialization error:', error);
-                this.errorHandler.logError(error);
-                this.gaTracker.trackError('initialization_error', error.message, { version: this.version });
-                this.showToast('❌ Fehler beim Laden: ' + error.message, 'danger');
-                this.updatePerformanceIndicator('Error', 'error');
+                // Still load basic content even if initialization fails
+                this.loadSectionContent('verkauf');
+                this.updatePerformanceIndicator('Teilweise geladen', 'warning');
+                this.showToast('⚠️ Einige Features sind möglicherweise nicht verfügbar', 'warning');
             }
         }
 
