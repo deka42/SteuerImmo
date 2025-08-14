@@ -3239,27 +3239,6 @@
         }
 
         /**
-         * Hide loading screen
-         */
-        hideLoadingScreen() {
-            try {
-                const loadingContainer = document.querySelector('.loading-container');
-                if (loadingContainer) {
-                    loadingContainer.style.display = 'none';
-                }
-                
-                const appContent = document.getElementById('app-content');
-                if (appContent) {
-                    appContent.style.opacity = '1';
-                }
-                
-                console.log('✅ Loading screen hidden');
-            } catch (error) {
-                console.error('Error hiding loading screen:', error);
-            }
-        }
-
-        /**
          * Enhanced navigation with performance monitoring
          * @param {string} section - Section to navigate to
          */
@@ -3285,7 +3264,7 @@
          * Enhanced calculation with comprehensive error handling
          * @returns {Promise<void>}
          */
-        async calculateVerkauf() {
+        calculateVerkauf() {
             console.log('🧮 Starting calculation...');
             
             // Clear any existing timeouts
@@ -3293,51 +3272,47 @@
                 clearTimeout(this.progressTimeout);
             }
             
-            try {
-                this.showCalculationProgress('Sammle Eingabedaten...', 20);
-                
-                // Collect and validate data first
-                const data = this.collectVerkaufData();
-                console.log('✓ Data collected:', data);
-                
-                // Basic validation
-                if (!data.kaufpreis || data.kaufpreis <= 0) {
-                    throw new Error('Bitte geben Sie einen gültigen Kaufpreis ein');
+            // Use setTimeout to make it non-blocking
+            setTimeout(() => {
+                try {
+                    this.showCalculationProgress('Sammle Eingabedaten...', 20);
+                    
+                    // Collect and validate data first
+                    const data = this.collectVerkaufData();
+                    console.log('✓ Data collected:', data);
+                    
+                    // Basic validation
+                    if (!data.kaufpreis || data.kaufpreis <= 0) {
+                        throw new Error('Bitte geben Sie einen gültigen Kaufpreis ein');
+                    }
+                    
+                    if (!data.verkaufspreis || data.verkaufspreis <= 0) {
+                        throw new Error('Bitte geben Sie einen gültigen Verkaufspreis ein');
+                    }
+                    
+                    console.log('✓ Validation passed');
+                    this.showCalculationProgress('Berechne Steueroptimierung...', 70);
+                    
+                    // Perform calculation synchronously
+                    console.log('🔄 Starting actual calculation...');
+                    const results = this.performSyncCalculation(data);
+                    console.log('✓ Calculation completed:', results);
+                    
+                    this.showCalculationProgress('Erstelle Ergebnisse...', 90);
+                    
+                    // Display results
+                    console.log('📊 Displaying results...');
+                    this.displayVerkaufResults(results);
+                    this.updateDashboardWidget(results);
+                    
+                    this.showCalculationProgress('Berechnung abgeschlossen!', 100);
+                    
+                    // Hide progress after short delay
+                    setTimeout(() => {
+                        this.hideCalculationProgress();
+                    this.showToast('❌ Fehler bei der Berechnung: ' + error.message, 'error');
                 }
-                
-                if (!data.verkaufspreis || data.verkaufspreis <= 0) {
-                    throw new Error('Bitte geben Sie einen gültigen Verkaufspreis ein');
-                }
-                
-                console.log('✓ Validation passed');
-                this.showCalculationProgress('Berechne Steueroptimierung...', 60);
-                
-                // Perform calculation synchronously
-                console.log('🔄 Starting actual calculation...');
-                const results = this.performSyncCalculation(data);
-                console.log('✓ Calculation completed:', results);
-                
-                this.showCalculationProgress('Erstelle Ergebnisse...', 90);
-                
-                // Display results
-                console.log('📊 Displaying results...');
-                this.displayVerkaufResults(results);
-                this.updateDashboardWidget(results);
-                
-                this.showCalculationProgress('Berechnung abgeschlossen!', 100);
-                
-                // Hide progress after short delay
-                setTimeout(() => {
-                    this.hideCalculationProgress();
-                    this.showToast('🧮 Berechnung erfolgreich abgeschlossen', 'success');
-                    console.log('✅ Calculation process completed successfully');
-                }, 800);
-                
-            } catch (error) {
-                console.error('❌ Calculation error:', error);
-                this.hideCalculationProgress();
-                this.showToast('❌ Fehler bei der Berechnung: ' + error.message, 'error');
-            }
+            }, 100);
         }
 
         /**
