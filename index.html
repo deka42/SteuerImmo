@@ -3702,18 +3702,21 @@
                     progressText.textContent = text;
                     progressFill.style.width = percentage + '%';
                     
-                    // Failsafe: Auto-hide after 10 seconds
+                    // Clear any existing timeout first
                     if (this.progressTimeout) {
                         clearTimeout(this.progressTimeout);
                     }
+                    
+                    // Failsafe: Auto-hide after 8 seconds
                     this.progressTimeout = setTimeout(() => {
                         this.hideCalculationProgress();
                         this.showToast('⚠️ Berechnung dauerte zu lange - bitte erneut versuchen', 'warning');
-                    }, 10000);
+                    }, 8000);
                 }
             } catch (error) {
                 console.error('Progress display error:', error);
-                // If progress display fails, continue anyway
+                // If progress display fails, make sure we don't get stuck
+                this.hideCalculationProgress();
             }
         }
 
@@ -3732,29 +3735,15 @@
                 }
             } catch (error) {
                 console.error('Progress hide error:', error);
-            }
-            
-            // Force hide even if error occurs - separate try block
-            try {
-                const overlay = document.getElementById('progress-overlay');
-                if (overlay) {
-                    overlay.style.display = 'none';
-                    overlay.classList.add('d-none');
-                    // Force remove any inline styles that might interfere
-                    overlay.removeAttribute('style');
-                    overlay.style.display = 'none';
-                }
-            } catch (e) {
-                console.error('Force hide failed:', e);
-                // Last resort - try to find and hide any progress overlay
-                const overlays = document.querySelectorAll('[id*="progress"]');
-                overlays.forEach(el => {
-                    try {
-                        el.style.display = 'none';
-                    } catch (err) {
-                        // Silent fail
+                // Force hide even if error occurs
+                try {
+                    const overlay = document.getElementById('progress-overlay');
+                    if (overlay) {
+                        overlay.style.display = 'none';
                     }
-                });
+                } catch (e) {
+                    console.error('Force hide failed:', e);
+                }
             }
         }
 
