@@ -3016,19 +3016,14 @@ List available plugins
     // Enhanced Application State Management
     class ApplicationState {
         constructor() {
-            this.state = new Proxy({}, {
-                set: (target, property, value) => {
-                    const oldValue = target[property];
-                    target[property] = value;
-                    this.notify(property, value, oldValue);
-                    return true;
-                }
-            });
-            
+            this.state = {};
             this.subscribers = new Map();
             this.history = [];
             this.historyIndex = -1;
             this.maxHistorySize = 50;
+            
+            // Initialize with current form state
+            this.saveCurrentState();
         }
 
         subscribe(property, callback) {
@@ -3061,32 +3056,65 @@ List available plugins
         }
 
         set(property, value) {
-            this.saveToHistory();
+            this.saveCurrentState();
             this.state[property] = value;
+            this.notify(property, value, this.state[property]);
         }
 
         get(property) {
             return this.state[property];
         }
 
-        saveToHistory() {
+        saveCurrentState() {
+            // Get current form data
+            const currentFormData = this.getCurrentFormData();
+            
+            // Don't save if it's the same as the last state
+            if (this.history.length > 0 && 
+                JSON.stringify(currentFormData) === JSON.stringify(this.history[this.historyIndex])) {
+                return;
+            }
+            
             if (this.historyIndex < this.history.length - 1) {
                 this.history = this.history.slice(0, this.historyIndex + 1);
             }
             
-            this.history.push(JSON.parse(JSON.stringify(this.state)));
+            this.history.push(JSON.parse(JSON.stringify(currentFormData)));
             this.historyIndex = this.history.length - 1;
             
             if (this.history.length > this.maxHistorySize) {
                 this.history.shift();
                 this.historyIndex--;
             }
+            
+            // Update undo/redo button states
+            if (window.app) {
+                window.app.updateHistoryButtons();
+            }
+        }
+        
+        getCurrentFormData() {
+            const data = {};
+            const inputs = document.querySelectorAll('.form-input, .form-select');
+            
+            inputs.forEach(input => {
+                if (input.type === 'number') {
+                    data[input.id] = parseFloat(input.value) || 0;
+                } else if (input.type === 'checkbox') {
+                    data[input.id] = input.checked;
+                } else {
+                    data[input.id] = input.value || '';
+                }
+            });
+            
+            return data;
         }
 
         undo() {
             if (this.historyIndex > 0) {
                 this.historyIndex--;
-                this.state = { ...this.history[this.historyIndex] };
+                const previousState = this.history[this.historyIndex];
+                this.restoreFormData(previousState);
                 return true;
             }
             return false;
@@ -3095,19 +3123,36 @@ List available plugins
         redo() {
             if (this.historyIndex < this.history.length - 1) {
                 this.historyIndex++;
-                this.state = { ...this.history[this.historyIndex] };
+                const nextState = this.history[this.historyIndex];
+                this.restoreFormData(nextState);
                 return true;
             }
             return false;
         }
+        
+        restoreFormData(data) {
+            if (window.app) {
+                window.app.isRestoringState = true;
+                window.app.populateForm(data);
+                window.app.isRestoringState = false;
+            }
+        }
+        
+        canUndo() {
+            return this.historyIndex > 0;
+        }
+        
+        canRedo() {
+            return this.historyIndex < this.history.length - 1;
+        }
 
         getSnapshot() {
-            return JSON.parse(JSON.stringify(this.state));
+            return this.getCurrentFormData();
         }
 
         loadSnapshot(snapshot) {
-            this.saveToHistory();
-            this.state = { ...snapshot };
+            this.saveCurrentState();
+            this.restoreFormData(snapshot);
         }
     }
 
@@ -3409,6 +3454,7 @@ List available plugins
             this.plugins = new Map();
             this.keyboardShortcuts = new Map();
             this.chart = null;
+            this.isRestoringState = false;
             
             // Enhanced components
             this.errorHandler = new EnhancedErrorHandler();
@@ -3652,6 +3698,11 @@ List available plugins
             // Form changes for real-time calculation
             document.addEventListener('input', (e) => {
                 if (e.target.matches('.form-input, .form-select')) {
+                   // Save state before changes for undo functionality
+                   if (!this.isRestoringState) {
+                       this.saveCurrentState();
+                   }
+                   
                     if (this.realtimeEnabled) {
                         this.debouncedCalculate();
                     }
@@ -3825,6 +3876,9 @@ List available plugins
                 this.updatePerformanceIndicator('Berechnung läuft...');
                 this.showProgress('KI-Algorithmus analysiert optimale Steuerstrukturen...', 10);
                 
+                // Save state before calculation
+                this.saveCurrentState();
+                
                 const data = this.collectFormData();
                 
                 // Track calculation start
@@ -3838,8 +3892,6 @@ List available plugins
                     throw new Error('Bitte korrigieren Sie die Eingabefehler');
                 }
 
-                this.appState.saveToHistory();
-                
                 this.showProgress('Berechne optimale Rechtsformen...', 30);
                 
                 const cacheKey = JSON.stringify(data);
@@ -5928,8 +5980,8 @@ List available plugins
                 immobilientyp: 'eigenheim'
             };
 
+            this.saveCurrentState();
             this.populateForm(exampleData);
-            this.appState.saveToHistory();
             this.showToast('💡 Beispieldaten geladen', 'success');
             
             if (this.realtimeEnabled) {
@@ -6059,6 +6111,8 @@ List available plugins
 
         // Reset Methods
         resetForm() {
+            this.saveCurrentState();
+            
             const inputs = document.querySelectorAll('.form-input, .form-select');
             inputs.forEach(input => {
                 if (input.type === 'number') {
@@ -6079,7 +6133,6 @@ List available plugins
             document.getElementById('results-container').innerHTML = '';
             this.updateAnalytics({ structures: [] }, 0);
             
-            this.appState.saveToHistory();
             this.showToast('🔄 Formular zurückgesetzt', 'info');
         }
 
@@ -6128,7 +6181,9 @@ List available plugins
                         element.value = data[key];
                     }
                     
-                    this.validateField(element);
+                    if (!this.isRestoringState) {
+                        this.validateField(element);
+                    }
                 }
             });
         }
@@ -6320,23 +6375,27 @@ List available plugins
         }
 
         // History Management
+        saveCurrentState() {
+            this.appState.saveCurrentState();
+        }
+        
         undo() {
             if (this.appState.undo()) {
-                this.populateForm(this.appState.getSnapshot());
                 this.updateHistoryButtons();
                 this.showToast('↶ Rückgängig', 'info');
                 return true;
             }
+            this.showToast('⚠️ Nichts zum Rückgängigmachen', 'warning');
             return false;
         }
 
         redo() {
             if (this.appState.redo()) {
-                this.populateForm(this.appState.getSnapshot());
                 this.updateHistoryButtons();
                 this.showToast('↷ Wiederholt', 'info');
                 return true;
             }
+            this.showToast('⚠️ Nichts zum Wiederholen', 'warning');
             return false;
         }
 
@@ -6345,8 +6404,16 @@ List available plugins
             const redoBtn = document.getElementById('redo-btn');
             
             if (undoBtn && redoBtn) {
-                undoBtn.disabled = this.appState.historyIndex <= 0;
-                redoBtn.disabled = this.appState.historyIndex >= this.appState.history.length - 1;
+                undoBtn.disabled = !this.appState.canUndo();
+                redoBtn.disabled = !this.appState.canRedo();
+                
+                // Update visual feedback
+                undoBtn.style.opacity = undoBtn.disabled ? '0.5' : '1';
+                redoBtn.style.opacity = redoBtn.disabled ? '0.5' : '1';
+                
+                // Update tooltips
+                undoBtn.title = undoBtn.disabled ? 'Nichts zum Rückgängigmachen' : 'Rückgängig (Ctrl+Z)';
+                redoBtn.title = redoBtn.disabled ? 'Nichts zum Wiederholen' : 'Wiederholen (Ctrl+Y)';
             }
         }
 
