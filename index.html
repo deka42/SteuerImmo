@@ -3183,14 +3183,20 @@
         /**
          * Load saved data from storage
          */
-        async loadSavedData() {
+        loadSavedData() {
             try {
-                if (this.modules.storage) {
-                    const savedData = await this.modules.storage.load('formData');
-                    if (savedData) {
-                        this.populateFormData(savedData);
+                // Simplified - load data after UI is ready
+                setTimeout(() => {
+                    if (this.modules.storage) {
+                        this.modules.storage.load('formData').then(savedData => {
+                            if (savedData) {
+                                this.populateFormData(savedData);
+                            }
+                        }).catch(error => {
+                            console.warn('Could not load saved data:', error);
+                        });
                     }
-                }
+                }, 100);
             } catch (error) {
                 console.warn('Could not load saved data:', error);
             }
