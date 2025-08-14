@@ -3485,7 +3485,7 @@
                 console.error('Strategie calculation error:', error);
                 this.showToast('❌ Fehler bei der Strategie-Entwicklung: ' + error.message, 'error');
             } finally {
-                this.hideCalculationProgress();
+                setTimeout(() => this.hideCalculationProgress(), 500);
             }
         }
 
@@ -6874,14 +6874,8 @@
         console.error('Global error:', event.error);
         
         // Auto-hide progress overlay on any error
-        try {
-            const overlay = document.getElementById('progress-overlay');
-            if (overlay && !overlay.classList.contains('d-none')) {
-                overlay.classList.add('d-none');
-                overlay.style.display = 'none';
-            }
-        } catch (e) {
-            console.error('Error hiding progress overlay:', e);
+        if (window.appInstance && window.appInstance.hideCalculationProgress) {
+            window.appInstance.hideCalculationProgress();
         }
         
         // Show user-friendly error message
@@ -6900,14 +6894,8 @@
                 window.appInstance.hideCalculationProgress();
             } else {
                 // Fallback
-                const overlay = document.getElementById('progress-overlay');
-                if (overlay) {
-                    overlay.style.display = 'none';
-                    overlay.classList.add('d-none');
-                }
-            }
-        } catch (e) {
-            console.error('Error hiding progress overlay:', e);
+        if (window.appInstance && window.appInstance.hideCalculationProgress) {
+            window.appInstance.hideCalculationProgress();
         }
         
         if (window.appInstance && window.appInstance.showToast) {
