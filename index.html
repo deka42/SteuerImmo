@@ -3458,14 +3458,21 @@ List available plugins
             this.isRestoringState = false;
             
             // Enhanced components
-            this.errorHandler = new EnhancedErrorHandler();
-            this.pdfExporter = new EnhancedPDFExporter();
-            this.appState = new ApplicationState();
-            this.calculationEngine = new TaxCalculationEngine();
-            
-            // Google Analytics Integration
-            this.gaTracker = new GoogleAnalyticsTracker();
-            this.cookieManager = new CookieConsentManager();
+            try {
+                this.errorHandler = new EnhancedErrorHandler();
+                this.pdfExporter = new EnhancedPDFExporter();
+                this.appState = new ApplicationState();
+                this.calculationEngine = new TaxCalculationEngine();
+                
+                // Google Analytics Integration
+                this.gaTracker = new GoogleAnalyticsTracker();
+                this.cookieManager = new CookieConsentManager();
+            } catch (error) {
+                console.warn('Some components failed to initialize:', error);
+                // Create minimal fallbacks
+                this.errorHandler = { logError: (e) => console.error(e) };
+                this.appState = { saveToHistory: () => {}, undo: () => false, redo: () => false };
+            }
             
             this.init();
         }
@@ -4570,14 +4577,8 @@ List available plugins
             const contentArea = document.getElementById('dynamic-content');
             if (!contentArea) return;
             
-            // Track page view for section (safely)
-            try {
-                if (this.gaTracker) {
-                    this.gaTracker.trackPageView(`Section: ${section}`, 'Tax Calculation');
-                }
-            } catch (error) {
-                console.warn('Analytics tracking failed:', error);
-            }
+            // Track page view for section
+            this.gaTracker.trackPageView(`Section: ${section}`, 'Tax Calculation');
             
             let content = '';
             
@@ -4608,12 +4609,8 @@ List available plugins
             
             // Re-setup event listeners for new content
             setTimeout(() => {
-                try {
-                    this.setupRealtimeValidation();
-                    this.setupSectionSpecificHandlers(section);
-                } catch (error) {
-                    console.warn('Event listener setup failed:', error);
-                }
+                this.setupRealtimeValidation();
+                this.setupSectionSpecificHandlers(section);
             }, 100);
         }
 
