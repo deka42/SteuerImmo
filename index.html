@@ -5827,18 +5827,13 @@
         // Export and utility methods
         exportReport() {
             try {
-                this.manualSave = true;
                 const reportData = {
                     formData: this.collectAllFormData(),
                     timestamp: new Date().toISOString(),
                     version: this.config.version
                 };
                 
-                if (this.modules.export) {
-                    this.modules.export.generatePDFReport(reportData);
-                } else {
-                    throw new Error('Export-Modul nicht verfügbar');
-                }
+                this.modules.export.generatePDFReport(reportData);
                 this.showToast('📋 Bericht wurde erstellt', 'success');
             } catch (error) {
                 console.error('Export error:', error);
@@ -5848,9 +5843,7 @@
 
         resetData() {
             if (confirm('Möchten Sie wirklich alle Daten zurücksetzen?')) {
-                if (this.modules.storage) {
-                    this.modules.storage.clear();
-                }
+                this.modules.storage.clear();
                 
                 document.querySelectorAll('input').forEach(input => {
                     if (input.type === 'number') {
@@ -5873,7 +5866,6 @@
         }
 
         loadExample() {
-            this.manualSave = true;
             const exampleData = {
                 kaufpreis: 450000,
                 verkaufspreis: 650000,
@@ -5911,33 +5903,6 @@
             }, 500);
         }
 
-        // Cleanup method for proper resource management
-        destroy() {
-            // Clear all intervals
-            if (this.autoSaveInterval) {
-                clearInterval(this.autoSaveInterval);
-            }
-            if (this.dashboardInterval) {
-                clearInterval(this.dashboardInterval);
-            }
-            if (this.progressTimeout) {
-                clearTimeout(this.progressTimeout);
-            }
-            if (this.autoCalculateTimeout) {
-                clearTimeout(this.autoCalculateTimeout);
-            }
-            if (this.immediateUpdateTimeout) {
-                clearTimeout(this.immediateUpdateTimeout);
-            }
-            
-            // Clear cache
-            this.cache.clear();
-            
-            // Destroy modules
-            if (this.modules.dashboard && this.modules.dashboard.destroy) {
-                this.modules.dashboard.destroy();
-            }
-        }
         showExtendedAnalyse() {
             try {
                 const formData = this.collectAllFormData();
@@ -6724,6 +6689,7 @@
             this.app = app;
             this.updateInterval = null;
             this.isActive = false;
+            this.visibilityChangeHandler = null;
             this.init();
         }
 
@@ -6748,13 +6714,29 @@
                 this.updateSidebarDashboard();
             }, 200);
             
-            // Regular updates every 5 seconds
+            // Regular updates every 5 seconds, but only when page is visible
             this.updateInterval = setInterval(() => {
-                if (this.isActive) {
+                if (this.isActive && !document.hidden) {
                     this.updateLiveInsights();
                     this.updateSidebarDashboard();
                 }
             }, 5000);
+            
+            // Setup visibility change handler
+            this.visibilityChangeHandler = () => {
+                if (document.hidden) {
+                    // Page is hidden, pause updates
+                    if (this.updateInterval) {
+                        clearInterval(this.updateInterval);
+                        this.updateInterval = null;
+                    }
+                } else if (this.isActive && !this.updateInterval) {
+                    // Page is visible again, resume updates
+                    this.startLiveUpdates();
+                }
+            };
+            
+            document.addEventListener('visibilitychange', this.visibilityChangeHandler);
         }
 
         updateLiveInsights() {
@@ -6823,6 +6805,12 @@
             if (this.updateInterval) {
                 clearInterval(this.updateInterval);
                 this.updateInterval = null;
+            }
+            
+            // Remove visibility change listener
+            if (this.visibilityChangeHandler) {
+                document.removeEventListener('visibilitychange', this.visibilityChangeHandler);
+                this.visibilityChangeHandler = null;
             }
         }
     }
