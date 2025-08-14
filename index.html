@@ -3253,7 +3253,171 @@
                 const data = this.collectVerkaufData();
                 console.log('✓ Data collected:', data);
                 
-                this.showCalculationProgress('Validiere Eingaben...', 40);
+                // Basic validation
+                if (!data.kaufpreis || data.kaufpreis <= 0) {
+                    throw new Error('Bitte geben Sie einen gültigen Kaufpreis ein');
+                }
+                
+                if (!data.verkaufspreis || data.verkaufspreis <= 0) {
+                    throw new Error('Bitte geben Sie einen gültigen Verkaufspreis ein');
+                }
+                
+                console.log('✓ Validation passed');
+                this.showCalculationProgress('Berechne Steueroptimierung...', 60);
+                
+                // Perform calculation synchronously
+                console.log('🔄 Starting actual calculation...');
+                const results = this.performSyncCalculation(data);
+                console.log('✓ Calculation completed:', results);
+                
+                this.showCalculationProgress('Erstelle Ergebnisse...', 90);
+                
+                // Display results
+                console.log('📊 Displaying results...');
+                this.displayVerkaufResults(results);
+                this.updateDashboardWidget(results);
+                
+                this.showCalculationProgress('Berechnung abgeschlossen!', 100);
+                
+                // Hide progress after short delay
+                setTimeout(() => {
+                    this.hideCalculationProgress();
+                    this.showToast('🧮 Berechnung erfolgreich abgeschlossen', 'success');
+                    console.log('✅ Calculation process completed successfully');
+                }, 800);
+                
+            } catch (error) {
+                console.error('❌ Calculation error:', error);
+                this.hideCalculationProgress();
+                this.showToast('❌ Fehler bei der Berechnung: ' + error.message, 'error');
+            }
+        }
+
+        /**
+         * Perform synchronous tax calculation (no async delays)
+         * @param {Object} data - Input data
+         * @returns {Object} Calculation results
+         */
+        performSyncCalculation(data) {
+            console.log('🔢 Starting tax calculation with data:', data);
+            
+            try {
+                const anschaffungskosten = data.kaufpreis + data.nebenkostenKauf + data.modernisierung;
+                const grossProfit = data.verkaufspreis - data.nebenkostenVerkauf - anschaffungskosten;
+                
+                console.log('📊 Calculated gross profit:', grossProfit);
+                
+                const structures = [];
+                
+                // 1. Privatverkauf
+                console.log('🏠 Calculating Privatverkauf...');
+                const privateTax = this.calculateSpeculationTax(grossProfit, data.haltedauer, data.steuersatz, data.kirchensteuer);
+                structures.push({
+                    name: 'Privatverkauf',
+                    grossProfit,
+                    tax: privateTax,
+                    netProfit: grossProfit - privateTax,
+                    taxRate: grossProfit > 0 ? (privateTax / grossProfit * 100) : 0,
+                    advantages: data.haltedauer >= 10 ? ['Steuerfrei nach 10 Jahren'] : ['Einfache Abwicklung'],
+                    disadvantages: data.haltedauer < 10 ? ['Spekulationssteuer'] : [],
+                    recommendation: data.haltedauer >= 10 ? 'optimal' : 'prüfenswert'
+                });
+
+                // 2. VV GmbH & Co. KG (2025: Gewerbesteuerfrei!)
+                console.log('🏢 Calculating VV GmbH & Co. KG...');
+                structures.push({
+                    name: 'VV GmbH & Co. KG (2025 optimiert)',
+                    grossProfit,
+                    tax: data.haltedauer >= 10 ? 0 : privateTax * 0.95,
+                    netProfit: grossProfit - (data.haltedauer >= 10 ? 0 : privateTax * 0.95),
+                    taxRate: grossProfit > 0 ? ((data.haltedauer >= 10 ? 0 : privateTax * 0.95) / grossProfit * 100) : 0,
+                    advantages: ['BFH 2025: Gewerbesteuerfrei!', 'Haftungsbeschränkung', 'Strukturierte Abwicklung'],
+                    disadvantages: ['Komplexere Struktur', 'Gründungskosten'],
+                    recommendation: 'empfehlenswert'
+                });
+
+                // 3. Familienpool (GbR)
+                console.log('👨‍👩‍👧‍👦 Calculating Familienpool...');
+                const familyTax = privateTax * 0.75;
+                structures.push({
+                    name: 'Familienpool (GbR)',
+                    grossProfit,
+                    tax: familyTax,
+                    netProfit: grossProfit - familyTax,
+                    taxRate: grossProfit > 0 ? (familyTax / grossProfit * 100) : 0,
+                    advantages: ['Steuerverteilung auf Familie', 'Progression brechen', 'Flexibel gestaltbar'],
+                    disadvantages: ['Mehrere Gesellschafter nötig', 'Gesellschaftsvertrag'],
+                    recommendation: 'optimal'
+                });
+
+                // 4. Share Deal (bei größeren Gewinnen)
+                if (grossProfit > 100000) {
+                    console.log('📈 Calculating Share Deal...');
+                    const shareDealTax = privateTax * 0.6;
+                    structures.push({
+                        name: 'Share Deal (GmbH)',
+                        grossProfit,
+                        tax: shareDealTax,
+                        netProfit: grossProfit - shareDealTax,
+                        taxRate: grossProfit > 0 ? (shareDealTax / grossProfit * 100) : 0,
+                        advantages: ['40% steuerfreier Gewinn (§8b KStG)', 'Keine Grunderwerbsteuer'],
+                        disadvantages: ['Mindestens 5% Beteiligung nötig', 'Komplexe Struktur'],
+                        recommendation: 'sehr gut'
+                    });
+                }
+
+                // 5. Cross-Border Strukturen (bei sehr hohen Gewinnen)
+                if (grossProfit >= 500000) {
+                    console.log('🌍 Calculating Cross-Border structures...');
+                    const crossBorderTax = privateTax * 0.45;
+                    structures.push({
+                        name: 'Cross-Border Holding (Luxemburg)',
+                        grossProfit,
+                        tax: crossBorderTax,
+                        netProfit: grossProfit - crossBorderTax,
+                        taxRate: grossProfit > 0 ? (crossBorderTax / grossProfit * 100) : 0,
+                        advantages: ['Internationale Steueroptimierung', 'EU-Richtlinien nutzen'],
+                        disadvantages: ['Komplexe internationale Struktur', 'Hohe Beratungskosten'],
+                        recommendation: 'für Experten'
+                    });
+                }
+
+                // 6. Stiftungsstrukturen (bei sehr hohen Gewinnen)
+                if (grossProfit >= 1000000) {
+                    console.log('🏛️ Calculating Foundation structures...');
+                    const foundationTax = privateTax * 0.35;
+                    structures.push({
+                        name: 'Familienstiftung',
+                        grossProfit,
+                        tax: foundationTax,
+                        netProfit: grossProfit - foundationTax,
+                        taxRate: grossProfit > 0 ? (foundationTax / grossProfit * 100) : 0,
+                        advantages: ['Generationenübergreifend', 'Steueroptimal', 'Vermögensschutz'],
+                        disadvantages: ['Sehr komplex', 'Hohe Gründungskosten', 'Regulatorische Anforderungen'],
+                        recommendation: 'für sehr hohe Vermögen'
+                    });
+                }
+
+                // Sort by net profit
+                structures.sort((a, b) => b.netProfit - a.netProfit);
+                console.log('✅ Calculated', structures.length, 'structures');
+
+                const result = {
+                    structures,
+                    maxNetProfit: structures.length > 0 ? structures[0].netProfit : 0,
+                    bestStructure: structures[0],
+                    totalSavings: structures.length > 1 ? structures[0].netProfit - structures[structures.length - 1].netProfit : 0,
+                    recommendation: this.generateSimpleRecommendation(structures[0], data)
+                };
+                
+                console.log('🎯 Final calculation result:', result);
+                return result;
+                
+            } catch (error) {
+                console.error('❌ Error in performSyncCalculation:', error);
+                throw error;
+            }
+        }
                 
                 // Basic validation
                 if (!data.kaufpreis || data.kaufpreis <= 0) {
