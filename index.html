@@ -4560,67 +4560,7 @@ List available plugins
 
         getCurrentSection() {
             const activeLink = document.querySelector('.nav-link.active');
-            const sectionFromLink = activeLink ? activeLink.getAttribute('data-section') : null;
-            return sectionFromLink || this.currentSection || 'verkauf';
-        }
-
-        saveCurrentSectionData() {
-            const currentSection = this.getCurrentSection();
-            if (!currentSection) return;
-
-            try {
-                const formData = this.collectAllFormData();
-                if (Object.keys(formData).length > 0) {
-                    this.sectionData.set(currentSection, formData);
-                    console.log(`💾 Saved data for section: ${currentSection}`, formData);
-                }
-            } catch (error) {
-                console.warn('Error saving section data:', error);
-            }
-        }
-
-        restoreSectionData(section) {
-            if (!section) return;
-
-            try {
-                const savedData = this.sectionData.get(section);
-                if (savedData && Object.keys(savedData).length > 0) {
-                    this.isRestoringData = true;
-                    this.populateForm(savedData);
-                    this.isRestoringData = false;
-                    console.log(`📂 Restored data for section: ${section}`, savedData);
-                    this.showToast(`📂 Daten für ${section} wiederhergestellt`, 'info');
-                }
-            } catch (error) {
-                console.warn('Error restoring section data:', error);
-                this.isRestoringData = false;
-            }
-        }
-
-        collectAllFormData() {
-            const data = {};
-            
-            // Get all form inputs, selects, and checkboxes in the current view
-            const formElements = document.querySelectorAll('#dynamic-content input, #dynamic-content select, #dynamic-content textarea');
-            
-            formElements.forEach(element => {
-                if (!element.id) return;
-                
-                try {
-                    if (element.type === 'checkbox') {
-                        data[element.id] = element.checked;
-                    } else if (element.type === 'number') {
-                        const value = parseFloat(element.value);
-                        data[element.id] = isNaN(value) ? '' : value;
-                    } else {
-                        data[element.id] = element.value || '';
-                    }
-                } catch (error) {
-                    console.warn(`Error collecting data for element ${element.id}:`, error);
-                }
-            });
-            
-            return data;
+            return activeLink ? activeLink.getAttribute('data-section') : 'verkauf';
         }
 
         setupSectionSpecificHandlers(section) {
@@ -6241,13 +6181,24 @@ List available plugins
         }
 
         populateForm(data) {
+            if (!data || typeof data !== 'object') return;
+            
             Object.keys(data).forEach(key => {
                 const element = document.getElementById(key);
                 if (element) {
-                    if (element.type === 'checkbox') {
-                        element.checked = data[key];
-                    } else {
-                        element.value = data[key];
+                    try {
+                        if (element.type === 'checkbox') {
+                            element.checked = Boolean(data[key]);
+                        } else {
+                            element.value = data[key] || '';
+                        }
+                        
+                        // Only validate if not restoring data to avoid conflicts
+                        if (!this.isRestoringData) {
+                            this.validateField(element);
+                        }
+                    } catch (error) {
+                        console.warn(`Error populating field ${key}:`, error);
                     }
                     
                     if (!this.isRestoringState) {
