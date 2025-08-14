@@ -3256,30 +3256,18 @@
             this.updateMobileNavigation(section);
             this.updateDashboard(section);
             this.closeMobileNav();
-                const kaufpreisElement = document.getElementById('kaufpreis');
-                const verkaufspreisElement = document.getElementById('verkaufspreis');
-                const haltedauerElement = document.getElementById('haltedauer');
-                const werbungskostenElement = document.getElementById('werbungskosten');
-                const abschreibungenElement = document.getElementById('abschreibungen');
-                const modernisierungElement = document.getElementById('modernisierung');
-                
-                if (!kaufpreisElement || !verkaufspreisElement || !haltedauerElement || 
-                    !werbungskostenElement || !abschreibungenElement || !modernisierungElement) {
-                    throw new Error('Required form elements not found');
-                }
-                
-                const kaufpreis = parseFloat(kaufpreisElement.value) || 0;
-                const verkaufspreis = parseFloat(verkaufspreisElement.value) || 0;
-                const haltedauer = parseInt(haltedauerElement.value) || 0;
-                const werbungskosten = parseFloat(werbungskostenElement.value) || 0;
-                const abschreibungen = parseFloat(abschreibungenElement.value) || 0;
-                const modernisierung = parseFloat(modernisierungElement.value) || 0;
+            
+            // Track navigation for analytics
+            if (this.modules.analytics) {
+                this.modules.analytics.trackNavigation(section);
+            }
+            
             performanceMonitor.endTimer(`navigation_${section}`);
         }
 
         /**
          * Enhanced calculation with comprehensive error handling
-                    throw new Error('Bitte geben Sie gültige Werte für Kaufpreis und Verkaufspreis ein.');
+         * @returns {Promise<void>}
          */
         async calculateVerkauf() {
             console.log('🧮 Starting calculation...');
