@@ -117,6 +117,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <!-- External Libraries -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+```
 
 <style>
     :root {
@@ -1710,7 +1711,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         background: #2c3e50 !important;
     }
 </style>
-```
 
 </head>
 <body>
@@ -1718,7 +1718,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <a href="#navigation" class="skip-link">Skip to navigation</a>
 
-```
 <div class="app-container">
     <!-- Enhanced Header with Performance Indicator -->
     <header class="app-header" id="app-header" role="banner">
@@ -1751,254 +1750,255 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         </div>
     </header>
 
-    <div class="main-content">
-        <!-- Enhanced Sidebar with Navigation -->
-        <aside class="sidebar" id="navigation" role="navigation" aria-label="Hauptnavigation">
-            <ul class="nav-menu" role="menubar">
-                <li class="nav-item" role="none">
-                    <a href="#verkauf" class="nav-link active" data-section="verkauf" role="menuitem" aria-current="page">
-                        <span class="nav-icon" role="img" aria-label="Geld">💰</span>
-                        Verkaufssteuer
-                        <span class="nav-badge">AI</span>
-                    </a>
-                </li>
-                <li class="nav-item" role="none">
-                    <a href="#grundsteuer" class="nav-link" data-section="grundsteuer" role="menuitem">
-                        <span class="nav-icon" role="img" aria-label="Gebäude">🏛️</span>
-                        Grundsteuer 2025
-                    </a>
-                </li>
-                <li class="nav-item" role="none">
-                    <a href="#erbschaft" class="nav-link" data-section="erbschaft" role="menuitem">
-                        <span class="nav-icon" role="img" aria-label="Familie">👨‍👩‍👧‍👦</span>
-                        Erbschaftsteuer
-                    </a>
-                </li>
-                <li class="nav-item" role="none">
-                    <a href="#schenkung" class="nav-link" data-section="schenkung" role="menuitem">
-                        <span class="nav-icon" role="img" aria-label="Geschenk">🎁</span>
-                        Schenkungssteuer
-                    </a>
-                </li>
-                <li class="nav-item" role="none">
-                    <a href="#cashflow" class="nav-link" data-section="cashflow" role="menuitem">
-                        <span class="nav-icon" role="img" aria-label="Diagramm">📊</span>
-                        Cash-Flow Analyse
-                    </a>
-                </li>
-                <li class="nav-item" role="none">
-                    <a href="#strategie" class="nav-link" data-section="strategie" role="menuitem">
-                        <span class="nav-icon" role="img" aria-label="Ziel">🎯</span>
-                        Gesamtstrategie
-                    </a>
-                </li>
-            </ul>
+```
+<div class="main-content">
+    <!-- Enhanced Sidebar with Navigation -->
+    <aside class="sidebar" id="navigation" role="navigation" aria-label="Hauptnavigation">
+        <ul class="nav-menu" role="menubar">
+            <li class="nav-item" role="none">
+                <a href="#verkauf" class="nav-link active" data-section="verkauf" role="menuitem" aria-current="page">
+                    <span class="nav-icon" role="img" aria-label="Geld">💰</span>
+                    Verkaufssteuer
+                    <span class="nav-badge">AI</span>
+                </a>
+            </li>
+            <li class="nav-item" role="none">
+                <a href="#grundsteuer" class="nav-link" data-section="grundsteuer" role="menuitem">
+                    <span class="nav-icon" role="img" aria-label="Gebäude">🏛️</span>
+                    Grundsteuer 2025
+                </a>
+            </li>
+            <li class="nav-item" role="none">
+                <a href="#erbschaft" class="nav-link" data-section="erbschaft" role="menuitem">
+                    <span class="nav-icon" role="img" aria-label="Familie">👨‍👩‍👧‍👦</span>
+                    Erbschaftsteuer
+                </a>
+            </li>
+            <li class="nav-item" role="none">
+                <a href="#schenkung" class="nav-link" data-section="schenkung" role="menuitem">
+                    <span class="nav-icon" role="img" aria-label="Geschenk">🎁</span>
+                    Schenkungssteuer
+                </a>
+            </li>
+            <li class="nav-item" role="none">
+                <a href="#cashflow" class="nav-link" data-section="cashflow" role="menuitem">
+                    <span class="nav-icon" role="img" aria-label="Diagramm">📊</span>
+                    Cash-Flow Analyse
+                </a>
+            </li>
+            <li class="nav-item" role="none">
+                <a href="#strategie" class="nav-link" data-section="strategie" role="menuitem">
+                    <span class="nav-icon" role="img" aria-label="Ziel">🎯</span>
+                    Gesamtstrategie
+                </a>
+            </li>
+        </ul>
 
-            <!-- Enhanced Plugin Architecture -->
-            <div class="card" style="margin-top: 2rem;">
-                <div class="card-header">
-                    <h3 style="font-size: 1rem;">🔌 Verfügbare Plugins</h3>
-                </div>
-                <div class="plugin-list" role="list">
-                    <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('bundesland-analyzer')" role="listitem" tabindex="0">
-                        <strong>🗺️ Bundesland-Analyzer</strong>
-                        <small style="display: block; color: #6c757d;">Steuervergleich nach Bundesländern</small>
-                    </div>
-                    <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('inflation-calculator')" role="listitem" tabindex="0">
-                        <strong>📊 Inflations-Rechner</strong>
-                        <small style="display: block; color: #6c757d;">Berücksichtigung der Inflation</small>
-                    </div>
-                    <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('ai-optimizer')" role="listitem" tabindex="0">
-                        <strong>🤖 KI-Optimierer</strong>
-                        <small style="display: block; color: #6c757d;">Machine Learning Vorhersagen</small>
-                    </div>
-                    <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('international-tax')" role="listitem" tabindex="0">
-                        <strong>🌍 International Tax</strong>
-                        <small style="display: block; color: #6c757d;">Cross-Border Optimierung</small>
-                    </div>
-                </div>
+        <!-- Enhanced Plugin Architecture -->
+        <div class="card" style="margin-top: 2rem;">
+            <div class="card-header">
+                <h3 style="font-size: 1rem;">🔌 Verfügbare Plugins</h3>
             </div>
-
-            <!-- System Status -->
-            <div class="card" style="margin-top: 1rem;">
-                <div class="card-header">
-                    <h3 style="font-size: 1rem;">⚡ System Status</h3>
+            <div class="plugin-list" role="list">
+                <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('bundesland-analyzer')" role="listitem" tabindex="0">
+                    <strong>🗺️ Bundesland-Analyzer</strong>
+                    <small style="display: block; color: #6c757d;">Steuervergleich nach Bundesländern</small>
                 </div>
-                <div style="font-size: 0.8rem;">
-                    <div style="margin-bottom: 0.5rem;">
-                        <span>API Status:</span> 
-                        <span id="api-status" style="color: var(--success-solid);">✅ Online</span>
-                    </div>
-                    <div style="margin-bottom: 0.5rem;">
-                        <span>Cache:</span> 
-                        <span id="cache-status" style="color: var(--success-solid);">✅ Aktiv</span>
-                    </div>
-                    <div style="margin-bottom: 0.5rem;">
-                        <span>Fehlerrate:</span> 
-                        <span id="error-rate-status">0%</span>
-                    </div>
-                    <div>
-                        <span>Version:</span> 
-                        <span style="color: var(--primary-solid);">v4.0.0-enhanced</span>
-                    </div>
+                <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('inflation-calculator')" role="listitem" tabindex="0">
+                    <strong>📊 Inflations-Rechner</strong>
+                    <small style="display: block; color: #6c757d;">Berücksichtigung der Inflation</small>
                 </div>
-            </div>
-        </aside>
-
-        <!-- Main Content Area -->
-        <main class="content-area" id="main-content" role="main">
-            <!-- Content will be dynamically loaded here -->
-            <div id="dynamic-content">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <span role="img" aria-label="Laden">⏳</span>
-                            <span>System wird initialisiert...</span>
-                        </div>
-                    </div>
-                    <div class="alert alert-info">
-                        <p>Die Ultimate Enterprise Tax Suite wird geladen. Bitte warten Sie einen Moment...</p>
-                    </div>
+                <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('ai-optimizer')" role="listitem" tabindex="0">
+                    <strong>🤖 KI-Optimierer</strong>
+                    <small style="display: block; color: #6c757d;">Machine Learning Vorhersagen</small>
                 </div>
-            </div>
-        </main>
-
-        <!-- Enhanced Analytics Panel -->
-        <aside class="analytics-panel" role="complementary" aria-label="Analytics und Statistiken">
-            <div class="analytics-header">
-                <h3>📊 Real-time Analytics</h3>
-            </div>
-
-            <div class="analytics-widget">
-                <div class="widget-header">
-                    <span class="widget-title">Performance</span>
-                    <span class="widget-icon" role="img" aria-label="Blitz">⚡</span>
+                <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('international-tax')" role="listitem" tabindex="0">
+                    <strong>🌍 International Tax</strong>
+                    <small style="display: block; color: #6c757d;">Cross-Border Optimierung</small>
                 </div>
-                <div class="metric-value" id="calc-time">0ms</div>
-                <div class="metric-label">Berechnungszeit</div>
-            </div>
-
-            <div class="analytics-widget">
-                <div class="widget-header">
-                    <span class="widget-title">Optimierung</span>
-                    <span class="widget-icon" role="img" aria-label="Ziel">🎯</span>
-                </div>
-                <div class="metric-value" id="savings-potential">€0</div>
-                <div class="metric-label">Max. Ersparnis</div>
-            </div>
-
-            <div class="analytics-widget">
-                <div class="widget-header">
-                    <span class="widget-title">Steuerquote</span>
-                    <span class="widget-icon" role="img" aria-label="Diagramm ansteigend">📈</span>
-                </div>
-                <div class="metric-value" id="tax-rate">0%</div>
-                <div class="metric-label">Effektive Belastung</div>
-                <div class="chart-container">
-                    <canvas id="tax-chart" width="200" height="100" aria-label="Steuervergleichsdiagramm"></canvas>
-                </div>
-            </div>
-
-            <div class="analytics-widget">
-                <div class="widget-header">
-                    <span class="widget-title">Session</span>
-                    <span class="widget-icon" role="img" aria-label="Statistiken">📊</span>
-                </div>
-                <div style="font-size: 0.9rem; color: #6c757d;" id="session-stats">
-                    <div>Berechnungen: <span id="calc-count">0</span></div>
-                    <div>Cache Hits: <span id="cache-hits">0</span></div>
-                    <div>Fehlerrate: <span id="error-rate">0%</span></div>
-                    <div>Laufzeit: <span id="uptime">0min</span></div>
-                </div>
-            </div>
-
-            <!-- Enhanced API Documentation -->
-            <div class="analytics-widget">
-                <div class="widget-header">
-                    <span class="widget-title">API Docs</span>
-                    <span class="widget-icon" role="img" aria-label="Bücher">📚</span>
-                </div>
-                <div style="font-size: 0.8rem;">
-                    <div><code>POST /api/calculate</code></div>
-                    <div><code>GET /api/structures</code></div>
-                    <div><code>POST /api/compare</code></div>
-                    <div><code>GET /api/health</code></div>
-                    <button class="btn btn-outline" onclick="app.showAPIDocumentation()" style="margin-top: 0.5rem; padding: 0.25rem 0.5rem; font-size: 0.7rem;" aria-label="Vollständige API-Dokumentation anzeigen">
-                        📖 Vollständige Docs
-                    </button>
-                </div>
-            </div>
-
-            <!-- Error Log Widget -->
-            <div class="analytics-widget">
-                <div class="widget-header">
-                    <span class="widget-title">Error Log</span>
-                    <span class="widget-icon" role="img" aria-label="Warnung">⚠️</span>
-                </div>
-                <div id="error-log" style="font-size: 0.8rem; max-height: 150px; overflow-y: auto;">
-                    <div style="color: var(--success-solid);">✅ Keine Fehler</div>
-                </div>
-            </div>
-        </aside>
-    </div>
-
-    <!-- Keyboard Shortcuts Indicator -->
-    <div class="shortcut-indicator" id="shortcut-indicator" role="status" aria-live="polite"></div>
-
-    <!-- Enhanced Undo/Redo Controls -->
-    <div class="history-controls">
-        <button class="history-btn" id="undo-btn" onclick="app.undo()" title="Rückgängig (Ctrl+Z)" disabled aria-label="Rückgängig machen">
-            ↶
-        </button>
-        <button class="history-btn" id="redo-btn" onclick="app.redo()" title="Wiederholen (Ctrl+Y)" disabled aria-label="Wiederholen">
-            ↷
-        </button>
-    </div>
-
-    <!-- Toast Container -->
-    <div class="toast-container" id="toast-container" role="status" aria-live="polite"></div>
-
-    <!-- Enhanced Progress Overlay -->
-    <div class="progress-overlay" id="progress-overlay" role="dialog" aria-modal="true" aria-labelledby="progress-title">
-        <div class="progress-modal">
-            <div class="spinner" role="img" aria-label="Laden"></div>
-            <h3 id="progress-title">Berechnung läuft...</h3>
-            <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                <div class="progress-fill" id="progress-fill"></div>
-            </div>
-            <p id="progress-text">KI-Algorithmus analysiert optimale Steuerstrukturen...</p>
-            <button class="btn btn-secondary" onclick="app.cancelCalculation()" style="margin-top: 1rem;" aria-label="Berechnung abbrechen">
-                Abbrechen
-            </button>
-        </div>
-    </div>
-
-    <!-- Enhanced Modal Overlays -->
-    <div class="modal-overlay" id="comparison-modal" role="dialog" aria-modal="true" aria-labelledby="comparison-title">
-        <div class="modal" style="max-width: 1200px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h2 id="comparison-title">📈 Multi-Szenario Vergleich</h2>
-                <button onclick="app.closeModal('comparison-modal')" style="background: none; border: none; font-size: 2rem; cursor: pointer;" aria-label="Modal schließen">×</button>
-            </div>
-            <div id="comparison-content">
-                <!-- Comparison table will be generated here -->
             </div>
         </div>
-    </div>
 
-    <div class="modal-overlay" id="api-docs-modal" role="dialog" aria-modal="true" aria-labelledby="api-docs-title">
-        <div class="modal" style="max-width: 800px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h2 id="api-docs-title">📚 API Dokumentation</h2>
-                <button onclick="app.closeModal('api-docs-modal')" style="background: none; border: none; font-size: 2rem; cursor: pointer;" aria-label="Modal schließen">×</button>
+        <!-- System Status -->
+        <div class="card" style="margin-top: 1rem;">
+            <div class="card-header">
+                <h3 style="font-size: 1rem;">⚡ System Status</h3>
             </div>
-            <div id="api-docs-content">
-                <h3>Immobilien-Steuer-Suite API v4.0 Enhanced</h3>
+            <div style="font-size: 0.8rem;">
+                <div style="margin-bottom: 0.5rem;">
+                    <span>API Status:</span> 
+                    <span id="api-status" style="color: var(--success-solid);">✅ Online</span>
+                </div>
+                <div style="margin-bottom: 0.5rem;">
+                    <span>Cache:</span> 
+                    <span id="cache-status" style="color: var(--success-solid);">✅ Aktiv</span>
+                </div>
+                <div style="margin-bottom: 0.5rem;">
+                    <span>Fehlerrate:</span> 
+                    <span id="error-rate-status">0%</span>
+                </div>
+                <div>
+                    <span>Version:</span> 
+                    <span style="color: var(--primary-solid);">v4.0.0-enhanced</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area" id="main-content" role="main">
+        <!-- Content will be dynamically loaded here -->
+        <div id="dynamic-content">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span role="img" aria-label="Laden">⏳</span>
+                        <span>System wird initialisiert...</span>
+                    </div>
+                </div>
                 <div class="alert alert-info">
-                    <p><strong>Base URL:</strong> <code>https://api.steuer-suite.de/v4/</code></p>
-                    <p><strong>Authentication:</strong> Bearer Token erforderlich</p>
+                    <p>Die Ultimate Enterprise Tax Suite wird geladen. Bitte warten Sie einen Moment...</p>
                 </div>
-                <pre style="background: #f8f9fa; padding: 1rem; border-radius: 8px; overflow-x: auto;">
+            </div>
+        </div>
+    </main>
+
+    <!-- Enhanced Analytics Panel -->
+    <aside class="analytics-panel" role="complementary" aria-label="Analytics und Statistiken">
+        <div class="analytics-header">
+            <h3>📊 Real-time Analytics</h3>
+        </div>
+
+        <div class="analytics-widget">
+            <div class="widget-header">
+                <span class="widget-title">Performance</span>
+                <span class="widget-icon" role="img" aria-label="Blitz">⚡</span>
+            </div>
+            <div class="metric-value" id="calc-time">0ms</div>
+            <div class="metric-label">Berechnungszeit</div>
+        </div>
+
+        <div class="analytics-widget">
+            <div class="widget-header">
+                <span class="widget-title">Optimierung</span>
+                <span class="widget-icon" role="img" aria-label="Ziel">🎯</span>
+            </div>
+            <div class="metric-value" id="savings-potential">€0</div>
+            <div class="metric-label">Max. Ersparnis</div>
+        </div>
+
+        <div class="analytics-widget">
+            <div class="widget-header">
+                <span class="widget-title">Steuerquote</span>
+                <span class="widget-icon" role="img" aria-label="Diagramm ansteigend">📈</span>
+            </div>
+            <div class="metric-value" id="tax-rate">0%</div>
+            <div class="metric-label">Effektive Belastung</div>
+            <div class="chart-container">
+                <canvas id="tax-chart" width="200" height="100" aria-label="Steuervergleichsdiagramm"></canvas>
+            </div>
+        </div>
+
+        <div class="analytics-widget">
+            <div class="widget-header">
+                <span class="widget-title">Session</span>
+                <span class="widget-icon" role="img" aria-label="Statistiken">📊</span>
+            </div>
+            <div style="font-size: 0.9rem; color: #6c757d;" id="session-stats">
+                <div>Berechnungen: <span id="calc-count">0</span></div>
+                <div>Cache Hits: <span id="cache-hits">0</span></div>
+                <div>Fehlerrate: <span id="error-rate">0%</span></div>
+                <div>Laufzeit: <span id="uptime">0min</span></div>
+            </div>
+        </div>
+
+        <!-- Enhanced API Documentation -->
+        <div class="analytics-widget">
+            <div class="widget-header">
+                <span class="widget-title">API Docs</span>
+                <span class="widget-icon" role="img" aria-label="Bücher">📚</span>
+            </div>
+            <div style="font-size: 0.8rem;">
+                <div><code>POST /api/calculate</code></div>
+                <div><code>GET /api/structures</code></div>
+                <div><code>POST /api/compare</code></div>
+                <div><code>GET /api/health</code></div>
+                <button class="btn btn-outline" onclick="app.showAPIDocumentation()" style="margin-top: 0.5rem; padding: 0.25rem 0.5rem; font-size: 0.7rem;" aria-label="Vollständige API-Dokumentation anzeigen">
+                    📖 Vollständige Docs
+                </button>
+            </div>
+        </div>
+
+        <!-- Error Log Widget -->
+        <div class="analytics-widget">
+            <div class="widget-header">
+                <span class="widget-title">Error Log</span>
+                <span class="widget-icon" role="img" aria-label="Warnung">⚠️</span>
+            </div>
+            <div id="error-log" style="font-size: 0.8rem; max-height: 150px; overflow-y: auto;">
+                <div style="color: var(--success-solid);">✅ Keine Fehler</div>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<!-- Keyboard Shortcuts Indicator -->
+<div class="shortcut-indicator" id="shortcut-indicator" role="status" aria-live="polite"></div>
+
+<!-- Enhanced Undo/Redo Controls -->
+<div class="history-controls">
+    <button class="history-btn" id="undo-btn" onclick="app.undo()" title="Rückgängig (Ctrl+Z)" disabled aria-label="Rückgängig machen">
+        ↶
+    </button>
+    <button class="history-btn" id="redo-btn" onclick="app.redo()" title="Wiederholen (Ctrl+Y)" disabled aria-label="Wiederholen">
+        ↷
+    </button>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container" role="status" aria-live="polite"></div>
+
+<!-- Enhanced Progress Overlay -->
+<div class="progress-overlay" id="progress-overlay" role="dialog" aria-modal="true" aria-labelledby="progress-title">
+    <div class="progress-modal">
+        <div class="spinner" role="img" aria-label="Laden"></div>
+        <h3 id="progress-title">Berechnung läuft...</h3>
+        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <p id="progress-text">KI-Algorithmus analysiert optimale Steuerstrukturen...</p>
+        <button class="btn btn-secondary" onclick="app.cancelCalculation()" style="margin-top: 1rem;" aria-label="Berechnung abbrechen">
+            Abbrechen
+        </button>
+    </div>
+</div>
+
+<!-- Enhanced Modal Overlays -->
+<div class="modal-overlay" id="comparison-modal" role="dialog" aria-modal="true" aria-labelledby="comparison-title">
+    <div class="modal" style="max-width: 1200px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2 id="comparison-title">📈 Multi-Szenario Vergleich</h2>
+            <button onclick="app.closeModal('comparison-modal')" style="background: none; border: none; font-size: 2rem; cursor: pointer;" aria-label="Modal schließen">×</button>
+        </div>
+        <div id="comparison-content">
+            <!-- Comparison table will be generated here -->
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="api-docs-modal" role="dialog" aria-modal="true" aria-labelledby="api-docs-title">
+    <div class="modal" style="max-width: 800px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2 id="api-docs-title">📚 API Dokumentation</h2>
+            <button onclick="app.closeModal('api-docs-modal')" style="background: none; border: none; font-size: 2rem; cursor: pointer;" aria-label="Modal schließen">×</button>
+        </div>
+        <div id="api-docs-content">
+            <h3>Immobilien-Steuer-Suite API v4.0 Enhanced</h3>
+            <div class="alert alert-info">
+                <p><strong>Base URL:</strong> <code>https://api.steuer-suite.de/v4/</code></p>
+                <p><strong>Authentication:</strong> Bearer Token erforderlich</p>
+            </div>
+            <pre style="background: #f8f9fa; padding: 1rem; border-radius: 8px; overflow-x: auto;">
 ```
 
 <strong>POST /api/v4/calculate</strong>
@@ -2037,21 +2037,24 @@ List available plugins
 </div>
 
 ```
-    <!-- Error Details Modal -->
-    <div class="modal-overlay" id="error-details-modal" role="dialog" aria-modal="true" aria-labelledby="error-details-title">
-        <div class="modal" style="max-width: 600px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                <h2 id="error-details-title">⚠️ Fehlerdetails</h2>
-                <button onclick="app.closeModal('error-details-modal')" style="background: none; border: none; font-size: 2rem; cursor: pointer;" aria-label="Modal schließen">×</button>
-            </div>
-            <div id="error-details-content">
-                <!-- Error details will be displayed here -->
-            </div>
+<!-- Error Details Modal -->
+<div class="modal-overlay" id="error-details-modal" role="dialog" aria-modal="true" aria-labelledby="error-details-title">
+    <div class="modal" style="max-width: 600px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <h2 id="error-details-title">⚠️ Fehlerdetails</h2>
+            <button onclick="app.closeModal('error-details-modal')" style="background: none; border: none; font-size: 2rem; cursor: pointer;" aria-label="Modal schließen">×</button>
+        </div>
+        <div id="error-details-content">
+            <!-- Error details will be displayed here -->
         </div>
     </div>
 </div>
+```
+
+</div>
 
 <!-- Enhanced Web Worker for Background Calculations -->
+
 <script id="worker-script" type="text/plain">
     // Enhanced Tax Calculator Web Worker with Error Handling
     class EnhancedTaxCalculatorWorker {
@@ -2816,6 +2819,7 @@ List available plugins
             }
         }
     }
+
     class EnhancedErrorHandler {
         constructor() {
             this.errorLog = [];
@@ -3653,6 +3657,7 @@ List available plugins
             this.keyboardShortcuts = new Map();
             this.chart = null;
             this.isRestoringState = false;
+            this.sectionData = {}; // Store data for each section
             
             // Enhanced components
             this.errorHandler = new EnhancedErrorHandler();
@@ -4038,7 +4043,10 @@ List available plugins
         }
 
         updateValidationIndicator(field, isValid) {
-            const indicator = document.getElementById(field.id + '-indicator');
+            const baseId = field.id.replace(/^s[23]_/, ''); // Remove scenario prefix for indicator ID
+            const indicatorId = baseId + '-indicator';
+            const indicator = document.getElementById(indicatorId);
+            
             if (indicator) {
                 indicator.classList.remove('valid', 'invalid');
                 if (field.value) {
@@ -4052,7 +4060,10 @@ List available plugins
         }
 
         showFieldError(field, message) {
-            const errorDiv = document.getElementById(field.id + '-error');
+            const baseId = field.id.replace(/^s[23]_/, ''); // Remove scenario prefix for error ID
+            const errorId = baseId + '-error';
+            const errorDiv = document.getElementById(errorId);
+            
             if (errorDiv) {
                 errorDiv.textContent = message;
                 errorDiv.style.display = message ? 'flex' : 'none';
@@ -4060,7 +4071,10 @@ List available plugins
         }
 
         clearFieldError(field) {
-            const errorDiv = document.getElementById(field.id + '-error');
+            const baseId = field.id.replace(/^s[23]_/, ''); // Remove scenario prefix for error ID
+            const errorId = baseId + '-error';
+            const errorDiv = document.getElementById(errorId);
+            
             if (errorDiv) {
                 errorDiv.style.display = 'none';
             }
@@ -4473,6 +4487,7 @@ List available plugins
         }
 
         switchScenario(scenarioId) {
+            // Save current scenario data before switching
             if (this.currentScenario) {
                 const scenario = this.scenarios.get(this.currentScenario);
                 if (scenario) {
@@ -4482,6 +4497,7 @@ List available plugins
 
             this.currentScenario = scenarioId;
             
+            // Update tab states
             document.querySelectorAll('.scenario-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -4490,6 +4506,7 @@ List available plugins
                 activeTab.classList.add('active');
             }
             
+            // Update content visibility
             document.querySelectorAll('.scenario-content').forEach(content => {
                 content.classList.remove('active');
             });
@@ -4498,12 +4515,44 @@ List available plugins
                 activeContent.classList.add('active');
             }
             
+            // Load scenario data if available
             const scenario = this.scenarios.get(scenarioId);
-            if (scenario && scenario.data) {
+            if (scenario && scenario.data && Object.keys(scenario.data).length > 0) {
                 this.populateForm(scenario.data);
+            } else {
+                // Clear the form for new scenario
+                this.clearCurrentScenarioForm();
             }
             
             this.showToast(`📊 Gewechselt zu ${scenario?.name || scenarioId}`, 'info');
+        }
+
+        clearCurrentScenarioForm() {
+            const prefix = this.getScenarioPrefix(this.currentScenario);
+            const inputs = document.querySelectorAll(`#${this.currentScenario}-content .form-input, #${this.currentScenario}-content .form-select`);
+            
+            inputs.forEach(input => {
+                if (input.type === 'number') {
+                    input.value = '';
+                } else if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
+                
+                input.classList.remove('valid', 'invalid');
+            });
+        }
+
+        getScenarioPrefix(scenarioId) {
+            switch(scenarioId) {
+                case 'scenario1': return '';
+                case 'scenario2': return 's2_';
+                case 'scenario3': return 's3_';
+                default: return '';
+            }
         }
 
         addScenario() {
@@ -4688,6 +4737,9 @@ List available plugins
 
         // Navigation and Content Loading
         navigateToSection(section) {
+            // Save current form data before switching sections
+            this.saveCurrentSectionData();
+            
             // Track section navigation
             this.gaTracker.trackUserJourney('navigation', 'section_changed', {
                 from_section: this.getCurrentSection(),
@@ -4704,6 +4756,72 @@ List available plugins
             
             this.loadSectionContent(section);
             this.showToast(`📍 Navigation zu ${section}`, 'info');
+        }
+
+        saveCurrentSectionData() {
+            const currentSection = this.getCurrentSection();
+            if (!currentSection) return;
+            
+            // Save current form data based on section
+            switch(currentSection) {
+                case 'verkauf':
+                    this.saveVerkaufData();
+                    break;
+                case 'grundsteuer':
+                    this.saveGrundsteuerData();
+                    break;
+                case 'erbschaft':
+                    this.saveErbschaftData();
+                    break;
+                case 'schenkung':
+                    this.saveSchenkungData();
+                    break;
+                case 'cashflow':
+                    this.saveCashflowData();
+                    break;
+                case 'strategie':
+                    this.saveStrategieData();
+                    break;
+            }
+        }
+
+        saveVerkaufData() {
+            // Save data for all scenarios
+            const currentScenario = this.currentScenario;
+            ['scenario1', 'scenario2', 'scenario3'].forEach(scenarioId => {
+                this.currentScenario = scenarioId;
+                const data = this.collectFormData();
+                const scenario = this.scenarios.get(scenarioId);
+                if (scenario && Object.keys(data).some(key => data[key] !== '' && data[key] !== 0 && data[key] !== false)) {
+                    scenario.data = data;
+                }
+            });
+            this.currentScenario = currentScenario;
+        }
+
+        saveGrundsteuerData() {
+            if (!this.sectionData) this.sectionData = {};
+            this.sectionData.grundsteuer = this.collectGrundsteuerData();
+        }
+
+        saveErbschaftData() {
+            if (!this.sectionData) this.sectionData = {};
+            this.sectionData.erbschaft = this.collectErbschaftData();
+        }
+
+        saveSchenkungData() {
+            if (!this.sectionData) this.sectionData = {};
+            this.sectionData.schenkung = this.collectSchenkungData();
+        }
+
+        saveCashflowData() {
+            if (!this.sectionData) this.sectionData = {};
+            this.sectionData.cashflow = this.collectCashflowData();
+        }
+
+        saveStrategieData() {
+            if (!this.sectionData) this.sectionData = {};
+            this.sectionData.strategie = this.collectStrategyData();
         }
 
         loadSectionContent(section) {
@@ -4740,11 +4858,78 @@ List available plugins
             
             contentArea.innerHTML = content;
             
-            // Re-setup event listeners for new content
+            // Re-setup event listeners for new content and restore data
             setTimeout(() => {
                 this.setupRealtimeValidation();
                 this.setupSectionSpecificHandlers(section);
+                this.restoreSectionData(section);
             }, 100);
+        }
+
+        restoreSectionData(section) {
+            switch(section) {
+                case 'verkauf':
+                    this.restoreVerkaufData();
+                    break;
+                case 'grundsteuer':
+                    this.restoreGrundsteuerData();
+                    break;
+                case 'erbschaft':
+                    this.restoreErbschaftData();
+                    break;
+                case 'schenkung':
+                    this.restoreSchenkungData();
+                    break;
+                case 'cashflow':
+                    this.restoreCashflowData();
+                    break;
+                case 'strategie':
+                    this.restoreStrategieData();
+                    break;
+            }
+        }
+
+        restoreVerkaufData() {
+            // Restore data for all scenarios
+            ['scenario1', 'scenario2', 'scenario3'].forEach(scenarioId => {
+                const scenario = this.scenarios.get(scenarioId);
+                if (scenario && scenario.data && Object.keys(scenario.data).length > 0) {
+                    const currentScenario = this.currentScenario;
+                    this.currentScenario = scenarioId;
+                    this.populateForm(scenario.data);
+                    this.currentScenario = currentScenario;
+                }
+            });
+        }
+
+        restoreGrundsteuerData() {
+            if (this.sectionData && this.sectionData.grundsteuer) {
+                this.populateGrundsteuerForm(this.sectionData.grundsteuer);
+            }
+        }
+
+        restoreErbschaftData() {
+            if (this.sectionData && this.sectionData.erbschaft) {
+                this.populateErbschaftForm(this.sectionData.erbschaft);
+            }
+        }
+
+        restoreSchenkungData() {
+            if (this.sectionData && this.sectionData.schenkung) {
+                this.populateSchenkungForm(this.sectionData.schenkung);
+            }
+        }
+
+        restoreCashflowData() {
+            if (this.sectionData && this.sectionData.cashflow) {
+                this.populateCashflowForm(this.sectionData.cashflow);
+            }
+        }
+
+        restoreStrategieData() {
+            if (this.sectionData && this.sectionData.strategie) {
+                this.populateStrategieForm(this.sectionData.strategie);
+            }
         }
 
         getCurrentSection() {
@@ -4794,6 +4979,10 @@ List available plugins
 
         // Content Generation Methods
         generateVerkaufContent() {
+            const formFields = this.generateVerkaufFormFields();
+            const advancedOptions = this.generateAdvancedOptions();
+            const buttonGroup = this.generateVerkaufButtons();
+
             return `
                 <div class="scenario-tabs">
                     <button class="scenario-tab active" data-scenario="scenario1" onclick="app.switchScenario('scenario1')">
@@ -4828,7 +5017,36 @@ List available plugins
                         </div>
                     </div>
 
+                    <!-- Szenario 1 Content -->
                     <div class="scenario-content active" id="scenario1-content">
+                        ${formFields}
+                        ${advancedOptions}
+                        ${buttonGroup}
+                    </div>
+
+                    <!-- Szenario 2 Content -->
+                    <div class="scenario-content" id="scenario2-content">
+                        ${formFields.replace(/id="/g, 'id="s2_')}
+                        ${advancedOptions.replace(/id="/g, 'id="s2_')}
+                        ${buttonGroup}
+                    </div>
+
+                    <!-- Szenario 3 Content -->
+                    <div class="scenario-content" id="scenario3-content">
+                        ${formFields.replace(/id="/g, 'id="s3_')}
+                        ${advancedOptions.replace(/id="/g, 'id="s3_')}
+                        ${buttonGroup}
+                    </div>
+                </div>
+
+                <div class="results-container" id="results-container">
+                    <!-- Results will be dynamically inserted here -->
+                </div>
+            `;
+        }
+
+        generateVerkaufFormFields() {
+            return `
                         <div class="form-grid">
                             <div class="form-group">
                                 <label class="form-label">
@@ -4950,7 +5168,11 @@ List available plugins
                                 <div class="form-help">Für bundeslandspezifische Steuerberechnung</div>
                             </div>
                         </div>
+            `;
+        }
 
+        generateAdvancedOptions() {
+            return `
                         <div class="advanced-options">
                             <button class="disclosure-toggle" onclick="app.toggleAdvanced()">
                                 <span class="disclosure-arrow">▶</span>
@@ -5000,7 +5222,11 @@ List available plugins
                                 </div>
                             </div>
                         </div>
+            `;
+        }
 
+        generateVerkaufButtons() {
+            return `
                         <div class="btn-group">
                             <button class="btn btn-primary" onclick="app.calculateOptimal()" title="Optimale Berechnung starten (Ctrl+Enter)">
                                 🧮 KI-Optimierung starten
@@ -5015,12 +5241,6 @@ List available plugins
                                 🔄 Zurücksetzen
                             </button>
                         </div>
-                    </div>
-                </div>
-
-                <div class="results-container" id="results-container">
-                    <!-- Results will be dynamically inserted here -->
-                </div>
             `;
         }
 
@@ -5604,6 +5824,72 @@ List available plugins
             `;
         }
 
+        // Helper methods for form data collection and population
+        populateGrundsteuerForm(data) {
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.type === 'checkbox') {
+                        element.checked = data[key];
+                    } else {
+                        element.value = data[key];
+                    }
+                }
+            });
+        }
+
+        populateErbschaftForm(data) {
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.type === 'checkbox') {
+                        element.checked = data[key];
+                    } else {
+                        element.value = data[key];
+                    }
+                }
+            });
+        }
+
+        populateSchenkungForm(data) {
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.type === 'checkbox') {
+                        element.checked = data[key];
+                    } else {
+                        element.value = data[key];
+                    }
+                }
+            });
+        }
+
+        populateCashflowForm(data) {
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.type === 'checkbox') {
+                        element.checked = data[key];
+                    } else {
+                        element.value = data[key];
+                    }
+                }
+            });
+        }
+
+        populateStrategieForm(data) {
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (element.type === 'checkbox') {
+                        element.checked = data[key];
+                    } else {
+                        element.value = data[key];
+                    }
+                }
+            });
+        }
+
         // Enhanced Calculation Methods for Different Modules
         async calculateGrundsteuer() {
             try {
@@ -6180,6 +6466,13 @@ List available plugins
 
             this.saveCurrentState();
             this.populateForm(exampleData);
+            
+            // Update current scenario data
+            const scenario = this.scenarios.get(this.currentScenario);
+            if (scenario) {
+                scenario.data = exampleData;
+            }
+            
             this.showToast('💡 Beispieldaten geladen', 'success');
             
             if (this.realtimeEnabled) {
@@ -6311,7 +6604,9 @@ List available plugins
         resetForm() {
             this.saveCurrentState();
             
-            const inputs = document.querySelectorAll('.form-input, .form-select');
+            const contentSelector = `#${this.currentScenario}-content`;
+            const inputs = document.querySelectorAll(`${contentSelector} .form-input, ${contentSelector} .form-select`);
+            
             inputs.forEach(input => {
                 if (input.type === 'number') {
                     input.value = '';
@@ -6328,6 +6623,12 @@ List available plugins
                 this.clearFieldError(input);
             });
 
+            // Clear current scenario data
+            const scenario = this.scenarios.get(this.currentScenario);
+            if (scenario) {
+                scenario.data = {};
+            }
+
             document.getElementById('results-container').innerHTML = '';
             this.updateAnalytics({ structures: [] }, 0);
             
@@ -6339,6 +6640,7 @@ List available plugins
             this.cache.clear();
             this.appState.history = [];
             this.appState.historyIndex = -1;
+            this.sectionData = {}; // Reset section data
             this.updateHistoryButtons();
             this.analytics = {
                 calculations: 0,
@@ -6354,15 +6656,23 @@ List available plugins
         // Utility Methods
         collectFormData() {
             const data = {};
-            const inputs = document.querySelectorAll('.form-input, .form-select');
+            const prefix = this.getScenarioPrefix(this.currentScenario);
+            const contentSelector = `#${this.currentScenario}-content`;
+            const inputs = document.querySelectorAll(`${contentSelector} .form-input, ${contentSelector} .form-select`);
             
             inputs.forEach(input => {
+                // Remove scenario prefix from field name to get the actual field name
+                let fieldName = input.id;
+                if (prefix && fieldName.startsWith(prefix)) {
+                    fieldName = fieldName.substring(prefix.length);
+                }
+                
                 if (input.type === 'number') {
-                    data[input.id] = parseFloat(input.value) || 0;
+                    data[fieldName] = parseFloat(input.value) || 0;
                 } else if (input.type === 'checkbox') {
-                    data[input.id] = input.checked;
+                    data[fieldName] = input.checked;
                 } else {
-                    data[input.id] = input.value || '';
+                    data[fieldName] = input.value || '';
                 }
             });
 
@@ -6370,8 +6680,11 @@ List available plugins
         }
 
         populateForm(data) {
+            const prefix = this.getScenarioPrefix(this.currentScenario);
+            
             Object.keys(data).forEach(key => {
-                const element = document.getElementById(key);
+                const elementId = prefix + key;
+                const element = document.getElementById(elementId);
                 if (element) {
                     if (element.type === 'checkbox') {
                         element.checked = data[key];
