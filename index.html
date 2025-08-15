@@ -5947,26 +5947,36 @@ List available plugins
 
         // Enhanced Calculation Methods for Different Modules
         async calculateGrundsteuer() {
-            try {
-                this.showProgress('Berechne neue Grundsteuer 2025...', 20);
-                
-                const data = this.collectGrundsteuerData();
-                const results = await this.calculationEngine.calculate('grundsteuer', data);
-                
-                this.showProgress('Erstelle Grundsteuer-Ergebnisse...', 80);
-                this.displayGrundsteuerResults(results);
-                
-                setTimeout(() => {
-                    this.hideProgress();
-                    this.showToast('🏛️ Grundsteuer erfolgreich berechnet', 'success');
-                }, 500);
+    try {
+        this.showProgress('Berechne neue Grundsteuer 2025...', 20);
+        
+        const formData = this.collectGrundsteuerData();
+        // Map to the format expected by the calculation engine
+        const data = {
+            grundstuecksflaeche: formData.grundstuecksflaeche,
+            wohnflaeche: formData.wohnflaeche,
+            baujahr: formData.baujahr,
+            immobilientyp: formData.grundsteuer_immobilientyp, // Map field name
+            bundesland: formData.grundsteuer_bundesland, // Map field name
+            hebesatz: formData.hebesatz_grundsteuer // Map field name
+        };
+        
+        const results = await this.calculationEngine.calculate('grundsteuer', data);
+        
+        this.showProgress('Erstelle Grundsteuer-Ergebnisse...', 80);
+        this.displayGrundsteuerResults(results);
+        
+        setTimeout(() => {
+            this.hideProgress();
+            this.showToast('Grundsteuer erfolgreich berechnet', 'success');
+        }, 500);
 
-            } catch (error) {
-                this.hideProgress();
-                this.errorHandler.logError(error);
-                this.showToast('❌ Grundsteuer-Berechnung fehlgeschlagen: ' + error.message, 'danger');
-            }
-        }
+    } catch (error) {
+        this.hideProgress();
+        this.errorHandler.logError(error);
+        this.showToast('Grundsteuer-Berechnung fehlgeschlagen: ' + error.message, 'danger');
+    }
+}
 
         collectGrundsteuerData() {
             return {
@@ -5976,30 +5986,6 @@ List available plugins
                 grundsteuer_immobilientyp: document.getElementById('grundsteuer_immobilientyp')?.value || 'einfamilienhaus',
                 grundsteuer_bundesland: document.getElementById('grundsteuer_bundesland')?.value || 'nw',
                 hebesatz_grundsteuer: parseFloat(document.getElementById('hebesatz_grundsteuer')?.value) || 470
-            };
-        }
-
-        collectErbschaftData() {
-            return {
-                erbschaft_immobilienwert: parseFloat(document.getElementById('erbschaft_immobilienwert')?.value) || 0,
-                verwandtschaftsgrad: document.getElementById('verwandtschaftsgrad')?.value || 'kind',
-                erbschaft_immobilienart: document.getElementById('erbschaft_immobilienart')?.value || 'eigenheim',
-                sonstiges_vermoegen: parseFloat(document.getElementById('sonstiges_vermoegen')?.value) || 0,
-                selbstnutzung_erbe: document.getElementById('selbstnutzung_erbe')?.checked || false,
-                lebzeitige_uebertragung: document.getElementById('lebzeitige_uebertragung')?.checked || false
-            };
-        }
-
-        collectSchenkungData() {
-            return {
-                schenkung_immobilienwert: parseFloat(document.getElementById('schenkung_immobilienwert')?.value) || 0,
-                beschenkter: document.getElementById('beschenkter')?.value || 'kind',
-                vorherige_schenkungen: parseFloat(document.getElementById('vorherige_schenkungen')?.value) || 0,
-                schenkungsart: document.getElementById('schenkungsart')?.value || 'vollschenkung',
-                schenkungsanteil: parseFloat(document.getElementById('schenkungsanteil')?.value) || 100,
-                niesbrauchswert: parseFloat(document.getElementById('niesbrauchswert')?.value) || 0,
-                alter_schenker: parseInt(document.getElementById('alter_schenker')?.value) || 65,
-                schenkungsstrategie: document.getElementById('schenkungsstrategie')?.value || 'einmalig'
             };
         }
 
@@ -6029,18 +6015,6 @@ List available plugins
                 risikobereitschaft: document.getElementById('risikobereitschaft')?.value || 'moderat'
             };
         }
-
-        collectGrundsteuerData() {
-            return {
-                grundstuecksflaeche: parseFloat(document.getElementById('grundstuecksflaeche')?.value) || 0,
-                wohnflaeche: parseFloat(document.getElementById('wohnflaeche')?.value) || 0,
-                baujahr: parseInt(document.getElementById('baujahr')?.value) || 2000,
-                grundsteuer_immobilientyp: document.getElementById('grundsteuer_immobilientyp')?.value || 'einfamilienhaus',
-                grundsteuer_bundesland: document.getElementById('grundsteuer_bundesland')?.value || 'nw',
-                hebesatz_grundsteuer: parseFloat(document.getElementById('hebesatz_grundsteuer')?.value) || 470
-            };
-        }
-
         displayGrundsteuerResults(results) {
             const container = document.getElementById('grundsteuer-results');
             if (!container) return;
@@ -6120,16 +6094,16 @@ List available plugins
             }
         }
 
-        collectErbschaftData() {
-            return {
-                immobilienwert: parseFloat(document.getElementById('erbschaft_immobilienwert')?.value) || 0,
-                verwandtschaftsgrad: document.getElementById('verwandtschaftsgrad')?.value || 'kind',
-                immobilienart: document.getElementById('erbschaft_immobilienart')?.value || 'eigenheim',
-                sonstiges_vermoegen: parseFloat(document.getElementById('sonstiges_vermoegen')?.value) || 0,
-                selbstnutzung: document.getElementById('selbstnutzung_erbe')?.checked || false,
-                lebzeitig: document.getElementById('lebzeitige_uebertragung')?.checked || false
-            };
-        }
+collectErbschaftData() {
+    return {
+        erbschaft_immobilienwert: parseFloat(document.getElementById('erbschaft_immobilienwert')?.value) || 0,
+        verwandtschaftsgrad: document.getElementById('verwandtschaftsgrad')?.value || 'kind',
+        erbschaft_immobilienart: document.getElementById('erbschaft_immobilienart')?.value || 'eigenheim',
+        sonstiges_vermoegen: parseFloat(document.getElementById('sonstiges_vermoegen')?.value) || 0,
+        selbstnutzung_erbe: document.getElementById('selbstnutzung_erbe')?.checked || false,
+        lebzeitige_uebertragung: document.getElementById('lebzeitige_uebertragung')?.checked || false
+    };
+}
 
         displayErbschaftResults(results) {
             const container = document.getElementById('erbschaft-results');
@@ -6193,17 +6167,17 @@ List available plugins
         }
 
         collectSchenkungData() {
-            return {
-                immobilienwert: parseFloat(document.getElementById('schenkung_immobilienwert')?.value) || 0,
-                beschenkter: document.getElementById('beschenkter')?.value || 'kind',
-                vorherige_schenkungen: parseFloat(document.getElementById('vorherige_schenkungen')?.value) || 0,
-                schenkungsart: document.getElementById('schenkungsart')?.value || 'vollschenkung',
-                anteil: parseFloat(document.getElementById('schenkungsanteil')?.value) || 100,
-                niesbrauchswert: parseFloat(document.getElementById('niesbrauchswert')?.value) || 0,
-                alter_schenker: parseInt(document.getElementById('alter_schenker')?.value) || 65,
-                strategie: document.getElementById('schenkungsstrategie')?.value || 'einmalig'
-            };
-        }
+    return {
+        schenkung_immobilienwert: parseFloat(document.getElementById('schenkung_immobilienwert')?.value) || 0,
+        beschenkter: document.getElementById('beschenkter')?.value || 'kind',
+        vorherige_schenkungen: parseFloat(document.getElementById('vorherige_schenkungen')?.value) || 0,
+        schenkungsart: document.getElementById('schenkungsart')?.value || 'vollschenkung',
+        schenkungsanteil: parseFloat(document.getElementById('schenkungsanteil')?.value) || 100,
+        niesbrauchswert: parseFloat(document.getElementById('niesbrauchswert')?.value) || 0,
+        alter_schenker: parseInt(document.getElementById('alter_schenker')?.value) || 65,
+        schenkungsstrategie: document.getElementById('schenkungsstrategie')?.value || 'einmalig'
+    };
+}
 
         displaySchenkungResults(results) {
             const container = document.getElementById('schenkung-results');
@@ -6249,41 +6223,39 @@ List available plugins
         }
 
         async calculateCashflow() {
-            try {
-                this.showProgress('Berechne Cash-Flow Analyse...', 20);
-                
-                const data = this.collectCashflowData();
-                const results = await this.calculationEngine.calculate('cashflow', data);
-                
-                this.showProgress('Erstelle Cash-Flow Ergebnisse...', 80);
-                this.displayCashflowResults(results);
-                
-                setTimeout(() => {
-                    this.hideProgress();
-                    this.showToast('📊 Cash-Flow erfolgreich analysiert', 'success');
-                }, 500);
+    try {
+        this.showProgress('Berechne Cash-Flow Analyse...', 20);
+        
+        const formData = this.collectCashflowData();
+        // Map to the format expected by the calculation engine
+        const data = {
+            mieteinnahmen: formData.mieteinnahmen,
+            betriebskosten: formData.betriebskosten,
+            finanzierungskosten: formData.finanzierungskosten,
+            abschreibungen: formData.cashflow_abschreibungen, // Map field name
+            steuersatz: formData.cashflow_steuersatz, // Map field name
+            analysezeitraum: formData.analysezeitraum,
+            mietsteigerung: formData.mietsteigerung,
+            verkaufserloes: formData.verkaufserloes,
+            reinvestition: formData.reinvestition
+        };
+        
+        const results = await this.calculationEngine.calculate('cashflow', data);
+        
+        this.showProgress('Erstelle Cash-Flow Ergebnisse...', 80);
+        this.displayCashflowResults(results);
+        
+        setTimeout(() => {
+            this.hideProgress();
+            this.showToast('Cash-Flow erfolgreich analysiert', 'success');
+        }, 500);
 
-            } catch (error) {
-                this.hideProgress();
-                this.errorHandler.logError(error);
-                this.showToast('❌ Cash-Flow Analyse fehlgeschlagen: ' + error.message, 'danger');
-            }
-        }
-
-        collectCashflowData() {
-            return {
-                mieteinnahmen: parseFloat(document.getElementById('mieteinnahmen')?.value) || 0,
-                betriebskosten: parseFloat(document.getElementById('betriebskosten')?.value) || 0,
-                finanzierungskosten: parseFloat(document.getElementById('finanzierungskosten')?.value) || 0,
-                abschreibungen: parseFloat(document.getElementById('cashflow_abschreibungen')?.value) || 0,
-                steuersatz: parseFloat(document.getElementById('cashflow_steuersatz')?.value) || 42,
-                analysezeitraum: parseInt(document.getElementById('analysezeitraum')?.value) || 5,
-                mietsteigerung: parseFloat(document.getElementById('mietsteigerung')?.value) || 2.5,
-                verkaufserloes: parseFloat(document.getElementById('verkaufserloes')?.value) || 0,
-                reinvestition: document.getElementById('reinvestition')?.value || 'keine'
-            };
-        }
-
+    } catch (error) {
+        this.hideProgress();
+        this.errorHandler.logError(error);
+        this.showToast('Cash-Flow Analyse fehlgeschlagen: ' + error.message, 'danger');
+    }
+}
         displayCashflowResults(results) {
             const container = document.getElementById('cashflow-results');
             if (!container) return;
