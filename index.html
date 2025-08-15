@@ -1284,12 +1284,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         }
     }
 
+    /* Dark Mode Support - Fixed CSS conflicts */
     @media (prefers-color-scheme: dark) {
-        :root {
-            --dark: #ffffff;
-            --light: #2c3e50;
-        }
-        
         body {
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
         }
@@ -1318,6 +1314,73 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         .analytics-panel {
             background: #34495e;
         }
+    }
+
+    /* Manual Dark Mode Toggle - Fixed conflicts */
+    body.dark-mode {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+    }
+    
+    body.dark-mode .app-container {
+        background: #2c3e50;
+        color: white;
+    }
+    
+    body.dark-mode .app-header {
+        background: rgba(44, 62, 80, 0.95);
+        color: white;
+    }
+    
+    body.dark-mode .app-title h1 {
+        color: #74b9ff;
+        background: none;
+        -webkit-text-fill-color: #74b9ff;
+    }
+    
+    body.dark-mode .subtitle {
+        color: white;
+        opacity: 1;
+        font-weight: 600;
+    }
+    
+    body.dark-mode .sidebar,
+    body.dark-mode .analytics-panel {
+        background: #34495e;
+        color: white;
+    }
+    
+    body.dark-mode .nav-link {
+        color: white;
+    }
+    
+    body.dark-mode .card,
+    body.dark-mode .result-card,
+    body.dark-mode .analytics-widget {
+        background: #34495e;
+        color: white;
+        border-color: #495057;
+    }
+    
+    body.dark-mode .form-input,
+    body.dark-mode .form-select {
+        background: #2c3e50;
+        border-color: #495057;
+        color: white;
+    }
+    
+    body.dark-mode .modal {
+        background: #34495e;
+        color: white;
+    }
+    
+    body.dark-mode .data-table th,
+    body.dark-mode .data-table td {
+        color: white;
+    }
+    
+    body.dark-mode .data-table th {
+        background: #2c3e50;
     }
 
     /* High Contrast Mode */
@@ -1517,204 +1580,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     .skip-link:focus {
         top: 6px;
     }
-
-    /* Dark Mode Detection and Fixes */
-    @media (prefers-color-scheme: dark) {
-        body {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
-            color: #ffffff !important;
-        }
-        
-        .app-container {
-            background: #2c3e50 !important;
-            color: #ffffff !important;
-        }
-        
-        .app-header {
-            background: rgba(44, 62, 80, 0.95) !important;
-            color: #ffffff !important;
-        }
-        
-        .app-title h1 {
-            color: #74b9ff !important;
-            background: none !important;
-            -webkit-text-fill-color: #74b9ff !important;
-        }
-        
-        .subtitle {
-            color: #ffffff !important;
-            opacity: 1 !important;
-            font-weight: 600 !important;
-        }
-        
-        .performance-indicator {
-            color: #ffffff !important;
-        }
-        
-        .btn {
-            color: #ffffff !important;
-        }
-        
-        .sidebar,
-        .analytics-panel {
-            background: #34495e !important;
-            color: #ffffff !important;
-        }
-        
-        .nav-link {
-            color: #ffffff !important;
-        }
-        
-        .nav-link:hover,
-        .nav-link.active {
-            color: #ffffff !important;
-        }
-        
-        .card,
-        .result-card,
-        .analytics-widget {
-            background: #34495e !important;
-            color: #ffffff !important;
-            border-color: #495057 !important;
-        }
-        
-        .card-title,
-        .result-title,
-        .widget-title {
-            color: #ffffff !important;
-        }
-        
-        .form-label {
-            color: #ffffff !important;
-        }
-        
-        .form-input,
-        .form-select {
-            background: #2c3e50 !important;
-            border-color: #495057 !important;
-            color: #ffffff !important;
-        }
-        
-        .alert {
-            color: #ffffff !important;
-        }
-        
-        .result-label {
-            color: #ffffff !important;
-        }
-        
-        .modal {
-            background: #34495e !important;
-            color: #ffffff !important;
-        }
-        
-        .data-table th,
-        .data-table td {
-            color: #ffffff !important;
-        }
-        
-        .data-table th {
-            background: #2c3e50 !important;
-        }
-    }
-    
-    /* Manual Dark Mode Toggle */
-    body.dark-mode {
-        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
-        color: #ffffff !important;
-    }
-    
-    body.dark-mode .app-container {
-        background: #2c3e50 !important;
-        color: #ffffff !important;
-    }
-    
-    body.dark-mode .app-header {
-        background: rgba(44, 62, 80, 0.95) !important;
-        color: #ffffff !important;
-    }
-    
-    body.dark-mode .app-title h1 {
-        color: #74b9ff !important;
-        background: none !important;
-        -webkit-text-fill-color: #74b9ff !important;
-    }
-    
-    body.dark-mode .subtitle {
-        color: #ffffff !important;
-        opacity: 1 !important;
-        font-weight: 600 !important;
-    }
-    
-    body.dark-mode .performance-indicator {
-        color: #ffffff !important;
-    }
-    
-    body.dark-mode .btn {
-        color: #ffffff !important;
-    }
-    
-    body.dark-mode .sidebar,
-    body.dark-mode .analytics-panel {
-        background: #34495e !important;
-        color: #ffffff !important;
-    }
-    
-    body.dark-mode .nav-link {
-        color: #ffffff !important;
-    }
-    
-    body.dark-mode .nav-link:hover,
-    body.dark-mode .nav-link.active {
-        color: #ffffff !important;
-    }
-    
-    body.dark-mode .card,
-    body.dark-mode .result-card,
-    body.dark-mode .analytics-widget {
-        background: #34495e !important;
-        color: #ffffff !important;
-        border-color: #495057 !important;
-    }
-    
-    body.dark-mode .card-title,
-    body.dark-mode .result-title,
-    body.dark-mode .widget-title {
-        color: #ffffff !important;
-    }
-    
-    body.dark-mode .form-label {
-        color: #ffffff !important;
-    }
-    
-    body.dark-mode .form-input,
-    body.dark-mode .form-select {
-        background: #2c3e50 !important;
-        border-color: #495057 !important;
-        color: #ffffff !important;
-    }
-    
-    body.dark-mode .alert {
-        color: #ffffff !important;
-    }
-    
-    body.dark-mode .result-label {
-        color: #ffffff !important;
-    }
-    
-    body.dark-mode .modal {
-        background: #34495e !important;
-        color: #ffffff !important;
-    }
-    
-    body.dark-mode .data-table th,
-    body.dark-mode .data-table td {
-        color: #ffffff !important;
-    }
-    
-    body.dark-mode .data-table th {
-        background: #2c3e50 !important;
-    }
 </style>
 
 </head>
@@ -1758,104 +1623,108 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <div class="main-content">
     <!-- Enhanced Sidebar with Navigation -->
     <aside class="sidebar" id="navigation" role="navigation" aria-label="Hauptnavigation">
-        <ul class="nav-menu" role="menubar">
-            <li class="nav-item" role="none">
-                <a href="#verkauf" class="nav-link active" data-section="verkauf" role="menuitem" aria-current="page">
-                    <span class="nav-icon" role="img" aria-label="Geld">💰</span>
-                    Verkaufssteuer
-                    <span class="nav-badge">AI</span>
-                </a>
-            </li>
-            <li class="nav-item" role="none">
-                <a href="#grundsteuer" class="nav-link" data-section="grundsteuer" role="menuitem">
-                    <span class="nav-icon" role="img" aria-label="Gebäude">🏛️</span>
-                    Grundsteuer 2025
-                </a>
-            </li>
-            <li class="nav-item" role="none">
-                <a href="#erbschaft" class="nav-link" data-section="erbschaft" role="menuitem">
-                    <span class="nav-icon" role="img" aria-label="Familie">👨‍👩‍👧‍👦</span>
-                    Erbschaftsteuer
-                </a>
-            </li>
-            <li class="nav-item" role="none">
-                <a href="#schenkung" class="nav-link" data-section="schenkung" role="menuitem">
-                    <span class="nav-icon" role="img" aria-label="Geschenk">🎁</span>
-                    Schenkungssteuer
-                </a>
-            </li>
-            <li class="nav-item" role="none">
-                <a href="#cashflow" class="nav-link" data-section="cashflow" role="menuitem">
-                    <span class="nav-icon" role="img" aria-label="Diagramm">📊</span>
-                    Cash-Flow Analyse
-                </a>
-            </li>
-            <li class="nav-item" role="none">
-                <a href="#strategie" class="nav-link" data-section="strategie" role="menuitem">
-                    <span class="nav-icon" role="img" aria-label="Ziel">🎯</span>
-                    Gesamtstrategie
-                </a>
-            </li>
-            <li class="nav-item" role="none">
-                <a href="https://deka42.github.io/SteuerImmo/calculations.html" target="_blank" class="nav-link" role="menuitem">
-                    <span class="nav-icon" role="img" aria-label="Rechner">🧮</span>
-                    Calculations
-                </a>
-            </li>
-        </ul>
+        <nav>
+            <ul class="nav-menu" role="menubar">
+                <li class="nav-item" role="none">
+                    <a href="#verkauf" class="nav-link active" data-section="verkauf" role="menuitem" aria-current="page">
+                        <span class="nav-icon" role="img" aria-label="Geld">💰</span>
+                        Verkaufssteuer
+                        <span class="nav-badge">AI</span>
+                    </a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#grundsteuer" class="nav-link" data-section="grundsteuer" role="menuitem">
+                        <span class="nav-icon" role="img" aria-label="Gebäude">🏛️</span>
+                        Grundsteuer 2025
+                    </a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#erbschaft" class="nav-link" data-section="erbschaft" role="menuitem">
+                        <span class="nav-icon" role="img" aria-label="Familie">👨‍👩‍👧‍👦</span>
+                        Erbschaftsteuer
+                    </a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#schenkung" class="nav-link" data-section="schenkung" role="menuitem">
+                        <span class="nav-icon" role="img" aria-label="Geschenk">🎁</span>
+                        Schenkungssteuer
+                    </a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#cashflow" class="nav-link" data-section="cashflow" role="menuitem">
+                        <span class="nav-icon" role="img" aria-label="Diagramm">📊</span>
+                        Cash-Flow Analyse
+                    </a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#strategie" class="nav-link" data-section="strategie" role="menuitem">
+                        <span class="nav-icon" role="img" aria-label="Ziel">🎯</span>
+                        Gesamtstrategie
+                    </a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="https://deka42.github.io/SteuerImmo/calculations.html" target="_blank" class="nav-link" role="menuitem">
+                        <span class="nav-icon" role="img" aria-label="Rechner">🧮</span>
+                        Calculations
+                    </a>
+                </li>
+            </ul>
+        </nav>
 
-    <!-- Enhanced Plugin Architecture -->
-    <div class="card" style="margin-top: 2rem;">
-        <div class="card-header">
-            <h3 style="font-size: 1rem;">🔌 Verfügbare Plugins</h3>
+<!-- Enhanced Plugin Architecture -->
+<div class="card" style="margin-top: 2rem;">
+    <div class="card-header">
+        <h3 style="font-size: 1rem;">🔌 Verfügbare Plugins</h3>
+    </div>
+    <div class="plugin-list" role="list">
+        <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('bundesland-analyzer')" role="listitem" tabindex="0">
+            <strong>🗺️ Bundesland-Analyzer</strong>
+            <small style="display: block; color: #6c757d;">Steuervergleich nach Bundesländern</small>
         </div>
-        <div class="plugin-list" role="list">
-            <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('bundesland-analyzer')" role="listitem" tabindex="0">
-                <strong>🗺️ Bundesland-Analyzer</strong>
-                <small style="display: block; color: #6c757d;">Steuervergleich nach Bundesländern</small>
-            </div>
-            <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('inflation-calculator')" role="listitem" tabindex="0">
-                <strong>📊 Inflations-Rechner</strong>
-                <small style="display: block; color: #6c757d;">Berücksichtigung der Inflation</small>
-            </div>
-            <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('ai-optimizer')" role="listitem" tabindex="0">
-                <strong>🤖 KI-Optimierer</strong>
-                <small style="display: block; color: #6c757d;">Machine Learning Vorhersagen</small>
-            </div>
-            <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('international-tax')" role="listitem" tabindex="0">
-                <strong>🌍 International Tax</strong>
-                <small style="display: block; color: #6c757d;">Cross-Border Optimierung</small>
-            </div>
+        <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('inflation-calculator')" role="listitem" tabindex="0">
+            <strong>📊 Inflations-Rechner</strong>
+            <small style="display: block; color: #6c757d;">Berücksichtigung der Inflation</small>
+        </div>
+        <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('ai-optimizer')" role="listitem" tabindex="0">
+            <strong>🤖 KI-Optimierer</strong>
+            <small style="display: block; color: #6c757d;">Machine Learning Vorhersagen</small>
+        </div>
+        <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('international-tax')" role="listitem" tabindex="0">
+            <strong>🌍 International Tax</strong>
+            <small style="display: block; color: #6c757d;">Cross-Border Optimierung</small>
         </div>
     </div>
+</div>
 
-    <!-- System Status -->
-    <div class="card" style="margin-top: 1rem;">
-        <div class="card-header">
-            <h3 style="font-size: 1rem;">⚡ System Status</h3>
+<!-- System Status -->
+<div class="card" style="margin-top: 1rem;">
+    <div class="card-header">
+        <h3 style="font-size: 1rem;">⚡ System Status</h3>
+    </div>
+    <div style="font-size: 0.8rem;">
+        <div style="margin-bottom: 0.5rem;">
+            <span>API Status:</span> 
+            <span id="api-status" style="color: var(--success-solid);">✅ Online</span>
         </div>
-        <div style="font-size: 0.8rem;">
-            <div style="margin-bottom: 0.5rem;">
-                <span>API Status:</span> 
-                <span id="api-status" style="color: var(--success-solid);">✅ Online</span>
-            </div>
-            <div style="margin-bottom: 0.5rem;">
-                <span>Cache:</span> 
-                <span id="cache-status" style="color: var(--success-solid);">✅ Aktiv</span>
-            </div>
-            <div style="margin-bottom: 0.5rem;">
-                <span>Fehlerrate:</span> 
-                <span id="error-rate-status">0%</span>
-            </div>
-            <div>
-                <span>Version:</span> 
-                <span style="color: var(--primary-solid);">v4.0.4-enhanced</span>
-            </div>
+        <div style="margin-bottom: 0.5rem;">
+            <span>Cache:</span> 
+            <span id="cache-status" style="color: var(--success-solid);">✅ Aktiv</span>
+        </div>
+        <div style="margin-bottom: 0.5rem;">
+            <span>Fehlerrate:</span> 
+            <span id="error-rate-status">0%</span>
+        </div>
+        <div>
+            <span>Version:</span> 
+            <span style="color: var(--primary-solid);">v4.0.4-enhanced</span>
         </div>
     </div>
+</div>
+
 </aside>
 
 <!-- Main Content Area -->
+
 <main class="content-area" id="main-content" role="main">
     <!-- Content will be dynamically loaded here -->
     <div id="dynamic-content">
@@ -1874,81 +1743,83 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 </main>
 
 <!-- Enhanced Analytics Panel -->
+
 <aside class="analytics-panel" role="complementary" aria-label="Analytics und Statistiken">
     <div class="analytics-header">
         <h3>📊 Real-time Analytics</h3>
     </div>
 
-    <div class="analytics-widget">
-        <div class="widget-header">
-            <span class="widget-title">Performance</span>
-            <span class="widget-icon" role="img" aria-label="Blitz">⚡</span>
-        </div>
-        <div class="metric-value" id="calc-time">0ms</div>
-        <div class="metric-label">Berechnungszeit</div>
+<div class="analytics-widget">
+    <div class="widget-header">
+        <span class="widget-title">Performance</span>
+        <span class="widget-icon" role="img" aria-label="Blitz">⚡</span>
     </div>
+    <div class="metric-value" id="calc-time">0ms</div>
+    <div class="metric-label">Berechnungszeit</div>
+</div>
 
-    <div class="analytics-widget">
-        <div class="widget-header">
-            <span class="widget-title">Optimierung</span>
-            <span class="widget-icon" role="img" aria-label="Ziel">🎯</span>
-        </div>
-        <div class="metric-value" id="savings-potential">€0</div>
-        <div class="metric-label">Max. Ersparnis</div>
+<div class="analytics-widget">
+    <div class="widget-header">
+        <span class="widget-title">Optimierung</span>
+        <span class="widget-icon" role="img" aria-label="Ziel">🎯</span>
     </div>
+    <div class="metric-value" id="savings-potential">€0</div>
+    <div class="metric-label">Max. Ersparnis</div>
+</div>
 
-    <div class="analytics-widget">
-        <div class="widget-header">
-            <span class="widget-title">Steuerquote</span>
-            <span class="widget-icon" role="img" aria-label="Diagramm ansteigend">📈</span>
-        </div>
-        <div class="metric-value" id="tax-rate">0%</div>
-        <div class="metric-label">Effektive Belastung</div>
-        <div class="chart-container">
-            <canvas id="tax-chart" width="200" height="100" aria-label="Steuervergleichsdiagramm"></canvas>
-        </div>
+<div class="analytics-widget">
+    <div class="widget-header">
+        <span class="widget-title">Steuerquote</span>
+        <span class="widget-icon" role="img" aria-label="Diagramm ansteigend">📈</span>
     </div>
+    <div class="metric-value" id="tax-rate">0%</div>
+    <div class="metric-label">Effektive Belastung</div>
+    <div class="chart-container">
+        <canvas id="tax-chart" width="200" height="100" aria-label="Steuervergleichsdiagramm"></canvas>
+    </div>
+</div>
 
-    <div class="analytics-widget">
-        <div class="widget-header">
-            <span class="widget-title">Session</span>
-            <span class="widget-icon" role="img" aria-label="Statistiken">📊</span>
-        </div>
-        <div style="font-size: 0.9rem; color: #6c757d;" id="session-stats">
-            <div>Berechnungen: <span id="calc-count">0</span></div>
-            <div>Cache Hits: <span id="cache-hits">0</span></div>
-            <div>Fehlerrate: <span id="error-rate">0%</span></div>
-            <div>Laufzeit: <span id="uptime">0min</span></div>
-        </div>
+<div class="analytics-widget">
+    <div class="widget-header">
+        <span class="widget-title">Session</span>
+        <span class="widget-icon" role="img" aria-label="Statistiken">📊</span>
     </div>
+    <div style="font-size: 0.9rem; color: #6c757d;" id="session-stats">
+        <div>Berechnungen: <span id="calc-count">0</span></div>
+        <div>Cache Hits: <span id="cache-hits">0</span></div>
+        <div>Fehlerrate: <span id="error-rate">0%</span></div>
+        <div>Laufzeit: <span id="uptime">0min</span></div>
+    </div>
+</div>
 
-    <!-- Enhanced API Documentation -->
-    <div class="analytics-widget">
-        <div class="widget-header">
-            <span class="widget-title">API Docs</span>
-            <span class="widget-icon" role="img" aria-label="Bücher">📚</span>
-        </div>
-        <div style="font-size: 0.8rem;">
-            <div><code>POST /api/calculate</code></div>
-            <div><code>GET /api/structures</code></div>
-            <div><code>POST /api/compare</code></div>
-            <div><code>GET /api/health</code></div>
-            <button class="btn btn-outline" onclick="app.showAPIDocumentation()" style="margin-top: 0.5rem; padding: 0.25rem 0.5rem; font-size: 0.7rem;" aria-label="Vollständige API-Dokumentation anzeigen">
-                📖 Vollständige Docs
-            </button>
-        </div>
+<!-- Enhanced API Documentation -->
+<div class="analytics-widget">
+    <div class="widget-header">
+        <span class="widget-title">API Docs</span>
+        <span class="widget-icon" role="img" aria-label="Bücher">📚</span>
     </div>
+    <div style="font-size: 0.8rem;">
+        <div><code>POST /api/calculate</code></div>
+        <div><code>GET /api/structures</code></div>
+        <div><code>POST /api/compare</code></div>
+        <div><code>GET /api/health</code></div>
+        <button class="btn btn-outline" onclick="app.showAPIDocumentation()" style="margin-top: 0.5rem; padding: 0.25rem 0.5rem; font-size: 0.7rem;" aria-label="Vollständige API-Dokumentation anzeigen">
+            📖 Vollständige Docs
+        </button>
+    </div>
+</div>
 
-    <!-- Error Log Widget -->
-    <div class="analytics-widget">
-        <div class="widget-header">
-            <span class="widget-title">Error Log</span>
-            <span class="widget-icon" role="img" aria-label="Warnung">⚠️</span>
-        </div>
-        <div id="error-log" style="font-size: 0.8rem; max-height: 150px; overflow-y: auto;">
-            <div style="color: var(--success-solid);">✅ Keine Fehler</div>
-        </div>
+<!-- Error Log Widget -->
+<div class="analytics-widget">
+    <div class="widget-header">
+        <span class="widget-title">Error Log</span>
+        <span class="widget-icon" role="img" aria-label="Warnung">⚠️</span>
     </div>
+    <div id="error-log" style="font-size: 0.8rem; max-height: 150px; overflow-y: auto;">
+        <div style="color: var(--success-solid);">✅ Keine Fehler</div>
+    </div>
+</div>
+
 </aside>
 
 </div>
@@ -2364,7 +2235,7 @@ List available plugins
 <script>
     /**
      * Ultimate Enterprise Immobilien-Steuer-Suite 2025 - Enhanced Version
-     * With all field name mismatches fixed
+     * With all bugs fixed and security improvements
      */
     
     // Enhanced Google Analytics Tracker
@@ -2728,14 +2599,19 @@ List available plugins
 
         showBanner() {
             // Only show if consent not already given
-            const existingConsent = localStorage.getItem('cookie_consent');
+            const existingConsent = this.getSafeLocalStorage('cookie_consent');
             if (existingConsent) {
-                const consent = JSON.parse(existingConsent);
-                window.cookieConsent = consent;
-                if (consent.analytics) {
-                    this.initializeAnalytics();
+                try {
+                    const consent = JSON.parse(existingConsent);
+                    window.cookieConsent = consent;
+                    if (consent.analytics) {
+                        this.initializeAnalytics();
+                    }
+                    return;
+                } catch (error) {
+                    console.warn('Invalid consent data in localStorage');
+                    this.clearSavedConsent();
                 }
-                return;
             }
 
             const banner = document.createElement('div');
@@ -2759,7 +2635,7 @@ List available plugins
 
             banner.innerHTML = `
                 <div style="flex: 1; min-width: 300px;">
-                    <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem;">🍪 Cookie-Einstellungen</h3>
+                    <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem;">Cookie-Einstellungen</h3>
                     <p style="margin: 0; font-size: 0.9rem; opacity: 0.9;">
                         Wir verwenden Cookies für Analytics und zur Verbesserung der Benutzererfahrung. 
                         Sie können Ihre Präferenzen jederzeit anpassen.
@@ -2813,8 +2689,38 @@ List available plugins
         }
 
         saveConsent() {
-            localStorage.setItem('cookie_consent', JSON.stringify(window.cookieConsent));
-            localStorage.setItem('cookie_consent_date', new Date().toISOString());
+            try {
+                this.setSafeLocalStorage('cookie_consent', JSON.stringify(window.cookieConsent));
+                this.setSafeLocalStorage('cookie_consent_date', new Date().toISOString());
+            } catch (error) {
+                console.warn('Could not save cookie consent to localStorage');
+            }
+        }
+
+        clearSavedConsent() {
+            try {
+                localStorage.removeItem('cookie_consent');
+                localStorage.removeItem('cookie_consent_date');
+            } catch (error) {
+                console.warn('Could not clear consent from localStorage');
+            }
+        }
+
+        getSafeLocalStorage(key) {
+            try {
+                return localStorage.getItem(key);
+            } catch (error) {
+                console.warn('localStorage not available');
+                return null;
+            }
+        }
+
+        setSafeLocalStorage(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (error) {
+                console.warn('Could not save to localStorage');
+            }
         }
 
         initializeAnalytics() {
@@ -2889,7 +2795,7 @@ List available plugins
                     const recentErrors = this.errorLog.slice(-5);
                     errorLogElement.innerHTML = recentErrors.map(error => 
                         `<div style="color: var(--danger-solid); margin-bottom: 0.25rem;">
-                            <strong>${error.type}:</strong> ${error.message.substring(0, 50)}...
+                            <strong>${this.escapeHtml(error.type)}:</strong> ${this.escapeHtml(error.message.substring(0, 50))}...
                             <small style="display: block; color: #6c757d;">${new Date(error.timestamp).toLocaleTimeString()}</small>
                         </div>`
                     ).join('');
@@ -2901,6 +2807,12 @@ List available plugins
                 errorRateElement.textContent = errorRate;
                 errorRateElement.style.color = this.errorLog.length > 0 ? 'var(--danger-solid)' : 'var(--success-solid)';
             }
+        }
+
+        escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         reportToAnalytics(error) {
@@ -3540,10 +3452,10 @@ List available plugins
             };
 
             const freibetrag = freibetraege[data.verwandtschaftsgrad] || 20000;
-            let gesamtvermoegen = (data.immobilienwert || 0) + (data.sonstiges_vermoegen || 0);
+            let gesamtvermoegen = (data.erbschaft_immobilienwert || 0) + (data.sonstiges_vermoegen || 0);
             
-            if (data.immobilienart === 'eigenheim' && data.selbstnutzung) {
-                gesamtvermoegen = (data.immobilienwert || 0) * 0.9 + (data.sonstiges_vermoegen || 0);
+            if (data.erbschaft_immobilienart === 'eigenheim' && data.selbstnutzung_erbe) {
+                gesamtvermoegen = (data.erbschaft_immobilienwert || 0) * 0.9 + (data.sonstiges_vermoegen || 0);
             }
 
             const steuerpflichtiger_erwerb = Math.max(0, gesamtvermoegen - freibetrag);
@@ -3578,10 +3490,10 @@ List available plugins
             };
 
             const freibetrag = freibetraege[data.beschenkter] || 20000;
-            let schenkungswert = data.immobilienwert || 0;
+            let schenkungswert = data.schenkung_immobilienwert || 0;
             
             if (data.schenkungsart === 'teilschenkung') {
-                schenkungswert = schenkungswert * ((data.anteil || 100) / 100);
+                schenkungswert = schenkungswert * ((data.schenkungsanteil || 100) / 100);
             }
 
             const gesamterwerb = schenkungswert + (data.vorherige_schenkungen || 0);
@@ -3673,6 +3585,8 @@ List available plugins
             this.chart = null;
             this.isRestoringState = false;
             this.sectionData = {}; // Store data for each section
+            this.cachedElements = new Map(); // Cache frequently accessed DOM elements
+            this.eventListenersCleanup = new Set(); // Track event listeners for cleanup
             
             // Enhanced components
             this.errorHandler = new EnhancedErrorHandler();
@@ -3743,6 +3657,7 @@ List available plugins
                         const callback = this.workerCallbacks.get(id);
                         
                         if (callback) {
+                            this.workerCallbacks.delete(callback.timeoutId); // Clear timeout
                             this.workerCallbacks.delete(id);
                             if (success) {
                                 callback.resolve(result);
@@ -3770,7 +3685,7 @@ List available plugins
             }
         }
 
-        // Enhanced Calculation with Worker
+        // Enhanced Calculation with Worker - Fixed timeout handling
         async calculateInWorker(data, type = 'calculate') {
             return new Promise((resolve, reject) => {
                 if (!this.worker) {
@@ -3779,16 +3694,16 @@ List available plugins
                 }
 
                 const id = ++this.workerMessageId;
-                this.workerCallbacks.set(id, { resolve, reject });
-                
-                this.worker.postMessage({ id, data, type });
-                
-                setTimeout(() => {
+                const timeoutId = setTimeout(() => {
                     if (this.workerCallbacks.has(id)) {
                         this.workerCallbacks.delete(id);
                         reject(new Error('Calculation timeout'));
                     }
                 }, 10000);
+                
+                this.workerCallbacks.set(id, { resolve, reject, timeoutId });
+                
+                this.worker.postMessage({ id, data, type });
             });
         }
 
@@ -3881,58 +3796,76 @@ List available plugins
         }
 
         setupEventListenersInternal() {
+            // Clean up existing event listeners
+            this.cleanupEventListeners();
+            
             // Real-time validation setup
             this.setupRealtimeValidation();
             
             // Navigation
             document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', (e) => {
+                const handler = (e) => {
                     e.preventDefault();
                     const section = link.getAttribute('data-section');
                     if (section) {
                         this.navigateToSection(section);
                     }
-                });
+                };
+                link.addEventListener('click', handler);
+                this.eventListenersCleanup.add(() => link.removeEventListener('click', handler));
             });
 
             // Plugin items
             document.querySelectorAll('.plugin-item').forEach(item => {
-                item.addEventListener('keydown', (e) => {
+                const keyHandler = (e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         item.click();
                     }
-                });
+                };
                 
-                item.addEventListener('mouseover', () => {
+                const mouseOverHandler = () => {
                     item.style.background = 'rgba(102, 126, 234, 0.1)';
-                });
+                };
                 
-                item.addEventListener('mouseout', () => {
+                const mouseOutHandler = () => {
                     item.style.background = '';
+                };
+                
+                item.addEventListener('keydown', keyHandler);
+                item.addEventListener('mouseover', mouseOverHandler);
+                item.addEventListener('mouseout', mouseOutHandler);
+                
+                this.eventListenersCleanup.add(() => {
+                    item.removeEventListener('keydown', keyHandler);
+                    item.removeEventListener('mouseover', mouseOverHandler);
+                    item.removeEventListener('mouseout', mouseOutHandler);
                 });
             });
 
             // Form changes for real-time calculation
-            document.addEventListener('input', (e) => {
+            const inputHandler = (e) => {
                 if (e.target.matches('.form-input, .form-select')) {
                    // Save state before changes for undo functionality
                    if (!this.isRestoringState) {
                        this.saveCurrentState();
                    }
                     
-                    // Trigger validation
-                    this.validateField(element);
+                    // Trigger validation - FIXED: use e.target instead of undefined element
+                    this.validateField(e.target);
                    
                     if (this.realtimeEnabled) {
                         this.debouncedCalculate();
                     }
                 }
-            });
+            };
+            
+            document.addEventListener('input', inputHandler);
+            this.eventListenersCleanup.add(() => document.removeEventListener('input', inputHandler));
 
             // Scroll effects
-            window.addEventListener('scroll', () => {
-                const header = document.getElementById('app-header');
+            const scrollHandler = () => {
+                const header = this.getCachedElement('app-header');
                 if (header) {
                     if (window.scrollY > 10) {
                         header.classList.add('scrolled');
@@ -3940,49 +3873,86 @@ List available plugins
                         header.classList.remove('scrolled');
                     }
                 }
-            });
+            };
+            
+            window.addEventListener('scroll', scrollHandler);
+            this.eventListenersCleanup.add(() => window.removeEventListener('scroll', scrollHandler));
 
             // Close modals on Escape
-            document.addEventListener('keydown', (e) => {
+            const keydownHandler = (e) => {
                 if (e.key === 'Escape') {
                     this.closeAllModals();
                 }
-            });
+            };
+            
+            document.addEventListener('keydown', keydownHandler);
+            this.eventListenersCleanup.add(() => document.removeEventListener('keydown', keydownHandler));
 
             // Close modals on backdrop click
             document.querySelectorAll('.modal-overlay').forEach(overlay => {
-                overlay.addEventListener('click', (e) => {
+                const clickHandler = (e) => {
                     if (e.target === overlay) {
                         this.closeModal(overlay.id);
                     }
-                });
+                };
+                overlay.addEventListener('click', clickHandler);
+                this.eventListenersCleanup.add(() => overlay.removeEventListener('click', clickHandler));
             });
 
             console.log('✅ Enhanced event listeners setup completed');
         }
 
+        cleanupEventListeners() {
+            this.eventListenersCleanup.forEach(cleanup => cleanup());
+            this.eventListenersCleanup.clear();
+        }
+
+        getCachedElement(id) {
+            if (!this.cachedElements.has(id)) {
+                this.cachedElements.set(id, document.getElementById(id));
+            }
+            return this.cachedElements.get(id);
+        }
+
         setupRealtimeValidation() {
+            // Clear existing validation listeners first
             const inputs = document.querySelectorAll('.form-input, .form-select');
             
             inputs.forEach(input => {
-                input.addEventListener('input', this.debounce((e) => {
+                // Remove existing listeners if any
+                const existingHandler = input._validationHandler;
+                if (existingHandler) {
+                    input.removeEventListener('input', existingHandler);
+                    input.removeEventListener('blur', existingHandler);
+                    input.removeEventListener('focus', existingHandler);
+                }
+                
+                const inputHandler = this.debounce((e) => {
                     this.validateField(e.target);
                     if (this.realtimeEnabled) {
                         this.calculateOptimal();
                     }
-                }, 300));
+                }, 300);
 
-                input.addEventListener('input', (e) => {
+                const realTimeHandler = (e) => {
                     this.showValidationIndicator(e.target);
-                });
+                };
 
-                input.addEventListener('blur', (e) => {
+                const blurHandler = (e) => {
                     this.validateField(e.target);
-                });
+                };
 
-                input.addEventListener('focus', (e) => {
+                const focusHandler = (e) => {
                     this.clearFieldError(e.target);
-                });
+                };
+                
+                // Store handler for cleanup
+                input._validationHandler = inputHandler;
+                
+                input.addEventListener('input', inputHandler);
+                input.addEventListener('input', realTimeHandler);
+                input.addEventListener('blur', blurHandler);
+                input.addEventListener('focus', focusHandler);
             });
         }
 
@@ -4224,7 +4194,7 @@ List available plugins
                     <div class="alert alert-info">
                         <h3>ℹ️ Keine Optimierung möglich</h3>
                         <p>Für diese Eingaben konnten keine Steueroptimierungen gefunden werden.</p>
-                        ${results?.message ? `<p>${results.message}</p>` : ''}
+                        ${results?.message ? `<p>${this.escapeHtml(results.message)}</p>` : ''}
                     </div>
                 `;
                 return;
@@ -4236,7 +4206,7 @@ List available plugins
                 html += `
                     <div class="alert alert-success">
                         <h3>🎯 KI-Optimierung erfolgreich!</h3>
-                        <p><strong>Beste Option:</strong> ${results.structures[0].name}</p>
+                        <p><strong>Beste Option:</strong> ${this.escapeHtml(results.structures[0].name)}</p>
                         <p><strong>Nettogewinn:</strong> ${this.formatCurrency(results.maxNetProfit)}</p>
                         ${results.totalSavings > 0 ? `<p><strong>Steuerersparnis:</strong> ${this.formatCurrency(results.totalSavings)}</p>` : ''}
                         ${results.calculationTime ? `<p><strong>Berechnungszeit:</strong> ${results.calculationTime}ms</p>` : ''}
@@ -4253,7 +4223,7 @@ List available plugins
                 html += `
                     <div class="${cardClass}">
                         <div class="result-header">
-                            <h3 class="result-title">${structure.name}</h3>
+                            <h3 class="result-title">${this.escapeHtml(structure.name)}</h3>
                             ${structure.isBest ? `<span class="result-badge">${badgeText}</span>` : ''}
                         </div>
                         <div class="result-item">
@@ -4275,20 +4245,20 @@ List available plugins
                         ${structure.complexity ? `
                             <div class="result-item">
                                 <span class="result-label">Komplexität:</span>
-                                <span class="result-value">${structure.complexity}</span>
+                                <span class="result-value">${this.escapeHtml(structure.complexity)}</span>
                             </div>
                         ` : ''}
                         ${structure.implementationTime ? `
                             <div class="result-item">
                                 <span class="result-label">Umsetzungszeit:</span>
-                                <span class="result-value">${structure.implementationTime}</span>
+                                <span class="result-value">${this.escapeHtml(structure.implementationTime)}</span>
                             </div>
                         ` : ''}
                         ${structure.advantages && structure.advantages.length > 0 ? `
                             <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e9ecef;">
                                 <strong>✅ Vorteile:</strong>
                                 <ul style="margin: 0.5rem 0 0 1.5rem; font-size: 0.9rem;">
-                                    ${structure.advantages.map(adv => `<li>${adv}</li>`).join('')}
+                                    ${structure.advantages.map(adv => `<li>${this.escapeHtml(adv)}</li>`).join('')}
                                 </ul>
                             </div>
                         ` : ''}
@@ -4296,13 +4266,13 @@ List available plugins
                             <div style="margin-top: 1rem;">
                                 <strong>⚠️ Nachteile:</strong>
                                 <ul style="margin: 0.5rem 0 0 1.5rem; font-size: 0.9rem; color: #6c757d;">
-                                    ${structure.disadvantages.map(dis => `<li>${dis}</li>`).join('')}
+                                    ${structure.disadvantages.map(dis => `<li>${this.escapeHtml(dis)}</li>`).join('')}
                                 </ul>
                             </div>
                         ` : ''}
                         ${structure.recommendation ? `
                             <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(102, 126, 234, 0.1); border-radius: 8px;">
-                                <strong>💡 Empfehlung:</strong> ${structure.recommendation}
+                                <strong>💡 Empfehlung:</strong> ${this.escapeHtml(structure.recommendation)}
                             </div>
                         ` : ''}
                     </div>
@@ -4318,10 +4288,10 @@ List available plugins
                         <div class="card-header">
                             <h3 class="card-title">💡 KI-Empfehlung</h3>
                         </div>
-                        <p>Basierend auf Ihrer Situation empfiehlt unser KI-Algorithmus die Struktur <strong>"${bestStructure.name}"</strong>.</p>
+                        <p>Basierend auf Ihrer Situation empfiehlt unser KI-Algorithmus die Struktur <strong>"${this.escapeHtml(bestStructure.name)}"</strong>.</p>
                         <p>Diese Lösung bietet Ihnen den höchsten Nettogewinn von <strong>${this.formatCurrency(bestStructure.netProfit)}</strong> bei einem effektiven Steuersatz von nur <strong>${bestStructure.taxRate.toFixed(1)}%</strong>.</p>
                         ${results.totalSavings > 0 ? `<p class="text-success"><strong>Ihre Steuerersparnis beträgt ${this.formatCurrency(results.totalSavings)} gegenüber der ungünstigsten Option.</strong></p>` : ''}
-                        ${results.recommendation ? `<div class="alert alert-info"><strong>Zusätzliche Empfehlung:</strong> ${results.recommendation}</div>` : ''}
+                        ${results.recommendation ? `<div class="alert alert-info"><strong>Zusätzliche Empfehlung:</strong> ${this.escapeHtml(results.recommendation)}</div>` : ''}
                     </div>
                 `;
             }
@@ -4338,6 +4308,12 @@ List available plugins
                     container.style.transform = 'translateY(0)';
                 }, 100);
             }, 50);
+        }
+
+        escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
         }
 
         // Enhanced PDF Export
@@ -4389,32 +4365,50 @@ List available plugins
 
         // Enhanced Analytics
         updateAnalytics(results, calculationTime) {
-            document.getElementById('calc-time').textContent = Math.round(calculationTime) + 'ms';
-            document.getElementById('calc-count').textContent = this.analytics.calculations;
-            document.getElementById('cache-hits').textContent = this.analytics.cacheHits;
+            // Cache frequently accessed elements
+            const calcTimeEl = this.getCachedElement('calc-time');
+            const calcCountEl = this.getCachedElement('calc-count');
+            const cacheHitsEl = this.getCachedElement('cache-hits');
+            const errorRateEl = this.getCachedElement('error-rate');
+            
+            if (calcTimeEl) calcTimeEl.textContent = Math.round(calculationTime) + 'ms';
+            if (calcCountEl) calcCountEl.textContent = this.analytics.calculations;
+            if (cacheHitsEl) cacheHitsEl.textContent = this.analytics.cacheHits;
             
             const errorRate = this.analytics.calculations > 0 ? 
                 (this.analytics.errors / this.analytics.calculations * 100).toFixed(1) : '0';
-            document.getElementById('error-rate').textContent = errorRate + '%';
+            if (errorRateEl) errorRateEl.textContent = errorRate + '%';
 
             if (results && results.structures && results.structures.length > 0) {
                 const maxSavings = results.totalSavings || 0;
                 const bestTaxRate = results.structures[0].taxRate || 0;
                 
-                document.getElementById('savings-potential').textContent = this.formatCurrency(maxSavings);
-                document.getElementById('tax-rate').textContent = bestTaxRate.toFixed(1) + '%';
+                const savingsPotentialEl = this.getCachedElement('savings-potential');
+                const taxRateEl = this.getCachedElement('tax-rate');
+                
+                if (savingsPotentialEl) savingsPotentialEl.textContent = this.formatCurrency(maxSavings);
+                if (taxRateEl) taxRateEl.textContent = bestTaxRate.toFixed(1) + '%';
 
                 this.updateTaxChart(results.structures);
             }
 
             // Update API status
-            document.getElementById('api-status').innerHTML = '✅ Online';
-            document.getElementById('cache-status').innerHTML = '✅ Aktiv';
+            const apiStatusEl = this.getCachedElement('api-status');
+            const cacheStatusEl = this.getCachedElement('cache-status');
+            
+            if (apiStatusEl) apiStatusEl.innerHTML = '✅ Online';
+            if (cacheStatusEl) cacheStatusEl.innerHTML = '✅ Aktiv';
         }
 
         updateTaxChart(structures) {
-            const canvas = document.getElementById('tax-chart');
+            const canvas = this.getCachedElement('tax-chart');
             if (!canvas) return;
+            
+            // Check if Chart.js is available - FIXED: Added availability check
+            if (typeof Chart === 'undefined') {
+                console.warn('Chart.js not loaded, skipping chart update');
+                return;
+            }
             
             const ctx = canvas.getContext('2d');
 
@@ -4471,7 +4465,7 @@ List available plugins
         }
 
         updatePerformanceIndicator(text, type = 'success') {
-            const indicator = document.getElementById('performance-text');
+            const indicator = this.getCachedElement('performance-text');
             const indicatorContainer = document.querySelector('.performance-indicator');
             
             if (indicator) {
@@ -4610,7 +4604,7 @@ List available plugins
             this.keyboardShortcuts.set('escape', () => this.closeAllModals());
             this.keyboardShortcuts.set('ctrl+s', () => this.saveData());
 
-            document.addEventListener('keydown', (e) => {
+            const keydownHandler = (e) => {
                 // Prevent default for certain combinations
                 const key = this.getKeyboardShortcut(e);
                 const action = this.keyboardShortcuts.get(key);
@@ -4620,7 +4614,10 @@ List available plugins
                     action();
                     this.showShortcutIndicator(key);
                 }
-            });
+            };
+            
+            document.addEventListener('keydown', keydownHandler);
+            this.eventListenersCleanup.add(() => document.removeEventListener('keydown', keydownHandler));
         }
 
         getKeyboardShortcut(e) {
@@ -4638,7 +4635,7 @@ List available plugins
         }
 
         showShortcutIndicator(shortcut) {
-            const indicator = document.getElementById('shortcut-indicator');
+            const indicator = this.getCachedElement('shortcut-indicator');
             if (indicator) {
                 indicator.textContent = `⌨️ ${shortcut.toUpperCase()}`;
                 indicator.classList.add('show');
@@ -5038,7 +5035,7 @@ List available plugins
                         Szenario 3
                     </button>
                     <button class="btn btn-outline" onclick="app.addScenario()" style="margin-left: auto; padding: 0.5rem 1rem; font-size: 0.9rem;">
-                        ➕ Szenario hinzufügen
+                        + Szenario hinzufügen
                     </button>
                 </div>
 
@@ -5096,10 +5093,10 @@ List available plugins
                                     🏠 Kaufpreis <span class="required">*</span>
                                 </label>
                                 <div class="input-group">
-                                    <input type="number" id="kaufpreis" class="form-input" placeholder="z.B. 400.000" min="0" step="1000" required>
+                                    <input type="number" id="kaufpreis" class="form-input" placeholder="z.B. 400.000" min="0" step="1000" required aria-describedby="kaufpreis-help kaufpreis-error">
                                     <div class="validation-indicator" id="kaufpreis-indicator"></div>
                                 </div>
-                                <div class="form-help">Ursprünglicher Kaufpreis der Immobilie</div>
+                                <div class="form-help" id="kaufpreis-help">Ursprünglicher Kaufpreis der Immobilie</div>
                                 <div class="form-error" id="kaufpreis-error"></div>
                             </div>
 
@@ -5108,10 +5105,10 @@ List available plugins
                                     💵 Verkaufspreis <span class="required">*</span>
                                 </label>
                                 <div class="input-group">
-                                    <input type="number" id="verkaufspreis" class="form-input" placeholder="z.B. 600.000" min="0" step="1000" required>
+                                    <input type="number" id="verkaufspreis" class="form-input" placeholder="z.B. 600.000" min="0" step="1000" required aria-describedby="verkaufspreis-help verkaufspreis-error">
                                     <div class="validation-indicator" id="verkaufspreis-indicator"></div>
                                 </div>
-                                <div class="form-help">Aktueller Verkaufspreis</div>
+                                <div class="form-help" id="verkaufspreis-help">Aktueller Verkaufspreis</div>
                                 <div class="form-error" id="verkaufspreis-error"></div>
                             </div>
 
@@ -5120,10 +5117,10 @@ List available plugins
                                     📋 Nebenkosten Kauf
                                 </label>
                                 <div class="input-group">
-                                    <input type="number" id="nebenkosten_kauf" class="form-input" placeholder="z.B. 40.000" min="0" step="1000">
+                                    <input type="number" id="nebenkosten_kauf" class="form-input" placeholder="z.B. 40.000" min="0" step="1000" aria-describedby="nebenkosten_kauf-help">
                                     <div class="validation-indicator" id="nebenkosten_kauf-indicator"></div>
                                 </div>
-                                <div class="form-help">Notar, Grunderwerbsteuer, Makler beim Kauf</div>
+                                <div class="form-help" id="nebenkosten_kauf-help">Notar, Grunderwerbsteuer, Makler beim Kauf</div>
                             </div>
 
                             <div class="form-group">
@@ -5131,10 +5128,10 @@ List available plugins
                                     🤝 Nebenkosten Verkauf
                                 </label>
                                 <div class="input-group">
-                                    <input type="number" id="nebenkosten_verkauf" class="form-input" placeholder="z.B. 30.000" min="0" step="1000">
+                                    <input type="number" id="nebenkosten_verkauf" class="form-input" placeholder="z.B. 30.000" min="0" step="1000" aria-describedby="nebenkosten_verkauf-help">
                                     <div class="validation-indicator" id="nebenkosten_verkauf-indicator"></div>
                                 </div>
-                                <div class="form-help">Makler, Notar, Inserate beim Verkauf</div>
+                                <div class="form-help" id="nebenkosten_verkauf-help">Makler, Notar, Inserate beim Verkauf</div>
                             </div>
 
                             <div class="form-group">
@@ -5142,10 +5139,10 @@ List available plugins
                                     🔨 Modernisierung/Renovierung
                                 </label>
                                 <div class="input-group">
-                                    <input type="number" id="modernisierung" class="form-input" placeholder="z.B. 35.000" min="0" step="1000">
+                                    <input type="number" id="modernisierung" class="form-input" placeholder="z.B. 35.000" min="0" step="1000" aria-describedby="modernisierung-help">
                                     <div class="validation-indicator" id="modernisierung-indicator"></div>
                                 </div>
-                                <div class="form-help">Steuerlich absetzbare Investitionen</div>
+                                <div class="form-help" id="modernisierung-help">Steuerlich absetzbare Investitionen</div>
                             </div>
 
                             <div class="form-group">
@@ -5153,10 +5150,10 @@ List available plugins
                                     ⏱️ Haltedauer (Jahre) <span class="required">*</span>
                                 </label>
                                 <div class="input-group">
-                                    <input type="number" id="haltedauer" class="form-input" placeholder="z.B. 8" min="0" max="50" step="0.1" required>
+                                    <input type="number" id="haltedauer" class="form-input" placeholder="z.B. 8" min="0" max="50" step="0.1" required aria-describedby="haltedauer-help haltedauer-error">
                                     <div class="validation-indicator" id="haltedauer-indicator"></div>
                                 </div>
-                                <div class="form-help">Zeit zwischen Kauf und Verkauf</div>
+                                <div class="form-help" id="haltedauer-help">Zeit zwischen Kauf und Verkauf</div>
                                 <div class="form-error" id="haltedauer-error"></div>
                             </div>
 
@@ -5164,33 +5161,33 @@ List available plugins
                                 <label class="form-label">
                                     💼 Persönlicher Steuersatz (%)
                                 </label>
-                                <select id="steuersatz" class="form-select">
+                                <select id="steuersatz" class="form-select" aria-describedby="steuersatz-help">
                                     <option value="14">14% (Eingangssteuersatz)</option>
                                     <option value="24">24% (Mittlerer Bereich)</option>
                                     <option value="32">32% (Höherer Bereich)</option>
                                     <option value="42" selected>42% (Spitzensteuersatz)</option>
                                     <option value="45">45% (Reichensteuer)</option>
                                 </select>
-                                <div class="form-help">Ihr aktueller Einkommensteuersatz</div>
+                                <div class="form-help" id="steuersatz-help">Ihr aktueller Einkommensteuersatz</div>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">
                                     ⛪ Kirchensteuer (%)
                                 </label>
-                                <select id="kirchensteuer" class="form-select">
+                                <select id="kirchensteuer" class="form-select" aria-describedby="kirchensteuer-help">
                                     <option value="0">0% (Konfessionslos)</option>
                                     <option value="8" selected>8% (Bayern, BW)</option>
                                     <option value="9">9% (Andere Bundesländer)</option>
                                 </select>
-                                <div class="form-help">Kirchensteuer je nach Bundesland</div>
+                                <div class="form-help" id="kirchensteuer-help">Kirchensteuer je nach Bundesland</div>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">
                                     🗺️ Bundesland
                                 </label>
-                                <select id="bundesland" class="form-select">
+                                <select id="bundesland" class="form-select" aria-describedby="bundesland-help">
                                     <option value="bw">Baden-Württemberg</option>
                                     <option value="by">Bayern</option>
                                     <option value="be">Berlin</option>
@@ -5208,7 +5205,7 @@ List available plugins
                                     <option value="sh">Schleswig-Holstein</option>
                                     <option value="th">Thüringen</option>
                                 </select>
-                                <div class="form-help">Für bundeslandspezifische Steuerberechnung</div>
+                                <div class="form-help" id="bundesland-help">Für bundeslandspezifische Steuerberechnung</div>
                             </div>
                         </div>
             `;
@@ -5227,29 +5224,29 @@ List available plugins
                                         <label class="form-label">
                                             💰 Zusätzliche Werbungskosten
                                         </label>
-                                        <input type="number" id="werbungskosten" class="form-input" placeholder="z.B. 5.000" min="0" step="100">
-                                        <div class="form-help">Weitere steuerlich absetzbare Kosten</div>
+                                        <input type="number" id="werbungskosten" class="form-input" placeholder="z.B. 5.000" min="0" step="100" aria-describedby="werbungskosten-help">
+                                        <div class="form-help" id="werbungskosten-help">Weitere steuerlich absetzbare Kosten</div>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="form-label">
                                             📊 Abschreibungen (AfA)
                                         </label>
-                                        <input type="number" id="abschreibungen" class="form-input" placeholder="z.B. 12.000" min="0" step="100">
-                                        <div class="form-help">Jährliche Abschreibungen bei Vermietung</div>
+                                        <input type="number" id="abschreibungen" class="form-input" placeholder="z.B. 12.000" min="0" step="100" aria-describedby="abschreibungen-help">
+                                        <div class="form-help" id="abschreibungen-help">Jährliche Abschreibungen bei Vermietung</div>
                                     </div>
 
                                     <div class="form-group">
                                         <label class="form-label">
                                             🏗️ Immobilientyp
                                         </label>
-                                        <select id="immobilientyp" class="form-select">
+                                        <select id="immobilientyp" class="form-select" aria-describedby="immobilientyp-help">
                                             <option value="eigenheim">Eigenheim/Privatnutzung</option>
                                             <option value="vermietung">Vermietungsimmobilie</option>
                                             <option value="gewerbe">Gewerbeimmobilie</option>
                                             <option value="mischnutzung">Mischnutzung</option>
                                         </select>
-                                        <div class="form-help">Art der Immobiliennutzung</div>
+                                        <div class="form-help" id="immobilientyp-help">Art der Immobiliennutzung</div>
                                     </div>
 
                                     <div class="form-group">
@@ -5307,44 +5304,45 @@ List available plugins
                             <label class="form-label">
                                 🏠 Grundstücksfläche (m²) <span class="required">*</span>
                             </label>
-                            <input type="number" id="grundstuecksflaeche" class="form-input" placeholder="z.B. 800" min="0" step="1" required>
-                            <div class="form-help">Gesamte Grundstücksfläche in Quadratmetern</div>
+                            <input type="number" id="grundstuecksflaeche" class="form-input" placeholder="z.B. 800" min="0" step="1" required aria-describedby="grundstuecksflaeche-help">
+                            <div class="form-help" id="grundstuecksflaeche-help">Gesamte Grundstücksfläche in Quadratmetern</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 🏗️ Wohnfläche (m²) <span class="required">*</span>
                             </label>
-                            <input type="number" id="wohnflaeche" class="form-input" placeholder="z.B. 150" min="0" step="1" required>
-                            <div class="form-help">Wohnfläche des Gebäudes</div>
+                            <input type="number" id="wohnflaeche" class="form-input" placeholder="z.B. 150" min="0" step="1" required aria-describedby="wohnflaeche-help">
+                            <div class="form-help" id="wohnflaeche-help">Wohnfläche des Gebäudes</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 📅 Baujahr
                             </label>
-                            <input type="number" id="baujahr" class="form-input" placeholder="z.B. 1995" min="1900" max="2025">
-                            <div class="form-help">Jahr der Fertigstellung</div>
+                            <input type="number" id="baujahr" class="form-input" placeholder="z.B. 1995" min="1900" max="2025" aria-describedby="baujahr-help">
+                            <div class="form-help" id="baujahr-help">Jahr der Fertigstellung</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 🏠 Immobilientyp
                             </label>
-                            <select id="grundsteuer_immobilientyp" class="form-select">
+                            <select id="grundsteuer_immobilientyp" class="form-select" aria-describedby="grundsteuer_immobilientyp-help">
                                 <option value="einfamilienhaus">Einfamilienhaus</option>
                                 <option value="zweifamilienhaus">Zweifamilienhaus</option>
                                 <option value="mehrfamilienhaus">Mehrfamilienhaus</option>
                                 <option value="eigentumswohnung">Eigentumswohnung</option>
                                 <option value="gewerbe">Gewerbeimmobilie</option>
                             </select>
+                            <div class="form-help" id="grundsteuer_immobilientyp-help">Typ der Immobilie</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 🗺️ Bundesland
                             </label>
-                            <select id="grundsteuer_bundesland" class="form-select">
+                            <select id="grundsteuer_bundesland" class="form-select" aria-describedby="grundsteuer_bundesland-help">
                                 <option value="bw">Baden-Württemberg</option>
                                 <option value="by">Bayern (Bundesmodell)</option>
                                 <option value="by-bayerisch">Bayern (Bayerisches Modell)</option>
@@ -5363,15 +5361,15 @@ List available plugins
                                 <option value="sh">Schleswig-Holstein</option>
                                 <option value="th">Thüringen</option>
                             </select>
-                            <div class="form-help">Wichtig: Verschiedene Bundesländer haben unterschiedliche Modelle</div>
+                            <div class="form-help" id="grundsteuer_bundesland-help">Wichtig: Verschiedene Bundesländer haben unterschiedliche Modelle</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 🏙️ Gemeinde-Hebesatz (%)
                             </label>
-                            <input type="number" id="hebesatz_grundsteuer" class="form-input" placeholder="z.B. 470" min="0" max="1000" step="10">
-                            <div class="form-help">Hebesatz Ihrer Gemeinde (meist 300-600%)</div>
+                            <input type="number" id="hebesatz_grundsteuer" class="form-input" placeholder="z.B. 470" min="0" max="1000" step="10" aria-describedby="hebesatz_grundsteuer-help">
+                            <div class="form-help" id="hebesatz_grundsteuer-help">Hebesatz Ihrer Gemeinde (meist 300-600%)</div>
                         </div>
                     </div>
 
@@ -5414,15 +5412,15 @@ List available plugins
                             <label class="form-label">
                                 🏠 Immobilienwert <span class="required">*</span>
                             </label>
-                            <input type="number" id="erbschaft_immobilienwert" class="form-input" placeholder="z.B. 600.000" min="0" step="1000" required>
-                            <div class="form-help">Aktueller Verkehrswert der Immobilie</div>
+                            <input type="number" id="erbschaft_immobilienwert" class="form-input" placeholder="z.B. 600.000" min="0" step="1000" required aria-describedby="erbschaft_immobilienwert-help">
+                            <div class="form-help" id="erbschaft_immobilienwert-help">Aktueller Verkehrswert der Immobilie</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 👨‍👩‍👧‍👦 Verwandtschaftsgrad
                             </label>
-                            <select id="verwandtschaftsgrad" class="form-select">
+                            <select id="verwandtschaftsgrad" class="form-select" aria-describedby="verwandtschaftsgrad-help">
                                 <option value="ehepartner">Ehepartner/Lebenspartner</option>
                                 <option value="kind">Kind/Stiefkind</option>
                                 <option value="enkel">Enkel</option>
@@ -5432,28 +5430,29 @@ List available plugins
                                 <option value="sonstige">Sonstige Verwandte</option>
                                 <option value="fremde">Nicht verwandt</option>
                             </select>
-                            <div class="form-help">Verwandtschaftsgrad bestimmt Steuerklasse und Freibetrag</div>
+                            <div class="form-help" id="verwandtschaftsgrad-help">Verwandtschaftsgrad bestimmt Steuerklasse und Freibetrag</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 🏠 Immobilienart
                             </label>
-                            <select id="erbschaft_immobilienart" class="form-select">
+                            <select id="erbschaft_immobilienart" class="form-select" aria-describedby="erbschaft_immobilienart-help">
                                 <option value="eigenheim">Eigenheim (selbst bewohnt)</option>
                                 <option value="vermietung">Vermietungsimmobilie</option>
                                 <option value="ferienhaus">Ferienhaus</option>
                                 <option value="gewerbe">Gewerbeimmobilie</option>
                                 <option value="grundstueck">Unbebautes Grundstück</option>
                             </select>
+                            <div class="form-help" id="erbschaft_immobilienart-help">Art der zu vererbenden Immobilie</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 💰 Sonstiges Vermögen
                             </label>
-                            <input type="number" id="sonstiges_vermoegen" class="form-input" placeholder="z.B. 100.000" min="0" step="1000">
-                            <div class="form-help">Weiteres Vermögen (Bargeld, Wertpapiere, etc.)</div>
+                            <input type="number" id="sonstiges_vermoegen" class="form-input" placeholder="z.B. 100.000" min="0" step="1000" aria-describedby="sonstiges_vermoegen-help">
+                            <div class="form-help" id="sonstiges_vermoegen-help">Weiteres Vermögen (Bargeld, Wertpapiere, etc.)</div>
                         </div>
 
                         <div class="form-group">
@@ -5518,15 +5517,15 @@ List available plugins
                             <label class="form-label">
                                 🏠 Immobilienwert <span class="required">*</span>
                             </label>
-                            <input type="number" id="schenkung_immobilienwert" class="form-input" placeholder="z.B. 800.000" min="0" step="1000" required>
-                            <div class="form-help">Aktueller Verkehrswert der Immobilie</div>
+                            <input type="number" id="schenkung_immobilienwert" class="form-input" placeholder="z.B. 800.000" min="0" step="1000" required aria-describedby="schenkung_immobilienwert-help">
+                            <div class="form-help" id="schenkung_immobilienwert-help">Aktueller Verkehrswert der Immobilie</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 👨‍👩‍👧‍👦 Beschenkter
                             </label>
-                            <select id="beschenkter" class="form-select">
+                            <select id="beschenkter" class="form-select" aria-describedby="beschenkter-help">
                                 <option value="ehepartner">Ehepartner/Lebenspartner</option>
                                 <option value="kind">Kind/Stiefkind</option>
                                 <option value="enkel">Enkel</option>
@@ -5537,62 +5536,64 @@ List available plugins
                                 <option value="sonstige">Sonstige Verwandte</option>
                                 <option value="fremde">Nicht verwandt</option>
                             </select>
-                            <div class="form-help">Bestimmt Freibetrag und Steuersatz</div>
+                            <div class="form-help" id="beschenkter-help">Bestimmt Freibetrag und Steuersatz</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 📅 Vorherige Schenkungen
                             </label>
-                            <input type="number" id="vorherige_schenkungen" class="form-input" placeholder="z.B. 50.000" min="0" step="1000">
-                            <div class="form-help">Schenkungen der letzten 10 Jahre an dieselbe Person</div>
+                            <input type="number" id="vorherige_schenkungen" class="form-input" placeholder="z.B. 50.000" min="0" step="1000" aria-describedby="vorherige_schenkungen-help">
+                            <div class="form-help" id="vorherige_schenkungen-help">Schenkungen der letzten 10 Jahre an dieselbe Person</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 🏠 Art der Schenkung
                             </label>
-                            <select id="schenkungsart" class="form-select">
+                            <select id="schenkungsart" class="form-select" aria-describedby="schenkungsart-help">
                                 <option value="vollschenkung">Vollständige Schenkung</option>
                                 <option value="teilschenkung">Teilschenkung (Anteil)</option>
                                 <option value="niesbrauch">Schenkung mit Nießbrauch</option>
                                 <option value="wohnrecht">Schenkung mit Wohnrecht</option>
                             </select>
+                            <div class="form-help" id="schenkungsart-help">Art der geplanten Schenkung</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 📊 Anteil bei Teilschenkung (%)
                             </label>
-                            <input type="number" id="schenkungsanteil" class="form-input" placeholder="z.B. 50" min="1" max="100" step="1">
-                            <div class="form-help">Nur bei Teilschenkung relevant</div>
+                            <input type="number" id="schenkungsanteil" class="form-input" placeholder="z.B. 50" min="1" max="100" step="1" aria-describedby="schenkungsanteil-help">
+                            <div class="form-help" id="schenkungsanteil-help">Nur bei Teilschenkung relevant</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 💰 Nießbrauchswert (jährlich)
                             </label>
-                            <input type="number" id="niesbrauchswert" class="form-input" placeholder="z.B. 24.000" min="0" step="1000">
-                            <div class="form-help">Jährlicher Nießbrauchswert (Miete oder Nutzungswert)</div>
+                            <input type="number" id="niesbrauchswert" class="form-input" placeholder="z.B. 24.000" min="0" step="1000" aria-describedby="niesbrauchswert-help">
+                            <div class="form-help" id="niesbrauchswert-help">Jährlicher Nießbrauchswert (Miete oder Nutzungswert)</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 👤 Alter des Schenkers
                             </label>
-                            <input type="number" id="alter_schenker" class="form-input" placeholder="z.B. 65" min="18" max="100">
-                            <div class="form-help">Alter für Berechnung der Nießbrauchsdauer</div>
+                            <input type="number" id="alter_schenker" class="form-input" placeholder="z.B. 65" min="18" max="100" aria-describedby="alter_schenker-help">
+                            <div class="form-help" id="alter_schenker-help">Alter für Berechnung der Nießbrauchsdauer</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 📅 Geplante Schenkungstermine
                             </label>
-                            <select id="schenkungsstrategie" class="form-select">
+                            <select id="schenkungsstrategie" class="form-select" aria-describedby="schenkungsstrategie-help">
                                 <option value="einmalig">Einmalige Schenkung</option>
                                 <option value="zehn_jahre">Alle 10 Jahre (Freibetrag optimal nutzen)</option>
                                 <option value="jaehrlich">Jährliche Teilschenkungen</option>
                             </select>
+                            <div class="form-help" id="schenkungsstrategie-help">Strategie für die Schenkung</div>
                         </div>
                     </div>
 
@@ -5635,86 +5636,89 @@ List available plugins
                             <label class="form-label">
                                 🏠 Monatliche Mieteinnahmen <span class="required">*</span>
                             </label>
-                            <input type="number" id="mieteinnahmen" class="form-input" placeholder="z.B. 3.500" min="0" step="100" required>
-                            <div class="form-help">Netto-Mieteinnahmen pro Monat</div>
+                            <input type="number" id="mieteinnahmen" class="form-input" placeholder="z.B. 3.500" min="0" step="100" required aria-describedby="mieteinnahmen-help">
+                            <div class="form-help" id="mieteinnahmen-help">Netto-Mieteinnahmen pro Monat</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 💸 Monatliche Betriebskosten
                             </label>
-                            <input type="number" id="betriebskosten" class="form-input" placeholder="z.B. 800" min="0" step="50">
-                            <div class="form-help">Verwaltung, Instandhaltung, Versicherung</div>
+                            <input type="number" id="betriebskosten" class="form-input" placeholder="z.B. 800" min="0" step="50" aria-describedby="betriebskosten-help">
+                            <div class="form-help" id="betriebskosten-help">Verwaltung, Instandhaltung, Versicherung</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 🏦 Finanzierungskosten (monatlich)
                             </label>
-                            <input type="number" id="finanzierungskosten" class="form-input" placeholder="z.B. 1.200" min="0" step="50">
-                            <div class="form-help">Zinsen und Tilgung für Darlehen</div>
+                            <input type="number" id="finanzierungskosten" class="form-input" placeholder="z.B. 1.200" min="0" step="50" aria-describedby="finanzierungskosten-help">
+                            <div class="form-help" id="finanzierungskosten-help">Zinsen und Tilgung für Darlehen</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 📊 Abschreibungen (jährlich)
                             </label>
-                            <input type="number" id="cashflow_abschreibungen" class="form-input" placeholder="z.B. 8.000" min="0" step="100">
-                            <div class="form-help">Jährliche AfA-Abschreibungen</div>
+                            <input type="number" id="cashflow_abschreibungen" class="form-input" placeholder="z.B. 8.000" min="0" step="100" aria-describedby="cashflow_abschreibungen-help">
+                            <div class="form-help" id="cashflow_abschreibungen-help">Jährliche AfA-Abschreibungen</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 💼 Persönlicher Steuersatz (%)
                             </label>
-                            <select id="cashflow_steuersatz" class="form-select">
+                            <select id="cashflow_steuersatz" class="form-select" aria-describedby="cashflow_steuersatz-help">
                                 <option value="14">14% (Eingangssteuersatz)</option>
                                 <option value="24">24% (Mittlerer Bereich)</option>
                                 <option value="32">32% (Höherer Bereich)</option>
                                 <option value="42" selected>42% (Spitzensteuersatz)</option>
                                 <option value="45">45% (Reichensteuer)</option>
                             </select>
+                            <div class="form-help" id="cashflow_steuersatz-help">Ihr Einkommensteuersatz</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 📅 Analysezeitraum
                             </label>
-                            <select id="analysezeitraum" class="form-select">
+                            <select id="analysezeitraum" class="form-select" aria-describedby="analysezeitraum-help">
                                 <option value="1">1 Jahr</option>
                                 <option value="3">3 Jahre</option>
                                 <option value="5" selected>5 Jahre</option>
                                 <option value="10">10 Jahre</option>
                                 <option value="15">15 Jahre</option>
                             </select>
+                            <div class="form-help" id="analysezeitraum-help">Zeitraum für die Analyse</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 📈 Mietsteigerung (% p.a.)
                             </label>
-                            <input type="number" id="mietsteigerung" class="form-input" placeholder="z.B. 2.5" min="0" max="10" step="0.1">
-                            <div class="form-help">Erwartete jährliche Mietsteigerung</div>
+                            <input type="number" id="mietsteigerung" class="form-input" placeholder="z.B. 2.5" min="0" max="10" step="0.1" aria-describedby="mietsteigerung-help">
+                            <div class="form-help" id="mietsteigerung-help">Erwartete jährliche Mietsteigerung</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 💰 Geplante Verkaufserlöse
                             </label>
-                            <input type="number" id="verkaufserloes" class="form-input" placeholder="z.B. 650.000" min="0" step="1000">
-                            <div class="form-help">Erwarteter Verkaufserlös am Ende des Zeitraums</div>
+                            <input type="number" id="verkaufserloes" class="form-input" placeholder="z.B. 650.000" min="0" step="1000" aria-describedby="verkaufserloes-help">
+                            <div class="form-help" id="verkaufserloes-help">Erwarteter Verkaufserlös am Ende des Zeitraums</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 🔄 Reinvestitionsstrategie
                             </label>
-                            <select id="reinvestition" class="form-select">
+                            <select id="reinvestition" class="form-select" aria-describedby="reinvestition-help">
                                 <option value="keine">Keine Reinvestition</option>
                                 <option value="liquiditaet">Cash-Optimierung</option>
                                 <option value="portfolio">Portfolio-Erweiterung</option>
                                 <option value="upgrade">Property-Upgrade</option>
                             </select>
+                            <div class="form-help" id="reinvestition-help">Strategie für Reinvestitionen</div>
                         </div>
                     </div>
 
@@ -5760,65 +5764,69 @@ List available plugins
                             <label class="form-label">
                                 🏠 Anzahl Immobilien im Portfolio
                             </label>
-                            <input type="number" id="portfolio_anzahl" class="form-input" placeholder="z.B. 3" min="1" max="50">
-                            <div class="form-help">Gesamtanzahl Ihrer Immobilien</div>
+                            <input type="number" id="portfolio_anzahl" class="form-input" placeholder="z.B. 3" min="1" max="50" aria-describedby="portfolio_anzahl-help">
+                            <div class="form-help" id="portfolio_anzahl-help">Gesamtanzahl Ihrer Immobilien</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 💰 Gesamtportfolio-Wert
                             </label>
-                            <input type="number" id="portfolio_wert" class="form-input" placeholder="z.B. 2.000.000" min="0" step="10000">
-                            <div class="form-help">Geschätzter Gesamtwert aller Immobilien</div>
+                            <input type="number" id="portfolio_wert" class="form-input" placeholder="z.B. 2.000.000" min="0" step="10000" aria-describedby="portfolio_wert-help">
+                            <div class="form-help" id="portfolio_wert-help">Geschätzter Gesamtwert aller Immobilien</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 🎯 Strategisches Ziel
                             </label>
-                            <select id="strategisches_ziel" class="form-select">
+                            <select id="strategisches_ziel" class="form-select" aria-describedby="strategisches_ziel-help">
                                 <option value="verkaufsoptimierung">Verkaufsoptimierung</option>
                                 <option value="nachfolgeplanung">Nachfolgeplanung</option>
                                 <option value="steuerminimierung">Steuerminimierung</option>
                                 <option value="liquiditaet">Liquiditätssteigerung</option>
                                 <option value="reinvestition">Reinvestitionsstrategie</option>
                             </select>
+                            <div class="form-help" id="strategisches_ziel-help">Hauptziel der Optimierung</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 ⏱️ Planungshorizont
                             </label>
-                            <select id="planungshorizont" class="form-select">
+                            <select id="planungshorizont" class="form-select" aria-describedby="planungshorizont-help">
                                 <option value="kurzfristig">1-3 Jahre</option>
                                 <option value="mittelfristig">3-7 Jahre</option>
                                 <option value="langfristig">7-15 Jahre</option>
                                 <option value="generational">Generationenübergreifend</option>
                             </select>
+                            <div class="form-help" id="planungshorizont-help">Zeitlicher Planungsrahmen</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 👨‍👩‍👧‍👦 Familiensituation
                             </label>
-                            <select id="familiensituation" class="form-select">
+                            <select id="familiensituation" class="form-select" aria-describedby="familiensituation-help">
                                 <option value="single">Alleinstehend</option>
                                 <option value="ehepaar">Ehepaar</option>
                                 <option value="familie_kinder">Familie mit Kindern</option>
                                 <option value="grossfamilie">Großfamilie (3+ Generationen)</option>
                             </select>
+                            <div class="form-help" id="familiensituation-help">Ihre Familienkonstellation</div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">
                                 📊 Jährliches Einkommen
                             </label>
-                            <select id="jahreseinkommen" class="form-select">
+                            <select id="jahreseinkommen" class="form-select" aria-describedby="jahreseinkommen-help">
                                 <option value="niedrig">Bis 50.000€</option>
                                 <option value="mittel">50.000€ - 100.000€</option>
                                 <option value="hoch">100.000€ - 250.000€</option>
                                 <option value="sehr_hoch">Über 250.000€</option>
                             </select>
+                            <div class="form-help" id="jahreseinkommen-help">Ihre Einkommenskategorie</div>
                         </div>
 
                         <div class="form-group">
@@ -5836,12 +5844,13 @@ List available plugins
                             <label class="form-label">
                                 ⚖️ Risikobereitschaft
                             </label>
-                            <select id="risikobereitschaft" class="form-select">
+                            <select id="risikobereitschaft" class="form-select" aria-describedby="risikobereitschaft-help">
                                 <option value="konservativ">Konservativ</option>
                                 <option value="moderat">Moderat</option>
                                 <option value="progressiv">Progressiv</option>
                                 <option value="aggressiv">Aggressiv</option>
                             </select>
+                            <div class="form-help" id="risikobereitschaft-help">Ihre Risikobereitschaft bei Optimierungen</div>
                         </div>
                     </div>
 
@@ -5951,15 +5960,8 @@ List available plugins
         this.showProgress('Berechne neue Grundsteuer 2025...', 20);
         
         const formData = this.collectGrundsteuerData();
-        // Map to the format expected by the calculation engine
-        const data = {
-            grundstuecksflaeche: formData.grundstuecksflaeche,
-            wohnflaeche: formData.wohnflaeche,
-            baujahr: formData.baujahr,
-            immobilientyp: formData.grundsteuer_immobilientyp, // Map field name
-            bundesland: formData.grundsteuer_bundesland, // Map field name
-            hebesatz: formData.hebesatz_grundsteuer // Map field name
-        };
+        // Fixed: Remove redundant field mapping
+        const data = formData;
         
         const results = await this.calculationEngine.calculate('grundsteuer', data);
         
@@ -5983,9 +5985,9 @@ List available plugins
                 grundstuecksflaeche: parseFloat(document.getElementById('grundstuecksflaeche')?.value) || 0,
                 wohnflaeche: parseFloat(document.getElementById('wohnflaeche')?.value) || 0,
                 baujahr: parseInt(document.getElementById('baujahr')?.value) || 2000,
-                grundsteuer_immobilientyp: document.getElementById('grundsteuer_immobilientyp')?.value || 'einfamilienhaus',
-                grundsteuer_bundesland: document.getElementById('grundsteuer_bundesland')?.value || 'nw',
-                hebesatz_grundsteuer: parseFloat(document.getElementById('hebesatz_grundsteuer')?.value) || 470
+                immobilientyp: document.getElementById('grundsteuer_immobilientyp')?.value || 'einfamilienhaus',
+                bundesland: document.getElementById('grundsteuer_bundesland')?.value || 'nw',
+                hebesatz: parseFloat(document.getElementById('hebesatz_grundsteuer')?.value) || 470
             };
         }
 
@@ -5994,8 +5996,8 @@ List available plugins
                 mieteinnahmen: parseFloat(document.getElementById('mieteinnahmen')?.value) || 0,
                 betriebskosten: parseFloat(document.getElementById('betriebskosten')?.value) || 0,
                 finanzierungskosten: parseFloat(document.getElementById('finanzierungskosten')?.value) || 0,
-                cashflow_abschreibungen: parseFloat(document.getElementById('cashflow_abschreibungen')?.value) || 0,
-                cashflow_steuersatz: parseFloat(document.getElementById('cashflow_steuersatz')?.value) || 42,
+                abschreibungen: parseFloat(document.getElementById('cashflow_abschreibungen')?.value) || 0,
+                steuersatz: parseFloat(document.getElementById('cashflow_steuersatz')?.value) || 42,
                 analysezeitraum: parseInt(document.getElementById('analysezeitraum')?.value) || 5,
                 mietsteigerung: parseFloat(document.getElementById('mietsteigerung')?.value) || 2.5,
                 verkaufserloes: parseFloat(document.getElementById('verkaufserloes')?.value) || 0,
@@ -6015,6 +6017,7 @@ List available plugins
                 risikobereitschaft: document.getElementById('risikobereitschaft')?.value || 'moderat'
             };
         }
+        
         displayGrundsteuerResults(results) {
             const container = document.getElementById('grundsteuer-results');
             if (!container) return;
@@ -6096,11 +6099,11 @@ List available plugins
 
 collectErbschaftData() {
     return {
-        erbschaft_immobilienwert: parseFloat(document.getElementById('erbschaft_immobilienwert')?.value) || 0,
+        immobilienwert: parseFloat(document.getElementById('erbschaft_immobilienwert')?.value) || 0,
         verwandtschaftsgrad: document.getElementById('verwandtschaftsgrad')?.value || 'kind',
-        erbschaft_immobilienart: document.getElementById('erbschaft_immobilienart')?.value || 'eigenheim',
+        immobilienart: document.getElementById('erbschaft_immobilienart')?.value || 'eigenheim',
         sonstiges_vermoegen: parseFloat(document.getElementById('sonstiges_vermoegen')?.value) || 0,
-        selbstnutzung_erbe: document.getElementById('selbstnutzung_erbe')?.checked || false,
+        selbstnutzung: document.getElementById('selbstnutzung_erbe')?.checked || false,
         lebzeitige_uebertragung: document.getElementById('lebzeitige_uebertragung')?.checked || false
     };
 }
@@ -6168,11 +6171,11 @@ collectErbschaftData() {
 
         collectSchenkungData() {
     return {
-        schenkung_immobilienwert: parseFloat(document.getElementById('schenkung_immobilienwert')?.value) || 0,
+        immobilienwert: parseFloat(document.getElementById('schenkung_immobilienwert')?.value) || 0,
         beschenkter: document.getElementById('beschenkter')?.value || 'kind',
         vorherige_schenkungen: parseFloat(document.getElementById('vorherige_schenkungen')?.value) || 0,
         schenkungsart: document.getElementById('schenkungsart')?.value || 'vollschenkung',
-        schenkungsanteil: parseFloat(document.getElementById('schenkungsanteil')?.value) || 100,
+        anteil: parseFloat(document.getElementById('schenkungsanteil')?.value) || 100,
         niesbrauchswert: parseFloat(document.getElementById('niesbrauchswert')?.value) || 0,
         alter_schenker: parseInt(document.getElementById('alter_schenker')?.value) || 65,
         schenkungsstrategie: document.getElementById('schenkungsstrategie')?.value || 'einmalig'
@@ -6227,18 +6230,8 @@ collectErbschaftData() {
         this.showProgress('Berechne Cash-Flow Analyse...', 20);
         
         const formData = this.collectCashflowData();
-        // Map to the format expected by the calculation engine
-        const data = {
-            mieteinnahmen: formData.mieteinnahmen,
-            betriebskosten: formData.betriebskosten,
-            finanzierungskosten: formData.finanzierungskosten,
-            abschreibungen: formData.cashflow_abschreibungen, // Map field name
-            steuersatz: formData.cashflow_steuersatz, // Map field name
-            analysezeitraum: formData.analysezeitraum,
-            mietsteigerung: formData.mietsteigerung,
-            verkaufserloes: formData.verkaufserloes,
-            reinvestition: formData.reinvestition
-        };
+        // Fixed: Remove redundant field mapping
+        const data = formData;
         
         const results = await this.calculationEngine.calculate('cashflow', data);
         
@@ -6256,6 +6249,7 @@ collectErbschaftData() {
         this.showToast('Cash-Flow Analyse fehlgeschlagen: ' + error.message, 'danger');
     }
 }
+        
         displayCashflowResults(results) {
             const container = document.getElementById('cashflow-results');
             if (!container) return;
@@ -6352,19 +6346,6 @@ collectErbschaftData() {
                 this.errorHandler.logError(error);
                 this.showToast('❌ KI-Strategiegenerierung fehlgeschlagen: ' + error.message, 'danger');
             }
-        }
-
-        collectStrategyData() {
-            return {
-                portfolio_anzahl: parseInt(document.getElementById('portfolio_anzahl')?.value) || 1,
-                portfolio_wert: parseFloat(document.getElementById('portfolio_wert')?.value) || 0,
-                strategisches_ziel: document.getElementById('strategisches_ziel')?.value || 'steuerminimierung',
-                planungshorizont: document.getElementById('planungshorizont')?.value || 'mittelfristig',
-                familiensituation: document.getElementById('familiensituation')?.value || 'ehepaar',
-                jahreseinkommen: document.getElementById('jahreseinkommen')?.value || 'mittel',
-                international: document.getElementById('international')?.checked || false,
-                risikobereitschaft: document.getElementById('risikobereitschaft')?.value || 'moderat'
-            };
         }
 
         async performKIStrategyGeneration(data) {
@@ -6492,21 +6473,21 @@ collectErbschaftData() {
                 html += `
                     <div class="result-card ${priorityClass}">
                         <div class="result-header">
-                            <h3 class="result-title">${strategie.name}</h3>
-                            <span class="result-badge">${strategie.prioritaet}</span>
+                            <h3 class="result-title">${this.escapeHtml(strategie.name)}</h3>
+                            <span class="result-badge">${this.escapeHtml(strategie.prioritaet)}</span>
                         </div>
-                        <p style="margin-bottom: 1rem;">${strategie.beschreibung}</p>
+                        <p style="margin-bottom: 1rem;">${this.escapeHtml(strategie.beschreibung)}</p>
                         <div class="result-item">
                             <span class="result-label">Ersparnis-Potential:</span>
                             <span class="result-value">${this.formatCurrency(strategie.ersparnis)}</span>
                         </div>
                         <div class="result-item">
                             <span class="result-label">Zeitrahmen:</span>
-                            <span class="result-value">${strategie.zeitrahmen}</span>
+                            <span class="result-value">${this.escapeHtml(strategie.zeitrahmen)}</span>
                         </div>
                         <div class="result-item">
                             <span class="result-label">Komplexität:</span>
-                            <span class="result-value">${strategie.komplexitaet}</span>
+                            <span class="result-value">${this.escapeHtml(strategie.komplexitaet)}</span>
                         </div>
                     </div>
                 `;
@@ -6524,9 +6505,9 @@ collectErbschaftData() {
             results.empfehlungen.forEach(empfehlung => {
                 html += `
                     <div style="margin-bottom: 2rem;">
-                        <h4 style="color: var(--primary-solid); margin-bottom: 1rem;">${empfehlung.kategorie}</h4>
+                        <h4 style="color: var(--primary-solid); margin-bottom: 1rem;">${this.escapeHtml(empfehlung.kategorie)}</h4>
                         <ul style="margin-left: 1.5rem;">
-                            ${empfehlung.items.map(item => `<li style="margin-bottom: 0.5rem;">${item}</li>`).join('')}
+                            ${empfehlung.items.map(item => `<li style="margin-bottom: 0.5rem;">${this.escapeHtml(item)}</li>`).join('')}
                         </ul>
                     </div>
                 `;
