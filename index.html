@@ -587,6 +587,7 @@
             </div>
 
             <div class="card">
+            this.saveFormData();
                 <h3>⚖️ Rechtliche Hinweise</h3>
                 <div class="alert alert-warning">
                     <strong>Disclaimer:</strong> Alle Berechnungen sind unverbindlich und dienen nur der groben Orientierung. 
@@ -610,6 +611,7 @@
             
             const toggle = document.querySelector('.dark-mode-toggle');
             toggle.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+            this.saveFormData();
         }
 
         // Load dark mode preference
@@ -634,6 +636,7 @@
             tabs.forEach(tab => {
                 tab.classList.remove('active');
             });
+            this.saveFormData();
             
             // Remove active class from all nav tabs
             const navTabs = document.querySelectorAll('.nav-tab');
@@ -661,6 +664,7 @@
                 const formId = form.id;
                 const inputs = form.querySelectorAll('input, select, textarea');
                 const data = {};
+            this.saveFormData();
                 
                 inputs.forEach(input => {
                     if (input.type === 'checkbox') {
@@ -699,6 +703,95 @@
                     }
                 });
             }
+        resetGrundsteuerForm() {
+            const inputs = document.querySelectorAll('#grundsteuer-results ~ .card .form-input, #grundsteuer-results ~ .card .form-select');
+            inputs.forEach(input => {
+                if (input.type === 'number') {
+                    input.value = '';
+                } else if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
+            });
+            
+            document.getElementById('grundsteuer-results').innerHTML = '';
+            this.showToast('🔄 Grundsteuer-Formular zurückgesetzt', 'info');
+        }
+
+        resetErbschaftForm() {
+            const inputs = document.querySelectorAll('#erbschaft-results ~ .card .form-input, #erbschaft-results ~ .card .form-select');
+            inputs.forEach(input => {
+                if (input.type === 'number') {
+                    input.value = '';
+                } else if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
+            });
+            
+            document.getElementById('erbschaft-results').innerHTML = '';
+            this.showToast('🔄 Erbschaftsteuer-Formular zurückgesetzt', 'info');
+        }
+
+        resetSchenkungForm() {
+            const inputs = document.querySelectorAll('#schenkung-results ~ .card .form-input, #schenkung-results ~ .card .form-select');
+            inputs.forEach(input => {
+                if (input.type === 'number') {
+                    input.value = '';
+                } else if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
+            });
+            
+            document.getElementById('schenkung-results').innerHTML = '';
+            this.showToast('🔄 Schenkungssteuer-Formular zurückgesetzt', 'info');
+        }
+
+        resetCashflowForm() {
+            const inputs = document.querySelectorAll('#cashflow-results ~ .card .form-input, #cashflow-results ~ .card .form-select');
+            inputs.forEach(input => {
+                if (input.type === 'number') {
+                    input.value = '';
+                } else if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
+            });
+            
+            document.getElementById('cashflow-results').innerHTML = '';
+            this.showToast('🔄 Cash-Flow Formular zurückgesetzt', 'info');
+        }
+
+        resetStrategyForm() {
+            const inputs = document.querySelectorAll('#strategy-results ~ .card .form-input, #strategy-results ~ .card .form-select');
+            inputs.forEach(input => {
+                if (input.type === 'number') {
+                    input.value = '';
+                } else if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
+            });
+            
+            document.getElementById('strategy-results').innerHTML = '';
+            this.showToast('🔄 Strategie-Formular zurückgesetzt', 'info');
+        }
         }
 
         // Reset Form
@@ -900,6 +993,59 @@
                 return;
             }
             
+        saveFormData() {
+            const currentSection = this.getCurrentSection();
+            const data = {};
+            
+            // Get all form inputs in the current section
+            const inputs = document.querySelectorAll('.form-input, .form-select');
+            inputs.forEach(input => {
+                if (input.type === 'number') {
+                    data[input.id] = parseFloat(input.value) || 0;
+                } else if (input.type === 'checkbox') {
+                    data[input.id] = input.checked;
+                } else {
+                    data[input.id] = input.value || '';
+                }
+            });
+            
+            // Save to localStorage with section-specific key
+            const storageKey = `immobilien-suite-${currentSection}-data`;
+            try {
+                localStorage.setItem(storageKey, JSON.stringify(data));
+                console.log(`✅ Form data saved for section: ${currentSection}`);
+            } catch (error) {
+                console.warn('Could not save form data:', error);
+            }
+        }
+
+        loadFormData() {
+            const currentSection = this.getCurrentSection();
+            const storageKey = `immobilien-suite-${currentSection}-data`;
+            
+            try {
+                const saved = localStorage.getItem(storageKey);
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    
+                    // Populate form fields
+                    Object.keys(data).forEach(key => {
+                        const element = document.getElementById(key);
+                        if (element) {
+                            if (element.type === 'checkbox') {
+                                element.checked = data[key];
+                            } else {
+                                element.value = data[key];
+                            }
+                        }
+                    });
+                    
+                    console.log(`✅ Form data loaded for section: ${currentSection}`);
+                }
+            } catch (error) {
+                console.warn('Could not load form data:', error);
+            }
+        }
             // Freibeträge 2025
             const freibetraege = {
                 'ehepartner': 500000,
@@ -938,6 +1084,9 @@
             const saetze = steuersaetze[erbenstellung] || [30, 35, 40, 45, 50];
             
             if (steuerpflichtigerErwerb <= 75000) steuersatz = saetze[0];
+            
+            // Save form data after calculation
+            this.saveFormData();
             else if (steuerpflichtigerErwerb <= 300000) steuersatz = saetze[1];
             else if (steuerpflichtigerErwerb <= 600000) steuersatz = saetze[2];
             else if (steuerpflichtigerErwerb <= 6000000) steuersatz = saetze[3];
@@ -1016,6 +1165,9 @@
             else steuersatz = saetze[6] || saetze[4];
             
             const schenkungssteuer = steuerpflichtigerBetrag * (steuersatz / 100);
+            
+            // Save form data after calculation
+            this.saveFormData();
             const nettoschenkung = bewerteterSchenkungswert - schenkungssteuer;
             
             document.getElementById('gesamtschenkung').textContent = formatCurrency(gesamtschenkung);
@@ -1128,6 +1280,12 @@
             if (e.target.matches('input, select, textarea')) {
                 setTimeout(saveFormData, 500); // Debounce save
             }
+            
+            // Save form data after calculation
+            this.saveFormData();
+            
+            // Save form data after calculation
+            this.saveFormData();
         });
 
         document.addEventListener('change', function(e) {
@@ -1138,3 +1296,4 @@
     </script>
 </body>
 </html>
+            this.saveFormData();
