@@ -382,6 +382,288 @@ class UltimateImmobilienSuiteEnhanced {
         return advantages[structureName] || [];
     }
 
+    setupEventListeners() {
+        console.log('🔧 Setting up enhanced event listeners...');
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.setupEventListenersInternal());
+        } else {
+            this.setupEventListenersInternal();
+        }
+    }
+
+    setupEventListenersInternal() {
+        // Clean up existing event listeners
+        this.cleanupEventListeners();
+        
+        // Real-time validation setup
+        this.setupRealtimeValidation();
+        
+        // Navigation
+        document.querySelectorAll('.nav-link').forEach(link => {
+            const handler = (e) => {
+                e.preventDefault();
+                const section = link.getAttribute('data-section');
+                if (section) {
+                    this.navigateToSection(section);
+                }
+            };
+            link.addEventListener('click', handler);
+            this.eventListenersCleanup.add(() => link.removeEventListener('click', handler));
+        });
+
+        // Plugin items
+        document.querySelectorAll('.plugin-item').forEach(item => {
+            const keyHandler = (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    item.click();
+                }
+            };
+            
+            const mouseOverHandler = () => {
+                item.style.background = 'rgba(102, 126, 234, 0.1)';
+            };
+            
+            const mouseOutHandler = () => {
+                item.style.background = '';
+            };
+            
+            item.addEventListener('keydown', keyHandler);
+            item.addEventListener('mouseover', mouseOverHandler);
+            item.addEventListener('mouseout', mouseOutHandler);
+            
+            this.eventListenersCleanup.add(() => {
+                item.removeEventListener('keydown', keyHandler);
+                item.removeEventListener('mouseover', mouseOverHandler);
+                item.removeEventListener('mouseout', mouseOutHandler);
+            });
+        });
+
+        // Form changes for real-time calculation
+        const inputHandler = (e) => {
+            if (e.target.matches('.form-input, .form-select')) {
+               // Save state before changes for undo functionality
+               if (!this.isRestoringState) {
+                   this.saveCurrentState();
+               }
+                
+                // Trigger validation
+                this.validateField(e.target);
+               
+                if (this.realtimeEnabled) {
+                    this.debouncedCalculate();
+                }
+            }
+        };
+        
+        document.addEventListener('input', inputHandler);
+        this.eventListenersCleanup.add(() => document.removeEventListener('input', inputHandler));
+
+        // Scroll effects
+        const scrollHandler = () => {
+            const header = this.getCachedElement('app-header');
+            if (header) {
+                if (window.scrollY > 10) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            }
+        };
+        
+        window.addEventListener('scroll', scrollHandler);
+        this.eventListenersCleanup.add(() => window.removeEventListener('scroll', scrollHandler));
+
+        // Close modals on Escape
+        const keydownHandler = (e) => {
+            if (e.key === 'Escape') {
+                this.closeAllModals();
+            }
+        };
+        
+        document.addEventListener('keydown', keydownHandler);
+        this.eventListenersCleanup.add(() => document.removeEventListener('keydown', keydownHandler));
+
+        // Close modals on backdrop click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            const clickHandler = (e) => {
+                if (e.target === overlay) {
+                    this.closeModal(overlay.id);
+                }
+            };
+            overlay.addEventListener('click', clickHandler);
+            this.eventListenersCleanup.add(() => overlay.removeEventListener('click', clickHandler));
+        });
+
+        console.log('✅ Enhanced event listeners setup completed');
+    }
+
+    cleanupEventListeners() {
+        this.eventListenersCleanup.forEach(cleanup => cleanup());
+        this.eventListenersCleanup.clear();
+    }
+
+    setupRealtimeValidation() {
+        // Clear existing validation listeners first
+        const inputs = document.querySelectorAll('.form-input, .form-select');
+        
+        inputs.forEach(input => {
+            // Remove existing listeners if any
+            const existingHandler = input._validationHandler;
+            if (existingHandler) {
+                input.removeEventListener('input', existingHandler);
+                input.removeEventListener('blur', existingHandler);
+                input.removeEventListener('focus', existingHandler);
+            }
+            
+            const inputHandler = this.debounce((e) => {
+                this.validateField(e.target);
+                if (this.realtimeEnabled) {
+                    this.calculateOptimal();
+                }
+            }, 300);
+
+            const realTimeHandler = (e) => {
+                this.showValidationIndicator(e.target);
+            };
+
+            const blurHandler = (e) => {
+                this.validateField(e.target);
+            };
+
+            const focusHandler = (e) => {
+                this.clearFieldError(e.target);
+            };
+            
+            // Store handler for cleanup
+            input._validationHandler = inputHandler;
+            
+            input.addEventListener('input', inputHandler);
+            input.addEventListener('input', realTimeHandler);
+            input.addEventListener('blur', blurHandler);
+            input.addEventListener('focus', focusHandler);
+        });
+    }
+
+    validateField(field) {
+        const value = field.value;
+        const fieldName = field.id;
+        let isValid = true;
+        let errorMessage = '';
+
+        field.classList.remove('valid', 'invalid');
+
+        if (field.hasAttribute('required') || ['kaufpreis', 'verkaufspreis', 'haltedauer'].includes(fieldName)) {
+            if (!value || value.trim() === '') {
+                isValid = false;
+                errorMessage = 'Dieses Feld ist erforderlich';
+            }
+        }
+
+        if (field.type === 'number' && value) {
+            const numValue = parseFloat(value);
+            
+            if (isNaN(numValue)) {
+                isValid = false;
+                errorMessage = 'Bitte geben Sie eine gültige Zahl ein';
+            } else if (numValue < 0) {
+                isValid = false;
+                errorMessage = 'Negative Werte sind nicht erlaubt';
+            } else if (field.hasAttribute('min') && numValue < parseFloat(field.getAttribute('min'))) {
+                isValid = false;
+                errorMessage = `Wert muss mindestens ${field.getAttribute('min')} sein`;
+            } else if (field.hasAttribute('max') && numValue > parseFloat(field.getAttribute('max'))) {
+                isValid = false;
+                errorMessage = `Wert darf höchstens ${field.getAttribute('max')} sein`;
+            }
+        }
+
+        if (value) {
+            field.classList.add(isValid ? 'valid' : 'invalid');
+        }
+
+        this.updateValidationIndicator(field, isValid);
+        this.showFieldError(field, isValid ? '' : errorMessage);
+
+        return isValid;
+    }
+
+    showValidationIndicator(field) {
+        const indicator = document.getElementById(field.id + '-indicator');
+        if (indicator) {
+            indicator.classList.add('show');
+            setTimeout(() => indicator.classList.remove('show'), 2000);
+        }
+    }
+
+    updateValidationIndicator(field, isValid) {
+        const baseId = field.id.replace(/^s[23]_/, ''); // Remove scenario prefix for indicator ID
+        const indicatorId = baseId + '-indicator';
+        const indicator = document.getElementById(indicatorId);
+        
+        if (indicator) {
+            indicator.classList.remove('valid', 'invalid');
+            if (field.value) {
+                indicator.classList.add(isValid ? 'valid' : 'invalid');
+                indicator.textContent = isValid ? '✓' : '✗';
+                indicator.classList.add('show');
+            } else {
+                indicator.classList.remove('show');
+            }
+        }
+    }
+
+    showFieldError(field, message) {
+        const baseId = field.id.replace(/^s[23]_/, ''); // Remove scenario prefix for error ID
+        const errorId = baseId + '-error';
+        const errorDiv = document.getElementById(errorId);
+        
+        if (errorDiv) {
+            errorDiv.textContent = message;
+            errorDiv.style.display = message ? 'flex' : 'none';
+        }
+    }
+
+    clearFieldError(field) {
+        const baseId = field.id.replace(/^s[23]_/, ''); // Remove scenario prefix for error ID
+        const errorId = baseId + '-error';
+        const errorDiv = document.getElementById(errorId);
+        
+        if (errorDiv) {
+            errorDiv.style.display = 'none';
+        }
+    }
+
+    // Modal Management
+    showModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+            
+            // Focus management
+            const firstFocusable = modal.querySelector('button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (firstFocusable) {
+                firstFocusable.focus();
+            }
+        }
+    }
+
+    closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+    }
+
+    closeAllModals() {
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.style.display = 'none';
+        });
+    }
+
     // Utility Methods
     formatCurrency(amount) {
         return new Intl.NumberFormat('de-DE', {
