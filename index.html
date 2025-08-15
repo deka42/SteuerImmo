@@ -3905,6 +3905,9 @@ List available plugins
                    if (!this.isRestoringState) {
                        this.saveCurrentState();
                    }
+                    
+                    // Trigger validation
+                    this.validateField(element);
                    
                     if (this.realtimeEnabled) {
                         this.debouncedCalculate();
@@ -4905,30 +4908,55 @@ List available plugins
         restoreGrundsteuerData() {
             if (this.sectionData && this.sectionData.grundsteuer) {
                 this.populateGrundsteuerForm(this.sectionData.grundsteuer);
+                
+                // Trigger calculation if real-time is enabled
+                if (this.realtimeEnabled) {
+                    setTimeout(() => this.calculateGrundsteuer(), 300);
+                }
             }
         }
 
         restoreErbschaftData() {
             if (this.sectionData && this.sectionData.erbschaft) {
                 this.populateErbschaftForm(this.sectionData.erbschaft);
+                
+                // Trigger calculation if real-time is enabled
+                if (this.realtimeEnabled) {
+                    setTimeout(() => this.calculateErbschaftsteuer(), 300);
+                }
             }
         }
 
         restoreSchenkungData() {
             if (this.sectionData && this.sectionData.schenkung) {
                 this.populateSchenkungForm(this.sectionData.schenkung);
+                
+                // Trigger calculation if real-time is enabled
+                if (this.realtimeEnabled) {
+                    setTimeout(() => this.calculateSchenkungssteuer(), 300);
+                }
             }
         }
 
         restoreCashflowData() {
             if (this.sectionData && this.sectionData.cashflow) {
                 this.populateCashflowForm(this.sectionData.cashflow);
+                
+                // Trigger calculation if real-time is enabled
+                if (this.realtimeEnabled) {
+                    setTimeout(() => this.calculateCashflow(), 300);
+                }
             }
         }
 
         restoreStrategieData() {
             if (this.sectionData && this.sectionData.strategie) {
                 this.populateStrategieForm(this.sectionData.strategie);
+                
+                // Trigger calculation if real-time is enabled
+                if (this.realtimeEnabled) {
+                    setTimeout(() => this.generateKIStrategy(), 300);
+                }
             }
         }
 
@@ -5847,6 +5875,9 @@ List available plugins
                     } else {
                         element.value = data[key];
                     }
+                    
+                    // Trigger validation
+                    this.validateField(element);
                 }
             });
         }
@@ -5860,6 +5891,9 @@ List available plugins
                     } else {
                         element.value = data[key];
                     }
+                    
+                    // Trigger validation
+                    this.validateField(element);
                 }
             });
         }
@@ -5873,6 +5907,9 @@ List available plugins
                     } else {
                         element.value = data[key];
                     }
+                    
+                    // Trigger validation
+                    this.validateField(element);
                 }
             });
         }
@@ -5886,6 +5923,9 @@ List available plugins
                     } else {
                         element.value = data[key];
                     }
+                    
+                    // Trigger validation
+                    this.validateField(element);
                 }
             });
         }
@@ -5918,9 +5958,71 @@ List available plugins
                 grundstuecksflaeche: parseFloat(document.getElementById('grundstuecksflaeche')?.value) || 0,
                 wohnflaeche: parseFloat(document.getElementById('wohnflaeche')?.value) || 0,
                 baujahr: parseInt(document.getElementById('baujahr')?.value) || 2000,
-                immobilientyp: document.getElementById('grundsteuer_immobilientyp')?.value || 'einfamilienhaus',
-                bundesland: document.getElementById('grundsteuer_bundesland')?.value || 'nw',
-                hebesatz: parseFloat(document.getElementById('hebesatz_grundsteuer')?.value) || 470
+                grundsteuer_immobilientyp: document.getElementById('grundsteuer_immobilientyp')?.value || 'einfamilienhaus',
+                grundsteuer_bundesland: document.getElementById('grundsteuer_bundesland')?.value || 'nw',
+                hebesatz_grundsteuer: parseFloat(document.getElementById('hebesatz_grundsteuer')?.value) || 470
+            };
+        }
+
+        collectErbschaftData() {
+            return {
+                erbschaft_immobilienwert: parseFloat(document.getElementById('erbschaft_immobilienwert')?.value) || 0,
+                verwandtschaftsgrad: document.getElementById('verwandtschaftsgrad')?.value || 'kind',
+                erbschaft_immobilienart: document.getElementById('erbschaft_immobilienart')?.value || 'eigenheim',
+                sonstiges_vermoegen: parseFloat(document.getElementById('sonstiges_vermoegen')?.value) || 0,
+                selbstnutzung_erbe: document.getElementById('selbstnutzung_erbe')?.checked || false,
+                lebzeitige_uebertragung: document.getElementById('lebzeitige_uebertragung')?.checked || false
+            };
+        }
+
+        collectSchenkungData() {
+            return {
+                schenkung_immobilienwert: parseFloat(document.getElementById('schenkung_immobilienwert')?.value) || 0,
+                beschenkter: document.getElementById('beschenkter')?.value || 'kind',
+                vorherige_schenkungen: parseFloat(document.getElementById('vorherige_schenkungen')?.value) || 0,
+                schenkungsart: document.getElementById('schenkungsart')?.value || 'vollschenkung',
+                schenkungsanteil: parseFloat(document.getElementById('schenkungsanteil')?.value) || 100,
+                niesbrauchswert: parseFloat(document.getElementById('niesbrauchswert')?.value) || 0,
+                alter_schenker: parseInt(document.getElementById('alter_schenker')?.value) || 65,
+                schenkungsstrategie: document.getElementById('schenkungsstrategie')?.value || 'einmalig'
+            };
+        }
+
+        collectCashflowData() {
+            return {
+                mieteinnahmen: parseFloat(document.getElementById('mieteinnahmen')?.value) || 0,
+                betriebskosten: parseFloat(document.getElementById('betriebskosten')?.value) || 0,
+                finanzierungskosten: parseFloat(document.getElementById('finanzierungskosten')?.value) || 0,
+                cashflow_abschreibungen: parseFloat(document.getElementById('cashflow_abschreibungen')?.value) || 0,
+                cashflow_steuersatz: parseFloat(document.getElementById('cashflow_steuersatz')?.value) || 42,
+                analysezeitraum: parseInt(document.getElementById('analysezeitraum')?.value) || 5,
+                mietsteigerung: parseFloat(document.getElementById('mietsteigerung')?.value) || 2.5,
+                verkaufserloes: parseFloat(document.getElementById('verkaufserloes')?.value) || 0,
+                reinvestition: document.getElementById('reinvestition')?.value || 'keine'
+            };
+        }
+
+        collectStrategyData() {
+            return {
+                portfolio_anzahl: parseInt(document.getElementById('portfolio_anzahl')?.value) || 1,
+                portfolio_wert: parseFloat(document.getElementById('portfolio_wert')?.value) || 0,
+                strategisches_ziel: document.getElementById('strategisches_ziel')?.value || 'steuerminimierung',
+                planungshorizont: document.getElementById('planungshorizont')?.value || 'mittelfristig',
+                familiensituation: document.getElementById('familiensituation')?.value || 'ehepaar',
+                jahreseinkommen: document.getElementById('jahreseinkommen')?.value || 'mittel',
+                international: document.getElementById('international')?.checked || false,
+                risikobereitschaft: document.getElementById('risikobereitschaft')?.value || 'moderat'
+            };
+        }
+
+        collectGrundsteuerData() {
+            return {
+                grundstuecksflaeche: parseFloat(document.getElementById('grundstuecksflaeche')?.value) || 0,
+                wohnflaeche: parseFloat(document.getElementById('wohnflaeche')?.value) || 0,
+                baujahr: parseInt(document.getElementById('baujahr')?.value) || 2000,
+                grundsteuer_immobilientyp: document.getElementById('grundsteuer_immobilientyp')?.value || 'einfamilienhaus',
+                grundsteuer_bundesland: document.getElementById('grundsteuer_bundesland')?.value || 'nw',
+                hebesatz_grundsteuer: parseFloat(document.getElementById('hebesatz_grundsteuer')?.value) || 470
             };
         }
 
@@ -6490,12 +6592,11 @@ List available plugins
                 hebesatz_grundsteuer: 470
             };
 
-            Object.keys(exampleData).forEach(key => {
-                const element = document.getElementById(key);
-                if (element) {
-                    element.value = exampleData[key];
-                }
-            });
+            this.populateGrundsteuerForm(exampleData);
+            
+            // Save to section data
+            if (!this.sectionData) this.sectionData = {};
+            this.sectionData.grundsteuer = exampleData;
 
             this.showToast('💡 Grundsteuer-Beispiel geladen', 'success');
             setTimeout(() => this.calculateGrundsteuer(), 500);
@@ -6511,16 +6612,11 @@ List available plugins
                 lebzeitige_uebertragung: false
             };
 
-            Object.keys(exampleData).forEach(key => {
-                const element = document.getElementById(key);
-                if (element) {
-                    if (element.type === 'checkbox') {
-                        element.checked = exampleData[key];
-                    } else {
-                        element.value = exampleData[key];
-                    }
-                }
-            });
+            this.populateErbschaftForm(exampleData);
+            
+            // Save to section data
+            if (!this.sectionData) this.sectionData = {};
+            this.sectionData.erbschaft = exampleData;
 
             this.showToast('💡 Erbschaftsteuer-Beispiel geladen', 'success');
             setTimeout(() => this.calculateErbschaftsteuer(), 500);
@@ -6538,12 +6634,11 @@ List available plugins
                 schenkungsstrategie: 'zehn_jahre'
             };
 
-            Object.keys(exampleData).forEach(key => {
-                const element = document.getElementById(key);
-                if (element) {
-                    element.value = exampleData[key];
-                }
-            });
+            this.populateSchenkungForm(exampleData);
+            
+            // Save to section data
+            if (!this.sectionData) this.sectionData = {};
+            this.sectionData.schenkung = exampleData;
 
             this.showToast('💡 Schenkungssteuer-Beispiel geladen', 'success');
             setTimeout(() => this.calculateSchenkungssteuer(), 500);
@@ -6562,12 +6657,11 @@ List available plugins
                 reinvestition: 'portfolio'
             };
 
-            Object.keys(exampleData).forEach(key => {
-                const element = document.getElementById(key);
-                if (element) {
-                    element.value = exampleData[key];
-                }
-            });
+            this.populateCashflowForm(exampleData);
+            
+            // Save to section data
+            if (!this.sectionData) this.sectionData = {};
+            this.sectionData.cashflow = exampleData;
 
             this.showToast('💡 Cash-Flow Beispiel geladen', 'success');
             setTimeout(() => this.calculateCashflow(), 500);
@@ -6585,16 +6679,11 @@ List available plugins
                 risikobereitschaft: 'moderat'
             };
 
-            Object.keys(exampleData).forEach(key => {
-                const element = document.getElementById(key);
-                if (element) {
-                    if (element.type === 'checkbox') {
-                        element.checked = exampleData[key];
-                    } else {
-                        element.value = exampleData[key];
-                    }
-                }
-            });
+            this.populateStrategieForm(exampleData);
+            
+            // Save to section data
+            if (!this.sectionData) this.sectionData = {};
+            this.sectionData.strategie = exampleData;
 
             this.showToast('💡 Strategie-Beispiel geladen', 'success');
             setTimeout(() => this.generateKIStrategy(), 500);
@@ -6933,6 +7022,7 @@ List available plugins
             const data = {
                 scenarios: Object.fromEntries(this.scenarios),
                 currentScenario: this.currentScenario,
+                sectionData: this.sectionData,
                 settings: {
                     realtimeEnabled: this.realtimeEnabled
                 },
@@ -6961,6 +7051,10 @@ List available plugins
                     
                     if (data.currentScenario) {
                         this.currentScenario = data.currentScenario;
+                    }
+                    
+                    if (data.sectionData) {
+                        this.sectionData = data.sectionData;
                     }
                     
                     if (data.settings) {
