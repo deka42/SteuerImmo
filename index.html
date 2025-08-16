@@ -1284,53 +1284,77 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         }
     }
 
-    /* Dark Mode Support - Fixed CSS conflicts */
-    @media (prefers-color-scheme: dark) {
-        body {
-            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-        }
-        
-        .app-container {
-            background: #2c3e50;
-            color: white;
-        }
-        
-        .card,
-        .result-card,
-        .analytics-widget {
-            background: #34495e;
-            border-color: #495057;
-            color: white;
-        }
-        
-        .form-input,
-        .form-select {
-            background: #34495e;
-            border-color: #495057;
-            color: white;
-        }
-        
-        .sidebar,
-        .analytics-panel {
-            background: #34495e;
-        }
-    }
-
-    /* Manual Dark Mode Toggle - Enhanced visibility */
-body.dark-mode {
+    /* Dark Mode Support - Enhanced Visibility */
+@media (prefers-color-scheme: dark) {
+body {
 background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-color: #ffffff;
+color: #f8f9fa;
 }
 
 ```
+    .app-container {
+        background: #2c3e50;
+        color: #f8f9fa;
+    }
+    
+    .card,
+    .result-card,
+    .analytics-widget {
+        background: #34495e;
+        border-color: #495057;
+        color: #f8f9fa;
+    }
+    
+    .form-input,
+    .form-select {
+        background: #34495e;
+        border-color: #6c757d;
+        color: #f8f9fa;
+    }
+    
+    .form-input::placeholder {
+        color: #adb5bd;
+    }
+    
+    .sidebar,
+    .analytics-panel {
+        background: #34495e;
+        color: #f8f9fa;
+    }
+    
+    .form-label,
+    .card-title,
+    .result-title {
+        color: #f8f9fa !important;
+    }
+    
+    .form-help {
+        color: #adb5bd !important;
+    }
+    
+    .text-muted {
+        color: #adb5bd !important;
+    }
+    
+    .nav-link {
+        color: #f8f9fa;
+    }
+}
+
+/* Manual Dark Mode Toggle - Enhanced Visibility */
+body.dark-mode {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: #f8f9fa;
+}
+
 body.dark-mode .app-container {
     background: #2c3e50;
-    color: #ffffff;
+    color: #f8f9fa;
 }
 
 body.dark-mode .app-header {
     background: rgba(44, 62, 80, 0.95);
-    color: #ffffff;
+    color: #f8f9fa;
     border-bottom-color: #495057;
 }
 
@@ -1338,175 +1362,156 @@ body.dark-mode .app-title h1 {
     color: #74b9ff;
     background: none;
     -webkit-text-fill-color: #74b9ff;
-    font-weight: 700;
 }
 
 body.dark-mode .subtitle {
-    color: #e9ecef;
+    color: #e9ecef !important;
     opacity: 1;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 body.dark-mode .sidebar,
 body.dark-mode .analytics-panel {
     background: #34495e;
-    color: #ffffff;
+    color: #f8f9fa;
     border-color: #495057;
 }
 
 body.dark-mode .nav-link {
-    color: #e9ecef;
-    font-weight: 500;
+    color: #f8f9fa;
 }
 
 body.dark-mode .nav-link:hover,
 body.dark-mode .nav-link.active {
-    color: #ffffff;
-    font-weight: 600;
+    color: white;
 }
 
 body.dark-mode .card,
 body.dark-mode .result-card,
 body.dark-mode .analytics-widget {
     background: #34495e;
-    color: #ffffff;
+    color: #f8f9fa;
     border-color: #495057;
 }
 
 body.dark-mode .card-title,
-body.dark-mode .result-title {
-    color: #ffffff;
-    font-weight: 600;
-}
-
-body.dark-mode .form-label {
-    color: #ffffff;
-    font-weight: 600;
+body.dark-mode .result-title,
+body.dark-mode .widget-title {
+    color: #f8f9fa !important;
 }
 
 body.dark-mode .form-input,
 body.dark-mode .form-select {
     background: #2c3e50;
-    border-color: #495057;
-    color: #ffffff;
-    font-weight: 500;
+    border-color: #6c757d;
+    color: #f8f9fa;
 }
 
 body.dark-mode .form-input::placeholder {
     color: #adb5bd;
-    opacity: 1;
+}
+
+body.dark-mode .form-input:focus,
+body.dark-mode .form-select:focus {
+    border-color: var(--primary-solid);
+    background: #34495e;
+}
+
+body.dark-mode .form-label {
+    color: #f8f9fa !important;
+    font-weight: 600;
 }
 
 body.dark-mode .form-help {
-    color: #ced4da;
-    font-weight: 400;
+    color: #adb5bd !important;
 }
 
 body.dark-mode .form-error {
-    color: #ff6b6b;
-    font-weight: 500;
-}
-
-body.dark-mode .text-muted {
-    color: #ced4da !important;
-}
-
-body.dark-mode .result-label {
-    color: #e9ecef;
-    font-weight: 500;
-}
-
-body.dark-mode .result-value {
-    color: #ffffff;
-    font-weight: 600;
-}
-
-body.dark-mode .metric-label {
-    color: #ced4da;
-    font-weight: 500;
-}
-
-body.dark-mode .metric-value {
-    color: #ffffff;
-    font-weight: 700;
-}
-
-body.dark-mode .widget-title {
-    color: #ffffff;
-    font-weight: 600;
+    color: #ff6b6b !important;
 }
 
 body.dark-mode .modal {
     background: #34495e;
-    color: #ffffff;
+    color: #f8f9fa;
+}
+
+body.dark-mode .modal h2,
+body.dark-mode .modal h3 {
+    color: #f8f9fa;
 }
 
 body.dark-mode .data-table th,
 body.dark-mode .data-table td {
-    color: #ffffff;
-    font-weight: 500;
+    color: #f8f9fa;
+    border-bottom-color: #495057;
 }
 
 body.dark-mode .data-table th {
     background: #2c3e50;
-    font-weight: 600;
+}
+
+body.dark-mode .data-table tr:hover {
+    background: rgba(102, 126, 234, 0.1);
 }
 
 body.dark-mode .alert {
-    color: #ffffff;
-    border-color: #495057;
+    border-left-color: inherit;
 }
 
-body.dark-mode .alert h3,
-body.dark-mode .alert h4 {
-    color: #ffffff;
-    font-weight: 600;
+body.dark-mode .alert-success {
+    background: rgba(17, 153, 142, 0.15);
+    color: #f8f9fa;
 }
 
-body.dark-mode .btn {
-    font-weight: 600;
+body.dark-mode .alert-info {
+    background: rgba(102, 126, 234, 0.15);
+    color: #f8f9fa;
+}
+
+body.dark-mode .alert-warning {
+    background: rgba(240, 147, 251, 0.15);
+    color: #f8f9fa;
+}
+
+body.dark-mode .alert-danger {
+    background: rgba(255, 154, 158, 0.15);
+    color: #f8f9fa;
+}
+
+body.dark-mode .text-muted {
+    color: #adb5bd !important;
+}
+
+body.dark-mode .metric-label,
+body.dark-mode .widget-title {
+    color: #e9ecef !important;
+}
+
+body.dark-mode .result-label {
+    color: #e9ecef !important;
+}
+
+body.dark-mode .result-value {
+    color: #f8f9fa !important;
 }
 
 body.dark-mode .scenario-tab {
-    color: #ced4da;
-    font-weight: 500;
+    color: #adb5bd;
+    border-bottom-color: transparent;
 }
 
-body.dark-mode .scenario-tab.active,
-body.dark-mode .scenario-tab:hover {
-    color: #ffffff;
-    font-weight: 600;
+body.dark-mode .scenario-tab.active {
+    color: #f8f9fa;
+    border-bottom-color: var(--primary-solid);
 }
 
 body.dark-mode .disclosure-toggle {
     color: #74b9ff;
-    font-weight: 600;
-}
-
-body.dark-mode .disclosure-toggle:hover {
-    color: #ffffff;
-}
-
-body.dark-mode .nav-badge {
-    background: #e74c3c;
-    color: #ffffff;
-    font-weight: 700;
 }
 
 body.dark-mode .performance-indicator {
-    color: #ffffff;
-    font-weight: 600;
-    background: rgba(255, 255, 255, 0.1);
-}
-
-body.dark-mode .analytics-header {
-    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
-    color: #ffffff;
-}
-
-body.dark-mode .analytics-header h3 {
-    color: #ffffff;
-    font-weight: 600;
+    background: rgba(17, 153, 142, 0.2);
+    color: #f8f9fa;
 }
 
     /* High Contrast Mode */
@@ -1842,7 +1847,7 @@ body.dark-mode .analytics-header h3 {
         </div>
         <div>
             <span>Version:</span> 
-            <span style="color: var(--primary-solid);">v4.0.6-enhanced</span>
+            <span style="color: var(--primary-solid);">v4.0.5-enhanced</span>
         </div>
     </div>
 </div>
