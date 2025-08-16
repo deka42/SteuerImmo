@@ -1316,72 +1316,198 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         }
     }
 
-    /* Manual Dark Mode Toggle - Fixed conflicts */
-    body.dark-mode {
-        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-        color: white;
-    }
-    
-    body.dark-mode .app-container {
-        background: #2c3e50;
-        color: white;
-    }
-    
-    body.dark-mode .app-header {
-        background: rgba(44, 62, 80, 0.95);
-        color: white;
-    }
-    
-    body.dark-mode .app-title h1 {
-        color: #74b9ff;
-        background: none;
-        -webkit-text-fill-color: #74b9ff;
-    }
-    
-    body.dark-mode .subtitle {
-        color: white;
-        opacity: 1;
-        font-weight: 600;
-    }
-    
-    body.dark-mode .sidebar,
-    body.dark-mode .analytics-panel {
-        background: #34495e;
-        color: white;
-    }
-    
-    body.dark-mode .nav-link {
-        color: white;
-    }
-    
-    body.dark-mode .card,
-    body.dark-mode .result-card,
-    body.dark-mode .analytics-widget {
-        background: #34495e;
-        color: white;
-        border-color: #495057;
-    }
-    
-    body.dark-mode .form-input,
-    body.dark-mode .form-select {
-        background: #2c3e50;
-        border-color: #495057;
-        color: white;
-    }
-    
-    body.dark-mode .modal {
-        background: #34495e;
-        color: white;
-    }
-    
-    body.dark-mode .data-table th,
-    body.dark-mode .data-table td {
-        color: white;
-    }
-    
-    body.dark-mode .data-table th {
-        background: #2c3e50;
-    }
+    /* Manual Dark Mode Toggle - Enhanced visibility */
+body.dark-mode {
+background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+color: #ffffff;
+}
+
+```
+body.dark-mode .app-container {
+    background: #2c3e50;
+    color: #ffffff;
+}
+
+body.dark-mode .app-header {
+    background: rgba(44, 62, 80, 0.95);
+    color: #ffffff;
+    border-bottom-color: #495057;
+}
+
+body.dark-mode .app-title h1 {
+    color: #74b9ff;
+    background: none;
+    -webkit-text-fill-color: #74b9ff;
+    font-weight: 700;
+}
+
+body.dark-mode .subtitle {
+    color: #e9ecef;
+    opacity: 1;
+    font-weight: 500;
+}
+
+body.dark-mode .sidebar,
+body.dark-mode .analytics-panel {
+    background: #34495e;
+    color: #ffffff;
+    border-color: #495057;
+}
+
+body.dark-mode .nav-link {
+    color: #e9ecef;
+    font-weight: 500;
+}
+
+body.dark-mode .nav-link:hover,
+body.dark-mode .nav-link.active {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+body.dark-mode .card,
+body.dark-mode .result-card,
+body.dark-mode .analytics-widget {
+    background: #34495e;
+    color: #ffffff;
+    border-color: #495057;
+}
+
+body.dark-mode .card-title,
+body.dark-mode .result-title {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+body.dark-mode .form-label {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+body.dark-mode .form-input,
+body.dark-mode .form-select {
+    background: #2c3e50;
+    border-color: #495057;
+    color: #ffffff;
+    font-weight: 500;
+}
+
+body.dark-mode .form-input::placeholder {
+    color: #adb5bd;
+    opacity: 1;
+}
+
+body.dark-mode .form-help {
+    color: #ced4da;
+    font-weight: 400;
+}
+
+body.dark-mode .form-error {
+    color: #ff6b6b;
+    font-weight: 500;
+}
+
+body.dark-mode .text-muted {
+    color: #ced4da !important;
+}
+
+body.dark-mode .result-label {
+    color: #e9ecef;
+    font-weight: 500;
+}
+
+body.dark-mode .result-value {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+body.dark-mode .metric-label {
+    color: #ced4da;
+    font-weight: 500;
+}
+
+body.dark-mode .metric-value {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+body.dark-mode .widget-title {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+body.dark-mode .modal {
+    background: #34495e;
+    color: #ffffff;
+}
+
+body.dark-mode .data-table th,
+body.dark-mode .data-table td {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+body.dark-mode .data-table th {
+    background: #2c3e50;
+    font-weight: 600;
+}
+
+body.dark-mode .alert {
+    color: #ffffff;
+    border-color: #495057;
+}
+
+body.dark-mode .alert h3,
+body.dark-mode .alert h4 {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+body.dark-mode .btn {
+    font-weight: 600;
+}
+
+body.dark-mode .scenario-tab {
+    color: #ced4da;
+    font-weight: 500;
+}
+
+body.dark-mode .scenario-tab.active,
+body.dark-mode .scenario-tab:hover {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+body.dark-mode .disclosure-toggle {
+    color: #74b9ff;
+    font-weight: 600;
+}
+
+body.dark-mode .disclosure-toggle:hover {
+    color: #ffffff;
+}
+
+body.dark-mode .nav-badge {
+    background: #e74c3c;
+    color: #ffffff;
+    font-weight: 700;
+}
+
+body.dark-mode .performance-indicator {
+    color: #ffffff;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .analytics-header {
+    background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+    color: #ffffff;
+}
+
+body.dark-mode .analytics-header h3 {
+    color: #ffffff;
+    font-weight: 600;
+}
 
     /* High Contrast Mode */
     @media (prefers-contrast: high) {
