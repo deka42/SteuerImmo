@@ -1290,8 +1290,6 @@ body {
 background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
 color: #f8f9fa;
 }
-
-```
     .app-container {
         background: #2c3e50;
         color: #f8f9fa;
@@ -1512,6 +1510,291 @@ body.dark-mode .disclosure-toggle {
 body.dark-mode .performance-indicator {
     background: rgba(17, 153, 142, 0.2);
     color: #f8f9fa;
+}
+/* Add these CSS rules to fix dark mode font visibility issues */
+
+/* Fix plugin items in sidebar */
+@media (prefers-color-scheme: dark) {
+.plugin-item,
+.plugin-item strong,
+.plugin-item small {
+color: #f8f9fa !important;
+}
+
+```
+.plugin-item:hover {
+    background: rgba(102, 126, 234, 0.2) !important;
+    color: #ffffff !important;
+}
+
+.plugin-item strong {
+    color: #ffffff !important;
+}
+
+.plugin-item small {
+    color: #e9ecef !important;
+}
+```
+
+}
+
+body.dark-mode .plugin-item,
+body.dark-mode .plugin-item strong,
+body.dark-mode .plugin-item small {
+color: #f8f9fa !important;
+}
+
+body.dark-mode .plugin-item:hover {
+background: rgba(102, 126, 234, 0.2) !important;
+color: #ffffff !important;
+}
+
+body.dark-mode .plugin-item strong {
+color: #ffffff !important;
+}
+
+body.dark-mode .plugin-item small {
+color: #e9ecef !important;
+}
+
+/* Fix calculation results and data tables */
+@media (prefers-color-scheme: dark) {
+#quick-calc-results,
+#quick-calc-results * {
+color: #f8f9fa !important;
+}
+
+```
+#quick-calc-results h5 {
+    color: #ffffff !important;
+}
+
+.data-table tbody tr,
+.data-table tbody td,
+.data-table tbody th {
+    color: #f8f9fa !important;
+}
+```
+
+}
+
+body.dark-mode #quick-calc-results,
+body.dark-mode #quick-calc-results * {
+color: #f8f9fa !important;
+}
+
+body.dark-mode #quick-calc-results h5 {
+color: #ffffff !important;
+}
+
+body.dark-mode .data-table tbody tr,
+body.dark-mode .data-table tbody td,
+body.dark-mode .data-table tbody th {
+color: #f8f9fa !important;
+}
+
+/* Fix all result values and labels */
+@media (prefers-color-scheme: dark) {
+.result-value,
+.result-label,
+.widget-title,
+.metric-label,
+.metric-value {
+color: #f8f9fa !important;
+}
+
+.result-value.negative {
+    color: #ff6b6b !important;
+}
+
+.result-value:not(.negative) {
+    color: #4ecdc4 !important;
+}
+
+}
+
+body.dark-mode .result-value,
+body.dark-mode .result-label,
+body.dark-mode .widget-title,
+body.dark-mode .metric-label,
+body.dark-mode .metric-value {
+color: #f8f9fa !important;
+}
+
+body.dark-mode .result-value.negative {
+color: #ff6b6b !important;
+}
+
+body.dark-mode .result-value:not(.negative) {
+color: #4ecdc4 !important;
+}
+
+/* Fix form help text and errors */
+@media (prefers-color-scheme: dark) {
+.form-help,
+.form-error,
+.text-muted {
+color: #adb5bd !important;
+}
+}
+
+body.dark-mode .form-help,
+body.dark-mode .form-error,
+body.dark-mode .text-muted {
+color: #adb5bd !important;
+}
+
+/* Fix list items and general text */
+@media (prefers-color-scheme: dark) {
+.card ul li,
+.card ol li,
+.card p,
+.analytics-widget div,
+.analytics-widget span {
+color: #f8f9fa !important;
+}
+
+.analytics-widget code {
+    background: #495057 !important;
+    color: #f8f9fa !important;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+}
+
+}
+
+body.dark-mode .card ul li,
+body.dark-mode .card ol li,
+body.dark-mode .card p,
+body.dark-mode .analytics-widget div,
+body.dark-mode .analytics-widget span {
+color: #f8f9fa !important;
+}
+
+body.dark-mode .analytics-widget code {
+background: #495057 !important;
+color: #f8f9fa !important;
+padding: 0.2rem 0.4rem;
+border-radius: 3px;
+}
+
+/* Fix scenario tabs */
+@media (prefers-color-scheme: dark) {
+.scenario-tab {
+color: #adb5bd !important;
+border-bottom-color: transparent !important;
+}
+
+.scenario-tab.active {
+    color: #f8f9fa !important;
+    border-bottom-color: var(--primary-solid) !important;
+}
+
+.scenario-tab:hover {
+    color: #f8f9fa !important;
+}
+
+}
+
+body.dark-mode .scenario-tab {
+color: #adb5bd !important;
+border-bottom-color: transparent !important;
+}
+
+body.dark-mode .scenario-tab.active {
+color: #f8f9fa !important;
+border-bottom-color: var(–primary-solid) !important;
+}
+
+body.dark-mode .scenario-tab:hover {
+color: #f8f9fa !important;
+}
+
+/* Fix disclosure toggle */
+@media (prefers-color-scheme: dark) {
+.disclosure-toggle {
+color: #74b9ff !important;
+}
+
+.disclosure-toggle:hover {
+    color: #f8f9fa !important;
+}
+
+}
+
+body.dark-mode .disclosure-toggle {
+color: #74b9ff !important;
+}
+
+body.dark-mode .disclosure-toggle:hover {
+color: #f8f9fa !important;
+}
+
+/* Fix all headings in dark mode */
+@media (prefers-color-scheme: dark) {
+h1, h2, h3, h4, h5, h6 {
+color: #f8f9fa !important;
+}
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6 {
+color: #f8f9fa !important;
+}
+
+/* Fix any remaining text elements */
+@media (prefers-color-scheme: dark) {
+.card div,
+.card span:not(.result-value):not(.result-label),
+.sidebar div,
+.sidebar span,
+.analytics-panel div,
+.analytics-panel span {
+color: #f8f9fa !important;
+}
+}
+
+body.dark-mode .card div,
+body.dark-mode .card span:not(.result-value):not(.result-label),
+body.dark-mode .sidebar div,
+body.dark-mode .sidebar span,
+body.dark-mode .analytics-panel div,
+body.dark-mode .analytics-panel span {
+color: #f8f9fa !important;
+}
+
+/* Force dark mode styles with higher specificity */
+body.dark-mode * {
+border-color: #495057 !important;
+}
+
+body.dark-mode .card *:not(.btn):not(.form-input):not(.form-select):not(.result-value):not(.metric-value) {
+color: #f8f9fa !important;
+}
+
+/* Add a manual dark mode toggle button */
+.dark-mode-toggle {
+position: fixed;
+top: 20px;
+right: 80px;
+background: rgba(0,0,0,0.7);
+color: white;
+border: none;
+border-radius: 20px;
+padding: 0.5rem 1rem;
+cursor: pointer;
+z-index: 1000;
+font-size: 0.8rem;
+transition: all 0.3s ease;
+}
+
+.dark-mode-toggle:hover {
+background: rgba(0,0,0,0.9);
+transform: scale(1.05);
 }
 
     /* High Contrast Mode */
@@ -1794,11 +2077,11 @@ body.dark-mode .performance-indicator {
                     </a>
                 </li>
                 <li class="nav-item" role="none">
-                    <a href="https://deka42.github.io/SteuerImmo/calculations.html" target="_blank" class="nav-link" role="menuitem">
-                        <span class="nav-icon" role="img" aria-label="Rechner">🧮</span>
-                        Calculations
-                    </a>
-                </li>
+    <a href="#calculations" class="nav-link" data-section="calculations" role="menuitem" onclick="app.loadCalculationsFrame()">
+        <span class="nav-icon" role="img" aria-label="Rechner">🧮</span>
+        Calculations
+    </a>
+</li>
             </ul>
         </nav>
 
@@ -1847,7 +2130,7 @@ body.dark-mode .performance-indicator {
         </div>
         <div>
             <span>Version:</span> 
-            <span style="color: var(--primary-solid);">v4.0.5-enhanced</span>
+            <span style="color: var(--primary-solid);">v4.0.6-enhanced</span>
         </div>
     </div>
 </div>
@@ -3773,7 +4056,67 @@ List available plugins
                 this.updatePerformanceIndicator('Error', 'error');
             }
         }
+// Load calculations in right frame
+loadCalculationsFrame() {
+    const analyticsPanel = document.querySelector('.analytics-panel');
+    if (analyticsPanel) {
+        // Track navigation to calculations
+        this.gaTracker.trackUserJourney('navigation', 'calculations_opened', {
+            source: 'sidebar_navigation'
+        });
+        
+        // Store original analytics content
+        if (!this.originalAnalyticsContent) {
+            this.originalAnalyticsContent = analyticsPanel.innerHTML;
+        }
+        
+        // Replace analytics panel with iframe
+        analyticsPanel.innerHTML = `
+            <div class="analytics-header">
+                <h3>🧮 Calculations</h3>
+                <button onclick="app.restoreAnalyticsPanel()" 
+                        style="background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem;"
+                        title="Zurück zu Analytics">
+                    ← Analytics
+                </button>
+            </div>
+            <div style="height: calc(100vh - 200px); border-radius: 8px; overflow: hidden;">
+                <iframe 
+                    src="https://deka42.github.io/SteuerImmo/calculations.html" 
+                    style="width: 100%; height: 100%; border: none; border-radius: 8px;"
+                    title="Tax Calculations"
+                    onload="app.showToast('🧮 Calculations loaded', 'success')"
+                    onerror="app.showToast('❌ Failed to load calculations', 'danger')">
+                </iframe>
+            </div>
+        `;
+        
+        // Update navigation state
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        document.querySelector('[data-section="calculations"]')?.classList.add('active');
+        
+        this.showToast('🧮 Loading calculations in right panel...', 'info');
+    }
+}
 
+// Restore original analytics panel
+restoreAnalyticsPanel() {
+    const analyticsPanel = document.querySelector('.analytics-panel');
+    if (analyticsPanel && this.originalAnalyticsContent) {
+        analyticsPanel.innerHTML = this.originalAnalyticsContent;
+        
+        // Restore navigation state to current section
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        const currentSection = this.getCurrentSection();
+        document.querySelector(`[data-section="${currentSection}"]`)?.classList.add('active');
+        
+        this.showToast('📊 Analytics panel restored', 'info');
+    }
+}
         // Enhanced Web Worker Implementation
         async initializeWebWorker() {
             if (typeof Worker !== 'undefined') {
