@@ -3231,8 +3231,232 @@ List available plugins
             this.pdfExporter = new EnhancedPDFExporter();
             this.gaTracker = new GoogleAnalyticsTracker();
             this.cookieManager = new CookieConsentManager();
+            this.calculationEngine = this.createCalculationEngine();
             
             this.init();
+        }
+
+        createCalculationEngine() {
+            return {
+                calculate: (type, data) => {
+                    switch(type) {
+                        case 'cashflow':
+                            return this.calculateCashflowInternal(data);
+                        case 'grundsteuer':
+                            return this.calculateGrundsteuerInternal(data);
+                        case 'erbschaftsteuer':
+                            return this.calculateErbschaftsteuerInternal(data);
+                        case 'schenkungssteuer':
+                            return this.calculateSchenkungssteuerInternal(data);
+                        case 'strategy':
+                            return this.calculateStrategyInternal(data);
+                        default:
+                            throw new Error(`Unknown calculation type: ${type}`);
+                    }
+                }
+            };
+        }
+
+        calculateCashflowInternal(data) {
+            try {
+                const mieteinnahmen = (data.miete_monatlich || 0) * 12;
+                const betriebskosten = (data.betriebskosten || 0) * 12;
+                const verwaltungskosten = (data.verwaltungskosten || 0) * 12;
+                const reparaturen = data.reparaturen || 0;
+                const steuern = data.grundsteuer || 0;
+                const zinsen = data.zinsen || 0;
+
+                const gesamtausgaben = betriebskosten + verwaltungskosten + reparaturen + steuern + zinsen;
+                const nettomieteinnahmen = mieteinnahmen - gesamtausgaben;
+                const rendite = data.kaufpreis > 0 ? (nettomieteinnahmen / data.kaufpreis) * 100 : 0;
+
+                return {
+                    mieteinnahmen_jahr: mieteinnahmen,
+                    ausgaben_jahr: gesamtausgaben,
+                    nettomieteinnahmen,
+                    rendite,
+                    cashflow: nettomieteinnahmen,
+                    roi: rendite,
+                    erfolg: rendite >= 3
+                };
+            } catch (error) {
+                throw new Error(`Cashflow-Berechnung fehlgeschlagen: ${error.message}`);
+            }
+        }
+
+        calculateGrundsteuerInternal(data) {
+            try {
+                const bundeslandMultiplikatoren = {
+                    'bw': 1.3, 'by': 1.05, 'be': 8.1, 'bb': 1.05, 'hb': 6.33,
+                    'hh': 5.4, 'he': 2.6, 'mv': 1.0, 'ni': 7.0, 'nw': 2.9,
+                    'rp': 2.9, 'sl': 2.6, 'sn': 1.65, 'st': 2.2, 'sh': 1.0, 'th': 1.45
+                };
+
+                const bodenrichtwert = data.bodenrichtwert || 300;
+                const wohnflaeche = data.wohnflaeche || 120;
+                const baujahr = data.baujahr || 2000;
+                const bundesland = data.bundesland || 'nw';
+
+                const grundstueckswert = bodenrichtwert * wohnflaeche;
+                const gebaeudewert = this.calculateGebaeudewert(wohnflaeche, baujahr);
+                const gesamtwert = grundstueckswert + gebaeudewert;
+
+                const grundsteuer_alt = gesamtwert * 0.0035 * (bundeslandMultiplikatoren[bundesland] || 2.9);
+                const grundsteuer_neu = this.calculateNeueGrundsteuer(data);
+
+                return {
+                    grundstueckswert,
+                    gebaeudewert,
+                    gesamtwert,
+                    grundsteuer_alt,
+                    grundsteuer_neu,
+                    ersparnis: grundsteuer_alt - grundsteuer_neu,
+                    empfehlung: grundsteuer_neu < grundsteuer_alt ? 'Neue Bewertung vorteilhaft' : 'Alte Bewertung günstiger'
+                };
+            } catch (error) {
+                throw new Error(`Grundsteuer-Berechnung fehlgeschlagen: ${error.message}`);
+            }
+        }
+
+        calculateGebaeudewert(wohnflaeche, baujahr) {
+            const aktuellasJahr = new Date().getFullYear();
+            const alter = aktuellasJahr - baujahr;
+            const grundwert = wohnflaeche * 1200;
+            const abschreibung = Math.min(alter * 0.02, 0.6);
+            return grundwert * (1 - abschreibung);
+        }
+
+        calculateNeueGrundsteuer(data) {
+            const wohnflaeche = data.wohnflaeche || 120;
+            const grundstuecksflaeche = data.grundstuecksflaeche || 400;
+            
+            const grundwert = wohnflaeche * 0.04 + grundstuecksflaeche * 0.34;
+            const bundeslandMultiplikatoren = {
+                'bw': 1.3, 'by': 1.05, 'be': 8.1, 'bb': 1.05, 'hb': 6.33,
+                'hh': 5.4, 'he': 2.6, 'mv': 1.0, 'ni': 7.0, 'nw': 2.9,
+                'rp': 2.9, 'sl': 2.6, 'sn': 1.65, 'st': 2.2, 'sh': 1.0, 'th': 1.45
+            };
+            
+            return grundwert * 0.0031 * (bundeslandMultiplikatoren[data.bundesland] || 2.9);
+        }
+
+        calculateErbschaftsteuerInternal(data) {
+            try {
+                const verwandtschaftsgrad = data.verwandtschaftsgrad || 'kind';
+                const immobilienwert = data.immobilienwert || 0;
+                const sonstigesvermoegen = data.sonstigesvermoegen || 0;
+                const gesamtvermoegen = immobilienwert + sonstigesvermoegen;
+
+                const freibetraege = {
+                    'ehepartner': 500000,
+                    'kind': 400000,
+                    'enkel': 200000,
+                    'sonstige': 20000
+                };
+
+                const steuersaetze = {
+                    'ehepartner': [0.07, 0.11, 0.15, 0.19, 0.23, 0.27, 0.30],
+                    'kind': [0.07, 0.11, 0.15, 0.19, 0.23, 0.27, 0.30],
+                    'enkel': [0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.43],
+                    'sonstige': [0.30, 0.30, 0.30, 0.30, 0.50, 0.50, 0.50]
+                };
+
+                const freibetrag = freibetraege[verwandtschaftsgrad] || 20000;
+                const steuerpflichtigerBetrag = Math.max(0, gesamtvermoegen - freibetrag);
+                
+                const steuer = this.calculateProgressiveTax(steuerpflichtigerBetrag, steuersaetze[verwandtschaftsgrad]);
+
+                return {
+                    gesamtvermoegen,
+                    freibetrag,
+                    steuerpflichtigerBetrag,
+                    erbschaftsteuer: steuer,
+                    nettovermoegen: gesamtvermoegen - steuer,
+                    steuerquote: gesamtvermoegen > 0 ? (steuer / gesamtvermoegen) * 100 : 0
+                };
+            } catch (error) {
+                throw new Error(`Erbschaftsteuer-Berechnung fehlgeschlagen: ${error.message}`);
+            }
+        }
+
+        calculateSchenkungssteuerInternal(data) {
+            return this.calculateErbschaftsteuerInternal(data);
+        }
+
+        calculateStrategyInternal(data) {
+            try {
+                const strategien = [
+                    {
+                        name: 'Familienpool Strategie',
+                        beschreibung: 'Verteilung auf mehrere Familienmitglieder',
+                        steuerersparnis: 0.25,
+                        komplexitaet: 'mittel',
+                        zeitrahmen: '3-6 Monate'
+                    },
+                    {
+                        name: 'Cross-Border Struktur',
+                        beschreibung: 'Internationale Holding-Struktur',
+                        steuerersparnis: 0.45,
+                        komplexitaet: 'hoch',
+                        zeitrahmen: '6-12 Monate'
+                    },
+                    {
+                        name: 'Stiftungsmodell',
+                        beschreibung: 'Familienstiftung für Generationen',
+                        steuerersparnis: 0.60,
+                        komplexitaet: 'sehr hoch',
+                        zeitrahmen: '12-18 Monate'
+                    }
+                ];
+
+                const gesamtwert = (data.immobilienwert || 0) + (data.sonstigesvermoegen || 0);
+                
+                return {
+                    gesamtwert,
+                    strategien: strategien.map(strategie => ({
+                        ...strategie,
+                        ersparnis: gesamtwert * strategie.steuerersparnis,
+                        geeignet: gesamtwert >= (strategie.steuerersparnis * 500000)
+                    })),
+                    empfehlung: this.getBestStrategy(strategien, gesamtwert)
+                };
+            } catch (error) {
+                throw new Error(`Strategie-Berechnung fehlgeschlagen: ${error.message}`);
+            }
+        }
+
+        calculateProgressiveTax(amount, rates) {
+            const brackets = [75000, 300000, 600000, 6000000, 13000000, 26000000];
+            let tax = 0;
+            let remaining = amount;
+
+            for (let i = 0; i < brackets.length && remaining > 0; i++) {
+                const bracketAmount = Math.min(remaining, brackets[i] - (i > 0 ? brackets[i-1] : 0));
+                tax += bracketAmount * (rates[i] || rates[rates.length - 1]);
+                remaining -= bracketAmount;
+            }
+
+            if (remaining > 0) {
+                tax += remaining * (rates[rates.length - 1] || 0.50);
+            }
+
+            return tax;
+        }
+
+        getBestStrategy(strategien, gesamtwert) {
+            const geeigneteStrategien = strategien.filter(s => 
+                gesamtwert >= (s.steuerersparnis * 100000)
+            );
+
+            if (geeigneteStrategien.length === 0) {
+                return 'Für Ihr Vermögen sind derzeit keine besonderen Strategien erforderlich.';
+            }
+
+            const beste = geeigneteStrategien.reduce((best, current) => 
+                current.steuerersparnis > best.steuerersparnis ? current : best
+            );
+
+            return `Empfehlung: ${beste.name} - Ersparnis: ${this.formatCurrency(gesamtwert * beste.steuerersparnis)}`;
         }
 
         async init() {
@@ -4263,6 +4487,338 @@ List available plugins
                         </tbody>
                     </table>
                 </div>
+        generateGrundsteuerContent() {
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>🏛️</span>
+                            <span>Grundsteuer-Reform 2025 Analyse</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <p>Vergleich zwischen alter und neuer Grundsteuer-Bewertung nach der Reform 2025</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Wohnfläche (m²) <span class="required">*</span></label>
+                            <input type="number" id="gs_wohnflaeche" class="form-input" placeholder="z.B. 120" min="0" step="1" required>
+                            <div class="form-help">Wohnfläche der Immobilie</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Grundstücksfläche (m²)</label>
+                            <input type="number" id="gs_grundstuecksflaeche" class="form-input" placeholder="z.B. 400" min="0" step="1">
+                            <div class="form-help">Größe des Grundstücks</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bodenrichtwert (€/m²)</label>
+                            <input type="number" id="gs_bodenrichtwert" class="form-input" placeholder="z.B. 300" min="0" step="10">
+                            <div class="form-help">Aktueller Bodenrichtwert</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Baujahr</label>
+                            <input type="number" id="gs_baujahr" class="form-input" placeholder="z.B. 2000" min="1800" max="2025" step="1">
+                            <div class="form-help">Jahr der Fertigstellung</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bundesland</label>
+                            <select id="gs_bundesland" class="form-select">
+                                <option value="bw">Baden-Württemberg</option>
+                                <option value="by">Bayern</option>
+                                <option value="be">Berlin</option>
+                                <option value="bb">Brandenburg</option>
+                                <option value="he">Hessen</option>
+                                <option value="nw" selected>Nordrhein-Westfalen</option>
+                                <option value="ni">Niedersachsen</option>
+                                <option value="rp">Rheinland-Pfalz</option>
+                                <option value="sl">Saarland</option>
+                                <option value="sn">Sachsen</option>
+                                <option value="st">Sachsen-Anhalt</option>
+                                <option value="sh">Schleswig-Holstein</option>
+                                <option value="th">Thüringen</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="app.calculateGrundsteuer()">
+                            🏛️ Grundsteuer berechnen
+                        </button>
+                    </div>
+                </div>
+
+                <div class="results-container" id="grundsteuer-results">
+                    <!-- Grundsteuer results will be displayed here -->
+                </div>
+            `;
+        }
+
+        generateErbschaftContent() {
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>👨‍👩‍👧‍👦</span>
+                            <span>Erbschaftsteuer-Optimierung</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <p>Berechnung der Erbschaftsteuer und Optimierungsmöglichkeiten</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Immobilienwert <span class="required">*</span></label>
+                            <input type="number" id="eb_immobilienwert" class="form-input" placeholder="z.B. 800.000" min="0" step="10000" required>
+                            <div class="form-help">Aktueller Marktwert der Immobilie</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sonstiges Vermögen</label>
+                            <input type="number" id="eb_sonstigesvermoegen" class="form-input" placeholder="z.B. 200.000" min="0" step="10000">
+                            <div class="form-help">Bargeld, Wertpapiere, etc.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Verwandtschaftsgrad</label>
+                            <select id="eb_verwandtschaftsgrad" class="form-select">
+                                <option value="ehepartner">Ehepartner/Lebenspartner</option>
+                                <option value="kind" selected>Kind</option>
+                                <option value="enkel">Enkel</option>
+                                <option value="sonstige">Sonstige</option>
+                            </select>
+                            <div class="form-help">Verwandtschaftsgrad des Erben</div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="app.calculateErbschaftsteuer()">
+                            👨‍👩‍👧‍👦 Erbschaftsteuer berechnen
+                        </button>
+                    </div>
+                </div>
+
+                <div class="results-container" id="erbschaft-results">
+                    <!-- Erbschaftsteuer results will be displayed here -->
+                </div>
+            `;
+        }
+
+        generateSchenkungContent() {
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>🎁</span>
+                            <span>Schenkungssteuer-Planung</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <p>Steueroptimierte Schenkungsplanung und Freibetragsnutzung</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Immobilienwert <span class="required">*</span></label>
+                            <input type="number" id="sk_immobilienwert" class="form-input" placeholder="z.B. 800.000" min="0" step="10000" required>
+                            <div class="form-help">Aktueller Marktwert der Immobilie</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sonstiges Vermögen</label>
+                            <input type="number" id="sk_sonstigesvermoegen" class="form-input" placeholder="z.B. 200.000" min="0" step="10000">
+                            <div class="form-help">Bargeld, Wertpapiere, etc.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Verwandtschaftsgrad</label>
+                            <select id="sk_verwandtschaftsgrad" class="form-select">
+                                <option value="ehepartner">Ehepartner/Lebenspartner</option>
+                                <option value="kind" selected>Kind</option>
+                                <option value="enkel">Enkel</option>
+                                <option value="sonstige">Sonstige</option>
+                            </select>
+                            <div class="form-help">Verwandtschaftsgrad des Beschenkten</div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="app.calculateSchenkungssteuer()">
+                            🎁 Schenkungssteuer berechnen
+                        </button>
+                    </div>
+                </div>
+
+                <div class="results-container" id="schenkung-results">
+                    <!-- Schenkungssteuer results will be displayed here -->
+                </div>
+            `;
+        }
+
+        generateCashflowContent() {
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>📊</span>
+                            <span>Cash-Flow Analyse</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <p>Analyse der Immobilien-Rentabilität und des Cash-Flows</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Kaufpreis <span class="required">*</span></label>
+                            <input type="number" id="cf_kaufpreis" class="form-input" placeholder="z.B. 400.000" min="0" step="1000" required>
+                            <div class="form-help">Gesamter Kaufpreis der Immobilie</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Monatliche Miete</label>
+                            <input type="number" id="cf_miete_monatlich" class="form-input" placeholder="z.B. 1.500" min="0" step="50">
+                            <div class="form-help">Kaltmiete pro Monat</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Monatliche Betriebskosten</label>
+                            <input type="number" id="cf_betriebskosten" class="form-input" placeholder="z.B. 200" min="0" step="10">
+                            <div class="form-help">Heizung, Wasser, Strom, etc.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Monatliche Verwaltungskosten</label>
+                            <input type="number" id="cf_verwaltungskosten" class="form-input" placeholder="z.B. 150" min="0" step="10">
+                            <div class="form-help">Hausverwaltung, Versicherung</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Jährliche Reparaturen</label>
+                            <input type="number" id="cf_reparaturen" class="form-input" placeholder="z.B. 2.000" min="0" step="100">
+                            <div class="form-help">Instandhaltung und Reparaturen</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Jährliche Grundsteuer</label>
+                            <input type="number" id="cf_grundsteuer" class="form-input" placeholder="z.B. 800" min="0" step="50">
+                            <div class="form-help">Grundsteuer pro Jahr</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Jährliche Zinsen</label>
+                            <input type="number" id="cf_zinsen" class="form-input" placeholder="z.B. 12.000" min="0" step="100">
+                            <div class="form-help">Darlehenszinsen pro Jahr</div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="app.calculateCashflow()">
+                            📊 Cash-Flow analysieren
+                        </button>
+                    </div>
+                </div>
+
+                <div class="results-container" id="cashflow-results">
+                    <!-- Cashflow results will be displayed here -->
+                </div>
+            `;
+        }
+
+        populateGrundsteuerForm(data) {
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById('gs_' + key);
+                if (element) {
+                    element.value = data[key];
+                }
+            });
+        }
+
+        populateErbschaftForm(data) {
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById('eb_' + key);
+                if (element) {
+                    element.value = data[key];
+                }
+            });
+        }
+
+        populateSchenkungForm(data) {
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById('sk_' + key);
+                if (element) {
+                    element.value = data[key];
+                }
+            });
+        }
+
+        populateCashflowForm(data) {
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById('cf_' + key);
+                if (element) {
+                    element.value = data[key];
+                }
+            });
+        }
+
+        populateStrategieForm(data) {
+            Object.keys(data).forEach(key => {
+                const element = document.getElementById('st_' + key);
+                if (element) {
+                    element.value = data[key];
+                }
+            });
+        }
+            return `
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <span>🎯</span>
+                            <span>KI-Gesamtstrategie</span>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <p>KI-basierte Analyse für eine optimale Gesamtstrategie</p>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Gesamter Immobilienwert <span class="required">*</span></label>
+                            <input type="number" id="st_immobilienwert" class="form-input" placeholder="z.B. 2.000.000" min="0" step="50000" required>
+                            <div class="form-help">Gesamtwert aller Immobilien</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sonstiges Vermögen</label>
+                            <input type="number" id="st_sonstigesvermoegen" class="form-input" placeholder="z.B. 500.000" min="0" step="10000">
+                            <div class="form-help">Liquide Mittel, Wertpapiere, etc.</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Hauptziel</label>
+                            <select id="st_ziele" class="form-select">
+                                <option value="steueroptimierung" selected>Steueroptimierung</option>
+                                <option value="nachfolgeplanung">Nachfolgeplanung</option>
+                                <option value="liquiditaet">Liquiditätsoptimierung</option>
+                                <option value="diversifikation">Diversifikation</option>
+                            </select>
+                            <div class="form-help">Was ist Ihr Hauptziel?</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Zeitrahmen</label>
+                            <select id="st_zeitrahmen" class="form-select">
+                                <option value="kurzfristig">Kurzfristig (1-2 Jahre)</option>
+                                <option value="mittelfristig" selected>Mittelfristig (3-5 Jahre)</option>
+                                <option value="langfristig">Langfristig (5+ Jahre)</option>
+                            </select>
+                            <div class="form-help">In welchem Zeitrahmen?</div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="app.generateKIStrategy()">
+                            🎯 KI-Strategie generieren
+                        </button>
+                    </div>
+                </div>
+
+                <div class="results-container" id="strategy-results">
+                    <!-- Strategy results will be displayed here -->
+                </div>
             `;
         }
 
@@ -4286,7 +4842,70 @@ List available plugins
             this.showToast('International Tax Plugin aktiviert - Cross-Border Strukturen verfügbar', 'success');
         }
 
-        // Navigation and Content Loading
+        async calculateCashflow() {
+            try {
+                const data = this.collectCashflowData();
+                const results = this.calculationEngine.calculate('cashflow', data);
+                this.displayCashflowResults(results);
+                this.gaTracker.trackCalculation('cashflow', data, results);
+            } catch (error) {
+                console.error('Cashflow calculation error:', error);
+                this.errorHandler.logError(error);
+                this.showToast('Cash-Flow Analyse fehlgeschlagen: ' + error.message, 'danger');
+            }
+        }
+
+        async calculateGrundsteuer() {
+            try {
+                const data = this.collectGrundsteuerData();
+                const results = this.calculationEngine.calculate('grundsteuer', data);
+                this.displayGrundsteuerResults(results);
+                this.gaTracker.trackCalculation('grundsteuer', data, results);
+            } catch (error) {
+                console.error('Grundsteuer calculation error:', error);
+                this.errorHandler.logError(error);
+                this.showToast('Grundsteuer-Berechnung fehlgeschlagen: ' + error.message, 'danger');
+            }
+        }
+
+        async calculateErbschaftsteuer() {
+            try {
+                const data = this.collectErbschaftData();
+                const results = this.calculationEngine.calculate('erbschaftsteuer', data);
+                this.displayErbschaftsteuerResults(results);
+                this.gaTracker.trackCalculation('erbschaftsteuer', data, results);
+            } catch (error) {
+                console.error('Erbschaftsteuer calculation error:', error);
+                this.errorHandler.logError(error);
+                this.showToast('Erbschaftsteuer-Berechnung fehlgeschlagen: ' + error.message, 'danger');
+            }
+        }
+
+        async calculateSchenkungssteuer() {
+            try {
+                const data = this.collectSchenkungData();
+                const results = this.calculationEngine.calculate('schenkungssteuer', data);
+                this.displaySchenkungssteuerResults(results);
+                this.gaTracker.trackCalculation('schenkungssteuer', data, results);
+            } catch (error) {
+                console.error('Schenkungssteuer calculation error:', error);
+                this.errorHandler.logError(error);
+                this.showToast('Schenkungssteuer-Berechnung fehlgeschlagen: ' + error.message, 'danger');
+            }
+        }
+
+        async generateKIStrategy() {
+            try {
+                const data = this.collectStrategyData();
+                const results = this.calculationEngine.calculate('strategy', data);
+                this.displayStrategyResults(results);
+                this.gaTracker.trackCalculation('strategy', data, results);
+            } catch (error) {
+                console.error('Strategy calculation error:', error);
+                this.errorHandler.logError(error);
+                this.showToast('KI-Strategieberechnung fehlgeschlagen: ' + error.message, 'danger');
+            }
+        }
         navigateToSection(section) {
             this.saveCurrentSectionData();
             
