@@ -4324,13 +4324,26 @@ List available plugins
 
 // Replace the existing loadCalculationsFrame method with this updated version
 
+// 2. Updated loadCalculationsFrame method with debugging:
 loadCalculationsFrame() {
+    console.log('loadCalculationsFrame called'); // Debug log
+    
     const contentArea = document.getElementById('dynamic-content');
-    if (contentArea) {
+    console.log('Content area found:', !!contentArea); // Debug log
+    
+    if (!contentArea) {
+        console.error('dynamic-content element not found');
+        this.showToast('Error: Content area not found', 'danger');
+        return;
+    }
+    
+    try {
         // Track navigation to calculations
-        this.gaTracker.trackUserJourney('navigation', 'calculations_opened', {
-            source: 'sidebar_navigation'
-        });
+        if (this.gaTracker) {
+            this.gaTracker.trackUserJourney('navigation', 'calculations_opened', {
+                source: 'sidebar_navigation'
+            });
+        }
         
         // Save current section data before switching
         this.saveCurrentSectionData();
@@ -4339,10 +4352,13 @@ loadCalculationsFrame() {
         document.querySelectorAll('.nav-link').forEach(link => {
             link.classList.remove('active');
         });
-        document.querySelector('[data-section="calculations"]')?.classList.add('active');
+        const calcLink = document.querySelector('[data-section="calculations"]');
+        if (calcLink) {
+            calcLink.classList.add('active');
+        }
         
-        // Replace main content area with iframe
-        contentArea.innerHTML = `
+        // Create the iframe content
+        const iframeContent = `
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">
@@ -4356,28 +4372,86 @@ loadCalculationsFrame() {
                         ← Zurück
                     </button>
                 </div>
-                <div style="height: calc(100vh - 250px); border-radius: 8px; overflow: hidden; background: #f8f9fa;">
+                <div style="height: calc(100vh - 250px); border-radius: 8px; overflow: hidden; background: #f8f9fa; position: relative;">
+                    <div id="iframe-loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 1rem;">🧮</div>
+                        <div>Loading calculations...</div>
+                    </div>
                     <iframe 
+                        id="calculations-iframe"
                         src="https://deka42.github.io/SteuerImmo/calculations.html" 
-                        style="width: 100%; height: 100%; border: none; border-radius: 8px; background: white;"
+                        style="width: 100%; height: 100%; border: none; border-radius: 8px; background: white; opacity: 0; transition: opacity 0.3s;"
                         title="Tax Calculations"
-                        onload="app.showToast('🧮 Calculations loaded successfully', 'success')"
-                        onerror="app.showToast('❌ Failed to load calculations', 'danger')"
-                        allow="same-origin">
-                        <p>Your browser does not support iframes. Please visit 
+                        onload="
+                            this.style.opacity = '1';
+                            document.getElementById('iframe-loading').style.display = 'none';
+                            if (window.app) app.showToast('🧮 Calculations loaded successfully', 'success');
+                        "
+                        onerror="
+                            console.error('Iframe failed to load');
+                            if (window.app) app.showToast('❌ Failed to load calculations', 'danger');
+                        ">
+                        <p>Your browser does not support iframes. 
                            <a href="https://deka42.github.io/SteuerImmo/calculations.html" target="_blank">
-                              the calculations page directly
-                           </a>.
+                              Click here to open calculations in new tab
+                           </a>
                         </p>
                     </iframe>
                 </div>
             </div>
         `;
         
+        // Set the content
+        contentArea.innerHTML = iframeContent;
+        
+        console.log('Content set successfully'); // Debug log
         this.showToast('🧮 Loading calculations page...', 'info');
         
-        // Track page view for calculations
-        this.gaTracker.trackPageView('Calculations', 'External Tool');
+        // Test iframe loading after a short delay
+        setTimeout(() => {
+            const iframe = document.getElementById('calculations-iframe');
+            if (iframe) {
+                console.log('Iframe found, src:', iframe.src);
+                // Try to detect if iframe loaded
+                try {
+                    if (iframe.contentDocument || iframe.contentWindow) {
+                        console.log('Iframe appears to be loading/loaded');
+                    }
+                } catch (e) {
+                    console.log('Iframe cross-origin restriction (this is normal)');
+                }
+            } else {
+                console.error('Iframe not found after setting content');
+            }
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Error in loadCalculationsFrame:', error);
+        this.showToast('Error loading calculations: ' + error.message, 'danger');
+    }
+}
+
+// 3. Alternative method - open in new tab (simpler, always works)
+openCalculationsNewTab() {
+    console.log('Opening calculations in new tab');
+    
+    try {
+        if (this.gaTracker) {
+            this.gaTracker.trackUserJourney('navigation', 'calculations_opened_new_tab', {
+                source: 'sidebar_navigation'
+            });
+        }
+        
+        const newTab = window.open('https://deka42.github.io/SteuerImmo/calculations.html', '_blank');
+        
+        if (newTab) {
+            this.showToast('🧮 Calculations opened in new tab', 'success');
+        } else {
+            this.showToast('❌ Pop-up blocked. Please allow pop-ups and try again.', 'warning');
+        }
+    } catch (error) {
+        console.error('Error opening new tab:', error);
+        this.showToast('❌ Failed to open calculations', 'danger');
     }
 }
 
@@ -5717,23 +5791,27 @@ loadCalculationsFrame() {
 
         setupSectionSpecificHandlers(section) {
             switch(section) {
-                case 'grundsteuer':
-                    this.setupGrundsteuerEventHandlers();
-                    break;
-                case 'erbschaft':
-                    this.setupErbschaftEventHandlers();
-                    break;
-                case 'schenkung':
-                    this.setupSchenkungEventHandlers();
-                    break;
-                case 'cashflow':
-                    this.setupCashflowEventHandlers();
-                    break;
-                case 'strategie':
-                    this.setupStrategieEventHandlers();
-                    break;
-            }
-        }
+        case 'calculations':
+            console.log('Setting up calculations handlers');
+            // Any specific setup for calculations can go here
+            break;
+        case 'grundsteuer':
+            this.setupGrundsteuerEventHandlers();
+            break;
+        case 'erbschaft':
+            this.setupErbschaftEventHandlers();
+            break;
+        case 'schenkung':
+            this.setupSchenkungEventHandlers();
+            break;
+        case 'cashflow':
+            this.setupCashflowEventHandlers();
+            break;
+        case 'strategie':
+            this.setupStrategieEventHandlers();
+            break;
+    }
+}
 
         setupGrundsteuerEventHandlers() {
             console.log('Setting up Grundsteuer event handlers');
