@@ -1,12 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Immobilien-Steuer-Suite 2025 - Premium Edition</title>
+    <title>Immobilien-Steuer-Suite 2025 - Premium Edition (Korrigiert)</title>
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
     <style>
-        /* Alle CSS-Styles aus vorheriger Antwort */
         :root {
             --primary-color: #0066cc;
             --secondary-color: #4CAF50;
@@ -26,1462 +26,1528 @@
             --button-secondary-hover: #555555;
         }
 
-        .dark-mode {
-            --background-color: #121212;
-            --card-background: #1e1e1e;
-            --text-color: #e0e0e0;
-            --text-secondary: #aaaaaa;
-            --border-color: #444444;
-            --button-primary: #2196F3;
-            --button-primary-hover: #1976D2;
-            --button-secondary: #757575;
-            --button-secondary-hover: #616161;
-        }
+    .dark-mode {
+        --background-color: #121212;
+        --card-background: #1e1e1e;
+        --text-color: #e0e0e0;
+        --text-secondary: #aaaaaa;
+        --border-color: #444444;
+        --button-primary: #2196F3;
+        --button-primary-hover: #1976D2;
+        --button-secondary: #757575;
+        --button-secondary-hover: #616161;
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            padding: 20px;
-            transition: background-color 0.3s, color 0.3s;
-        }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        padding: 20px;
+        transition: background-color 0.3s, color 0.3s;
+    }
 
-        .dark-mode-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: var(--button-primary);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            z-index: 1000;
-            transition: background-color 0.3s;
-        }
+    .dark-mode-toggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: var(--button-primary);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        z-index: 1000;
+        transition: background-color 0.3s;
+    }
 
-        .dark-mode-toggle:hover {
-            background-color: var(--button-primary-hover);
-        }
+    .dark-mode-toggle:hover {
+        background-color: var(--button-primary-hover);
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
+    .container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-        }
+    .header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border-color);
+    }
 
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: var(--primary-color);
-        }
+    .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        color: var(--primary-color);
+    }
 
-        .header p {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-        }
+    .header p {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+    }
 
-        .nav-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 30px;
-            justify-content: center;
-        }
+    .nav-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 30px;
+        justify-content: center;
+    }
 
-        .nav-tab {
-            background-color: var(--card-background);
-            border: 1px solid var(--border-color);
-            padding: 12px 24px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
+    .nav-tab {
+        background-color: var(--card-background);
+        border: 1px solid var(--border-color);
+        padding: 12px 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
 
-        .nav-tab:hover {
-            background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
+    .nav-tab:hover {
+        background-color: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
 
-        .nav-tab.active {
-            background-color: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
+    .nav-tab.active {
+        background-color: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
 
-        .tab-content {
-            display: none;
-            background-color: var(--card-background);
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border-color);
-            margin-bottom: 30px;
-        }
+    .tab-content {
+        display: none;
+        background-color: var(--card-background);
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-color);
+        margin-bottom: 30px;
+    }
 
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
+    .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-        h2 {
-            font-size: 1.8rem;
-            margin-bottom: 25px;
-            color: var(--primary-color);
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
+    h2 {
+        font-size: 1.8rem;
+        margin-bottom: 25px;
+        color: var(--primary-color);
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border-color);
+    }
 
-        h3 {
-            font-size: 1.4rem;
-            margin: 25px 0 15px;
-            color: var(--text-color);
-        }
+    h3 {
+        font-size: 1.4rem;
+        margin: 25px 0 15px;
+        color: var(--text-color);
+    }
 
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-col {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    input, select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: var(--card-background);
+        color: var(--text-color);
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+
+    input:focus, select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+    }
+
+    .btn {
+        background-color: var(--button-primary);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        margin-right: 10px;
+        transition: background-color 0.3s;
+    }
+
+    .btn:hover {
+        background-color: var(--button-primary-hover);
+    }
+
+    .btn-secondary {
+        background-color: var(--button-secondary);
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--button-secondary-hover);
+    }
+
+    .result-section {
+        background-color: rgba(0, 102, 204, 0.05);
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 30px;
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .result-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .result-item:last-child {
+        border-bottom: none;
+    }
+
+    .result-label {
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    .result-value {
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+
+    .highlight {
+        color: var(--primary-color);
+        font-size: 1.2rem;
+    }
+
+    .card {
+        background-color: var(--card-background);
+        border-radius: 8px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-color);
+    }
+
+    .alert {
+        padding: 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+
+    .alert-info {
+        background-color: rgba(33, 150, 243, 0.1);
+        border-left: 4px solid var(--info-color);
+    }
+
+    .alert-warning {
+        background-color: rgba(255, 152, 0, 0.1);
+        border-left: 4px solid var(--warning-color);
+    }
+
+    .alert-success {
+        background-color: rgba(76, 175, 80, 0.1);
+        border-left: 4px solid var(--success-color);
+    }
+
+    .alert-danger {
+        background-color: rgba(244, 67, 54, 0.1);
+        border-left: 4px solid var(--danger-color);
+    }
+
+    ul {
+        margin-top: 10px;
+        padding-left: 25px;
+    }
+
+    li {
+        margin-bottom: 8px;
+    }
+
+    .eigennutzung-info {
+        background-color: rgba(33, 150, 243, 0.1);
+        border: 1px solid var(--info-color);
+        border-radius: 4px;
+        padding: 15px;
+        margin: 15px 0;
+    }
+
+    @media (max-width: 768px) {
         .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-bottom: 20px;
+            flex-direction: column;
+            gap: 15px;
         }
-
+        
         .form-col {
-            flex: 1;
-            min-width: 250px;
+            min-width: 100%;
         }
-
-        .form-group {
-            margin-bottom: 20px;
+        
+        .nav-tabs {
+            flex-direction: column;
         }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text-color);
+        
+        .header h1 {
+            font-size: 2rem;
         }
-
-        input, select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            background-color: var(--card-background);
-            color: var(--text-color);
+        
+        .header p {
             font-size: 1rem;
-            transition: border-color 0.3s;
         }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2);
+        
+        h2 {
+            font-size: 1.5rem;
         }
-
-        .btn {
-            background-color: var(--button-primary);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            margin-right: 10px;
-            transition: background-color 0.3s;
+        
+        .container {
+            padding: 0 15px;
         }
-
-        .btn:hover {
-            background-color: var(--button-primary-hover);
-        }
-
-        .btn-secondary {
-            background-color: var(--button-secondary);
-        }
-
-        .btn-secondary:hover {
-            background-color: var(--button-secondary-hover);
-        }
-
-        .result-section {
-            background-color: rgba(0, 102, 204, 0.05);
-            border-radius: 8px;
+        
+        .tab-content {
             padding: 20px;
-            margin-top: 30px;
-            border-left: 4px solid var(--primary-color);
         }
+    }
 
-        .result-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .result-item:last-child {
-            border-bottom: none;
-        }
-
-        .result-label {
-            font-weight: 600;
-            color: var(--text-color);
-        }
-
-        .result-value {
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .highlight {
-            color: var(--primary-color);
-            font-size: 1.2rem;
-        }
-
-        .card {
-            background-color: var(--card-background);
-            border-radius: 8px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border-color);
-        }
-
-        .alert {
+    @media (max-width: 480px) {
+        body {
             padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
         }
+        
+        .dark-mode-toggle {
+            top: 10px;
+            right: 10px;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
+        
+        .btn {
+            width: 100%;
+            margin-bottom: 10px;
+            margin-right: 0;
+        }
+    }
+</style>
 
-        .alert-info {
-            background-color: rgba(33, 150, 243, 0.1);
-            border-left: 4px solid var(--info-color);
-        }
-
-        .alert-warning {
-            background-color: rgba(255, 152, 0, 0.1);
-            border-left: 4px solid var(--warning-color);
-        }
-
-        .alert-success {
-            background-color: rgba(76, 175, 80, 0.1);
-            border-left: 4px solid var(--success-color);
-        }
-
-        ul {
-            margin-top: 10px;
-            padding-left: 25px;
-        }
-
-        li {
-            margin-bottom: 8px;
-        }
-
-        @media (max-width: 768px) {
-            .form-row {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .form-col {
-                min-width: 100%;
-            }
-            
-            .nav-tabs {
-                flex-direction: column;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .header p {
-                font-size: 1rem;
-            }
-            
-            h2 {
-                font-size: 1.5rem;
-            }
-            
-            .container {
-                padding: 0 15px;
-            }
-            
-            .tab-content {
-                padding: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            body {
-                padding: 15px;
-            }
-            
-            .dark-mode-toggle {
-                top: 10px;
-                right: 10px;
-                padding: 8px 12px;
-                font-size: 0.9rem;
-            }
-            
-            .btn {
-                width: 100%;
-                margin-bottom: 10px;
-                margin-right: 0;
-            }
-        }
-    </style>
 </head>
 <body>
     <button class="dark-mode-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
-    
-    <div class="container">
-        <div class="header">
-            <h1>🏠 Immobilien-Steuer-Suite 2025</h1>
-            <p>Premium Edition - Alle Steuerberechnungen für Immobilien</p>
+
+<div class="container">
+    <div class="header">
+        <h1>🏠 Immobilien-Steuer-Suite 2025</h1>
+        <p>Premium Edition - Alle Steuerberechnungen für Immobilien (Korrigierte Version)</p>
+    </div>
+
+    <div class="alert alert-danger">
+        <strong>⚠️ WICHTIGER HINWEIS:</strong> Diese Berechnungen sind nur grobe Orientierungswerte! 
+        Die Steuergesetze sind komplex und ändern sich regelmäßig. Für verbindliche Auskünfte 
+        konsultieren Sie bitte immer einen Steuerberater oder das zuständige Finanzamt.
+    </div>
+
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="showTab('grundsteuer')">Grundsteuer</button>
+        <button class="nav-tab" onclick="showTab('grunderwerbsteuer')">Grunderwerbsteuer</button>
+        <button class="nav-tab" onclick="showTab('spekulationssteuer')">Spekulationssteuer</button>
+        <button class="nav-tab" onclick="showTab('vermietung')">Vermietung & Verpachtung</button>
+        <button class="nav-tab" onclick="showTab('abschreibung')">AfA-Rechner</button>
+        <button class="nav-tab" onclick="showTab('erbschaftssteuer')">Erbschaftssteuer</button>
+        <button class="nav-tab" onclick="showTab('schenkungssteuer')">Schenkungssteuer</button>
+        <button class="nav-tab" onclick="showTab('steueroptimierung')">Steueroptimierung</button>
+    </div>
+
+    <!-- Grundsteuer Tab -->
+    <div id="grundsteuer" class="tab-content active">
+        <h2>Grundsteuer-Rechner 2025 (Reform-konform)</h2>
+        
+        <div class="alert alert-warning">
+            <strong>🔄 GRUNDSTEUERREFORM 2025:</strong> Die Grundsteuer wurde komplett reformiert! 
+            Seit 2025 gilt der neue Grundsteuerwert statt des alten Einheitswerts. 
+            Diese Berechnung ist eine Schätzung - Ihren genauen Grundsteuerwert erhalten Sie vom Finanzamt.
         </div>
 
-        <div class="nav-tabs">
-            <button class="nav-tab active" onclick="showTab('grundsteuer')">Grundsteuer</button>
-            <button class="nav-tab" onclick="showTab('grunderwerbsteuer')">Grunderwerbsteuer</button>
-            <button class="nav-tab" onclick="showTab('spekulationssteuer')">Spekulationssteuer</button>
-            <button class="nav-tab" onclick="showTab('vermietung')">Vermietung & Verpachtung</button>
-            <button class="nav-tab" onclick="showTab('abschreibung')">AfA-Rechner</button>
-            <button class="nav-tab" onclick="showTab('erbschaftssteuer')">Erbschaftssteuer</button>
-            <button class="nav-tab" onclick="showTab('schenkungssteuer')">Schenkungssteuer</button>
-            <button class="nav-tab" onclick="showTab('steueroptimierung')">Steueroptimierung</button>
-        </div>
-
-        <!-- Grundsteuer Tab -->
-        <div id="grundsteuer" class="tab-content active">
-            <h2>Grundsteuer-Rechner 2025</h2>
-            <form id="grundsteuerForm">
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="einheitswert">Einheitswert (€):</label>
-                        <input type="number" id="einheitswert" step="0.01" placeholder="z.B. 150000">
-                    </div>
-                    <div class="form-col">
-                        <label for="grundsteuermesszahl">Grundsteuermesszahl (‰):</label>
-                        <select id="grundsteuermesszahl">
-                            <option value="2.6">Einfamilienhaus (2,6‰)</option>
-                            <option value="3.1">Zweifamilienhaus (3,1‰)</option>
-                            <option value="3.5">Mehrfamilienhaus (3,5‰)</option>
-                            <option value="6.0">Gewerblich (6,0‰)</option>
-                        </select>
-                    </div>
+        <form id="grundsteuerForm">
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="grundsteuerwert">Grundsteuerwert (€):</label>
+                    <input type="number" id="grundsteuerwert" step="0.01" placeholder="z.B. 200000 (vom Finanzamt)">
                 </div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="hebesatz">Hebesatz der Gemeinde (%):</label>
-                        <input type="number" id="hebesatz" step="1" placeholder="z.B. 450">
-                    </div>
-                    <div class="form-col">
-                        <label for="bundesland">Bundesland:</label>
-                        <select id="bundesland">
-                            <option value="bw">Baden-Württemberg</option>
-                            <option value="by">Bayern</option>
-                            <option value="be">Berlin</option>
-                            <option value="bb">Brandenburg</option>
-                            <option value="hb">Bremen</option>
-                            <option value="hh">Hamburg</option>
-                            <option value="he">Hessen</option>
-                            <option value="mv">Mecklenburg-Vorpommern</option>
-                            <option value="ni">Niedersachsen</option>
-                            <option value="nw">Nordrhein-Westfalen</option>
-                            <option value="rp">Rheinland-Pfalz</option>
-                            <option value="sl">Saarland</option>
-                            <option value="sn">Sachsen</option>
-                            <option value="st">Sachsen-Anhalt</option>
-                            <option value="sh">Schleswig-Holstein</option>
-                            <option value="th">Thüringen</option>
-                        </select>
-                    </div>
-                </div>
-                <button type="button" class="btn" onclick="calculateGrundsteuer()">Grundsteuer berechnen</button>
-                <button type="button" class="btn btn-secondary" onclick="resetForm('grundsteuerForm')">Zurücksetzen</button>
-            </form>
-            
-            <div id="grundsteuerResult" class="result-section" style="display: none;">
-                <h3>Berechnungsergebnis</h3>
-                <div class="result-item">
-                    <span class="result-label">Grundsteuermessbetrag:</span>
-                    <span class="result-value" id="grundsteuermessbetrag">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Grundsteuer pro Jahr:</span>
-                    <span class="result-value highlight" id="grundsteuerJahr">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Grundsteuer pro Monat:</span>
-                    <span class="result-value" id="grundsteuerMonat">0,00 €</span>
+                <div class="form-col">
+                    <label for="grundsteuerart">Grundsteuerart:</label>
+                    <select id="grundsteuerart">
+                        <option value="0.31">Wohngrundstück (0,31‰)</option>
+                        <option value="0.34">Nichtwohngrundstück (0,34‰)</option>
+                        <option value="0.31">Teileigentum (0,31‰)</option>
+                        <option value="0.34">Gemischt genutzt (0,34‰)</option>
+                    </select>
                 </div>
             </div>
-        </div>
-
-        <!-- Grunderwerbsteuer Tab -->
-        <div id="grunderwerbsteuer" class="tab-content">
-            <h2>Grunderwerbsteuer-Rechner 2025</h2>
-            <form id="grunderwerbsteuerForm">
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="kaufpreis">Kaufpreis (€):</label>
-                        <input type="number" id="kaufpreis" step="0.01" placeholder="z.B. 350000">
-                    </div>
-                    <div class="form-col">
-                        <label for="bundeslandGrunderwerb">Bundesland:</label>
-                        <select id="bundeslandGrunderwerb">
-                            <option value="3.5">Bayern, Sachsen (3,5%)</option>
-                            <option value="4.0">Hamburg (4,0%)</option>
-                            <option value="5.0">Baden-Württemberg, Bremen, Niedersachsen, Rheinland-Pfalz (5,0%)</option>
-                            <option value="6.0">Hessen, Mecklenburg-Vorpommern, Sachsen-Anhalt (6,0%)</option>
-                            <option value="6.5">Berlin, Brandenburg, Schleswig-Holstein, Thüringen (6,5%)</option>
-                            <option value="7.0">Nordrhein-Westfalen, Saarland (7,0%)</option>
-                        </select>
-                    </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="hebesatz">Hebesatz der Gemeinde (%):</label>
+                    <input type="number" id="hebesatz" step="1" placeholder="z.B. 450 (von Ihrer Gemeinde)">
                 </div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="nebenkosten">Nebenkosten (€):</label>
-                        <input type="number" id="nebenkosten" step="0.01" placeholder="z.B. 15000">
-                    </div>
-                    <div class="form-col">
-                        <label for="eigenkapital">Eigenkapital (€):</label>
-                        <input type="number" id="eigenkapital" step="0.01" placeholder="z.B. 70000">
-                    </div>
-                </div>
-                <button type="button" class="btn" onclick="calculateGrunderwerb()">Grunderwerbsteuer berechnen</button>
-                <button type="button" class="btn btn-secondary" onclick="resetForm('grunderwerbsteuerForm')">Zurücksetzen</button>
-            </form>
-            
-            <div id="grunderwerbResult" class="result-section" style="display: none;">
-                <h3>Berechnungsergebnis</h3>
-                <div class="result-item">
-                    <span class="result-label">Grunderwerbsteuer:</span>
-                    <span class="result-value highlight" id="grunderwerbsteuer">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Gesamtkosten (inkl. Nebenkosten):</span>
-                    <span class="result-value" id="gesamtkosten">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Benötigtes Kapital:</span>
-                    <span class="result-value" id="benoetigtesKapital">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Finanzierungsbedarf:</span>
-                    <span class="result-value" id="finanzierungsbedarf">0,00 €</span>
+                <div class="form-col">
+                    <label for="bundesland">Bundesland:</label>
+                    <select id="bundesland">
+                        <option value="bw">Baden-Württemberg</option>
+                        <option value="by">Bayern</option>
+                        <option value="be">Berlin</option>
+                        <option value="bb">Brandenburg</option>
+                        <option value="hb">Bremen</option>
+                        <option value="hh">Hamburg</option>
+                        <option value="he">Hessen</option>
+                        <option value="mv">Mecklenburg-Vorpommern</option>
+                        <option value="ni">Niedersachsen</option>
+                        <option value="nw">Nordrhein-Westfalen</option>
+                        <option value="rp">Rheinland-Pfalz</option>
+                        <option value="sl">Saarland</option>
+                        <option value="sn">Sachsen</option>
+                        <option value="st">Sachsen-Anhalt</option>
+                        <option value="sh">Schleswig-Holstein</option>
+                        <option value="th">Thüringen</option>
+                    </select>
                 </div>
             </div>
-        </div>
-
-        <!-- Spekulationssteuer Tab -->
-        <div id="spekulationssteuer" class="tab-content">
-            <h2>Spekulationssteuer-Rechner 2025</h2>
-            <form id="spekulationssteuerForm">
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="verkaufspreis">Verkaufspreis (€):</label>
-                        <input type="number" id="verkaufspreis" step="0.01" placeholder="z.B. 400000">
-                    </div>
-                    <div class="form-col">
-                        <label for="anschaffungskosten">Anschaffungskosten (€):</label>
-                        <input type="number" id="anschaffungskosten" step="0.01" placeholder="z.B. 300000">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="anschaffungsdatum">Anschaffungsdatum:</label>
-                        <input type="date" id="anschaffungsdatum">
-                    </div>
-                    <div class="form-col">
-                        <label for="verkaufsdatum">Verkaufsdatum:</label>
-                        <input type="date" id="verkaufsdatum">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="werbungskosten">Werbungskosten (€):</label>
-                        <input type="number" id="werbungskosten" step="0.01" placeholder="z.B. 5000">
-                    </div>
-                    <div class="form-col">
-                        <label for="steuersatz">Persönlicher Steuersatz (%):</label>
-                        <input type="number" id="steuersatz" step="0.1" placeholder="z.B. 42">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="eigennutzung"> Eigennutzung (mindestens 2 Jahre in den letzten 10 Jahren)
-                    </label>
-                </div>
-                <button type="button" class="btn" onclick="calculateSpekulation()">Spekulationssteuer berechnen</button>
-                <button type="button" class="btn btn-secondary" onclick="resetForm('spekulationssteuerForm')">Zurücksetzen</button>
-            </form>
-            
-            <div id="spekulationResult" class="result-section" style="display: none;">
-                <h3>Berechnungsergebnis</h3>
-                <div class="result-item">
-                    <span class="result-label">Haltedauer:</span>
-                    <span class="result-value" id="haltedauer">0 Jahre</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Veräußerungsgewinn:</span>
-                    <span class="result-value" id="veraeusserungsgewinn">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Spekulationssteuer:</span>
-                    <span class="result-value highlight" id="spekulationssteuerBetrag">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Nettoerlös:</span>
-                    <span class="result-value" id="nettoerloes">0,00 €</span>
-                </div>
+            <button type="button" class="btn" onclick="calculateGrundsteuer()">Grundsteuer berechnen</button>
+            <button type="button" class="btn btn-secondary" onclick="resetForm('grundsteuerForm')">Zurücksetzen</button>
+        </form>
+        
+        <div id="grundsteuerResult" class="result-section" style="display: none;">
+            <h3>Berechnungsergebnis (Neue Grundsteuer 2025)</h3>
+            <div class="result-item">
+                <span class="result-label">Grundsteuermessbetrag:</span>
+                <span class="result-value" id="grundsteuermessbetrag">0,00 €</span>
             </div>
-        </div>
-
-        <!-- Vermietung & Verpachtung Tab -->
-        <div id="vermietung" class="tab-content">
-            <h2>Vermietung & Verpachtung - Steuerrechner 2025</h2>
-            <form id="vermietungForm">
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="mieteinnahmen">Jährliche Mieteinnahmen (€):</label>
-                        <input type="number" id="mieteinnahmen" step="0.01" placeholder="z.B. 12000">
-                    </div>
-                    <div class="form-col">
-                        <label for="anschaffungskostenVermietung">Anschaffungskosten Immobilie (€):</label>
-                        <input type="number" id="anschaffungskostenVermietung" step="0.01" placeholder="z.B. 300000">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="instandhaltung">Instandhaltungskosten (€/Jahr):</label>
-                        <input type="number" id="instandhaltung" step="0.01" placeholder="z.B. 2000">
-                    </div>
-                    <div class="form-col">
-                        <label for="verwaltungskosten">Verwaltungskosten (€/Jahr):</label>
-                        <input type="number" id="verwaltungskosten" step="0.01" placeholder="z.B. 500">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="zinsen">Kreditzinsen (€/Jahr):</label>
-                        <input type="number" id="zinsen" step="0.01" placeholder="z.B. 8000">
-                    </div>
-                    <div class="form-col">
-                        <label for="sonstigeKosten">Sonstige Kosten (€/Jahr):</label>
-                        <input type="number" id="sonstigeKosten" step="0.01" placeholder="z.B. 1000">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="gebaeudewert">Gebäudewert (€):</label>
-                        <input type="number" id="gebaeudewert" step="0.01" placeholder="z.B. 200000">
-                    </div>
-                    <div class="form-col">
-                        <label for="baujahr">Baujahr:</label>
-                        <select id="baujahr">
-                            <option value="50">Vor 1925 (50 Jahre AfA)</option>
-                            <option value="40">1925-2022 (40 Jahre AfA)</option>
-                            <option value="33">Ab 2023 (33 Jahre AfA)</option>
-                        </select>
-                    </div>
-                </div>
-                <button type="button" class="btn" onclick="calculateVermietung()">Steuerersparnis berechnen</button>
-                <button type="button" class="btn btn-secondary" onclick="resetForm('vermietungForm')">Zurücksetzen</button>
-            </form>
-            
-            <div id="vermietungResult" class="result-section" style="display: none;">
-                <h3>Berechnungsergebnis</h3>
-                <div class="result-item">
-                    <span class="result-label">Jährliche AfA:</span>
-                    <span class="result-value" id="jaehrlicheAfa">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Gesamte Werbungskosten:</span>
-                    <span class="result-value" id="gesamteWerbungskosten">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Überschuss/Verlust:</span>
-                    <span class="result-value" id="ueberschuss">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Steuerersparnis (bei 42%):</span>
-                    <span class="result-value highlight" id="steuerersparnis">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Rendite nach Steuern:</span>
-                    <span class="result-value" id="renditeNachSteuern">0,00 %</span>
-                </div>
+            <div class="result-item">
+                <span class="result-label">Grundsteuer pro Jahr:</span>
+                <span class="result-value highlight" id="grundsteuerJahr">0,00 €</span>
             </div>
-        </div>
-
-        <!-- AfA-Rechner Tab -->
-        <div id="abschreibung" class="tab-content">
-            <h2>AfA-Rechner (Abschreibung) 2025</h2>
-            <form id="abschreibungForm">
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="anschaffungskostenAfa">Anschaffungskosten Gebäude (€):</label>
-                        <input type="number" id="anschaffungskostenAfa" step="0.01" placeholder="z.B. 250000">
-                    </div>
-                    <div class="form-col">
-                        <label for="baujahrAfa">Baujahr/Anschaffung:</label>
-                        <select id="baujahrAfa">
-                            <option value="50">Vor 1925 (50 Jahre AfA - 2%)</option>
-                            <option value="40">1925-2022 (40 Jahre AfA - 2,5%)</option>
-                            <option value="33">Ab 2023 (33 Jahre AfA - 3%)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="nutzungsart">Nutzungsart:</label>
-                        <select id="nutzungsart">
-                            <option value="vermietung">Vermietung</option>
-                            <option value="gewerbe">Gewerbliche Nutzung</option>
-                            <option value="gemischt">Gemischte Nutzung</option>
-                        </select>
-                    </div>
-                    <div class="form-col">
-                        <label for="anteilVermietung">Anteil Vermietung (%):</label>
-                        <input type="number" id="anteilVermietung" min="0" max="100" value="100" placeholder="z.B. 80">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="sonderabschreibung">Sonderabschreibung:</label>
-                        <select id="sonderabschreibung">
-                            <option value="keine">Keine</option>
-                            <option value="denkmal">Denkmalschutz (10%)</option>
-                            <option value="sanierung">Sanierungsgebiet (9%)</option>
-                        </select>
-                    </div>
-                    <div class="form-col">
-                        <label for="laufzeitJahre">Betrachtungszeitraum (Jahre):</label>
-                        <input type="number" id="laufzeitJahre" min="1" max="50" value="10" placeholder="z.B. 10">
-                    </div>
-                </div>
-                <button type="button" class="btn" onclick="calculateAfa()">AfA berechnen</button>
-                <button type="button" class="btn btn-secondary" onclick="resetForm('abschreibungForm')">Zurücksetzen</button>
-            </form>
-            
-            <div id="afaResult" class="result-section" style="display: none;">
-                <h3>Berechnungsergebnis</h3>
-                <div class="result-item">
-                    <span class="result-label">AfA-Satz:</span>
-                    <span class="result-value" id="afaSatz">0,00 %</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Jährliche AfA:</span>
-                    <span class="result-value highlight" id="jaehrlicheAfaResult">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Monatliche AfA:</span>
-                    <span class="result-value" id="monatlicheAfa">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Gesamte AfA (Zeitraum):</span>
-                    <span class="result-value" id="gesamteAfa">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Restbuchwert nach Zeitraum:</span>
-                    <span class="result-value" id="restbuchwert">0,00 €</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Erbschaftssteuer Tab -->
-        <div id="erbschaftssteuer" class="tab-content">
-            <h2>Erbschaftssteuer-Rechner 2025</h2>
-            <form id="erbschaftssteuerForm">
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="immobilienwert">Immobilienwert (€):</label>
-                        <input type="number" id="immobilienwert" step="0.01" placeholder="z.B. 500000">
-                    </div>
-                    <div class="form-col">
-                        <label for="verwandtschaftsgrad">Verwandtschaftsgrad:</label>
-                        <select id="verwandtschaftsgrad">
-                            <option value="1">Steuerklasse I - Ehepartner/Kinder</option>
-                            <option value="2">Steuerklasse II - Geschwister/Neffen/Nichten</option>
-                            <option value="3">Steuerklasse III - Sonstige</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="erbenstellung">Erbenstellung:</label>
-                        <select id="erbenstellung">
-                            <option value="ehepartner">Ehepartner/Lebenspartner</option>
-                            <option value="kind">Kind/Stiefkind</option>
-                            <option value="enkel">Enkelkind</option>
-                            <option value="eltern">Eltern/Großeltern</option>
-                            <option value="geschwister">Geschwister</option>
-                            <option value="neffe">Neffe/Nichte</option>
-                            <option value="sonstige">Sonstige</option>
-                        </select>
-                    </div>
-                    <div class="form-col">
-                        <label for="sonstigesVermoegen">Sonstiges Vermögen (€):</label>
-                        <input type="number" id="sonstigesVermoegen" step="0.01" placeholder="z.B. 50000">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="schulden">Schulden/Verbindlichkeiten (€):</label>
-                        <input type="number" id="schulden" step="0.01" placeholder="z.B. 100000">
-                    </div>
-                    <div class="form-col">
-                        <label for="eigennutzung_erbe">
-                            <input type="checkbox" id="eigennutzung_erbe"> Eigennutzung durch Erben geplant
-                        </label>
-                    </div>
-                </div>
-                <button type="button" class="btn" onclick="calculateErbschaftssteuer()">Erbschaftssteuer berechnen</button>
-                <button type="button" class="btn btn-secondary" onclick="resetForm('erbschaftssteuerForm')">Zurücksetzen</button>
-            </form>
-            
-            <div id="erbschaftssteuerResult" class="result-section" style="display: none;">
-                <h3>Berechnungsergebnis</h3>
-                <div class="result-item">
-                    <span class="result-label">Gesamtvermögen:</span>
-                    <span class="result-value" id="gesamtvermoegen">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Freibetrag:</span>
-                    <span class="result-value" id="freibetrag">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Steuerpflichtiger Erwerb:</span>
-                    <span class="result-value" id="steuerpflichtigerErwerb">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Erbschaftssteuer:</span>
-                    <span class="result-value highlight" id="erbschaftssteuerBetrag">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Nettoerbschaft:</span>
-                    <span class="result-value" id="nettoerbschaft">0,00 €</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Schenkungssteuer Tab -->
-        <div id="schenkungssteuer" class="tab-content">
-            <h2>Schenkungssteuer-Rechner 2025</h2>
-            <form id="schenkungssteuerForm">
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="schenkungswert">Wert der Schenkung (€):</label>
-                        <input type="number" id="schenkungswert" step="0.01" placeholder="z.B. 300000">
-                    </div>
-                    <div class="form-col">
-                        <label for="verwandtschaftsgradSchenkung">Verwandtschaftsgrad:</label>
-                        <select id="verwandtschaftsgradSchenkung">
-                            <option value="1">Steuerklasse I - Ehepartner/Kinder</option>
-                            <option value="2">Steuerklasse II - Geschwister/Neffen/Nichten</option>
-                            <option value="3">Steuerklasse III - Sonstige</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="beschenkterStatus">Status des Beschenkten:</label>
-                        <select id="beschenkterStatus">
-                            <option value="ehepartner">Ehepartner/Lebenspartner</option>
-                            <option value="kind">Kind/Stiefkind</option>
-                            <option value="enkel">Enkelkind</option>
-                            <option value="eltern">Eltern/Großeltern</option>
-                            <option value="geschwister">Geschwister</option>
-                            <option value="neffe">Neffe/Nichte</option>
-                            <option value="sonstige">Sonstige</option>
-                        </select>
-                    </div>
-                    <div class="form-col">
-                        <label for="vorschenkungen">Vorschenkungen (letzte 10 Jahre) (€):</label>
-                        <input type="number" id="vorschenkungen" step="0.01" placeholder="z.B. 50000">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="schenkungsart">Art der Schenkung:</label>
-                        <select id="schenkungsart">
-                            <option value="immobilie">Immobilie</option>
-                            <option value="geld">Geld/Wertpapiere</option>
-                            <option value="unternehmen">Unternehmen/Beteiligung</option>
-                            <option value="sonstige">Sonstige Vermögenswerte</option>
-                        </select>
-                    </div>
-                    <div class="form-col">
-                        <label for="eigennutzungSchenkung">
-                            <input type="checkbox" id="eigennutzungSchenkung"> Eigennutzung durch Beschenkten
-                        </label>
-                    </div>
-                </div>
-                <button type="button" class="btn" onclick="calculateSchenkungssteuer()">Schenkungssteuer berechnen</button>
-                <button type="button" class="btn btn-secondary" onclick="resetForm('schenkungssteuerForm')">Zurücksetzen</button>
-            </form>
-            
-            <div id="schenkungssteuerResult" class="result-section" style="display: none;">
-                <h3>Berechnungsergebnis</h3>
-                <div class="result-item">
-                    <span class="result-label">Gesamtschenkung (inkl. Vorschenkungen):</span>
-                    <span class="result-value" id="gesamtschenkung">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Freibetrag:</span>
-                    <span class="result-value" id="freibetragSchenkung">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Steuerpflichtiger Betrag:</span>
-                    <span class="result-value" id="steuerpflichtigerBetragSchenkung">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Schenkungssteuer:</span>
-                    <span class="result-value highlight" id="schenkungssteuerBetrag">0,00 €</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Nettoschenkung:</span>
-                    <span class="result-value" id="nettoschenkung">0,00 €</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Steueroptimierung Tab -->
-        <div id="steueroptimierung" class="tab-content">
-            <h2>Steueroptimierung für Immobilien 2025</h2>
-            
-            <div class="card">
-                <h3>🎯 Optimierungsstrategien</h3>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="immobilienportfolio">Anzahl Immobilien:</label>
-                        <input type="number" id="immobilienportfolio" min="1" value="1">
-                    </div>
-                    <div class="form-col">
-                        <label for="gesamtwertPortfolio">Gesamtwert Portfolio (€):</label>
-                        <input type="number" id="gesamtwertPortfolio" step="0.01" placeholder="z.B. 1000000">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="jahreseinkommen">Jahreseinkommen (€):</label>
-                        <input type="number" id="jahreseinkommen" step="0.01" placeholder="z.B. 80000">
-                    </div>
-                    <div class="form-col">
-                        <label for="familienstand">Familienstand:</label>
-                        <select id="familienstand">
-                            <option value="ledig">Ledig</option>
-                            <option value="verheiratet">Verheiratet</option>
-                            <option value="geschieden">Geschieden</option>
-                            <option value="verwitwet">Verwitwet</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-col">
-                        <label for="kinder">Anzahl Kinder:</label>
-                        <input type="number" id="kinder" min="0" value="0">
-                    </div>
-                    <div class="form-col">
-                        <label for="planungshorizont">Planungshorizont (Jahre):</label>
-                        <input type="number" id="planungshorizont" min="1" max="50" value="10">
-                    </div>
-                </div>
-                <button type="button" class="btn" onclick="generateOptimierungsvorschlaege()">Optimierungsvorschläge generieren</button>
-            </div>
-
-            <div id="optimierungResult" class="result-section" style="display: none;">
-                <h3>📊 Ihre persönlichen Optimierungsvorschläge</h3>
-                <div id="optimierungsvorschlaege"></div>
-            </div>
-
-            <div class="card">
-                <h3>📚 Steuer-Tipps für Immobilienbesitzer</h3>
-                <div class="alert alert-info">
-                    <strong>Wichtige Steuervorteile 2025:</strong>
-                    <ul style="margin-top: 10px; padding-left: 20px;">
-                        <li>AfA-Sätze: 3% für Neubauten ab 2023 (statt 2,5%)</li>
-                        <li>Sonderabschreibungen für Denkmalschutz bis zu 10%</li>
-                        <li>Erhöhte Freibeträge bei Erbschaft und Schenkung</li>
-                        <li>Steuerfreie Veräußerung nach 10 Jahren Haltedauer</li>
-                        <li>Eigennutzung: Steuerfreiheit bei Verkauf nach 2 Jahren</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>⚖️ Rechtliche Hinweise</h3>
-                <div class="alert alert-warning">
-                    <strong>Disclaimer:</strong> Alle Berechnungen sind unverbindlich und dienen nur der groben Orientierung. 
-                    Steuergesetze können sich ändern. Für verbindliche Auskünfte konsultieren Sie bitte einen Steuerberater 
-                    oder das zuständige Finanzamt. Stand der Berechnungen: 2025.
-                </div>
+            <div class="result-item">
+                <span class="result-label">Grundsteuer pro Monat:</span>
+                <span class="result-value" id="grundsteuerMonat">0,00 €</span>
             </div>
         </div>
     </div>
 
-    <script>
-        // Global variables
-        let currentTab = 'grundsteuer';
-        let formData = {};
+    <!-- Grunderwerbsteuer Tab -->
+    <div id="grunderwerbsteuer" class="tab-content">
+        <h2>Grunderwerbsteuer-Rechner 2025</h2>
+        <form id="grunderwerbsteuerForm">
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="kaufpreis">Kaufpreis (€):</label>
+                    <input type="number" id="kaufpreis" step="0.01" placeholder="z.B. 350000">
+                </div>
+                <div class="form-col">
+                    <label for="bundeslandGrunderwerb">Bundesland:</label>
+                    <select id="bundeslandGrunderwerb">
+                        <option value="3.5">Bayern, Sachsen (3,5%)</option>
+                        <option value="5.0">Baden-Württemberg, Bremen, Niedersachsen, Rheinland-Pfalz (5,0%)</option>
+                        <option value="5.5">Hamburg (5,5%)</option>
+                        <option value="6.0">Hessen, Mecklenburg-Vorpommern, Sachsen-Anhalt (6,0%)</option>
+                        <option value="6.5">Berlin, Brandenburg, Schleswig-Holstein, Thüringen (6,5%)</option>
+                        <option value="6.5">Nordrhein-Westfalen, Saarland (6,5%)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="nebenkosten">Nebenkosten (€):</label>
+                    <input type="number" id="nebenkosten" step="0.01" placeholder="z.B. 15000">
+                </div>
+                <div class="form-col">
+                    <label for="eigenkapital">Eigenkapital (€):</label>
+                    <input type="number" id="eigenkapital" step="0.01" placeholder="z.B. 70000">
+                </div>
+            </div>
+            <button type="button" class="btn" onclick="calculateGrunderwerb()">Grunderwerbsteuer berechnen</button>
+            <button type="button" class="btn btn-secondary" onclick="resetForm('grunderwerbsteuerForm')">Zurücksetzen</button>
+        </form>
+        
+        <div id="grunderwerbResult" class="result-section" style="display: none;">
+            <h3>Berechnungsergebnis</h3>
+            <div class="result-item">
+                <span class="result-label">Grunderwerbsteuer:</span>
+                <span class="result-value highlight" id="grunderwerbsteuer">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Gesamtkosten (inkl. Nebenkosten):</span>
+                <span class="result-value" id="gesamtkosten">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Benötigtes Kapital:</span>
+                <span class="result-value" id="benoetigtesKapital">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Finanzierungsbedarf:</span>
+                <span class="result-value" id="finanzierungsbedarf">0,00 €</span>
+            </div>
+        </div>
+    </div>
 
-        // Dark Mode Toggle
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('darkMode', isDark);
-            
-            const toggle = document.querySelector('.dark-mode-toggle');
-            toggle.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
-            saveFormData();
+    <!-- Spekulationssteuer Tab -->
+    <div id="spekulationssteuer" class="tab-content">
+        <h2>Spekulationssteuer-Rechner 2025</h2>
+        
+        <div class="eigennutzung-info">
+            <strong>ℹ️ Eigennutzung-Regel:</strong> Für Steuerfreiheit muss die Immobilie im Verkaufsjahr UND 
+            in den beiden vorangehenden Kalenderjahren selbst genutzt worden sein (mindestens 3 Jahre).
+        </div>
+
+        <form id="spekulationssteuerForm">
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="verkaufspreis">Verkaufspreis (€):</label>
+                    <input type="number" id="verkaufspreis" step="0.01" placeholder="z.B. 400000">
+                </div>
+                <div class="form-col">
+                    <label for="anschaffungskosten">Anschaffungskosten (€):</label>
+                    <input type="number" id="anschaffungskosten" step="0.01" placeholder="z.B. 300000">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="anschaffungsdatum">Anschaffungsdatum:</label>
+                    <input type="date" id="anschaffungsdatum">
+                </div>
+                <div class="form-col">
+                    <label for="verkaufsdatum">Verkaufsdatum:</label>
+                    <input type="date" id="verkaufsdatum">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="werbungskosten">Werbungskosten (€):</label>
+                    <input type="number" id="werbungskosten" step="0.01" placeholder="z.B. 5000">
+                </div>
+                <div class="form-col">
+                    <label for="steuersatz">Persönlicher Grenzsteuersatz (%):</label>
+                    <input type="number" id="steuersatz" step="0.1" placeholder="z.B. 42" min="14" max="45">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="eigennutzung3Jahre"> 
+                    Eigennutzung: Immobilie wurde im Verkaufsjahr und den beiden vorangehenden Kalenderjahren selbst bewohnt (3-Jahres-Regel)
+                </label>
+            </div>
+            <button type="button" class="btn" onclick="calculateSpekulation()">Spekulationssteuer berechnen</button>
+            <button type="button" class="btn btn-secondary" onclick="resetForm('spekulationssteuerForm')">Zurücksetzen</button>
+        </form>
+        
+        <div id="spekulationResult" class="result-section" style="display: none;">
+            <h3>Berechnungsergebnis</h3>
+            <div class="result-item">
+                <span class="result-label">Haltedauer:</span>
+                <span class="result-value" id="haltedauer">0 Jahre</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Veräußerungsgewinn:</span>
+                <span class="result-value" id="veraeusserungsgewinn">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Spekulationssteuer:</span>
+                <span class="result-value highlight" id="spekulationssteuerBetrag">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Nettoerlös:</span>
+                <span class="result-value" id="nettoerloes">0,00 €</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vermietung & Verpachtung Tab -->
+    <div id="vermietung" class="tab-content">
+        <h2>Vermietung & Verpachtung - Steuerrechner 2025</h2>
+        <form id="vermietungForm">
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="mieteinnahmen">Jährliche Mieteinnahmen (€):</label>
+                    <input type="number" id="mieteinnahmen" step="0.01" placeholder="z.B. 12000">
+                </div>
+                <div class="form-col">
+                    <label for="anschaffungskostenVermietung">Anschaffungskosten Immobilie (€):</label>
+                    <input type="number" id="anschaffungskostenVermietung" step="0.01" placeholder="z.B. 300000">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="instandhaltung">Instandhaltungskosten (€/Jahr):</label>
+                    <input type="number" id="instandhaltung" step="0.01" placeholder="z.B. 2000">
+                </div>
+                <div class="form-col">
+                    <label for="verwaltungskosten">Verwaltungskosten (€/Jahr):</label>
+                    <input type="number" id="verwaltungskosten" step="0.01" placeholder="z.B. 500">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="zinsen">Kreditzinsen (€/Jahr):</label>
+                    <input type="number" id="zinsen" step="0.01" placeholder="z.B. 8000">
+                </div>
+                <div class="form-col">
+                    <label for="sonstigeKosten">Sonstige Kosten (€/Jahr):</label>
+                    <input type="number" id="sonstigeKosten" step="0.01" placeholder="z.B. 1000">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="gebaeudewert">Gebäudewert (€):</label>
+                    <input type="number" id="gebaeudewert" step="0.01" placeholder="z.B. 200000">
+                </div>
+                <div class="form-col">
+                    <label for="baujahr">AfA-Satz nach Baujahr:</label>
+                    <select id="baujahr">
+                        <option value="40">Vor 1925 (2,5% - 40 Jahre AfA)</option>
+                        <option value="50">1925-2022 (2% - 50 Jahre AfA)</option>
+                        <option value="33">Ab 2023 (3% - 33 Jahre AfA)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="persoenlicheSteuersatz">Ihr Grenzsteuersatz (%):</label>
+                    <input type="number" id="persoenlicheSteuersatz" step="0.1" placeholder="z.B. 35" min="14" max="45">
+                </div>
+            </div>
+            <button type="button" class="btn" onclick="calculateVermietung()">Steuerersparnis berechnen</button>
+            <button type="button" class="btn btn-secondary" onclick="resetForm('vermietungForm')">Zurücksetzen</button>
+        </form>
+        
+        <div id="vermietungResult" class="result-section" style="display: none;">
+            <h3>Berechnungsergebnis</h3>
+            <div class="result-item">
+                <span class="result-label">Jährliche AfA:</span>
+                <span class="result-value" id="jaehrlicheAfa">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Gesamte Werbungskosten:</span>
+                <span class="result-value" id="gesamteWerbungskosten">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Überschuss/Verlust:</span>
+                <span class="result-value" id="ueberschuss">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Steuerersparnis:</span>
+                <span class="result-value highlight" id="steuerersparnis">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Rendite nach Steuern:</span>
+                <span class="result-value" id="renditeNachSteuern">0,00 %</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- AfA-Rechner Tab -->
+    <div id="abschreibung" class="tab-content">
+        <h2>AfA-Rechner (Abschreibung) 2025</h2>
+        <form id="abschreibungForm">
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="anschaffungskostenAfa">Anschaffungskosten Gebäude (€):</label>
+                    <input type="number" id="anschaffungskostenAfa" step="0.01" placeholder="z.B. 250000">
+                </div>
+                <div class="form-col">
+                    <label for="baujahrAfa">Baujahr/Anschaffung:</label>
+                    <select id="baujahrAfa">
+                        <option value="40">Vor 1925 (2,5% - 40 Jahre AfA)</option>
+                        <option value="50">1925-2022 (2% - 50 Jahre AfA)</option>
+                        <option value="33">Ab 2023 (3% - 33 Jahre AfA)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="nutzungsart">Nutzungsart:</label>
+                    <select id="nutzungsart">
+                        <option value="vermietung">Vermietung</option>
+                        <option value="gewerbe">Gewerbliche Nutzung</option>
+                        <option value="gemischt">Gemischte Nutzung</option>
+                    </select>
+                </div>
+                <div class="form-col">
+                    <label for="anteilVermietung">Anteil Vermietung (%):</label>
+                    <input type="number" id="anteilVermietung" min="0" max="100" value="100" placeholder="z.B. 80">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="sonderabschreibung">Sonderabschreibung:</label>
+                    <select id="sonderabschreibung">
+                        <option value="keine">Keine</option>
+                        <option value="denkmal">Denkmalschutz (10%)</option>
+                        <option value="sanierung">Sanierungsgebiet (9%)</option>
+                        <option value="sonder">Sonder-AfA Neubau (5%)</option>
+                    </select>
+                </div>
+                <div class="form-col">
+                    <label for="laufzeitJahre">Betrachtungszeitraum (Jahre):</label>
+                    <input type="number" id="laufzeitJahre" min="1" max="50" value="10" placeholder="z.B. 10">
+                </div>
+            </div>
+            <button type="button" class="btn" onclick="calculateAfa()">AfA berechnen</button>
+            <button type="button" class="btn btn-secondary" onclick="resetForm('abschreibungForm')">Zurücksetzen</button>
+        </form>
+        
+        <div id="afaResult" class="result-section" style="display: none;">
+            <h3>Berechnungsergebnis</h3>
+            <div class="result-item">
+                <span class="result-label">AfA-Satz:</span>
+                <span class="result-value" id="afaSatz">0,00 %</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Jährliche AfA:</span>
+                <span class="result-value highlight" id="jaehrlicheAfaResult">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Monatliche AfA:</span>
+                <span class="result-value" id="monatlicheAfa">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Gesamte AfA (Zeitraum):</span>
+                <span class="result-value" id="gesamteAfa">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Restbuchwert nach Zeitraum:</span>
+                <span class="result-value" id="restbuchwert">0,00 €</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Erbschaftssteuer Tab -->
+    <div id="erbschaftssteuer" class="tab-content">
+        <h2>Erbschaftssteuer-Rechner 2025</h2>
+        <form id="erbschaftssteuerForm">
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="immobilienwert">Immobilienwert (€):</label>
+                    <input type="number" id="immobilienwert" step="0.01" placeholder="z.B. 500000">
+                </div>
+                <div class="form-col">
+                    <label for="verwandtschaftsgrad">Verwandtschaftsgrad:</label>
+                    <select id="verwandtschaftsgrad">
+                        <option value="1">Steuerklasse I - Ehepartner/Kinder</option>
+                        <option value="2">Steuerklasse II - Geschwister/Neffen/Nichten</option>
+                        <option value="3">Steuerklasse III - Sonstige</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="erbenstellung">Erbenstellung:</label>
+                    <select id="erbenstellung">
+                        <option value="ehepartner">Ehepartner/Lebenspartner</option>
+                        <option value="kind">Kind/Stiefkind</option>
+                        <option value="enkel">Enkelkind</option>
+                        <option value="eltern">Eltern/Großeltern</option>
+                        <option value="geschwister">Geschwister</option>
+                        <option value="neffe">Neffe/Nichte</option>
+                        <option value="sonstige">Sonstige</option>
+                    </select>
+                </div>
+                <div class="form-col">
+                    <label for="sonstigesVermoegen">Sonstiges Vermögen (€):</label>
+                    <input type="number" id="sonstigesVermoegen" step="0.01" placeholder="z.B. 50000">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="schulden">Schulden/Verbindlichkeiten (€):</label>
+                    <input type="number" id="schulden" step="0.01" placeholder="z.B. 100000">
+                </div>
+                <div class="form-col">
+                    <label for="eigennutzung_erbe">
+                        <input type="checkbox" id="eigennutzung_erbe"> Eigennutzung durch Erben geplant
+                    </label>
+                </div>
+            </div>
+            <button type="button" class="btn" onclick="calculateErbschaftssteuer()">Erbschaftssteuer berechnen</button>
+            <button type="button" class="btn btn-secondary" onclick="resetForm('erbschaftssteuerForm')">Zurücksetzen</button>
+        </form>
+        
+        <div id="erbschaftssteuerResult" class="result-section" style="display: none;">
+            <h3>Berechnungsergebnis</h3>
+            <div class="result-item">
+                <span class="result-label">Gesamtvermögen:</span>
+                <span class="result-value" id="gesamtvermoegen">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Freibetrag:</span>
+                <span class="result-value" id="freibetrag">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Steuerpflichtiger Erwerb:</span>
+                <span class="result-value" id="steuerpflichtigerErwerb">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Erbschaftssteuer:</span>
+                <span class="result-value highlight" id="erbschaftssteuerBetrag">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Nettoerbschaft:</span>
+                <span class="result-value" id="nettoerbschaft">0,00 €</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schenkungssteuer Tab -->
+    <div id="schenkungssteuer" class="tab-content">
+        <h2>Schenkungssteuer-Rechner 2025</h2>
+        <form id="schenkungssteuerForm">
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="schenkungswert">Wert der Schenkung (€):</label>
+                    <input type="number" id="schenkungswert" step="0.01" placeholder="z.B. 300000">
+                </div>
+                <div class="form-col">
+                    <label for="verwandtschaftsgradSchenkung">Verwandtschaftsgrad:</label>
+                    <select id="verwandtschaftsgradSchenkung">
+                        <option value="1">Steuerklasse I - Ehepartner/Kinder</option>
+                        <option value="2">Steuerklasse II - Geschwister/Neffen/Nichten</option>
+                        <option value="3">Steuerklasse III - Sonstige</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="beschenkterStatus">Status des Beschenkten:</label>
+                    <select id="beschenkterStatus">
+                        <option value="ehepartner">Ehepartner/Lebenspartner</option>
+                        <option value="kind">Kind/Stiefkind</option>
+                        <option value="enkel">Enkelkind</option>
+                        <option value="eltern">Eltern/Großeltern</option>
+                        <option value="geschwister">Geschwister</option>
+                        <option value="neffe">Neffe/Nichte</option>
+                        <option value="sonstige">Sonstige</option>
+                    </select>
+                </div>
+                <div class="form-col">
+                    <label for="vorschenkungen">Vorschenkungen (letzte 10 Jahre) (€):</label>
+                    <input type="number" id="vorschenkungen" step="0.01" placeholder="z.B. 50000">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="schenkungsart">Art der Schenkung:</label>
+                    <select id="schenkungsart">
+                        <option value="immobilie">Immobilie</option>
+                        <option value="geld">Geld/Wertpapiere</option>
+                        <option value="unternehmen">Unternehmen/Beteiligung</option>
+                        <option value="sonstige">Sonstige Vermögenswerte</option>
+                    </select>
+                </div>
+                <div class="form-col">
+                    <label for="eigennutzungSchenkung">
+                        <input type="checkbox" id="eigennutzungSchenkung"> Eigennutzung durch Beschenkten
+                    </label>
+                </div>
+            </div>
+            <button type="button" class="btn" onclick="calculateSchenkungssteuer()">Schenkungssteuer berechnen</button>
+            <button type="button" class="btn btn-secondary" onclick="resetForm('schenkungssteuerForm')">Zurücksetzen</button>
+        </form>
+        
+        <div id="schenkungssteuerResult" class="result-section" style="display: none;">
+            <h3>Berechnungsergebnis</h3>
+            <div class="result-item">
+                <span class="result-label">Gesamtschenkung (inkl. Vorschenkungen):</span>
+                <span class="result-value" id="gesamtschenkung">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Freibetrag:</span>
+                <span class="result-value" id="freibetragSchenkung">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Steuerpflichtiger Betrag:</span>
+                <span class="result-value" id="steuerpflichtigerBetragSchenkung">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Schenkungssteuer:</span>
+                <span class="result-value highlight" id="schenkungssteuerBetrag">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Nettoschenkung:</span>
+                <span class="result-value" id="nettoschenkung">0,00 €</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Steueroptimierung Tab -->
+    <div id="steueroptimierung" class="tab-content">
+        <h2>Steueroptimierung für Immobilien 2025</h2>
+        
+        <div class="card">
+            <h3>🎯 Optimierungsstrategien</h3>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="immobilienportfolio">Anzahl Immobilien:</label>
+                    <input type="number" id="immobilienportfolio" min="1" value="1">
+                </div>
+                <div class="form-col">
+                    <label for="gesamtwertPortfolio">Gesamtwert Portfolio (€):</label>
+                    <input type="number" id="gesamtwertPortfolio" step="0.01" placeholder="z.B. 1000000">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="jahreseinkommen">Jahreseinkommen (€):</label>
+                    <input type="number" id="jahreseinkommen" step="0.01" placeholder="z.B. 80000">
+                </div>
+                <div class="form-col">
+                    <label for="familienstand">Familienstand:</label>
+                    <select id="familienstand">
+                        <option value="ledig">Ledig</option>
+                        <option value="verheiratet">Verheiratet</option>
+                        <option value="geschieden">Geschieden</option>
+                        <option value="verwitwet">Verwitwet</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="kinder">Anzahl Kinder:</label>
+                    <input type="number" id="kinder" min="0" value="0">
+                </div>
+                <div class="form-col">
+                    <label for="planungshorizont">Planungshorizont (Jahre):</label>
+                    <input type="number" id="planungshorizont" min="1" max="50" value="10">
+                </div>
+            </div>
+            <button type="button" class="btn" onclick="generateOptimierungsvorschlaege()">Optimierungsvorschläge generieren</button>
+        </div>
+
+        <div id="optimierungResult" class="result-section" style="display: none;">
+            <h3>📊 Ihre persönlichen Optimierungsvorschläge</h3>
+            <div id="optimierungsvorschlaege"></div>
+        </div>
+
+        <div class="card">
+            <h3>📚 Steuer-Tipps für Immobilienbesitzer 2025</h3>
+            <div class="alert alert-info">
+                <strong>Wichtige Steuervorteile 2025:</strong>
+                <ul style="margin-top: 10px; padding-left: 20px;">
+                    <li>AfA-Sätze: 3% für Neubauten ab 2023 (statt 2%)</li>
+                    <li>Grundsteuerreform: Neue Bewertung ab 2025</li>
+                    <li>Sonderabschreibungen für Denkmalschutz bis zu 10%</li>
+                    <li>Freibeträge Erbschaft/Schenkung: €500.000 (Ehepartner), €400.000 (Kinder)</li>
+                    <li>Steuerfreie Veräußerung nach 10 Jahren Haltedauer</li>
+                    <li>Eigennutzung: Steuerfreiheit bei Verkauf nach 3 Jahren</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>⚖️ Rechtliche Hinweise</h3>
+            <div class="alert alert-danger">
+                <strong>⚠️ WICHTIGER DISCLAIMER:</strong> Alle Berechnungen sind unverbindliche Orientierungswerte! 
+                Die tatsächlichen Steuerbelastungen können erheblich abweichen. Steuergesetze ändern sich häufig. 
+                Für verbindliche Auskünfte und individuelle Beratung konsultieren Sie immer einen qualifizierten 
+                Steuerberater oder das zuständige Finanzamt. Stand der Berechnungen: 2025.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global variables
+    let currentTab = 'grundsteuer';
+    let formData = {};
+
+    // Dark Mode Toggle
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDark);
+        
+        const toggle = document.querySelector('.dark-mode-toggle');
+        toggle.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+        saveFormData();
+    }
+
+    // Load dark mode preference
+    document.addEventListener('DOMContentLoaded', function() {
+        const isDark = localStorage.getItem('darkMode') === 'true';
+        if (isDark) {
+            document.body.classList.add('dark-mode');
+            document.querySelector('.dark-mode-toggle').textContent = '☀️ Light Mode';
         }
+        
+        // Load saved form data
+        loadFormData();
+    });
 
-        // Load dark mode preference
-        document.addEventListener('DOMContentLoaded', function() {
-            const isDark = localStorage.getItem('darkMode') === 'true';
-            if (isDark) {
-                document.body.classList.add('dark-mode');
-                document.querySelector('.dark-mode-toggle').textContent = '☀️ Light Mode';
-            }
-            
-            // Load saved form data
-            loadFormData();
+    // Tab Management
+    function showTab(tabName) {
+        // Save current form data before switching
+        saveFormData();
+        
+        // Hide all tabs
+        const tabs = document.querySelectorAll('.tab-content');
+        tabs.forEach(tab => {
+            tab.classList.remove('active');
         });
+        
+        // Remove active class from all nav tabs
+        const navTabs = document.querySelectorAll('.nav-tab');
+        navTabs.forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Show selected tab
+        document.getElementById(tabName).classList.add('active');
+        
+        // Add active class to clicked nav tab
+        event.target.classList.add('active');
+        
+        // Update current tab
+        currentTab = tabName;
+        
+        // Load form data for new tab
+        loadFormData();
+    }
 
-        // Tab Management
-        function showTab(tabName) {
-            // Save current form data before switching
-            saveFormData();
+    // Form Data Management
+    function saveFormData() {
+        const forms = document.querySelectorAll('form');
+        forms.forEach(form => {
+            const formId = form.id;
+            const inputs = form.querySelectorAll('input, select, textarea');
+            const data = {};
             
-            // Hide all tabs
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => {
-                tab.classList.remove('active');
+            inputs.forEach(input => {
+                if (input.type === 'checkbox') {
+                    data[input.id] = input.checked;
+                } else {
+                    data[input.id] = input.value;
+                }
             });
             
-            // Remove active class from all nav tabs
-            const navTabs = document.querySelectorAll('.nav-tab');
-            navTabs.forEach(tab => {
-                tab.classList.remove('active');
+            formData[formId] = data;
+        });
+        
+        localStorage.setItem('immobilienSteuerSuite_formData', JSON.stringify(formData));
+    }
+
+    function loadFormData() {
+        const savedData = localStorage.getItem('immobilienSteuerSuite_formData');
+        if (savedData) {
+            formData = JSON.parse(savedData);
+            
+            // Load data for all forms
+            Object.keys(formData).forEach(formId => {
+                const form = document.getElementById(formId);
+                if (form) {
+                    const data = formData[formId];
+                    Object.keys(data).forEach(inputId => {
+                        const input = document.getElementById(inputId);
+                        if (input) {
+                            if (input.type === 'checkbox') {
+                                input.checked = data[inputId];
+                            } else {
+                                input.value = data[inputId];
+                            }
+                        }
+                    });
+                }
             });
-            
-            // Show selected tab
-            document.getElementById(tabName).classList.add('active');
-            
-            // Add active class to clicked nav tab
-            event.target.classList.add('active');
-            
-            // Update current tab
-            currentTab = tabName;
-            
-            // Load form data for new tab
-            loadFormData();
         }
+    }
 
-        // Form Data Management
-        function saveFormData() {
-            const forms = document.querySelectorAll('form');
-            forms.forEach(form => {
-                const formId = form.id;
-                const inputs = form.querySelectorAll('input, select, textarea');
-                const data = {};
-                
-                inputs.forEach(input => {
-                    if (input.type === 'checkbox') {
-                        data[input.id] = input.checked;
-                    } else {
-                        data[input.id] = input.value;
-                    }
-                });
-                
-                formData[formId] = data;
-            });
-            
+    // Reset Form
+    function resetForm(formId) {
+        const form = document.getElementById(formId);
+        form.reset();
+        
+        // Clear from saved data
+        if (formData[formId]) {
+            delete formData[formId];
             localStorage.setItem('immobilienSteuerSuite_formData', JSON.stringify(formData));
         }
-
-        function loadFormData() {
-            const savedData = localStorage.getItem('immobilienSteuerSuite_formData');
-            if (savedData) {
-                formData = JSON.parse(savedData);
-                
-                // Load data for all forms
-                Object.keys(formData).forEach(formId => {
-                    const form = document.getElementById(formId);
-                    if (form) {
-                        const data = formData[formId];
-                        Object.keys(data).forEach(inputId => {
-                            const input = document.getElementById(inputId);
-                            if (input) {
-                                if (input.type === 'checkbox') {
-                                    input.checked = data[inputId];
-                                } else {
-                                    input.value = data[inputId];
-                                }
-                            }
-                        });
-                    }
-                });
-            }
+        
+        // Hide result section
+        const resultId = formId.replace('Form', 'Result');
+        const resultSection = document.getElementById(resultId);
+        if (resultSection) {
+            resultSection.style.display = 'none';
         }
+    }
 
-        // Reset Form
-        function resetForm(formId) {
-            const form = document.getElementById(formId);
-            form.reset();
-            
-            // Clear from saved data
-            if (formData[formId]) {
-                delete formData[formId];
-                localStorage.setItem('immobilienSteuerSuite_formData', JSON.stringify(formData));
-            }
-            
-            // Hide result section
-            const resultId = formId.replace('Form', 'Result');
-            const resultSection = document.getElementById(resultId);
-            if (resultSection) {
-                resultSection.style.display = 'none';
-            }
+    // Utility Functions
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('de-DE', {
+            style: 'currency',
+            currency: 'EUR'
+        }).format(amount);
+    }
+
+    function formatPercentage(value) {
+        return new Intl.NumberFormat('de-DE', {
+            style: 'percent',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(value / 100);
+    }
+
+    // KORRIGIERTE Grundsteuer Calculation (Reform 2025)
+    function calculateGrundsteuer() {
+        const grundsteuerwert = parseFloat(document.getElementById('grundsteuerwert').value) || 0;
+        const grundsteuermesszahl = parseFloat(document.getElementById('grundsteuerart').value) || 0;
+        const hebesatz = parseFloat(document.getElementById('hebesatz').value) || 0;
+        
+        if (grundsteuerwert === 0 || hebesatz === 0) {
+            alert('Bitte füllen Sie alle Pflichtfelder aus.');
+            return;
         }
+        
+        // Neue Formel für Grundsteuer 2025: Grundsteuerwert × Grundsteuermesszahl × Hebesatz
+        const grundsteuermessbetrag = grundsteuerwert * (grundsteuermesszahl / 1000);
+        const grundsteuerJahr = grundsteuermessbetrag * (hebesatz / 100);
+        const grundsteuerMonat = grundsteuerJahr / 12;
+        
+        document.getElementById('grundsteuermessbetrag').textContent = formatCurrency(grundsteuermessbetrag);
+        document.getElementById('grundsteuerJahr').textContent = formatCurrency(grundsteuerJahr);
+        document.getElementById('grundsteuerMonat').textContent = formatCurrency(grundsteuerMonat);
+        
+        document.getElementById('grundsteuerResult').style.display = 'block';
+        saveFormData();
+    }
 
-        // Utility Functions
-        function formatCurrency(amount) {
-            return new Intl.NumberFormat('de-DE', {
-                style: 'currency',
-                currency: 'EUR'
-            }).format(amount);
+    // Grunderwerbsteuer Calculation (KORRIGIERT: Hamburg 5,5%)
+    function calculateGrunderwerb() {
+        const kaufpreis = parseFloat(document.getElementById('kaufpreis').value) || 0;
+        const steuersatz = parseFloat(document.getElementById('bundeslandGrunderwerb').value) || 0;
+        const nebenkosten = parseFloat(document.getElementById('nebenkosten').value) || 0;
+        const eigenkapital = parseFloat(document.getElementById('eigenkapital').value) || 0;
+        
+        if (kaufpreis === 0) {
+            alert('Bitte geben Sie den Kaufpreis ein.');
+            return;
         }
+        
+        const grunderwerbsteuer = kaufpreis * (steuersatz / 100);
+        const gesamtkosten = kaufpreis + grunderwerbsteuer + nebenkosten;
+        const benoetigtesKapital = grunderwerbsteuer + nebenkosten;
+        const finanzierungsbedarf = Math.max(0, gesamtkosten - eigenkapital);
+        
+        document.getElementById('grunderwerbsteuer').textContent = formatCurrency(grunderwerbsteuer);
+        document.getElementById('gesamtkosten').textContent = formatCurrency(gesamtkosten);
+        document.getElementById('benoetigtesKapital').textContent = formatCurrency(benoetigtesKapital);
+        document.getElementById('finanzierungsbedarf').textContent = formatCurrency(finanzierungsbedarf);
+        
+        document.getElementById('grunderwerbResult').style.display = 'block';
+        saveFormData();
+    }
 
-        function formatPercentage(value) {
-            return new Intl.NumberFormat('de-DE', {
-                style: 'percent',
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }).format(value / 100);
+    // KORRIGIERTE Spekulationssteuer Calculation
+    function calculateSpekulation() {
+        const verkaufspreis = parseFloat(document.getElementById('verkaufspreis').value) || 0;
+        const anschaffungskosten = parseFloat(document.getElementById('anschaffungskosten').value) || 0;
+        const werbungskosten = parseFloat(document.getElementById('werbungskosten').value) || 0;
+        const steuersatz = parseFloat(document.getElementById('steuersatz').value) || 0;
+        const eigennutzung3Jahre = document.getElementById('eigennutzung3Jahre').checked;
+        
+        const anschaffungsdatum = new Date(document.getElementById('anschaffungsdatum').value);
+        const verkaufsdatum = new Date(document.getElementById('verkaufsdatum').value);
+        
+        if (verkaufspreis === 0 || anschaffungskosten === 0 || !anschaffungsdatum || !verkaufsdatum) {
+            alert('Bitte füllen Sie alle Pflichtfelder aus.');
+            return;
         }
-
-        // Grundsteuer Calculation
-        function calculateGrundsteuer() {
-            const einheitswert = parseFloat(document.getElementById('einheitswert').value) || 0;
-            const grundsteuermesszahl = parseFloat(document.getElementById('grundsteuermesszahl').value) || 0;
-            const hebesatz = parseFloat(document.getElementById('hebesatz').value) || 0;
-            
-            if (einheitswert === 0 || hebesatz === 0) {
-                alert('Bitte füllen Sie alle Pflichtfelder aus.');
-                return;
-            }
-            
-            const grundsteuermessbetrag = einheitswert * (grundsteuermesszahl / 1000);
-            const grundsteuerJahr = grundsteuermessbetrag * (hebesatz / 100);
-            const grundsteuerMonat = grundsteuerJahr / 12;
-            
-            document.getElementById('grundsteuermessbetrag').textContent = formatCurrency(grundsteuermessbetrag);
-            document.getElementById('grundsteuerJahr').textContent = formatCurrency(grundsteuerJahr);
-            document.getElementById('grundsteuerMonat').textContent = formatCurrency(grundsteuerMonat);
-            
-            document.getElementById('grundsteuerResult').style.display = 'block';
-            saveFormData();
-        }
-
-        // Grunderwerbsteuer Calculation
-        function calculateGrunderwerb() {
-            const kaufpreis = parseFloat(document.getElementById('kaufpreis').value) || 0;
-            const steuersatz = parseFloat(document.getElementById('bundeslandGrunderwerb').value) || 0;
-            const nebenkosten = parseFloat(document.getElementById('nebenkosten').value) || 0;
-            const eigenkapital = parseFloat(document.getElementById('eigenkapital').value) || 0;
-            
-            if (kaufpreis === 0) {
-                alert('Bitte geben Sie den Kaufpreis ein.');
-                return;
-            }
-            
-            const grunderwerbsteuer = kaufpreis * (steuersatz / 100);
-            const gesamtkosten = kaufpreis + grunderwerbsteuer + nebenkosten;
-            const benoetigtesKapital = grunderwerbsteuer + nebenkosten;
-            const finanzierungsbedarf = Math.max(0, gesamtkosten - eigenkapital);
-            
-            document.getElementById('grunderwerbsteuer').textContent = formatCurrency(grunderwerbsteuer);
-            document.getElementById('gesamtkosten').textContent = formatCurrency(gesamtkosten);
-            document.getElementById('benoetigtesKapital').textContent = formatCurrency(benoetigtesKapital);
-            document.getElementById('finanzierungsbedarf').textContent = formatCurrency(finanzierungsbedarf);
-            
-            document.getElementById('grunderwerbResult').style.display = 'block';
-            saveFormData();
-        }
-
-        // Spekulationssteuer Calculation
-        function calculateSpekulation() {
-            const verkaufspreis = parseFloat(document.getElementById('verkaufspreis').value) || 0;
-            const anschaffungskosten = parseFloat(document.getElementById('anschaffungskosten').value) || 0;
-            const werbungskosten = parseFloat(document.getElementById('werbungskosten').value) || 0;
-            const steuersatz = parseFloat(document.getElementById('steuersatz').value) || 0;
-            const eigennutzung = document.getElementById('eigennutzung').checked;
-            
-            const anschaffungsdatum = new Date(document.getElementById('anschaffungsdatum').value);
-            const verkaufsdatum = new Date(document.getElementById('verkaufsdatum').value);
-            
-            if (verkaufspreis === 0 || anschaffungskosten === 0 || !anschaffungsdatum || !verkaufsdatum) {
-                alert('Bitte füllen Sie alle Pflichtfelder aus.');
-                return;
-            }
-            
-            const haltedauer = (verkaufsdatum - anschaffungsdatum) / (1000 * 60 * 60 * 24 * 365.25);
-            const veraeusserungsgewinn = verkaufspreis - anschaffungskosten - werbungskosten;
-            
-            let spekulationssteuer = 0;
-            let nettoerloes = verkaufspreis;
-            
-            if (haltedauer < 10 && !eigennutzung) {
+        
+        const haltedauer = (verkaufsdatum - anschaffungsdatum) / (1000 * 60 * 60 * 24 * 365.25);
+        const veraeusserungsgewinn = verkaufspreis - anschaffungskosten - werbungskosten;
+        
+        let spekulationssteuer = 0;
+        let nettoerloes = verkaufspreis;
+        
+        // Korrigierte Logik: 10-Jahresfrist ODER 3-Jahres-Eigennutzung
+        if (haltedauer < 10 && !eigennutzung3Jahre) {
+            if (veraeusserungsgewinn > 600) { // Freigrenze 600 Euro
                 spekulationssteuer = Math.max(0, veraeusserungsgewinn * (steuersatz / 100));
                 nettoerloes = verkaufspreis - spekulationssteuer;
             }
-            
-            document.getElementById('haltedauer').textContent = haltedauer.toFixed(1) + ' Jahre';
-            document.getElementById('veraeusserungsgewinn').textContent = formatCurrency(veraeusserungsgewinn);
-            document.getElementById('spekulationssteuerBetrag').textContent = formatCurrency(spekulationssteuer);
-            document.getElementById('nettoerloes').textContent = formatCurrency(nettoerloes);
-            
-            document.getElementById('spekulationResult').style.display = 'block';
-            saveFormData();
         }
+        
+        document.getElementById('haltedauer').textContent = haltedauer.toFixed(1) + ' Jahre';
+        document.getElementById('veraeusserungsgewinn').textContent = formatCurrency(veraeusserungsgewinn);
+        document.getElementById('spekulationssteuerBetrag').textContent = formatCurrency(spekulationssteuer);
+        document.getElementById('nettoerloes').textContent = formatCurrency(nettoerloes);
+        
+        document.getElementById('spekulationResult').style.display = 'block';
+        saveFormData();
+    }
 
-        // Vermietung Calculation
-        function calculateVermietung() {
-            const mieteinnahmen = parseFloat(document.getElementById('mieteinnahmen').value) || 0;
-            const anschaffungskosten = parseFloat(document.getElementById('anschaffungskostenVermietung').value) || 0;
-            const instandhaltung = parseFloat(document.getElementById('instandhaltung').value) || 0;
-            const verwaltungskosten = parseFloat(document.getElementById('verwaltungskosten').value) || 0;
-            const zinsen = parseFloat(document.getElementById('zinsen').value) || 0;
-            const sonstigeKosten = parseFloat(document.getElementById('sonstigeKosten').value) || 0;
-            const gebaeudewert = parseFloat(document.getElementById('gebaeudewert').value) || 0;
-            const afaJahre = parseFloat(document.getElementById('baujahr').value) || 40;
-            
-            if (mieteinnahmen === 0 || gebaeudewert === 0) {
-                alert('Bitte füllen Sie die Pflichtfelder aus.');
-                return;
-            }
-            
-            const jaehrlicheAfa = gebaeudewert / afaJahre;
-            const gesamteWerbungskosten = instandhaltung + verwaltungskosten + zinsen + sonstigeKosten + jaehrlicheAfa;
-            const ueberschuss = mieteinnahmen - gesamteWerbungskosten;
-            const steuerersparnis = ueberschuss < 0 ? Math.abs(ueberschuss) * 0.42 : 0;
-            const renditeNachSteuern = ((mieteinnahmen + steuerersparnis - gesamteWerbungskosten + jaehrlicheAfa) / anschaffungskosten) * 100;
-            
-            document.getElementById('jaehrlicheAfa').textContent = formatCurrency(jaehrlicheAfa);
-            document.getElementById('gesamteWerbungskosten').textContent = formatCurrency(gesamteWerbungskosten);
-            document.getElementById('ueberschuss').textContent = formatCurrency(ueberschuss);
-            document.getElementById('steuerersparnis').textContent = formatCurrency(steuerersparnis);
-            document.getElementById('renditeNachSteuern').textContent = renditeNachSteuern.toFixed(2) + ' %';
-            
-            document.getElementById('vermietungResult').style.display = 'block';
-            saveFormData();
+    // KORRIGIERTE Vermietung Calculation
+    function calculateVermietung() {
+        const mieteinnahmen = parseFloat(document.getElementById('mieteinnahmen').value) || 0;
+        const anschaffungskosten = parseFloat(document.getElementById('anschaffungskostenVermietung').value) || 0;
+        const instandhaltung = parseFloat(document.getElementById('instandhaltung').value) || 0;
+        const verwaltungskosten = parseFloat(document.getElementById('verwaltungskosten').value) || 0;
+        const zinsen = parseFloat(document.getElementById('zinsen').value) || 0;
+        const sonstigeKosten = parseFloat(document.getElementById('sonstigeKosten').value) || 0;
+        const gebaeudewert = parseFloat(document.getElementById('gebaeudewert').value) || 0;
+        const afaJahre = parseFloat(document.getElementById('baujahr').value) || 50;
+        const persoenlicheSteuersatz = parseFloat(document.getElementById('persoenlicheSteuersatz').value) || 42;
+        
+        if (mieteinnahmen === 0 || gebaeudewert === 0) {
+            alert('Bitte füllen Sie die Pflichtfelder aus.');
+            return;
         }
+        
+        // Korrekte AfA-Berechnung
+        let afaSatz;
+        if (afaJahre === 40) afaSatz = 2.5; // Vor 1925
+        else if (afaJahre === 50) afaSatz = 2.0; // 1925-2022
+        else if (afaJahre === 33) afaSatz = 3.0; // Ab 2023
+        else afaSatz = 100 / afaJahre;
+        
+        const jaehrlicheAfa = gebaeudewert * (afaSatz / 100);
+        const gesamteWerbungskosten = instandhaltung + verwaltungskosten + zinsen + sonstigeKosten + jaehrlicheAfa;
+        const ueberschuss = mieteinnahmen - gesamteWerbungskosten;
+        
+        // Individuelle Steuerersparnis basierend auf persönlichem Steuersatz
+        const steuerersparnis = ueberschuss < 0 ? Math.abs(ueberschuss) * (persoenlicheSteuersatz / 100) : 0;
+        const renditeNachSteuern = ((mieteinnahmen + steuerersparnis - gesamteWerbungskosten + jaehrlicheAfa) / anschaffungskosten) * 100;
+        
+        document.getElementById('jaehrlicheAfa').textContent = formatCurrency(jaehrlicheAfa);
+        document.getElementById('gesamteWerbungskosten').textContent = formatCurrency(gesamteWerbungskosten);
+        document.getElementById('ueberschuss').textContent = formatCurrency(ueberschuss);
+        document.getElementById('steuerersparnis').textContent = formatCurrency(steuerersparnis);
+        document.getElementById('renditeNachSteuern').textContent = renditeNachSteuern.toFixed(2) + ' %';
+        
+        document.getElementById('vermietungResult').style.display = 'block';
+        saveFormData();
+    }
 
-        // AfA Calculation
-        function calculateAfa() {
-            const anschaffungskosten = parseFloat(document.getElementById('anschaffungskostenAfa').value) || 0;
-            const afaJahre = parseFloat(document.getElementById('baujahrAfa').value) || 40;
-            const anteilVermietung = parseFloat(document.getElementById('anteilVermietung').value) || 100;
-            const sonderabschreibung = document.getElementById('sonderabschreibung').value;
-            const laufzeitJahre = parseFloat(document.getElementById('laufzeitJahre').value) || 10;
-            
-            if (anschaffungskosten === 0) {
-                alert('Bitte geben Sie die Anschaffungskosten ein.');
-                return;
-            }
-            
-            const afaSatz = (100 / afaJahre) * (anteilVermietung / 100);
-            let sonderAfaSatz = 0;
-            
-            if (sonderabschreibung === 'denkmal') sonderAfaSatz = 10;
-            if (sonderabschreibung === 'sanierung') sonderAfaSatz = 9;
-            
-            const jaehrlicheAfa = anschaffungskosten * ((afaSatz + sonderAfaSatz) / 100);
-            const monatlicheAfa = jaehrlicheAfa / 12;
-            const gesamteAfa = jaehrlicheAfa * laufzeitJahre;
-            const restbuchwert = Math.max(0, anschaffungskosten - gesamteAfa);
-            
-            document.getElementById('afaSatz').textContent = (afaSatz + sonderAfaSatz).toFixed(2) + ' %';
-            document.getElementById('jaehrlicheAfaResult').textContent = formatCurrency(jaehrlicheAfa);
-            document.getElementById('monatlicheAfa').textContent = formatCurrency(monatlicheAfa);
-            document.getElementById('gesamteAfa').textContent = formatCurrency(gesamteAfa);
-            document.getElementById('restbuchwert').textContent = formatCurrency(restbuchwert);
-            
-            document.getElementById('afaResult').style.display = 'block';
-            saveFormData();
+    // AfA Calculation (bereits korrekt)
+    function calculateAfa() {
+        const anschaffungskosten = parseFloat(document.getElementById('anschaffungskostenAfa').value) || 0;
+        const afaJahre = parseFloat(document.getElementById('baujahrAfa').value) || 50;
+        const anteilVermietung = parseFloat(document.getElementById('anteilVermietung').value) || 100;
+        const sonderabschreibung = document.getElementById('sonderabschreibung').value;
+        const laufzeitJahre = parseFloat(document.getElementById('laufzeitJahre').value) || 10;
+        
+        if (anschaffungskosten === 0) {
+            alert('Bitte geben Sie die Anschaffungskosten ein.');
+            return;
         }
+        
+        // Korrekte AfA-Sätze
+        let afaSatz;
+        if (afaJahre === 40) afaSatz = 2.5; // Vor 1925
+        else if (afaJahre === 50) afaSatz = 2.0; // 1925-2022
+        else if (afaJahre === 33) afaSatz = 3.0; // Ab 2023
+        else afaSatz = 100 / afaJahre;
+        
+        afaSatz = afaSatz * (anteilVermietung / 100);
+        
+        let sonderAfaSatz = 0;
+        if (sonderabschreibung === 'denkmal') sonderAfaSatz = 10;
+        if (sonderabschreibung === 'sanierung') sonderAfaSatz = 9;
+        if (sonderabschreibung === 'sonder') sonderAfaSatz = 5;
+        
+        const jaehrlicheAfa = anschaffungskosten * ((afaSatz + sonderAfaSatz) / 100);
+        const monatlicheAfa = jaehrlicheAfa / 12;
+        const gesamteAfa = jaehrlicheAfa * laufzeitJahre;
+        const restbuchwert = Math.max(0, anschaffungskosten - gesamteAfa);
+        
+        document.getElementById('afaSatz').textContent = (afaSatz + sonderAfaSatz).toFixed(2) + ' %';
+        document.getElementById('jaehrlicheAfaResult').textContent = formatCurrency(jaehrlicheAfa);
+        document.getElementById('monatlicheAfa').textContent = formatCurrency(monatlicheAfa);
+        document.getElementById('gesamteAfa').textContent = formatCurrency(gesamteAfa);
+        document.getElementById('restbuchwert').textContent = formatCurrency(restbuchwert);
+        
+        document.getElementById('afaResult').style.display = 'block';
+        saveFormData();
+    }
 
-        // Erbschaftssteuer Calculation
-        function calculateErbschaftssteuer() {
-            const immobilienwert = parseFloat(document.getElementById('immobilienwert').value) || 0;
-            const sonstigesVermoegen = parseFloat(document.getElementById('sonstigesVermoegen').value) || 0;
-            const schulden = parseFloat(document.getElementById('schulden').value) || 0;
-            const erbenstellung = document.getElementById('erbenstellung').value;
-            const eigennutzung = document.getElementById('eigennutzung_erbe').checked;
-            
-            if (immobilienwert === 0) {
-                alert('Bitte geben Sie den Immobilienwert ein.');
-                return;
-            }
-            
-            // Freibeträge 2025
-            const freibetraege = {
-                'ehepartner': 500000,
-                'kind': 400000,
-                'enkel': 200000,
-                'eltern': 100000,
-                'geschwister': 20000,
-                'neffe': 20000,
-                'sonstige': 20000
-            };
-            
-            // Steuersätze nach Steuerklassen
-            const steuersaetze = {
-                'ehepartner': [7, 11, 15, 19, 23, 27, 30],
-                'kind': [7, 11, 15, 19, 23, 27, 30],
-                'enkel': [7, 11, 15, 19, 23, 27, 30],
-                'eltern': [15, 20, 25, 30, 35, 40, 43],
-                'geschwister': [30, 35, 40, 45, 50],
-                'neffe': [30, 35, 40, 45, 50],
-                'sonstige': [30, 35, 40, 45, 50]
-            };
-            
-            let bewerteterImmobilienwert = immobilienwert;
-            
-            // Eigennutzung: 10% Abschlag möglich
-            if (eigennutzung) {
-                bewerteterImmobilienwert = immobilienwert * 0.9;
-            }
-            
-            const gesamtvermoegen = bewerteterImmobilienwert + sonstigesVermoegen - schulden;
-            const freibetrag = freibetraege[erbenstellung] || 20000;
-            const steuerpflichtigerErwerb = Math.max(0, gesamtvermoegen - freibetrag);
-            
-            // Steuersatz bestimmen
-            let steuersatz = 0;
-            const saetze = steuersaetze[erbenstellung] || [30, 35, 40, 45, 50];
-            
-            if (steuerpflichtigerErwerb <= 75000) steuersatz = saetze[0];
-            else if (steuerpflichtigerErwerb <= 300000) steuersatz = saetze[1];
-            else if (steuerpflichtigerErwerb <= 600000) steuersatz = saetze[2];
-            else if (steuerpflichtigerErwerb <= 6000000) steuersatz = saetze[3];
-            else if (steuerpflichtigerErwerb <= 13000000) steuersatz = saetze[4];
-            else if (steuerpflichtigerErwerb <= 26000000) steuersatz = saetze[5] || saetze[4];
-            else steuersatz = saetze[6] || saetze[4];
-            
-            const erbschaftssteuer = steuerpflichtigerErwerb * (steuersatz / 100);
-            const nettoerbschaft = gesamtvermoegen - erbschaftssteuer;
-            
-            document.getElementById('gesamtvermoegen').textContent = formatCurrency(gesamtvermoegen);
-            document.getElementById('freibetrag').textContent = formatCurrency(freibetrag);
-            document.getElementById('steuerpflichtigerErwerb').textContent = formatCurrency(steuerpflichtigerErwerb);
-            document.getElementById('erbschaftssteuerBetrag').textContent = formatCurrency(erbschaftssteuer);
-            document.getElementById('nettoerbschaft').textContent = formatCurrency(nettoerbschaft);
-            
-            document.getElementById('erbschaftssteuerResult').style.display = 'block';
-            saveFormData();
+    // Erbschaftssteuer Calculation (bereits korrekt)
+    function calculateErbschaftssteuer() {
+        const immobilienwert = parseFloat(document.getElementById('immobilienwert').value) || 0;
+        const sonstigesVermoegen = parseFloat(document.getElementById('sonstigesVermoegen').value) || 0;
+        const schulden = parseFloat(document.getElementById('schulden').value) || 0;
+        const erbenstellung = document.getElementById('erbenstellung').value;
+        const eigennutzung = document.getElementById('eigennutzung_erbe').checked;
+        
+        if (immobilienwert === 0) {
+            alert('Bitte geben Sie den Immobilienwert ein.');
+            return;
         }
-
-        // Schenkungssteuer Calculation
-        function calculateSchenkungssteuer() {
-            const schenkungswert = parseFloat(document.getElementById('schenkungswert').value) || 0;
-            const vorschenkungen = parseFloat(document.getElementById('vorschenkungen').value) || 0;
-            const beschenkterStatus = document.getElementById('beschenkterStatus').value;
-            const eigennutzung = document.getElementById('eigennutzungSchenkung').checked;
-            
-            if (schenkungswert === 0) {
-                alert('Bitte geben Sie den Wert der Schenkung ein.');
-                return;
-            }
-            
-            // Freibeträge 2025 (alle 10 Jahre)
-            const freibetraege = {
-                'ehepartner': 500000,
-                'kind': 400000,
-                'enkel': 200000,
-                'eltern': 20000,
-                'geschwister': 20000,
-                'neffe': 20000,
-                'sonstige': 20000
-            };
-            
-            // Steuersätze nach Steuerklassen
-            const steuersaetze = {
-                'ehepartner': [7, 11, 15, 19, 23, 27, 30],
-                'kind': [7, 11, 15, 19, 23, 27, 30],
-                'enkel': [7, 11, 15, 19, 23, 27, 30],
-                'eltern': [30, 35, 40, 45, 50],
-                'geschwister': [30, 35, 40, 45, 50],
-                'neffe': [30, 35, 40, 45, 50],
-                'sonstige': [30, 35, 40, 45, 50]
-            };
-            
-            let bewerteterSchenkungswert = schenkungswert;
-            
-            // Eigennutzung: 10% Abschlag möglich
-            if (eigennutzung) {
-                bewerteterSchenkungswert = schenkungswert * 0.9;
-            }
-            
-            const gesamtschenkung = bewerteterSchenkungswert + vorschenkungen;
-            const freibetrag = freibetraege[beschenkterStatus] || 20000;
-            const steuerpflichtigerBetrag = Math.max(0, gesamtschenkung - freibetrag);
-            
-            // Steuersatz bestimmen
-            let steuersatz = 0;
-            const saetze = steuersaetze[beschenkterStatus] || [30, 35, 40, 45, 50];
-            
-            if (steuerpflichtigerBetrag <= 75000) steuersatz = saetze[0];
-            else if (steuerpflichtigerBetrag <= 300000) steuersatz = saetze[1];
-            else if (steuerpflichtigerBetrag <= 600000) steuersatz = saetze[2];
-            else if (steuerpflichtigerBetrag <= 6000000) steuersatz = saetze[3];
-            else if (steuerpflichtigerBetrag <= 13000000) steuersatz = saetze[4];
-            else if (steuerpflichtigerBetrag <= 26000000) steuersatz = saetze[5] || saetze[4];
-            else steuersatz = saetze[6] || saetze[4];
-            
-            const schenkungssteuer = steuerpflichtigerBetrag * (steuersatz / 100);
-            const nettoschenkung = bewerteterSchenkungswert - schenkungssteuer;
-            
-            document.getElementById('gesamtschenkung').textContent = formatCurrency(gesamtschenkung);
-            document.getElementById('freibetragSchenkung').textContent = formatCurrency(freibetrag);
-            document.getElementById('steuerpflichtigerBetragSchenkung').textContent = formatCurrency(steuerpflichtigerBetrag);
-            document.getElementById('schenkungssteuerBetrag').textContent = formatCurrency(schenkungssteuer);
-            document.getElementById('nettoschenkung').textContent = formatCurrency(nettoschenkung);
-            
-            document.getElementById('schenkungssteuerResult').style.display = 'block';
-            saveFormData();
+        
+        // Korrekte Freibeträge 2025
+        const freibetraege = {
+            'ehepartner': 500000,
+            'kind': 400000,
+            'enkel': 200000,
+            'eltern': 100000,
+            'geschwister': 20000,
+            'neffe': 20000,
+            'sonstige': 20000
+        };
+        
+        // Steuersätze nach Steuerklassen
+        const steuersaetze = {
+            'ehepartner': [7, 11, 15, 19, 23, 27, 30],
+            'kind': [7, 11, 15, 19, 23, 27, 30],
+            'enkel': [7, 11, 15, 19, 23, 27, 30],
+            'eltern': [15, 20, 25, 30, 35, 40, 43],
+            'geschwister': [30, 35, 40, 45, 50],
+            'neffe': [30, 35, 40, 45, 50],
+            'sonstige': [30, 35, 40, 45, 50]
+        };
+        
+        let bewerteterImmobilienwert = immobilienwert;
+        
+        // Eigennutzung: 10% Abschlag möglich
+        if (eigennutzung) {
+            bewerteterImmobilienwert = immobilienwert * 0.9;
         }
+        
+        const gesamtvermoegen = bewerteterImmobilienwert + sonstigesVermoegen - schulden;
+        const freibetrag = freibetraege[erbenstellung] || 20000;
+        const steuerpflichtigerErwerb = Math.max(0, gesamtvermoegen - freibetrag);
+        
+        // Steuersatz bestimmen
+        let steuersatz = 0;
+        const saetze = steuersaetze[erbenstellung] || [30, 35, 40, 45, 50];
+        
+        if (steuerpflichtigerErwerb <= 75000) steuersatz = saetze[0];
+        else if (steuerpflichtigerErwerb <= 300000) steuersatz = saetze[1];
+        else if (steuerpflichtigerErwerb <= 600000) steuersatz = saetze[2];
+        else if (steuerpflichtigerErwerb <= 6000000) steuersatz = saetze[3];
+        else if (steuerpflichtigerErwerb <= 13000000) steuersatz = saetze[4];
+        else if (steuerpflichtigerErwerb <= 26000000) steuersatz = saetze[5] || saetze[4];
+        else steuersatz = saetze[6] || saetze[4];
+        
+        const erbschaftssteuer = steuerpflichtigerErwerb * (steuersatz / 100);
+        const nettoerbschaft = gesamtvermoegen - erbschaftssteuer;
+        
+        document.getElementById('gesamtvermoegen').textContent = formatCurrency(gesamtvermoegen);
+        document.getElementById('freibetrag').textContent = formatCurrency(freibetrag);
+        document.getElementById('steuerpflichtigerErwerb').textContent = formatCurrency(steuerpflichtigerErwerb);
+        document.getElementById('erbschaftssteuerBetrag').textContent = formatCurrency(erbschaftssteuer);
+        document.getElementById('nettoerbschaft').textContent = formatCurrency(nettoerbschaft);
+        
+        document.getElementById('erbschaftssteuerResult').style.display = 'block';
+        saveFormData();
+    }
 
-        // Steueroptimierung
-        function generateOptimierungsvorschlaege() {
-            const immobilienportfolio = parseInt(document.getElementById('immobilienportfolio').value) || 1;
-            const gesamtwert = parseFloat(document.getElementById('gesamtwertPortfolio').value) || 0;
-            const jahreseinkommen = parseFloat(document.getElementById('jahreseinkommen').value) || 0;
-            const familienstand = document.getElementById('familienstand').value;
-            const kinder = parseInt(document.getElementById('kinder').value) || 0;
-            const planungshorizont = parseInt(document.getElementById('planungshorizont').value) || 10;
-            
-            if (gesamtwert === 0) {
-                alert('Bitte geben Sie den Gesamtwert Ihres Portfolios ein.');
-                return;
-            }
-            
-            let vorschlaege = [];
-            
-            // AfA-Optimierung
-            if (gesamtwert > 200000) {
-                vorschlaege.push({
-                    titel: '🏗️ AfA-Optimierung',
-                    beschreibung: 'Nutzen Sie die erhöhten AfA-Sätze von 3% für Neubauten ab 2023.',
-                    potenzial: formatCurrency(gesamtwert * 0.03),
-                    prioritaet: 'hoch'
-                });
-            }
-            
-            // Schenkungsoptimierung
-            if (kinder > 0 && gesamtwert > 400000) {
-                const schenkungspotenzial = kinder * 400000;
-                vorschlaege.push({
-                    titel: '🎁 Schenkungsstrategie',
-                    beschreibung: `Nutzen Sie die Freibeträge von ${formatCurrency(400000)} pro Kind alle 10 Jahre.`,
-                    potenzial: formatCurrency(schenkungspotenzial * 0.15),
-                    prioritaet: 'hoch'
-                });
-            }
-            
-            // Vermietungsoptimierung
-            if (immobilienportfolio > 1) {
-                vorschlaege.push({
-                    titel: '🏠 Portfolio-Optimierung',
-                    beschreibung: 'Verteilen Sie Verluste und Gewinne optimal über Ihr Portfolio.',
-                    potenzial: formatCurrency(gesamtwert * 0.02),
-                    prioritaet: 'mittel'
-                });
-            }
-            
-            // Gesellschaftsstruktur
-            if (gesamtwert > 1000000 && familienstand === 'verheiratet') {
-                vorschlaege.push({
-                    titel: '🏢 Gesellschaftsstruktur',
-                    beschreibung: 'Prüfen Sie die Übertragung in eine GmbH & Co. KG für Steuervorteile.',
-                    potenzial: formatCurrency(gesamtwert * 0.05),
-                    prioritaet: 'hoch'
-                });
-            }
-            
-            // Modernisierung
+    // Schenkungssteuer Calculation (bereits korrekt)
+    function calculateSchenkungssteuer() {
+        const schenkungswert = parseFloat(document.getElementById('schenkungswert').value) || 0;
+        const vorschenkungen = parseFloat(document.getElementById('vorschenkungen').value) || 0;
+        const beschenkterStatus = document.getElementById('beschenkterStatus').value;
+        const eigennutzung = document.getElementById('eigennutzungSchenkung').checked;
+        
+        if (schenkungswert === 0) {
+            alert('Bitte geben Sie den Wert der Schenkung ein.');
+            return;
+        }
+        
+        // Korrekte Freibeträge 2025 (alle 10 Jahre)
+        const freibetraege = {
+            'ehepartner': 500000,
+            'kind': 400000,
+            'enkel': 200000,
+            'eltern': 20000,
+            'geschwister': 20000,
+            'neffe': 20000,
+            'sonstige': 20000
+        };
+        
+        // Steuersätze nach Steuerklassen
+        const steuersaetze = {
+            'ehepartner': [7, 11, 15, 19, 23, 27, 30],
+            'kind': [7, 11, 15, 19, 23, 27, 30],
+            'enkel': [7, 11, 15, 19, 23, 27, 30],
+            'eltern': [30, 35, 40, 45, 50],
+            'geschwister': [30, 35, 40, 45, 50],
+            'neffe': [30, 35, 40, 45, 50],
+            'sonstige': [30, 35, 40, 45, 50]
+        };
+        
+        let bewerteterSchenkungswert = schenkungswert;
+        
+        // Eigennutzung: 10% Abschlag möglich
+        if (eigennutzung) {
+            bewerteterSchenkungswert = schenkungswert * 0.9;
+        }
+        
+        const gesamtschenkung = bewerteterSchenkungswert + vorschenkungen;
+        const freibetrag = freibetraege[beschenkterStatus] || 20000;
+        const steuerpflichtigerBetrag = Math.max(0, gesamtschenkung - freibetrag);
+        
+        // Steuersatz bestimmen
+        let steuersatz = 0;
+        const saetze = steuersaetze[beschenkterStatus] || [30, 35, 40, 45, 50];
+        
+        if (steuerpflichtigerBetrag <= 75000) steuersatz = saetze[0];
+        else if (steuerpflichtigerBetrag <= 300000) steuersatz = saetze[1];
+        else if (steuerpflichtigerBetrag <= 600000) steuersatz = saetze[2];
+        else if (steuerpflichtigerBetrag <= 6000000) steuersatz = saetze[3];
+        else if (steuerpflichtigerBetrag <= 13000000) steuersatz = saetze[4];
+        else if (steuerpflichtigerBetrag <= 26000000) steuersatz = saetze[5] || saetze[4];
+        else steuersatz = saetze[6] || saetze[4];
+        
+        const schenkungssteuer = steuerpflichtigerBetrag * (steuersatz / 100);
+        const nettoschenkung = bewerteterSchenkungswert - schenkungssteuer;
+        
+        document.getElementById('gesamtschenkung').textContent = formatCurrency(gesamtschenkung);
+        document.getElementById('freibetragSchenkung').textContent = formatCurrency(freibetrag);
+        document.getElementById('steuerpflichtigerBetragSchenkung').textContent = formatCurrency(steuerpflichtigerBetrag);
+        document.getElementById('schenkungssteuerBetrag').textContent = formatCurrency(schenkungssteuer);
+        document.getElementById('nettoschenkung').textContent = formatCurrency(nettoschenkung);
+        
+        document.getElementById('schenkungssteuerResult').style.display = 'block';
+        saveFormData();
+    }
+
+    // Steueroptimierung (bereits funktional)
+    function generateOptimierungsvorschlaege() {
+        const immobilienportfolio = parseInt(document.getElementById('immobilienportfolio').value) || 1;
+        const gesamtwert = parseFloat(document.getElementById('gesamtwertPortfolio').value) || 0;
+        const jahreseinkommen = parseFloat(document.getElementById('jahreseinkommen').value) || 0;
+        const familienstand = document.getElementById('familienstand').value;
+        const kinder = parseInt(document.getElementById('kinder').value) || 0;
+        const planungshorizont = parseInt(document.getElementById('planungshorizont').value) || 10;
+        
+        if (gesamtwert === 0) {
+            alert('Bitte geben Sie den Gesamtwert Ihres Portfolios ein.');
+            return;
+        }
+        
+        let vorschlaege = [];
+        
+        // AfA-Optimierung (korrigiert)
+        if (gesamtwert > 200000) {
             vorschlaege.push({
-                titel: '🔧 Modernisierungsmaßnahmen',
-                beschreibung: 'Sofort abzugsfähige Erhaltungsaufwendungen vs. aktivierungspflichtige Herstellungskosten.',
-                potenzial: formatCurrency(gesamtwert * 0.01),
-                prioritaet: 'mittel'
-            });
-            
-            // Timing-Optimierung
-            vorschlaege.push({
-                titel: '⏰ Timing-Optimierung',
-                beschreibung: 'Optimaler Zeitpunkt für Verkäufe nach der 10-Jahres-Frist.',
-                potenzial: 'Steuerfreiheit',
+                titel: '🏗️ AfA-Optimierung (Neue Sätze 2025)',
+                beschreibung: 'Nutzen Sie die erhöhten AfA-Sätze von 3% für Neubauten ab 2023.',
+                potenzial: formatCurrency(gesamtwert * 0.03),
                 prioritaet: 'hoch'
             });
-            
-            // Render Vorschläge
-            const container = document.getElementById('optimierungsvorschlaege');
-            container.innerHTML = '';
-            
-            vorschlaege.forEach(vorschlag => {
-                const prioritaetClass = vorschlag.prioritaet === 'hoch' ? 'alert-success' : 
-                                      vorschlag.prioritaet === 'mittel' ? 'alert-warning' : 'alert-info';
-                
-                container.innerHTML += `
-                    <div class="alert ${prioritaetClass}">
-                        <h4>${vorschlag.titel}</h4>
-                        <p>${vorschlag.beschreibung}</p>
-                        <strong>Potenzielle Ersparnis: ${vorschlag.potenzial}</strong>
-                        <br><small>Priorität: ${vorschlag.prioritaet.toUpperCase()}</small>
-                    </div>
-                `;
+        }
+        
+        // Schenkungsoptimierung (korrekte Freibeträge)
+        if (kinder > 0 && gesamtwert > 400000) {
+            const schenkungspotenzial = kinder * 400000;
+            vorschlaege.push({
+                titel: '🎁 Schenkungsstrategie (10-Jahres-Regel)',
+                beschreibung: `Nutzen Sie die Freibeträge von ${formatCurrency(400000)} pro Kind alle 10 Jahre.`,
+                potenzial: formatCurrency(schenkungspotenzial * 0.15),
+                prioritaet: 'hoch'
             });
+        }
+        
+        // Grundsteuer-Hinweis (Reform 2025)
+        vorschlaege.push({
+            titel: '🏠 Grundsteuerreform 2025',
+            beschreibung: 'Prüfen Sie Ihre neuen Grundsteuerbescheide und legen Sie bei Fehlern Einspruch ein.',
+            potenzial: 'Individuelle Einsparungen möglich',
+            prioritaet: 'hoch'
+        });
+        
+        // Portfolio-Optimierung
+        if (immobilienportfolio > 1) {
+            vorschlaege.push({
+                titel: '🏠 Portfolio-Optimierung',
+                beschreibung: 'Verteilen Sie Verluste und Gewinne optimal über Ihr Portfolio.',
+                potenzial: formatCurrency(gesamtwert * 0.02),
+                prioritaet: 'mittel'
+            });
+        }
+        
+        // Gesellschaftsstruktur
+        if (gesamtwert > 1000000 && familienstand === 'verheiratet') {
+            vorschlaege.push({
+                titel: '🏢 Gesellschaftsstruktur',
+                beschreibung: 'Prüfen Sie die Übertragung in eine GmbH & Co. KG für Steuervorteile.',
+                potenzial: formatCurrency(gesamtwert * 0.05),
+                prioritaet: 'hoch'
+            });
+        }
+        
+        // Timing-Optimierung
+        vorschlaege.push({
+            titel: '⏰ Timing-Optimierung',
+            beschreibung: 'Optimaler Zeitpunkt für Verkäufe: Nach 10-Jahres-Frist oder bei 3-jähriger Eigennutzung.',
+            potenzial: 'Vollständige Steuerfreiheit',
+            prioritaet: 'hoch'
+        });
+        
+        // Render Vorschläge
+        const container = document.getElementById('optimierungsvorschlaege');
+        container.innerHTML = '';
+        
+        vorschlaege.forEach(vorschlag => {
+            const prioritaetClass = vorschlag.prioritaet === 'hoch' ? 'alert-success' : 
+                                  vorschlag.prioritaet === 'mittel' ? 'alert-warning' : 'alert-info';
             
-            document.getElementById('optimierungResult').style.display = 'block';
+            container.innerHTML += `
+                <div class="alert ${prioritaetClass}">
+                    <h4>${vorschlag.titel}</h4>
+                    <p>${vorschlag.beschreibung}</p>
+                    <strong>Potenzielle Ersparnis: ${vorschlag.potenzial}</strong>
+                    <br><small>Priorität: ${vorschlag.prioritaet.toUpperCase()}</small>
+                </div>
+            `;
+        });
+        
+        document.getElementById('optimierungResult').style.display = 'block';
+        saveFormData();
+    }
+
+    // Auto-save on input change
+    document.addEventListener('input', function(e) {
+        if (e.target.matches('input, select, textarea')) {
+            setTimeout(saveFormData, 500); // Debounce save
+        }
+    });
+
+    document.addEventListener('change', function(e) {
+        if (e.target.matches('input[type="checkbox"]')) {
             saveFormData();
         }
+    });
+</script>
 
-        // Auto-save on input change
-        document.addEventListener('input', function(e) {
-            if (e.target.matches('input, select, textarea')) {
-                setTimeout(saveFormData, 500); // Debounce save
-            }
-        });
-
-        document.addEventListener('change', function(e) {
-            if (e.target.matches('input[type="checkbox"]')) {
-                saveFormData();
-            }
-        });
-    </script>
 </body>
 </html>
