@@ -5661,27 +5661,30 @@ openCalculationsNewTab() {
             let content = '';
             
             switch(section) {
-                case 'verkauf':
-                    content = this.generateVerkaufContent();
-                    break;
-                case 'grundsteuer':
-                    content = this.generateGrundsteuerContent();
-                    break;
-                case 'erbschaft':
-                    content = this.generateErbschaftContent();
-                    break;
-                case 'schenkung':
-                    content = this.generateSchenkungContent();
-                    break;
-                case 'cashflow':
-                    content = this.generateCashflowContent();
-                    break;
-                case 'strategie':
-                    content = this.generateStrategieContent();
-                    break;
-                default:
-                    content = this.generateVerkaufContent();
-            }
+    case 'verkauf':
+        content = this.generateVerkaufContent();
+        break;
+    case 'grundsteuer':
+        content = this.generateGrundsteuerContent();
+        break;
+    case 'erbschaft':
+        content = this.generateErbschaftContent();
+        break;
+    case 'schenkung':
+        content = this.generateSchenkungContent();
+        break;
+    case 'cashflow':
+        content = this.generateCashflowContent();
+        break;
+    case 'strategie':
+        content = this.generateStrategieContent();
+        break;
+    case 'calculations':  // Add this case
+        this.loadCalculationsFrame();
+        return; // Exit early since we're handling this differently
+    default:
+        content = this.generateVerkaufContent();
+}
             
             contentArea.innerHTML = content;
             
