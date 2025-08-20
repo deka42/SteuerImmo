@@ -2395,7 +2395,7 @@ font-weight: 700 !important;
         </div>
         <div>
             <span>Version:</span> 
-            <span style="color: var(--primary-solid);">v4.0.6-enhanced</span>
+            <span style="color: var(--primary-solid);">v4.0.7-enhanced</span>
         </div>
     </div>
 </div>
@@ -2589,7 +2589,7 @@ font-weight: 700 !important;
 }
 
 <strong>GET /api/v4/health</strong>
-Response: {“status”: “ok”, “version”: “4.0.0”, “uptime”: 123456}
+Response: {“status”: “ok”, “version”: “4.0.7”, “uptime”: 123456}
 
 <strong>POST /api/v4/compare</strong>
 Compare multiple scenarios
@@ -2626,7 +2626,7 @@ List available plugins
         constructor() {
             this.cache = new Map();
             this.calculationHistory = [];
-            this.version = '4.0.0-enhanced';
+            this.version = '4.0.7-enhanced';
         }
 
         calculate(data) {
@@ -3628,7 +3628,7 @@ List available plugins
             doc.setTextColor('#000000');
             doc.text('Ultimate Enterprise Enhanced Edition - Steueroptimierung Bericht', 20, 40);
             doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 20, 50);
-            doc.text(`Version: v4.0.0-enhanced`, 150, 50);
+            doc.text(`Version: v4.0.7-enhanced`, 150, 50);
             
             // Add separator line
             doc.setDrawColor('#667eea');
