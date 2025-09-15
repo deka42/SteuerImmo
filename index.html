@@ -8006,6 +8006,130 @@ collectErbschaftData() {
                 this.showToast('📊 Vergleichs-PDF erfolgreich erstellt', 'success');
             }, 2000);
         }
+
+        generateSchenkungOptimizationTips(results) {
+            const tips = [];
+            
+            if (results.schenkungssteuer > 0) {
+                tips.push('💡 Prüfen Sie eine stufenweise Schenkung über mehrere Jahre');
+                tips.push('📅 Nutzen Sie Freibeträge alle 10 Jahre optimal aus');
+                
+                if (results.steuerklasse > 1) {
+                    tips.push('👨‍👩‍👧‍👦 Schenkung an nähere Verwandte (niedrigere Steuerklasse) erwägen');
+                }
+                
+                if (results.schenkungswert > 400000) {
+                    tips.push('🏠 Nießbrauchsvorbehalt kann Steuerlast erheblich reduzieren');
+                }
+                
+                tips.push('⚖️ Professionelle steuerliche Beratung empfohlen');
+            } else {
+                tips.push('✅ Schenkung ist steuerfrei - optimale Nutzung der Freibeträge');
+                tips.push('📅 Nächste steuerfreie Schenkung in 10 Jahren möglich');
+            }
+            
+            return tips.map(tip => `<div style="margin-bottom: 0.5rem;">${tip}</div>`).join('');
+        }
+
+        resetGrundsteuerForm() {
+            const inputs = document.querySelectorAll('#grundsteuer-results input, #grundsteuer-results select');
+            inputs.forEach(input => {
+                if (input.type === 'number') {
+                    input.value = '';
+                } else if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
+                input.classList.remove('valid', 'invalid');
+            });
+            
+            document.getElementById('grundsteuer-results').innerHTML = '';
+            this.sectionData.grundsteuer = {};
+            this.showToast('🔄 Grundsteuer-Formular zurückgesetzt', 'info');
+        }
+
+        resetErbschaftForm() {
+            const inputs = document.querySelectorAll('#erbschaft-results input, #erbschaft-results select');
+            inputs.forEach(input => {
+                if (input.type === 'number') {
+                    input.value = '';
+                } else if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
+                input.classList.remove('valid', 'invalid');
+            });
+            
+            document.getElementById('erbschaft-results').innerHTML = '';
+            this.sectionData.erbschaft = {};
+            this.showToast('🔄 Erbschaftsteuer-Formular zurückgesetzt', 'info');
+        }
+
+        resetSchenkungForm() {
+            const inputs = document.querySelectorAll('#schenkung-results input, #schenkung-results select');
+            inputs.forEach(input => {
+                if (input.type === 'number') {
+                    input.value = '';
+                } else if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
+                input.classList.remove('valid', 'invalid');
+            });
+            
+            document.getElementById('schenkung-results').innerHTML = '';
+            this.sectionData.schenkung = {};
+            this.showToast('🔄 Schenkungssteuer-Formular zurückgesetzt', 'info');
+        }
+
+        resetCashflowForm() {
+            const inputs = document.querySelectorAll('#cashflow-results input, #cashflow-results select');
+            inputs.forEach(input => {
+                if (input.type === 'number') {
+                    input.value = '';
+                } else if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
+                input.classList.remove('valid', 'invalid');
+            });
+            
+            document.getElementById('cashflow-results').innerHTML = '';
+            this.sectionData.cashflow = {};
+            this.showToast('🔄 Cash-Flow Formular zurückgesetzt', 'info');
+        }
+
+        resetStrategyForm() {
+            const inputs = document.querySelectorAll('#strategy-results input, #strategy-results select');
+            inputs.forEach(input => {
+                if (input.type === 'number') {
+                    input.value = '';
+                } else if (input.type === 'checkbox') {
+                    input.checked = false;
+                } else if (input.tagName === 'SELECT') {
+                    input.selectedIndex = 0;
+                } else {
+                    input.value = '';
+                }
+                input.classList.remove('valid', 'invalid');
+            });
+            
+            document.getElementById('strategy-results').innerHTML = '';
+            this.sectionData.strategie = {};
+            this.showToast('🔄 Strategie-Formular zurückgesetzt', 'info');
+        }
     }
 
     // Initialize the Enhanced Ultimate Suite

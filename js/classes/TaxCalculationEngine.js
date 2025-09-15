@@ -187,6 +187,19 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
 class SchenkungsteuerCalculator extends BaseCalculator {
     constructor() {
         super('schenkungssteuer');
+        this.setupValidation();
+    }
+
+    setupValidation() {
+        this.addValidationRule('immobilienwert', {
+            validator: (value) => value > 0,
+            message: 'Immobilienwert muss größer als 0 sein'
+        });
+
+        this.addValidationRule('beschenkter', {
+            validator: (value) => value && value.length > 0,
+            message: 'Beschenkter muss ausgewählt werden'
+        });
     }
 
     performCalculation(data) {
@@ -202,16 +215,71 @@ class SchenkungsteuerCalculator extends BaseCalculator {
             'fremde': 20000
         };
 
+        // Tax classes for different relationships
+        const steuerklassen = {
+            'ehepartner': 1,
+            'kind': 1,
+            'enkel': 1,
+            'urenkel': 1,
+            'eltern': 2,
+            'geschwister': 2,
+            'neffe_nichte': 2,
+            'sonstige': 3,
+            'fremde': 3
+        };
+
+        // Progressive tax rates by tax class
+        const steuersaetze = {
+            1: [7, 11, 15, 19, 23, 27, 30], // Tax class I
+            2: [15, 20, 25, 30, 35, 40, 43], // Tax class II
+            3: [30, 30, 30, 30, 50, 50, 50]  // Tax class III
+        };
+
+        const wertgrenzen = [75000, 300000, 600000, 6000000, 13000000, 26000000];
+
         const freibetrag = freibetraege[data.beschenkter] || 20000;
         let schenkungswert = data.immobilienwert || 0;
         
+        // Handle different types of gifts
         if (data.schenkungsart === 'teilschenkung') {
             schenkungswert = schenkungswert * ((data.anteil || 100) / 100);
+        }
+        
+        // Calculate usufruct value reduction
+        if (data.schenkungsart === 'niesbrauch' && data.niesbrauchswert > 0 && data.alter_schenker) {
+            const lebenserwartung = Math.max(1, 85 - data.alter_schenker);
+            const kapitalwert = data.niesbrauchswert * lebenserwartung * 0.7; // Simplified calculation
+            schenkungswert = Math.max(0, schenkungswert - kapitalwert);
         }
 
         const gesamterwerb = schenkungswert + (data.vorherige_schenkungen || 0);
         const steuerpflichtiger_erwerb = Math.max(0, gesamterwerb - freibetrag);
-        const schenkungssteuer = steuerpflichtiger_erwerb * 0.15;
+        
+        // Calculate progressive tax
+        let schenkungssteuer = 0;
+        if (steuerpflichtiger_erwerb > 0) {
+            const steuerklasse = steuerklassen[data.beschenkter] || 3;
+            const saetze = steuersaetze[steuerklasse];
+            
+            let verbleibendesSteuervolumen = steuerpflichtiger_erwerb;
+            let letzteGrenze = 0;
+            
+            for (let i = 0; i < wertgrenzen.length && verbleibendesSteuervolumen > 0; i++) {
+                const aktuelleGrenze = wertgrenzen[i];
+                const zuVersteuern = Math.min(verbleibendesSteuervolumen, aktuelleGrenze - letzteGrenze);
+                schenkungssteuer += zuVersteuern * (saetze[i] / 100);
+                verbleibendesSteuervolumen -= zuVersteuern;
+                letzteGrenze = aktuelleGrenze;
+            }
+            
+            // Remaining amount at highest rate
+            if (verbleibendesSteuervolumen > 0) {
+                schenkungssteuer += verbleibendesSteuervolumen * (saetze[saetze.length - 1] / 100);
+            }
+        }
+
+        const nettoschenkung = schenkungswert - schenkungssteuer;
+        const steuerklasse = steuerklassen[data.beschenkter] || 3;
 
         return {
             schenkungswert,
@@ -219,6 +287,8 @@ class SchenkungsteuerCalculator extends BaseCalculator {
             freibetrag,
             steuerpflichtiger_erwerb,
             schenkungssteuer,
+            nettoschenkung,
+            steuerklasse,
             effektiver_steuersatz: schenkungswert > 0 ? (schenkungssteuer / schenkungswert * 100) : 0
         };
     }
