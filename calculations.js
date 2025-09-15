@@ -576,6 +576,7 @@ function calculateSchenkungssteuer() {
 
     const effektiver_steuersatz = schenkungswert > 0 ? (schenkungssteuer / schenkungswert * 100) : 0;
     const nettoschenkung = schenkungswert - schenkungssteuer;
+    const steuerklasse = steuerklassen[beschenkter] || 3;
 
     // Display results
     const results = {
@@ -586,6 +587,7 @@ function calculateSchenkungssteuer() {
         schenkungssteuer: schenkungssteuer,
         effektiver_steuersatz: effektiver_steuersatz,
         nettoschenkung: nettoschenkung,
+        steuerklasse: steuerklasse,
         niesbrauchsabzug: schenkungsart === 'niesbrauch' ? 
             (niesbrauchswert * Math.max(1, 85 - alter_schenker) * 0.7) : 0
     };
@@ -773,6 +775,8 @@ function displaySchenkungssteuerResults(results) {
     updateElementContent('schenkung_steuerpflichtig', formatCurrency(results.steuerpflichtiger_erwerb));
     updateElementContent('schenkung_steuer', formatCurrency(results.schenkungssteuer));
     updateElementContent('schenkung_steuersatz', results.effektiver_steuersatz.toFixed(1) + '%');
+    updateElementContent('schenkung_nettoschenkung', formatCurrency(results.nettoschenkung));
+    updateElementContent('schenkung_steuerklasse', 'Steuerklasse ' + results.steuerklasse);
     
     showElement('schenkungResult');
 }
