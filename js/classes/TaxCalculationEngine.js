@@ -21,11 +21,11 @@ class TaxCalculationEngine {
 
         try {
             return await calculator.calculate(data);
-        } catch (error) {
+            let schenkungswert = data.schenkung_immobilienwert || 0;
             console.error(`Calculation error for ${type}:`, error);
             throw new Error(`Fehler bei ${type}-Berechnung: ${error.message}`);
         }
-    }
+                schenkungswert = schenkungswert * ((data.schenkungsanteil || 100) / 100);
 
     getAvailableCalculators() {
         return Array.from(this.calculators.keys());

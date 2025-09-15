@@ -6990,11 +6990,11 @@ collectErbschaftData() {
 
         collectSchenkungData() {
     return {
-        immobilienwert: parseFloat(document.getElementById('schenkung_immobilienwert')?.value) || 0,
+        schenkung_immobilienwert: parseFloat(document.getElementById('schenkung_immobilienwert')?.value) || 0,
         beschenkter: document.getElementById('beschenkter')?.value || 'kind',
         vorherige_schenkungen: parseFloat(document.getElementById('vorherige_schenkungen')?.value) || 0,
         schenkungsart: document.getElementById('schenkungsart')?.value || 'vollschenkung',
-        anteil: parseFloat(document.getElementById('schenkungsanteil')?.value) || 100,
+        schenkungsanteil: parseFloat(document.getElementById('schenkungsanteil')?.value) || 100,
         niesbrauchswert: parseFloat(document.getElementById('niesbrauchswert')?.value) || 0,
         alter_schenker: parseInt(document.getElementById('alter_schenker')?.value) || 65,
         schenkungsstrategie: document.getElementById('schenkungsstrategie')?.value || 'einmalig'
