@@ -4086,23 +4086,23 @@ List available plugins
         performCalculation(data) {
             // Enhanced calculation based on 2025 reform with correct values
             const grundsteuerwerte = {
-                'bw': { grund: 0.31, gebaeude: 3.47, faktor: 1.0 },
-                'by': { grund: 0.31, gebaeude: 3.47, faktor: 0.95 }, // Bayerisches Modell
+                'bw': { grund: 0.04, gebaeude: 0.5, faktor: 1.0 },
+                'by': { grund: 0.04, gebaeude: 0.5, faktor: 0.95 }, // Bayerisches Modell
                 'by-bayerisch': { grund: 0.04, gebaeude: 0.5, faktor: 1.0 }, // Spezial Bayern
-                'be': { grund: 0.31, gebaeude: 3.47, faktor: 1.1 },
-                'bb': { grund: 0.31, gebaeude: 3.47, faktor: 0.9 },
-                'hb': { grund: 0.31, gebaeude: 3.47, faktor: 1.05 },
-                'hh': { grund: 0.31, gebaeude: 3.47, faktor: 1.0 },
-                'he': { grund: 0.31, gebaeude: 3.47, faktor: 1.0 },
-                'mv': { grund: 0.31, gebaeude: 3.47, faktor: 0.85 },
-                'ni': { grund: 0.31, gebaeude: 3.47, faktor: 0.95 },
-                'nw': { grund: 0.31, gebaeude: 3.47, faktor: 1.0 },
-                'rp': { grund: 0.31, gebaeude: 3.47, faktor: 0.95 },
-                'sl': { grund: 0.31, gebaeude: 3.47, faktor: 1.0 },
-                'sn': { grund: 0.31, gebaeude: 3.47, faktor: 0.8 },
-                'st': { grund: 0.31, gebaeude: 3.47, faktor: 0.85 },
-                'sh': { grund: 0.31, gebaeude: 3.47, faktor: 1.0 },
-                'th': { grund: 0.31, gebaeude: 3.47, faktor: 0.9 }
+                'be': { grund: 0.04, gebaeude: 0.5, faktor: 1.1 },
+                'bb': { grund: 0.04, gebaeude: 0.5, faktor: 0.9 },
+                'hb': { grund: 0.04, gebaeude: 0.5, faktor: 1.05 },
+                'hh': { grund: 0.04, gebaeude: 0.5, faktor: 1.0 },
+                'he': { grund: 0.04, gebaeude: 0.5, faktor: 1.0 },
+                'mv': { grund: 0.04, gebaeude: 0.5, faktor: 0.85 },
+                'ni': { grund: 0.04, gebaeude: 0.5, faktor: 0.95 },
+                'nw': { grund: 0.04, gebaeude: 0.5, faktor: 1.0 },
+                'rp': { grund: 0.04, gebaeude: 0.5, faktor: 0.95 },
+                'sl': { grund: 0.04, gebaeude: 0.5, faktor: 1.0 },
+                'sn': { grund: 0.04, gebaeude: 0.5, faktor: 0.8 },
+                'st': { grund: 0.04, gebaeude: 0.5, faktor: 0.85 },
+                'sh': { grund: 0.04, gebaeude: 0.5, faktor: 1.0 },
+                'th': { grund: 0.04, gebaeude: 0.5, faktor: 0.9 }
             };
 
             const werte = grundsteuerwerte[data.bundesland] || grundsteuerwerte['nw'];
@@ -4124,8 +4124,15 @@ List available plugins
 
             const typFaktor = typFaktoren[data.immobilientyp] || 1.0;
 
-            const grundwert = (data.grundstuecksflaeche || 0) * werte.grund;
-            const gebaeudewert = (data.wohnflaeche || 0) * werte.gebaeude * gebaeudeFaktor * typFaktor;
+            // Correct 2025 calculation method
+            // Step 1: Calculate basic land value (€/m²)
+            const bodenrichtwert = this.getBodenrichtwert(data.bundesland, data.immobilientyp);
+            const grundwert = (data.grundstuecksflaeche || 0) * bodenrichtwert;
+            
+            // Step 2: Calculate building value (€/m²)
+            const gebaeudewert = (data.wohnflaeche || 0) * 2000 * gebaeudeFaktor * typFaktor; // 2000€/m² base value
+            
+            // Step 3: Total property value
             const grundsteuerwert = (grundwert + gebaeudewert) * werte.faktor;
             
             // Grundsteuermesszahl (0,31 Promille für Wohngrundstücke)
@@ -4144,11 +4151,44 @@ List available plugins
                 grundsteuerJaehrlich,
                 grundsteuerMonatlich,
                 hebesatz: data.hebesatz || 470,
+                bodenrichtwert,
+                grundwert,
+                gebaeudewert,
                 vergleich: {
                     altesSystem: altesSystemSchaetzung,
                     differenz: differenz
                 }
             };
+        }
+        
+        getBodenrichtwert(bundesland, immobilientyp) {
+            // Realistic land values per m² by state (simplified)
+            const bodenrichtwerte = {
+                'bw': 180, // Baden-Württemberg
+                'by': 150, // Bayern
+                'be': 400, // Berlin
+                'bb': 80,  // Brandenburg
+                'hb': 200, // Bremen
+                'hh': 350, // Hamburg
+                'he': 160, // Hessen
+                'mv': 60,  // Mecklenburg-Vorpommern
+                'ni': 120, // Niedersachsen
+                'nw': 140, // Nordrhein-Westfalen
+                'rp': 130, // Rheinland-Pfalz
+                'sl': 110, // Saarland
+                'sn': 90,  // Sachsen
+                'st': 70,  // Sachsen-Anhalt
+                'sh': 180, // Schleswig-Holstein
+                'th': 80   // Thüringen
+            };
+            
+            let basewert = bodenrichtwerte[bundesland] || 140;
+            
+            // Adjust for property type
+            if (immobilientyp === 'gewerbe') basewert *= 1.5;
+            else if (immobilientyp === 'mehrfamilienhaus') basewert *= 1.2;
+            
+            return basewert;
         }
     }
 
@@ -6910,6 +6950,18 @@ openCalculationsNewTab() {
                     <div class="result-card">
                         <div class="result-header">
                             <h3 class="result-title">📊 Berechnung im Detail</h3>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Bodenrichtwert (€/m²):</span>
+                            <span class="result-value">${this.formatCurrency(results.bodenrichtwert)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Grundstückswert:</span>
+                            <span class="result-value">${this.formatCurrency(results.grundwert)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Gebäudewert:</span>
+                            <span class="result-value">${this.formatCurrency(results.gebaeudewert)}</span>
                         </div>
                         <div class="result-item">
                             <span class="result-label">Grundsteuerwert:</span>
