@@ -6424,14 +6424,14 @@ openCalculationsNewTab() {
                             <label class="form-label">
                                 🏠 Immobilienart
                             </label>
-                            <select id="erbschaft_immobilienart" class="form-select" aria-describedby="erbschaft_immobilienart-help">
+                            <select id="immobilienart" class="form-select" aria-describedby="immobilienart-help">
                                 <option value="eigenheim">Eigenheim (selbst bewohnt)</option>
                                 <option value="vermietung">Vermietungsimmobilie</option>
                                 <option value="ferienhaus">Ferienhaus</option>
                                 <option value="gewerbe">Gewerbeimmobilie</option>
                                 <option value="grundstueck">Unbebautes Grundstück</option>
                             </select>
-                            <div class="form-help" id="erbschaft_immobilienart-help">Art der zu vererbenden Immobilie</div>
+                            <div class="form-help" id="immobilienart-help">Art der zu vererbenden Immobilie</div>
                         </div>
 
                         <div class="form-group">
@@ -7107,9 +7107,9 @@ openCalculationsNewTab() {
 
 collectErbschaftData() {
     return {
-        immobilienwert: parseFloat(document.getElementById('erbschaft_immobilienwert')?.value) || 0,
+        erbschaft_immobilienwert: parseFloat(document.getElementById('erbschaft_immobilienwert')?.value) || 0,
         verwandtschaftsgrad: document.getElementById('verwandtschaftsgrad')?.value || 'kind',
-        immobilienart: document.getElementById('erbschaft_immobilienart')?.value || 'eigenheim',
+        immobilienart: document.getElementById('immobilienart')?.value || 'eigenheim',
         sonstiges_vermoegen: parseFloat(document.getElementById('sonstiges_vermoegen')?.value) || 0,
         selbstnutzung: document.getElementById('selbstnutzung_erbe')?.checked || false,
         lebzeitige_uebertragung: document.getElementById('lebzeitige_uebertragung')?.checked || false
