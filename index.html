@@ -4169,15 +4169,32 @@ List available plugins
             };
 
             const freibetrag = freibetraege[data.beschenkter] || 20000;
-            let schenkungswert = data.schenkung_immobilienwert || 0;
+            let schenkungswert = data.immobilienwert || 0;
             
             if (data.schenkungsart === 'teilschenkung') {
-                schenkungswert = schenkungswert * ((data.schenkungsanteil || 100) / 100);
+                schenkungswert = schenkungswert * ((data.anteil || 100) / 100);
             }
 
             const gesamterwerb = schenkungswert + (data.vorherige_schenkungen || 0);
             const steuerpflichtiger_erwerb = Math.max(0, gesamterwerb - freibetrag);
-            const schenkungssteuer = steuerpflichtiger_erwerb * 0.15;
+            
+            // Calculate progressive tax based on tax class
+            const steuerklassen = {
+                'ehepartner': 1, 'kind': 1, 'enkel': 1, 'urenkel': 1,
+                'eltern': 2, 'geschwister': 2, 'neffe_nichte': 2,
+                'sonstige': 3, 'fremde': 3
+            };
+            
+            const steuerklasse = steuerklassen[data.beschenkter] || 3;
+            let schenkungssteuer = 0;
+            
+            if (steuerpflichtiger_erwerb > 0) {
+                // Simplified progressive calculation
+                const durchschnittssatz = steuerklasse === 1 ? 15 : steuerklasse === 2 ? 25 : 35;
+                schenkungssteuer = steuerpflichtiger_erwerb * (durchschnittssatz / 100);
+            }
+            
+            const nettoschenkung = schenkungswert - schenkungssteuer;
 
             return {
                 schenkungswert,
@@ -4185,6 +4202,8 @@ List available plugins
                 freibetrag,
                 steuerpflichtiger_erwerb,
                 schenkungssteuer,
+                nettoschenkung,
+                steuerklasse,
                 effektiver_steuersatz: schenkungswert > 0 ? (schenkungssteuer / schenkungswert * 100) : 0
             };
         }
@@ -7010,6 +7029,8 @@ collectErbschaftData() {
                     <h3>🎁 Ihre Schenkungssteuer-Berechnung</h3>
                     <p><strong>Schenkungssteuer:</strong> ${this.formatCurrency(results.schenkungssteuer)}</p>
                     <p><strong>Effektiver Steuersatz:</strong> ${results.effektiver_steuersatz.toFixed(1)}%</p>
+                    <p><strong>Nettoschenkung:</strong> ${this.formatCurrency(results.nettoschenkung)}</p>
+                    <p><strong>Steuerklasse:</strong> ${results.steuerklasse}</p>
                 </div>
 
                 <div class="results-grid">
@@ -7036,6 +7057,14 @@ collectErbschaftData() {
                         <div class="result-item">
                             <span class="result-label">Schenkungssteuer:</span>
                             <span class="result-value">${this.formatCurrency(results.schenkungssteuer)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Nettoschenkung:</span>
+                            <span class="result-value">${this.formatCurrency(results.nettoschenkung)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Steuerklasse:</span>
+                            <span class="result-value">Steuerklasse ${results.steuerklasse}</span>
                         </div>
                     </div>
                 </div>
