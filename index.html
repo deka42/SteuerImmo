@@ -5790,7 +5790,16 @@ openCalculationsNewTab() {
 
         saveErbschaftData() {
             if (!this.sectionData) this.sectionData = {};
-            this.sectionData.erbschaft = this.collectErbschaftData();
+            const data = this.collectErbschaftData();
+            console.log('Saving Erbschaftssteuer data:', data);
+            this.sectionData.erbschaft = data;
+            
+            // Also save to localStorage for persistence
+            try {
+                localStorage.setItem('erbschaft-data', JSON.stringify(data));
+            } catch (error) {
+                console.warn('Could not save Erbschaftssteuer data to localStorage');
+            }
         }
 
         saveSchenkungData() {
@@ -5898,10 +5907,16 @@ openCalculationsNewTab() {
 
         restoreErbschaftData() {
             if (this.sectionData && this.sectionData.erbschaft) {
+                console.log('Restoring Erbschaftssteuer data:', this.sectionData.erbschaft);
                 this.populateErbschaftForm(this.sectionData.erbschaft);
                 
+                // Also restore results if available
+                if (this.sectionData.erbschaftResults) {
+                    this.displayErbschaftResults(this.sectionData.erbschaftResults);
+                }
+                
                 // Trigger calculation if real-time is enabled
-                if (this.realtimeEnabled) {
+                if (this.realtimeEnabled && !this.sectionData.erbschaftResults) {
                     setTimeout(() => this.calculateErbschaftsteuer(), 300);
                 }
             }
@@ -6863,13 +6878,17 @@ openCalculationsNewTab() {
         }
 
         populateErbschaftForm(data) {
+            console.log('Populating Erbschaftssteuer form with data:', data);
             Object.keys(data).forEach(key => {
                 const element = document.getElementById(key);
+                console.log(`Looking for element: ${key}, found:`, !!element);
                 if (element) {
                     if (element.type === 'checkbox') {
                         element.checked = data[key];
+                        console.log(`Set checkbox ${key} to:`, data[key]);
                     } else {
                         element.value = data[key];
+                        console.log(`Set input ${key} to:`, data[key]);
                     }
                     
                     // Trigger validation
@@ -7068,6 +7087,11 @@ openCalculationsNewTab() {
                 
                 this.showProgress('Erstelle Erbschaft-Ergebnisse...', 80);
                 this.displayErbschaftResults(results);
+                
+                // Save results to section data
+                if (!this.sectionData) this.sectionData = {};
+                this.sectionData.erbschaft = data;
+                this.sectionData.erbschaftResults = results;
                 
                 setTimeout(() => {
                     this.hideProgress();
@@ -7580,7 +7604,7 @@ collectErbschaftData() {
                 verwandtschaftsgrad: 'kind',
                 erbschaft_immobilienart: 'eigenheim',
                 sonstiges_vermoegen: 100000,
-                selbstnutzung_erbe: true,
+                selbstnutzung: true,
                 lebzeitige_uebertragung: false
             };
 
