@@ -4759,6 +4759,8 @@ openCalculationsNewTab() {
                    // Save state before changes for undo functionality
                    if (!this.isRestoringState) {
                        this.saveCurrentState();
+                       // Also save to current scenario immediately
+                       this.saveCurrentScenarioData();
                    }
                     
                     // Trigger validation - FIXED: use e.target instead of undefined element
@@ -5406,6 +5408,8 @@ openCalculationsNewTab() {
                 data: {},
                 results: null
             });
+            
+            console.log('Scenarios initialized:', Array.from(this.scenarios.keys()));
         }
 
         switchScenario(scenarioId) {
@@ -5413,7 +5417,12 @@ openCalculationsNewTab() {
             if (this.currentScenario) {
                 const scenario = this.scenarios.get(this.currentScenario);
                 if (scenario) {
-                    scenario.data = this.collectFormData();
+                    const currentData = this.collectFormData();
+                    // Only save if there's actual data
+                    if (Object.keys(currentData).some(key => currentData[key] !== '' && currentData[key] !== 0 && currentData[key] !== false)) {
+                        scenario.data = currentData;
+                        console.log(`Saved data for ${this.currentScenario}:`, currentData);
+                    }
                 }
             }
 
@@ -5440,6 +5449,7 @@ openCalculationsNewTab() {
             // Load scenario data if available
             const scenario = this.scenarios.get(scenarioId);
             if (scenario && scenario.data && Object.keys(scenario.data).length > 0) {
+                console.log(`Loading data for ${scenarioId}:`, scenario.data);
                 this.populateForm(scenario.data);
             } else {
                 // Clear the form for new scenario
@@ -5447,6 +5457,16 @@ openCalculationsNewTab() {
             }
             
             this.showToast(`📊 Gewechselt zu ${scenario?.name || scenarioId}`, 'info');
+        }
+        
+        // New method to save current scenario data immediately
+        saveCurrentScenarioData() {
+            const scenario = this.scenarios.get(this.currentScenario);
+            if (scenario) {
+                const data = this.collectFormData();
+                scenario.data = data;
+                console.log(`Auto-saved data for ${this.currentScenario}:`, data);
+            }
         }
 
         clearCurrentScenarioForm() {
@@ -5712,16 +5732,14 @@ openCalculationsNewTab() {
 
         saveVerkaufData() {
             // Save data for all scenarios
-            const currentScenario = this.currentScenario;
-            ['scenario1', 'scenario2', 'scenario3'].forEach(scenarioId => {
-                this.currentScenario = scenarioId;
+            const scenario = this.scenarios.get(this.currentScenario);
+            if (scenario) {
                 const data = this.collectFormData();
-                const scenario = this.scenarios.get(scenarioId);
-                if (scenario && Object.keys(data).some(key => data[key] !== '' && data[key] !== 0 && data[key] !== false)) {
+                if (Object.keys(data).some(key => data[key] !== '' && data[key] !== 0 && data[key] !== false)) {
                     scenario.data = data;
+                    console.log(`Saved verkauf data for ${this.currentScenario}:`, data);
                 }
-            });
-            this.currentScenario = currentScenario;
+            }
         }
 
         saveGrundsteuerData() {
@@ -5819,15 +5837,11 @@ openCalculationsNewTab() {
 
         restoreVerkaufData() {
             // Restore data for all scenarios
-            ['scenario1', 'scenario2', 'scenario3'].forEach(scenarioId => {
-                const scenario = this.scenarios.get(scenarioId);
-                if (scenario && scenario.data && Object.keys(scenario.data).length > 0) {
-                    const currentScenario = this.currentScenario;
-                    this.currentScenario = scenarioId;
-                    this.populateForm(scenario.data);
-                    this.currentScenario = currentScenario;
-                }
-            });
+            const scenario = this.scenarios.get(this.currentScenario);
+            if (scenario && scenario.data && Object.keys(scenario.data).length > 0) {
+                console.log(`Restoring verkauf data for ${this.currentScenario}:`, scenario.data);
+                this.populateForm(scenario.data);
+            }
         }
 
         restoreGrundsteuerData() {
@@ -7655,6 +7669,7 @@ collectErbschaftData() {
             const prefix = this.getScenarioPrefix(this.currentScenario);
             const contentSelector = `#${this.currentScenario}-content`;
             const inputs = document.querySelectorAll(`${contentSelector} .form-input, ${contentSelector} .form-select`);
+            console.log(`Collecting data for ${this.currentScenario}, found ${inputs.length} inputs`);
             
             inputs.forEach(input => {
                 // Remove scenario prefix from field name to get the actual field name
@@ -7670,23 +7685,28 @@ collectErbschaftData() {
                 } else {
                     data[fieldName] = input.value || '';
                 }
+                console.log(`Collected ${fieldName}: ${data[fieldName]} from element ${input.id}`);
             });
 
+            console.log('Final collected data:', data);
             return data;
         }
 
         populateForm(data) {
             const prefix = this.getScenarioPrefix(this.currentScenario);
+            console.log(`Populating form for ${this.currentScenario} with prefix "${prefix}":`, data);
             
             Object.keys(data).forEach(key => {
                 const elementId = prefix + key;
                 const element = document.getElementById(elementId);
+                console.log(`Looking for element: ${elementId}, found:`, !!element);
                 if (element) {
                     if (element.type === 'checkbox') {
                         element.checked = data[key];
                     } else {
                         element.value = data[key];
                     }
+                    console.log(`Set ${elementId} to:`, data[key]);
                     
                     if (!this.isRestoringState) {
                         this.validateField(element);
