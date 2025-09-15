@@ -4843,7 +4843,27 @@ openCalculationsNewTab() {
                 }
             };
             
-            document.addEventListener('input', inputHandler);
+            // Disable false validation messages immediately
+app.isUserInitiatedCalculation = false;
+
+// Override the problematic validation method
+app.validateFormData = function(data, section = null) {
+    if (!data || Object.keys(data).length === 0) {
+        return true;
+    }
+    
+    const currentSection = section || this.getCurrentSection();
+    
+    if (currentSection === 'erbschaft') {
+        return (data.immobilienwert > 0 && data.verwandtschaftsgrad);
+    }
+    
+    return true;
+};
+
+console.log('Validation messages disabled');
+
+document.addEventListener('input', inputHandler);
             this.eventListenersCleanup.add(() => document.removeEventListener('input', inputHandler));
 
             // Scroll effects
@@ -6096,57 +6116,57 @@ setupErbschaftEventHandlers() {
     
     // Get all Erbschaftsteuer form elements
     const erbschaftFields = [
-        'erbschaft_immobilienwert',
-        'verwandtschaftsgrad', 
-        'erbschaft_immobilienart',
-        'sonstiges_vermoegen',
-        'selbstnutzung_erbe',
-        'lebzeitige_uebertragung'
-    ];
+    'erbschaft_immobilienwert',
+    'verwandtschaftsgrad', 
+    'erbschaft_immobilienart',
+    'sonstiges_vermoegen',
+    'selbstnutzung_erbe',
+    'lebzeitige_uebertragung'
+];
+
+erbschaftFields.forEach(fieldId => {
+    const element = document.getElementById(fieldId);
+    if (!element) {
+        console.warn(`Erbschaftsteuer field not found: ${fieldId}`);
+        return;
+    }
     
-    erbschaftFields.forEach(fieldId => {
-        const element = document.getElementById(fieldId);
-        if (!element) {
-            console.warn(`Erbschaftsteuer field not found: ${fieldId}`);
-            return;
-        }
-        
-        const handler = (e) => {
-            try {
-                console.log('Erbschaftsteuer input changed:', e.target.id, e.target.value || e.target.checked);
-                
-                // Special handling for immobilienart changes
-                if (e.target.id === 'erbschaft_immobilienart') {
-                    this.handleImmobilienartChange(e.target.value);
-                }
-                
-                this.validateField(e.target);
-                this.saveErbschaftData();
-                
-                if (this.realtimeEnabled) {
-                    this.debouncedCalculateErbschaftsteuer();
-                }
-            } catch (error) {
-                console.error('Error in Erbschaftsteuer input handler:', error);
-                this.showToast('Fehler bei Eingabe: ' + error.message, 'danger');
+    const handler = (e) => {
+        try {
+            console.log('Erbschaftsteuer input changed:', e.target.id, e.target.value || e.target.checked);
+            
+            if (e.target.id === 'erbschaft_immobilienart') {
+                this.handleImmobilienartChange(e.target.value);
             }
-        };
-        
-        // Add appropriate event listener based on element type
-        if (element.type === 'checkbox') {
-            element.addEventListener('change', handler);
-        } else if (element.tagName === 'SELECT') {
-            element.addEventListener('change', handler);
-        } else {
-            element.addEventListener('input', handler);
+            
+            // REMOVED: Don't call validateField to avoid false error messages
+            // this.validateField(e.target);
+            
+            this.saveErbschaftData();
+            
+            // Only trigger calculation if real-time is enabled, but don't show validation errors
+            if (this.realtimeEnabled) {
+                this.debouncedCalculateErbschaftsteuer();
+            }
+        } catch (error) {
+            console.error('Error in Erbschaftsteuer input handler:', error);
+            this.showToast('Fehler bei Eingabe: ' + error.message, 'danger');
         }
-        
-        // Store handler for cleanup
-        this.eventListenersCleanup.add(() => {
-            element.removeEventListener('change', handler);
-            element.removeEventListener('input', handler);
-        });
+    };
+    
+    if (element.type === 'checkbox') {
+        element.addEventListener('change', handler);
+    } else if (element.tagName === 'SELECT') {
+        element.addEventListener('change', handler);
+    } else {
+        element.addEventListener('input', handler);
+    }
+    
+    this.eventListenersCleanup.add(() => {
+        element.removeEventListener('change', handler);
+        element.removeEventListener('input', handler);
     });
+});
 }
 
 // Fix 5: Improved handleImmobilienartChange method
@@ -7276,56 +7296,57 @@ handleImmobilienartChange(newValue) {
 async calculateErbschaftsteuer() {
     try {
         console.log('=== Starting Erbschaftsteuer Calculation ===');
-        this.showProgress('Berechne Erbschaftsteuer...', 20);
-        
-        // Collect data first
-        const data = this.collectErbschaftData();
-        console.log('Collected data:', data);
-        
-        // Validate the data specifically for Erbschaftsteuer
-        const validationResult = this.validateFormData(data, 'erbschaft');
-        if (!validationResult) {
-            throw new Error('Bitte füllen Sie alle erforderlichen Felder aus');
-        }
-        
-        // Additional manual checks
-        if (!data.immobilienwert || data.immobilienwert <= 0) {
-            throw new Error('Immobilienwert muss größer als 0 sein');
-        }
-        
-        if (!data.verwandtschaftsgrad || data.verwandtschaftsgrad.trim() === '') {
-            throw new Error('Bitte wählen Sie einen Verwandtschaftsgrad aus');
-        }
-        
-        this.showProgress('Führe Berechnung durch...', 50);
-        
-        // Perform calculation
-        const results = await this.calculationEngine.calculate('erbschaft', data);
-        console.log('Calculation results:', results);
-        
-        this.showProgress('Erstelle Ergebnisse...', 80);
-        
-        // Display results
-        this.displayErbschaftResults(results);
-        
-        // Save results
-        if (!this.sectionData) this.sectionData = {};
-        this.sectionData.erbschaft = data;
-        this.sectionData.erbschaftResults = results;
-        
-        this.showProgress('Fertig!', 100);
-        
-        setTimeout(() => {
-            this.hideProgress();
-            this.showToast('Erbschaftsteuer erfolgreich berechnet', 'success');
-        }, 500);
-
-    } catch (error) {
-        console.error('Erbschaftsteuer calculation error:', error);
-        this.hideProgress();
-        this.errorHandler.logError(error);
-        this.showToast('Erbschaftsteuer-Berechnung fehlgeschlagen: ' + error.message, 'danger');
+        // Mark this as user-initiated calculation
+    this.isUserInitiatedCalculation = true;
+    
+    this.showProgress('Berechne Erbschaftsteuer...', 20);
+    
+    // Collect data
+    const data = this.collectErbschaftData();
+    console.log('Collected data:', data);
+    
+    // Skip validation UI feedback since calculator works
+    // Just do basic data checks
+    if (!data.immobilienwert || data.immobilienwert <= 0) {
+        throw new Error('Immobilienwert muss größer als 0 sein');
     }
+    
+    if (!data.verwandtschaftsgrad) {
+        throw new Error('Bitte wählen Sie einen Verwandtschaftsgrad aus');
+    }
+    
+    this.showProgress('Führe Berechnung durch...', 50);
+    
+    // Perform calculation
+    const results = await this.calculationEngine.calculate('erbschaft', data);
+    console.log('Calculation results:', results);
+    
+    this.showProgress('Erstelle Ergebnisse...', 80);
+    
+    // Display results
+    this.displayErbschaftResults(results);
+    
+    // Save results
+    if (!this.sectionData) this.sectionData = {};
+    this.sectionData.erbschaft = data;
+    this.sectionData.erbschaftResults = results;
+    
+    this.showProgress('Fertig!', 100);
+    
+    setTimeout(() => {
+        this.hideProgress();
+        this.showToast('Erbschaftsteuer erfolgreich berechnet', 'success');
+    }, 500);
+
+} catch (error) {
+    console.error('Erbschaftsteuer calculation error:', error);
+    this.hideProgress();
+    this.errorHandler.logError(error);
+    this.showToast('Erbschaftsteuer-Berechnung fehlgeschlagen: ' + error.message, 'danger');
+} finally {
+    // Reset the flag
+    this.isUserInitiatedCalculation = false;
+}
 }
 
 // 2. Fixed collectErbschaftData method with proper field mapping
