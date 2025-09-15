@@ -594,6 +594,18 @@ function calculateSchenkungssteuer() {
     return results;
 }
 
+function displaySchenkungssteuerResults(results) {
+    updateElementContent('schenkung_wert', formatCurrency(results.schenkungswert));
+    updateElementContent('schenkung_gesamterwerb', formatCurrency(results.gesamterwerb));
+    updateElementContent('schenkung_freibetrag', formatCurrency(results.freibetrag));
+    updateElementContent('schenkung_steuerpflichtig', formatCurrency(results.steuerpflichtiger_erwerb));
+    updateElementContent('schenkung_steuer', formatCurrency(results.schenkungssteuer));
+    updateElementContent('schenkung_steuersatz', results.effektiver_steuersatz.toFixed(1) + '%');
+    updateElementContent('schenkung_nettoschenkung', formatCurrency(results.nettoschenkung));
+    updateElementContent('schenkung_steuerklasse', 'Steuerklasse ' + results.steuerklasse);
+    
+    showElement('schenkungResult');
+}
 // Enhanced Cash Flow Calculator
 function calculateCashflow() {
     const mieteinnahmen = parseFloat(document.getElementById('mieteinnahmen')?.value) || 0;
