@@ -4192,7 +4192,8 @@ List available plugins
         }
     }
 
-    class ErbschaftsteuerCalculator extends BaseCalculator {
+    // Fix 7: Enhanced ErbschaftsteuerCalculator with better error handling
+class ErbschaftsteuerCalculator extends BaseCalculator {
     constructor() {
         super('erbschaftsteuer');
         this.setupValidation();
@@ -4202,6 +4203,11 @@ List available plugins
         this.addValidationRule('immobilienwert', {
             validator: (value) => value > 0,
             message: 'Immobilienwert muss größer als 0 sein'
+        });
+        
+        this.addValidationRule('verwandtschaftsgrad', {
+            validator: (value) => value && value.trim().length > 0,
+            message: 'Verwandtschaftsgrad ist erforderlich'
         });
     }
 
@@ -4226,11 +4232,12 @@ List available plugins
             // Apply discount for owner-occupied property
             if (data.immobilienart === 'eigenheim' && data.selbstnutzung) {
                 gesamtvermoegen = (data.immobilienwert || 0) * 0.9 + (data.sonstiges_vermoegen || 0);
+                console.log('Applied Familienheim discount');
             }
 
             const steuerpflichtiger_erwerb = Math.max(0, gesamtvermoegen - freibetrag);
             
-            // Simplified tax calculation
+            // Tax class determination
             const steuerklassen = {
                 'ehepartner': 1, 'kind': 1, 'enkel': 1,
                 'eltern': 2, 'geschwister': 2, 'neffe_nichte': 2,
@@ -4241,7 +4248,7 @@ List available plugins
             let erbschaftsteuer = 0;
             
             if (steuerpflichtiger_erwerb > 0) {
-                // Progressive tax rates
+                // Progressive tax calculation
                 const steuersaetze = {
                     1: [7, 11, 15, 19, 23, 27, 30],
                     2: [15, 20, 25, 30, 35, 40, 43],
@@ -4251,7 +4258,6 @@ List available plugins
                 const wertgrenzen = [75000, 300000, 600000, 6000000, 13000000, 26000000];
                 const saetze = steuersaetze[steuerklasse];
                 
-                // Calculate progressive tax
                 let verbleibendesSteuervolumen = steuerpflichtiger_erwerb;
                 let letzteGrenze = 0;
                 
@@ -4279,7 +4285,9 @@ List available plugins
                 erbschaftsteuer,
                 nettoerbe,
                 steuerklasse,
-                effektiver_steuersatz
+                effektiver_steuersatz,
+                immobilienart: data.immobilienart,
+                selbstnutzung: data.selbstnutzung
             };
             
             console.log('Erbschaftsteuer calculation result:', result);
@@ -4287,7 +4295,7 @@ List available plugins
             
         } catch (error) {
             console.error('Error in Erbschaftsteuer calculation:', error);
-            throw error;
+            throw new Error(`Erbschaftsteuer calculation failed: ${error.message}`);
         }
     }
 }
@@ -4954,65 +4962,68 @@ openCalculationsNewTab() {
             return this._debouncedCalculate;
         }
 
-        validateField(field) {
-            const value = field.value;
-            const fieldName = field.id;
-            let isValid = true;
-            let errorMessage = '';
+        // 4. Enhanced field validation for real-time feedback
+validateField(field) {
+    if (!field) return true;
+    
+    const value = field.value;
+    const fieldName = field.id;
+    let isValid = true;
+    let errorMessage = '';
 
-            field.classList.remove('valid', 'invalid');
+    field.classList.remove('valid', 'invalid');
 
-// NEW CODE - ADD THIS:
-// Get current section to determine which fields are required
-const currentSection = this.getCurrentSection();
+    // Get current section to determine which fields are required
+    const currentSection = this.getCurrentSection();
 
-// Define required fields per section
-const requiredFieldsBySection = {
-    'verkauf': ['kaufpreis', 'verkaufspreis', 'haltedauer'],
-    'erbschaft': ['erbschaft_immobilienwert', 'verwandtschaftsgrad'],
-    'schenkung': ['schenkung_immobilienwert', 'beschenkter'],
-    'grundsteuer': ['grundstuecksflaeche', 'wohnflaeche'],
-    'cashflow': ['mieteinnahmen']
-};
+    // Define required fields per section
+    const requiredFieldsBySection = {
+        'verkauf': ['kaufpreis', 'verkaufspreis', 'haltedauer'],
+        'erbschaft': ['erbschaft_immobilienwert', 'verwandtschaftsgrad'],
+        'schenkung': ['schenkung_immobilienwert', 'beschenkter'],
+        'grundsteuer': ['grundstuecksflaeche', 'wohnflaeche'],
+        'cashflow': ['mieteinnahmen']
+    };
 
-// Check if field is required for current section
-const requiredFields = requiredFieldsBySection[currentSection] || [];
-const isRequired = field.hasAttribute('required') || requiredFields.includes(fieldName);
+    // Check if field is required for current section
+    const requiredFields = requiredFieldsBySection[currentSection] || [];
+    const isRequired = field.hasAttribute('required') || requiredFields.includes(fieldName);
 
-if (isRequired) {
-    if (!value || value.trim() === '') {
-        isValid = false;
-        errorMessage = 'Dieses Feld ist erforderlich';
-    }
-}
-
-            if (field.type === 'number' && value) {
-                const numValue = parseFloat(value);
-                
-                if (isNaN(numValue)) {
-                    isValid = false;
-                    errorMessage = 'Bitte geben Sie eine gültige Zahl ein';
-                } else if (numValue < 0) {
-                    isValid = false;
-                    errorMessage = 'Negative Werte sind nicht erlaubt';
-                } else if (field.hasAttribute('min') && numValue < parseFloat(field.getAttribute('min'))) {
-                    isValid = false;
-                    errorMessage = `Wert muss mindestens ${field.getAttribute('min')} sein`;
-                } else if (field.hasAttribute('max') && numValue > parseFloat(field.getAttribute('max'))) {
-                    isValid = false;
-                    errorMessage = `Wert darf höchstens ${field.getAttribute('max')} sein`;
-                }
-            }
-
-            if (value) {
-                field.classList.add(isValid ? 'valid' : 'invalid');
-            }
-
-            this.updateValidationIndicator(field, isValid);
-            this.showFieldError(field, isValid ? '' : errorMessage);
-
-            return isValid;
+    if (isRequired) {
+        if (!value || value.trim() === '') {
+            isValid = false;
+            errorMessage = 'Dieses Feld ist erforderlich';
         }
+    }
+
+    if (field.type === 'number' && value) {
+        const numValue = parseFloat(value);
+        
+        if (isNaN(numValue)) {
+            isValid = false;
+            errorMessage = 'Bitte geben Sie eine gültige Zahl ein';
+        } else if (numValue < 0) {
+            isValid = false;
+            errorMessage = 'Negative Werte sind nicht erlaubt';
+        } else if (field.hasAttribute('min') && numValue < parseFloat(field.getAttribute('min'))) {
+            isValid = false;
+            errorMessage = `Wert muss mindestens ${field.getAttribute('min')} sein`;
+        } else if (field.hasAttribute('max') && numValue > parseFloat(field.getAttribute('max'))) {
+            isValid = false;
+            errorMessage = `Wert darf höchstens ${field.getAttribute('max')} sein`;
+        }
+    }
+
+    // Apply validation styling
+    if (value) {
+        field.classList.add(isValid ? 'valid' : 'invalid');
+    }
+
+    this.updateValidationIndicator(field, isValid);
+    this.showFieldError(field, isValid ? '' : errorMessage);
+
+    return isValid;
+}
 
         showValidationIndicator(field) {
             const indicator = document.getElementById(field.id + '-indicator');
@@ -5145,7 +5156,10 @@ if (isRequired) {
             }
         }
 
-        validateFormData(data, section = null) {
+        // Fix for the "input fields missing" issue in Erbschaftsteuer
+
+// 1. Updated validateFormData method - fix the field name validation
+validateFormData(data, section = null) {
     let isValid = true;
     const errors = [];
     
@@ -5170,20 +5184,50 @@ if (isRequired) {
             break;
             
         case 'erbschaft':
+            // FIXED: Check the actual field name that gets collected
             if (!data.immobilienwert || data.immobilienwert <= 0) {
                 errors.push('Immobilienwert ist erforderlich');
                 isValid = false;
             }
-            if (!data.verwandtschaftsgrad) {
+            if (!data.verwandtschaftsgrad || data.verwandtschaftsgrad.trim() === '') {
                 errors.push('Verwandtschaftsgrad ist erforderlich');
                 isValid = false;
             }
             break;
             
-        // Add other sections as needed...
+        case 'schenkung':
+            if (!data.immobilienwert || data.immobilienwert <= 0) {
+                errors.push('Immobilienwert ist erforderlich');
+                isValid = false;
+            }
+            if (!data.beschenkter || data.beschenkter.trim() === '') {
+                errors.push('Beschenkter ist erforderlich');
+                isValid = false;
+            }
+            break;
+            
+        case 'grundsteuer':
+            if (!data.grundstuecksflaeche || data.grundstuecksflaeche <= 0) {
+                errors.push('Grundstücksfläche ist erforderlich');
+                isValid = false;
+            }
+            if (!data.wohnflaeche || data.wohnflaeche <= 0) {
+                errors.push('Wohnfläche ist erforderlich');
+                isValid = false;
+            }
+            break;
+            
+        case 'cashflow':
+            if (!data.mieteinnahmen || data.mieteinnahmen <= 0) {
+                errors.push('Mieteinnahmen sind erforderlich');
+                isValid = false;
+            }
+            break;
     }
 
     if (!isValid) {
+        console.log('Validation errors for section', currentSection, ':', errors);
+        console.log('Data being validated:', data);
         errors.forEach(error => {
             this.showToast('⚠️ ' + error, 'warning');
         });
@@ -6046,15 +6090,36 @@ if (isRequired) {
             console.log('Setting up Grundsteuer event handlers');
         }
 
-        setupErbschaftEventHandlers() {
+        // Fix 4: Enhanced setupErbschaftEventHandlers with better error handling
+setupErbschaftEventHandlers() {
     console.log('Setting up Erbschaft event handlers');
     
-    // Special handler for Immobilienart dropdown
-    const immobilienartSelect = document.getElementById('erbschaft_immobilienart');
-    if (immobilienartSelect) {
-        const immobilienartHandler = (e) => {
+    // Get all Erbschaftsteuer form elements
+    const erbschaftFields = [
+        'erbschaft_immobilienwert',
+        'verwandtschaftsgrad', 
+        'erbschaft_immobilienart',
+        'sonstiges_vermoegen',
+        'selbstnutzung_erbe',
+        'lebzeitige_uebertragung'
+    ];
+    
+    erbschaftFields.forEach(fieldId => {
+        const element = document.getElementById(fieldId);
+        if (!element) {
+            console.warn(`Erbschaftsteuer field not found: ${fieldId}`);
+            return;
+        }
+        
+        const handler = (e) => {
             try {
-                this.handleImmobilienartChange(e.target.value);
+                console.log('Erbschaftsteuer input changed:', e.target.id, e.target.value || e.target.checked);
+                
+                // Special handling for immobilienart changes
+                if (e.target.id === 'erbschaft_immobilienart') {
+                    this.handleImmobilienartChange(e.target.value);
+                }
+                
                 this.validateField(e.target);
                 this.saveErbschaftData();
                 
@@ -6062,51 +6127,33 @@ if (isRequired) {
                     this.debouncedCalculateErbschaftsteuer();
                 }
             } catch (error) {
-                console.error('Error in Immobilienart handler:', error);
-                this.showToast('Fehler bei Immobilienart-Änderung: ' + error.message, 'danger');
+                console.error('Error in Erbschaftsteuer input handler:', error);
+                this.showToast('Fehler bei Eingabe: ' + error.message, 'danger');
             }
         };
         
-        immobilienartSelect.addEventListener('change', immobilienartHandler);
-        this.eventListenersCleanup.add(() => immobilienartSelect.removeEventListener('change', immobilienartHandler));
-    }
-    
-    // General handlers for other inputs
-    const erbschaftInputs = document.querySelectorAll('#erbschaft_immobilienwert, #verwandtschaftsgrad, #sonstiges_vermoegen, #selbstnutzung_erbe, #lebzeitige_uebertragung');
-    
-    erbschaftInputs.forEach(input => {
-        if (input) {
-            const handler = (e) => {
-                try {
-                    console.log('Erbschaftsteuer input changed:', e.target.id, e.target.value);
-                    this.validateField(e.target);
-                    this.saveErbschaftData();
-                    
-                    if (this.realtimeEnabled) {
-                        this.debouncedCalculateErbschaftsteuer();
-                    }
-                } catch (error) {
-                    console.error('Error in Erbschaftsteuer input handler:', error);
-                    this.showToast('Fehler bei Eingabe: ' + error.message, 'danger');
-                }
-            };
-            
-            if (input.type === 'select-one' || input.tagName === 'SELECT') {
-                input.addEventListener('change', handler);
-                this.eventListenersCleanup.add(() => input.removeEventListener('change', handler));
-            } else {
-                input.addEventListener('input', handler);
-                this.eventListenersCleanup.add(() => input.removeEventListener('input', handler));
-            }
+        // Add appropriate event listener based on element type
+        if (element.type === 'checkbox') {
+            element.addEventListener('change', handler);
+        } else if (element.tagName === 'SELECT') {
+            element.addEventListener('change', handler);
+        } else {
+            element.addEventListener('input', handler);
         }
+        
+        // Store handler for cleanup
+        this.eventListenersCleanup.add(() => {
+            element.removeEventListener('change', handler);
+            element.removeEventListener('input', handler);
+        });
     });
 }
 
+// Fix 5: Improved handleImmobilienartChange method
 handleImmobilienartChange(newValue) {
     console.log('Immobilienart changed to:', newValue);
     
     try {
-        // Update related fields based on property type
         const selbstnutzungCheckbox = document.getElementById('selbstnutzung_erbe');
         
         if (selbstnutzungCheckbox) {
@@ -6114,7 +6161,6 @@ handleImmobilienartChange(newValue) {
             if (newValue === 'gewerbe' || newValue === 'grundstueck') {
                 selbstnutzungCheckbox.disabled = true;
                 selbstnutzungCheckbox.checked = false;
-                // Show info about why it's disabled
                 this.showToast('ℹ️ Selbstnutzung bei Gewerbe/Grundstück nicht relevant', 'info');
             } else {
                 selbstnutzungCheckbox.disabled = false;
@@ -7226,29 +7272,48 @@ handleImmobilienartChange(newValue) {
             container.innerHTML = html;
         }
 
-        async calculateErbschaftsteuer() {
+        // 3. Enhanced calculateErbschaftsteuer with better validation
+async calculateErbschaftsteuer() {
     try {
+        console.log('=== Starting Erbschaftsteuer Calculation ===');
         this.showProgress('Berechne Erbschaftsteuer...', 20);
         
-        // Add validation before calculation
+        // Collect data first
         const data = this.collectErbschaftData();
-        console.log('Erbschaftsteuer data collected:', data); // Debug log
+        console.log('Collected data:', data);
         
-        // Validate required fields
-        if (!data.immobilienwert || data.immobilienwert <= 0) {
-            throw new Error('Immobilienwert ist erforderlich und muss größer als 0 sein');
+        // Validate the data specifically for Erbschaftsteuer
+        const validationResult = this.validateFormData(data, 'erbschaft');
+        if (!validationResult) {
+            throw new Error('Bitte füllen Sie alle erforderlichen Felder aus');
         }
         
-        const results = await this.calculationEngine.calculate('erbschaft', data);
-        console.log('Erbschaftsteuer results:', results); // Debug log
+        // Additional manual checks
+        if (!data.immobilienwert || data.immobilienwert <= 0) {
+            throw new Error('Immobilienwert muss größer als 0 sein');
+        }
         
-        this.showProgress('Erstelle Erbschaft-Ergebnisse...', 80);
+        if (!data.verwandtschaftsgrad || data.verwandtschaftsgrad.trim() === '') {
+            throw new Error('Bitte wählen Sie einen Verwandtschaftsgrad aus');
+        }
+        
+        this.showProgress('Führe Berechnung durch...', 50);
+        
+        // Perform calculation
+        const results = await this.calculationEngine.calculate('erbschaft', data);
+        console.log('Calculation results:', results);
+        
+        this.showProgress('Erstelle Ergebnisse...', 80);
+        
+        // Display results
         this.displayErbschaftResults(results);
         
-        // Save results to section data
+        // Save results
         if (!this.sectionData) this.sectionData = {};
         this.sectionData.erbschaft = data;
         this.sectionData.erbschaftResults = results;
+        
+        this.showProgress('Fertig!', 100);
         
         setTimeout(() => {
             this.hideProgress();
@@ -7263,17 +7328,32 @@ handleImmobilienartChange(newValue) {
     }
 }
 
+// 2. Fixed collectErbschaftData method with proper field mapping
 collectErbschaftData() {
+    // Collect data directly from the DOM elements
+    const immobilienwertEl = document.getElementById('erbschaft_immobilienwert');
+    const verwandtschaftsgradEl = document.getElementById('verwandtschaftsgrad');
+    const immobilienartEl = document.getElementById('erbschaft_immobilienart');
+    const sonstigesVermoegenEl = document.getElementById('sonstiges_vermoegen');
+    const selbstnutzungEl = document.getElementById('selbstnutzung_erbe');
+    const lebzeitigeUebertragungEl = document.getElementById('lebzeitige_uebertragung');
+    
     const data = {
-        immobilienwert: parseFloat(document.getElementById('erbschaft_immobilienwert')?.value) || 0,
-        verwandtschaftsgrad: document.getElementById('verwandtschaftsgrad')?.value || 'kind',
-        immobilienart: document.getElementById('erbschaft_immobilienart')?.value || 'eigenheim',
-        sonstiges_vermoegen: parseFloat(document.getElementById('sonstiges_vermoegen')?.value) || 0,
-        selbstnutzung: document.getElementById('selbstnutzung_erbe')?.checked || false,
-        lebzeitige_uebertragung: document.getElementById('lebzeitige_uebertragung')?.checked || false
+        immobilienwert: immobilienwertEl ? (parseFloat(immobilienwertEl.value) || 0) : 0,
+        verwandtschaftsgrad: verwandtschaftsgradEl ? (verwandtschaftsgradEl.value || 'kind') : 'kind',
+        immobilienart: immobilienartEl ? (immobilienartEl.value || 'eigenheim') : 'eigenheim',
+        sonstiges_vermoegen: sonstigesVermoegenEl ? (parseFloat(sonstigesVermoegenEl.value) || 0) : 0,
+        selbstnutzung: selbstnutzungEl ? selbstnutzungEl.checked : false,
+        lebzeitige_uebertragung: lebzeitigeUebertragungEl ? lebzeitigeUebertragungEl.checked : false
     };
     
-    console.log('Collected Erbschaftsteuer data:', data); // Debug
+    // Debug output
+    console.log('=== Erbschaftsteuer Data Collection Debug ===');
+    console.log('immobilienwert element found:', !!immobilienwertEl, 'value:', immobilienwertEl?.value);
+    console.log('verwandtschaftsgrad element found:', !!verwandtschaftsgradEl, 'value:', verwandtschaftsgradEl?.value);
+    console.log('Final collected data:', data);
+    console.log('============================================');
+    
     return data;
 }
 
