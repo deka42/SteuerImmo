@@ -4199,7 +4199,7 @@ List available plugins
     }
 
     setupValidation() {
-        this.addValidationRule('immobilienwert', {
+            this.addValidationRule('erbschaft_immobilienwert', {
             validator: (value) => value > 0,
             message: 'Immobilienwert muss größer als 0 sein'
         });
@@ -4776,6 +4776,49 @@ openCalculationsNewTab() {
             this.setupRealtimeValidation();
             
             // Navigation
+        get debouncedCalculateErbschaftsteuer() {
+            if (!this._debouncedCalculateErbschaftsteuer) {
+                this._debouncedCalculateErbschaftsteuer = this.debounce(() => {
+                    if (this.realtimeEnabled) {
+                        this.calculateErbschaftsteuer();
+                    }
+                }, 800); // Longer delay for complex calculations
+            }
+            return this._debouncedCalculateErbschaftsteuer;
+        }
+
+        get debouncedCalculateSchenkungssteuer() {
+            if (!this._debouncedCalculateSchenkungssteuer) {
+                this._debouncedCalculateSchenkungssteuer = this.debounce(() => {
+                    if (this.realtimeEnabled) {
+                        this.calculateSchenkungssteuer();
+                    }
+                }, 800);
+            }
+            return this._debouncedCalculateSchenkungssteuer;
+        }
+
+        get debouncedCalculateGrundsteuer() {
+            if (!this._debouncedCalculateGrundsteuer) {
+                this._debouncedCalculateGrundsteuer = this.debounce(() => {
+                    if (this.realtimeEnabled) {
+                        this.calculateGrundsteuer();
+                    }
+                }, 800);
+            }
+            return this._debouncedCalculateGrundsteuer;
+        }
+
+        get debouncedCalculateCashflow() {
+            if (!this._debouncedCalculateCashflow) {
+                this._debouncedCalculateCashflow = this.debounce(() => {
+                    if (this.realtimeEnabled) {
+                        this.calculateCashflow();
+                    }
+                }, 800);
+            }
+            return this._debouncedCalculateCashflow;
+        }
             document.querySelectorAll('.nav-link').forEach(link => {
                 const handler = (e) => {
                     e.preventDefault();
@@ -4822,8 +4865,10 @@ openCalculationsNewTab() {
                    // Save state before changes for undo functionality
                    if (!this.isRestoringState) {
                        this.saveCurrentState();
+                        this.showToast('ℹ️ Selbstnutzung bei Gewerbe/Grundstück nicht relevant', 'info');
                        // Also save to current scenario immediately
                        this.saveCurrentScenarioData();
+                        this.showToast('✅ Selbstnutzung kann ausgewählt werden', 'success');
                    }
                     
                     // Trigger validation - FIXED: use e.target instead of undefined element
@@ -6016,9 +6061,17 @@ openCalculationsNewTab() {
     // Special handler for Immobilienart dropdown
     const immobilienartSelect = document.getElementById('erbschaft_immobilienart');
     if (immobilienartSelect) {
-        const immobilienartHandler = (e) => {
-            try {
-                this.handleImmobilienartChange(e.target.value);
+                const changeHandler = (e) => {
+                    try {
+                        this.handleImmobilienartChange(e.target.value);
+                    } catch (error) {
+                        console.error('Error in Immobilienart change handler:', error);
+                        this.showToast('Fehler bei Immobilienart-Änderung: ' + error.message, 'danger');
+                    }
+                };
+                
+                immobilienartSelect.addEventListener('change', changeHandler);
+                this.eventListenersCleanup.add(() => immobilienartSelect.removeEventListener('change', changeHandler));
                 this.validateField(e.target);
                 this.saveErbschaftData();
                 
@@ -7199,7 +7252,8 @@ handleImmobilienartChange(newValue) {
         console.log('Erbschaftsteuer data collected:', data); // Debug log
         
         // Validate required fields
-        if (!data.immobilienwert || data.immobilienwert <= 0) {
+                const immobilienwert = data.erbschaft_immobilienwert || data.immobilienwert || 0;
+                if (!immobilienwert || immobilienwert <= 0) {
             throw new Error('Immobilienwert ist erforderlich und muss größer als 0 sein');
         }
         
@@ -7742,12 +7796,17 @@ collectErbschaftData() {
                 setTimeout(() => this.calculateOptimal(), 500);
             }
         }
-
-        loadGrundsteuerExample() {
-            const exampleData = {
-                grundstuecksflaeche: 800,
-                wohnflaeche: 150,
-                baujahr: 1995,
+                        try {
+                            console.log('Erbschaftsteuer input changed:', e.target.id, e.target.value);
+                            this.validateField(e.target);
+                            this.saveErbschaftData();
+                            
+                            if (this.realtimeEnabled) {
+                                this.debouncedCalculateErbschaftsteuer();
+                            }
+                        } catch (error) {
+                            console.error('Error in Erbschaftsteuer input handler:', error);
+                            this.showToast('Fehler bei Eingabe: ' + error.message, 'danger');
                 grundsteuer_immobilientyp: 'einfamilienhaus',
                 grundsteuer_bundesland: 'nw',
                 hebesatz_grundsteuer: 470
@@ -8187,11 +8246,13 @@ collectErbschaftData() {
         // Data Persistence
         saveData() {
             const data = {
-                scenarios: Object.fromEntries(this.scenarios),
+                erbschaft_immobilienwert: parseFloat(document.getElementById('erbschaft_immobilienwert')?.value) || 0,
+                immobilienwert: parseFloat(document.getElementById('erbschaft_immobilienwert')?.value) || 0, // Keep both for compatibility
                 currentScenario: this.currentScenario,
                 sectionData: this.sectionData,
                 settings: {
-                    realtimeEnabled: this.realtimeEnabled
+                erbschaft_immobilienart: document.getElementById('erbschaft_immobilienart')?.value || 'eigenheim',
+                immobilienart: document.getElementById('erbschaft_immobilienart')?.value || 'eigenheim', // Keep both for compatibility
                 },
                 version: this.version,
                 timestamp: new Date().toISOString()
@@ -8234,6 +8295,7 @@ collectErbschaftData() {
                     
                     console.log('✅ Saved data loaded successfully');
                 }
+                        this.eventListenersCleanup.add(() => input.removeEventListener('change', handler));
             } catch (error) {
                 console.warn('Could not load saved data:', error);
                 this.errorHandler.logError(error);
@@ -8338,6 +8400,7 @@ collectErbschaftData() {
                     } catch (error) {
                         console.error(`Error calculating scenario ${id}:`, error);
                         this.errorHandler.logError(error);
+                        this.eventListenersCleanup.add(() => input.removeEventListener('input', handler));
                     }
                 }
             }
