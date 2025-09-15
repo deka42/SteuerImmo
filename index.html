@@ -4962,12 +4962,29 @@ openCalculationsNewTab() {
 
             field.classList.remove('valid', 'invalid');
 
-            if (field.hasAttribute('required') || ['kaufpreis', 'verkaufspreis', 'haltedauer'].includes(fieldName)) {
-                if (!value || value.trim() === '') {
-                    isValid = false;
-                    errorMessage = 'Dieses Feld ist erforderlich';
-                }
-            }
+// NEW CODE - ADD THIS:
+// Get current section to determine which fields are required
+const currentSection = this.getCurrentSection();
+
+// Define required fields per section
+const requiredFieldsBySection = {
+    'verkauf': ['kaufpreis', 'verkaufspreis', 'haltedauer'],
+    'erbschaft': ['erbschaft_immobilienwert', 'verwandtschaftsgrad'],
+    'schenkung': ['schenkung_immobilienwert', 'beschenkter'],
+    'grundsteuer': ['grundstuecksflaeche', 'wohnflaeche'],
+    'cashflow': ['mieteinnahmen']
+};
+
+// Check if field is required for current section
+const requiredFields = requiredFieldsBySection[currentSection] || [];
+const isRequired = field.hasAttribute('required') || requiredFields.includes(fieldName);
+
+if (isRequired) {
+    if (!value || value.trim() === '') {
+        isValid = false;
+        errorMessage = 'Dieses Feld ist erforderlich';
+    }
+}
 
             if (field.type === 'number' && value) {
                 const numValue = parseFloat(value);
@@ -5128,33 +5145,52 @@ openCalculationsNewTab() {
             }
         }
 
-        validateFormData(data) {
-            let isValid = true;
-            const errors = [];
-
+        validateFormData(data, section = null) {
+    let isValid = true;
+    const errors = [];
+    
+    // Get current section if not provided
+    const currentSection = section || this.getCurrentSection();
+    
+    // Only validate fields relevant to current section
+    switch(currentSection) {
+        case 'verkauf':
             if (!data.kaufpreis || data.kaufpreis <= 0) {
                 errors.push('Kaufpreis ist erforderlich');
                 isValid = false;
             }
-
             if (!data.verkaufspreis || data.verkaufspreis <= 0) {
                 errors.push('Verkaufspreis ist erforderlich');
                 isValid = false;
             }
-
             if (data.haltedauer === undefined || data.haltedauer < 0) {
                 errors.push('Haltedauer ist erforderlich');
                 isValid = false;
             }
-
-            if (!isValid) {
-                errors.forEach(error => {
-                    this.showToast('⚠️ ' + error, 'warning');
-                });
+            break;
+            
+        case 'erbschaft':
+            if (!data.immobilienwert || data.immobilienwert <= 0) {
+                errors.push('Immobilienwert ist erforderlich');
+                isValid = false;
             }
+            if (!data.verwandtschaftsgrad) {
+                errors.push('Verwandtschaftsgrad ist erforderlich');
+                isValid = false;
+            }
+            break;
+            
+        // Add other sections as needed...
+    }
 
-            return isValid;
-        }
+    if (!isValid) {
+        errors.forEach(error => {
+            this.showToast('⚠️ ' + error, 'warning');
+        });
+    }
+
+    return isValid;
+}
 
         displayResults(results) {
             const container = document.getElementById('results-container');
@@ -7241,17 +7277,17 @@ collectErbschaftData() {
     return data;
 }
 
-        // Add debounced calculation method for Erbschaftsteuer
-        get debouncedCalculateErbschaftsteuer() {
-            if (!this._debouncedCalculateErbschaftsteuer) {
-                this._debouncedCalculateErbschaftsteuer = this.debounce(() => {
-                    if (this.realtimeEnabled) {
-                        this.calculateErbschaftsteuer();
-                    }
-                }, 800); // Longer delay for complex calculations
+        // Add this missing getter method after your other debounced methods
+get debouncedCalculateErbschaftsteuer() {
+    if (!this._debouncedCalculateErbschaftsteuer) {
+        this._debouncedCalculateErbschaftsteuer = this.debounce(() => {
+            if (this.realtimeEnabled) {
+                this.calculateErbschaftsteuer();
             }
-            return this._debouncedCalculateErbschaftsteuer;
-        }
+        }, 800);
+    }
+    return this._debouncedCalculateErbschaftsteuer;
+}
 
         displayErbschaftResults(results) {
             const container = document.getElementById('erbschaft-results');
