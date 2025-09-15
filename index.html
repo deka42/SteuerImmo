@@ -6016,9 +6016,23 @@ openCalculationsNewTab() {
     // Special handler for Immobilienart dropdown
     const immobilienartSelect = document.getElementById('erbschaft_immobilienart');
     if (immobilienartSelect) {
-        immobilienartSelect.addEventListener('change', (e) => {
-            this.handleImmobilienartChange(e.target.value);
-        });
+        const immobilienartHandler = (e) => {
+            try {
+                this.handleImmobilienartChange(e.target.value);
+                this.validateField(e.target);
+                this.saveErbschaftData();
+                
+                if (this.realtimeEnabled) {
+                    this.debouncedCalculateErbschaftsteuer();
+                }
+            } catch (error) {
+                console.error('Error in Immobilienart handler:', error);
+                this.showToast('Fehler bei Immobilienart-Änderung: ' + error.message, 'danger');
+            }
+        };
+        
+        immobilienartSelect.addEventListener('change', immobilienartHandler);
+        this.eventListenersCleanup.add(() => immobilienartSelect.removeEventListener('change', immobilienartHandler));
     }
     
     // General handlers for other inputs
@@ -6027,19 +6041,26 @@ openCalculationsNewTab() {
     erbschaftInputs.forEach(input => {
         if (input) {
             const handler = (e) => {
-                console.log('Erbschaftsteuer input changed:', e.target.id, e.target.value);
-                this.validateField(e.target);
-                this.saveErbschaftData();
-                
-                if (this.realtimeEnabled) {
-                    this.debouncedCalculateErbschaftsteuer();
+                try {
+                    console.log('Erbschaftsteuer input changed:', e.target.id, e.target.value);
+                    this.validateField(e.target);
+                    this.saveErbschaftData();
+                    
+                    if (this.realtimeEnabled) {
+                        this.debouncedCalculateErbschaftsteuer();
+                    }
+                } catch (error) {
+                    console.error('Error in Erbschaftsteuer input handler:', error);
+                    this.showToast('Fehler bei Eingabe: ' + error.message, 'danger');
                 }
             };
             
             if (input.type === 'select-one' || input.tagName === 'SELECT') {
                 input.addEventListener('change', handler);
+                this.eventListenersCleanup.add(() => input.removeEventListener('change', handler));
             } else {
                 input.addEventListener('input', handler);
+                this.eventListenersCleanup.add(() => input.removeEventListener('input', handler));
             }
         }
     });
@@ -6057,14 +6078,24 @@ handleImmobilienartChange(newValue) {
             if (newValue === 'gewerbe' || newValue === 'grundstueck') {
                 selbstnutzungCheckbox.disabled = true;
                 selbstnutzungCheckbox.checked = false;
+                // Show info about why it's disabled
+                this.showToast('ℹ️ Selbstnutzung bei Gewerbe/Grundstück nicht relevant', 'info');
             } else {
                 selbstnutzungCheckbox.disabled = false;
             }
         }
         
-        // Trigger recalculation
-        if (this.realtimeEnabled) {
-            this.debouncedCalculateErbschaftsteuer();
+        // Update help text based on property type
+        const helpText = document.getElementById('erbschaft_immobilienart-help');
+        if (helpText) {
+            const helpTexts = {
+                'eigenheim': 'Eigenheim kann bei Selbstnutzung steuerfrei übertragen werden',
+                'vermietung': 'Vermietungsimmobilie - normale Erbschaftsteuer-Berechnung',
+                'ferienhaus': 'Ferienhaus - keine Steuerbefreiung möglich',
+                'gewerbe': 'Gewerbeimmobilie - spezielle Bewertungsregeln',
+                'grundstueck': 'Unbebautes Grundstück - Bodenrichtwert relevant'
+            };
+            helpText.textContent = helpTexts[newValue] || 'Art der zu vererbenden Immobilie';
         }
         
     } catch (error) {
@@ -7210,6 +7241,18 @@ collectErbschaftData() {
     return data;
 }
 
+        // Add debounced calculation method for Erbschaftsteuer
+        get debouncedCalculateErbschaftsteuer() {
+            if (!this._debouncedCalculateErbschaftsteuer) {
+                this._debouncedCalculateErbschaftsteuer = this.debounce(() => {
+                    if (this.realtimeEnabled) {
+                        this.calculateErbschaftsteuer();
+                    }
+                }, 800); // Longer delay for complex calculations
+            }
+            return this._debouncedCalculateErbschaftsteuer;
+        }
+
         displayErbschaftResults(results) {
             const container = document.getElementById('erbschaft-results');
             if (!container) return;
@@ -7253,6 +7296,34 @@ collectErbschaftData() {
                             <span class="result-value">Steuerklasse ${results.steuerklasse}</span>
                         </div>
                     </div>
+                    
+                    ${results.erbschaftsteuer === 0 ? `
+                        <div class="result-card best">
+                            <div class="result-header">
+                                <h3 class="result-title">🎉 Steuerbefreiung</h3>
+                                <span class="result-badge">👑 OPTIMAL</span>
+                            </div>
+                            <div class="alert alert-success">
+                                <p><strong>Glückwunsch!</strong> Ihre Erbschaft ist steuerfrei!</p>
+                                <p>Grund: ${results.freibetrag >= results.gesamtvermoegen ? 'Freibetrag ausreichend' : 'Familienheim-Regelung'}</p>
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="result-card">
+                            <div class="result-header">
+                                <h3 class="result-title">💡 Optimierungsmöglichkeiten</h3>
+                            </div>
+                            <div style="padding: 1rem;">
+                                <h4>Mögliche Steuerreduzierung:</h4>
+                                <ul style="margin: 0.5rem 0 0 1.5rem;">
+                                    <li>Schenkung zu Lebzeiten (alle 10 Jahre Freibetrag nutzen)</li>
+                                    <li>Nießbrauch-Konstruktionen für laufende Einkünfte</li>
+                                    <li>Familienpool-Strukturen für Verteilung</li>
+                                    ${results.immobilienart === 'eigenheim' ? '<li>Selbstnutzung durch Erben prüfen (Familienheim-Regelung)</li>' : ''}
+                                </ul>
+                            </div>
+                        </div>
+                    `}
                 </div>
             `;
 
