@@ -2418,13 +2418,140 @@ font-weight: 700 !important;
                 <p>Die Ultimate Enterprise Tax Suite wird geladen. Bitte warten Sie einen Moment...</p>
             </div>
         </div>
+
+            <!-- Schenkungssteuer Calculator -->
+            <div id="schenkungssteuer" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <span class="nav-icon">🎁</span>
+                            Schenkungssteuer-Rechner 2025
+                        </h3>
+                    </div>
+                    
+                    <form id="schenkungssteuerForm">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="schenkung_immobilienwert" class="form-label">
+                                    Immobilienwert <span class="required">*</span>
+                                </label>
+                                <input type="number" id="schenkung_immobilienwert" class="form-input" 
+                                       placeholder="z.B. 500000" min="0" step="1000" required>
+                                <div class="form-help">Aktueller Verkehrswert der Immobilie</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="beschenkter" class="form-label">
+                                    Beschenkter <span class="required">*</span>
+                                </label>
+                                <select id="beschenkter" class="form-select" required>
+                                    <option value="">Bitte wählen...</option>
+                                    <option value="ehepartner">Ehepartner/Lebenspartner</option>
+                                    <option value="kind">Kind</option>
+                                    <option value="enkel">Enkel</option>
+                                    <option value="urenkel">Urenkel</option>
+                                    <option value="eltern">Eltern</option>
+                                    <option value="geschwister">Geschwister</option>
+                                    <option value="neffe_nichte">Neffe/Nichte</option>
+                                    <option value="sonstige">Sonstige Verwandte</option>
+                                    <option value="fremde">Fremde Person</option>
+                                </select>
+                            </div>
     </div>
+                            <div class="form-group">
+                                <label for="vorherige_schenkungen" class="form-label">
+                                    Vorherige Schenkungen (10 Jahre)
+                                </label>
+                                <input type="number" id="vorherige_schenkungen" class="form-input" 
+                                       placeholder="z.B. 50000" min="0" step="1000" value="0">
+                                <div class="form-help">Schenkungen der letzten 10 Jahre an dieselbe Person</div>
+                            </div>
 </main>
+                            <div class="form-group">
+                                <label for="schenkungsart" class="form-label">
+                                    Art der Schenkung
+                                </label>
+                                <select id="schenkungsart" class="form-select">
+                                    <option value="vollschenkung">Vollschenkung</option>
+                                    <option value="teilschenkung">Teilschenkung</option>
+                                    <option value="niesbrauch">Schenkung mit Nießbrauch</option>
+                                </select>
+                            </div>
 
+                            <div class="form-group" id="teilschenkung_group" style="display: none;">
+                                <label for="schenkungsanteil" class="form-label">
+                                    Schenkungsanteil (%)
+                                </label>
+                                <input type="number" id="schenkungsanteil" class="form-input" 
+                                       placeholder="z.B. 50" min="1" max="100" step="1" value="100">
+                            </div>
 <!-- Enhanced Analytics Panel -->
+                            <div class="form-group" id="niesbrauch_group" style="display: none;">
+                                <label for="niesbrauchswert" class="form-label">
+                                    Jährlicher Nießbrauchswert
+                                </label>
+                                <input type="number" id="niesbrauchswert" class="form-input" 
+                                       placeholder="z.B. 24000" min="0" step="1000" value="0">
+                                <div class="form-help">Jährliche Mieteinnahmen oder Nutzungswert</div>
+                            </div>
 
+                            <div class="form-group" id="alter_group" style="display: none;">
+                                <label for="alter_schenker" class="form-label">
+                                    Alter des Schenkers
+                                </label>
+                                <input type="number" id="alter_schenker" class="form-input" 
+                                       placeholder="z.B. 65" min="18" max="100" step="1" value="65">
+                            </div>
+                        </div>
 <aside class="analytics-panel" role="complementary" aria-label="Analytics und Statistiken">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary" onclick="calculateSchenkungssteuer()">
+                                <span>📊</span> Schenkungssteuer berechnen
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="loadSchenkungssteuerExample()">
+                                <span>💡</span> Beispiel laden
+                            </button>
+                        </div>
+                    </form>
     <div class="analytics-header">
+                    <!-- Results Section -->
+                    <div id="schenkungResult" class="results-container" style="display: none;">
+                        <h4>Berechnungsergebnis</h4>
+                        <div class="result-item">
+                            <span class="result-label">Schenkungswert:</span>
+                            <span class="result-value" id="schenkung_wert">0 €</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Gesamterwerb (inkl. Vorschenkungen):</span>
+                            <span class="result-value" id="schenkung_gesamterwerb">0 €</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Freibetrag:</span>
+                            <span class="result-value" id="schenkung_freibetrag">0 €</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Steuerpflichtiger Erwerb:</span>
+                            <span class="result-value" id="schenkung_steuerpflichtig">0 €</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Schenkungssteuer:</span>
+                            <span class="result-value highlight" id="schenkung_steuer">0 €</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Effektiver Steuersatz:</span>
+                            <span class="result-value" id="schenkung_steuersatz">0%</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Nettoschenkung:</span>
+                            <span class="result-value" id="schenkung_nettoschenkung">0 €</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Steuerklasse:</span>
+                            <span class="result-value" id="schenkung_steuerklasse">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         <h3>📊 Real-time Analytics</h3>
     </div>
 
