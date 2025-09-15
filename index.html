@@ -2342,7 +2342,7 @@ font-weight: 700 !important;
                     </a>
                 </li>
                 <li class="nav-item" role="none">
-    <a href="#calculations" class="nav-link" data-section="calculations" role="menuitem">
+    <a href="#calculations" class="nav-link" data-section="calculations" role="menuitem" onclick="app.loadCalculationsFrame()">
         <span class="nav-icon" role="img" aria-label="Rechner">🧮</span>
         Calculations
     </a>
@@ -4193,22 +4193,105 @@ List available plugins
     }
 
     class ErbschaftsteuerCalculator extends BaseCalculator {
-        constructor() {
-            super('erbschaftsteuer');
-            this.setupValidation();
-        }
+    constructor() {
+        super('erbschaftsteuer');
+        this.setupValidation();
+    }
 
-        setupValidation() {
-            this.addValidationRule('immobilienwert', {
-                validator: (value) => value > 0,
-                message: 'Immobilienwert muss größer als 0 sein'
-            });
+    setupValidation() {
+        this.addValidationRule('immobilienwert', {
+            validator: (value) => value > 0,
+            message: 'Immobilienwert muss größer als 0 sein'
+        });
+    }
+
+    performCalculation(data) {
+        try {
+            console.log('Starting Erbschaftsteuer calculation with:', data);
             
-            this.addValidationRule('verwandtschaftsgrad', {
-                validator: (value) => value && value.trim().length > 0,
-                message: 'Verwandtschaftsgrad ist erforderlich'
-            });
+            const freibetraege = {
+                'ehepartner': 500000,
+                'kind': 400000,
+                'enkel': 200000,
+                'eltern': 100000,
+                'geschwister': 20000,
+                'neffe_nichte': 20000,
+                'sonstige': 20000,
+                'fremde': 20000
+            };
+
+            const freibetrag = freibetraege[data.verwandtschaftsgrad] || 20000;
+            let gesamtvermoegen = (data.immobilienwert || 0) + (data.sonstiges_vermoegen || 0);
+            
+            // Apply discount for owner-occupied property
+            if (data.immobilienart === 'eigenheim' && data.selbstnutzung) {
+                gesamtvermoegen = (data.immobilienwert || 0) * 0.9 + (data.sonstiges_vermoegen || 0);
+            }
+
+            const steuerpflichtiger_erwerb = Math.max(0, gesamtvermoegen - freibetrag);
+            
+            // Simplified tax calculation
+            const steuerklassen = {
+                'ehepartner': 1, 'kind': 1, 'enkel': 1,
+                'eltern': 2, 'geschwister': 2, 'neffe_nichte': 2,
+                'sonstige': 3, 'fremde': 3
+            };
+            
+            const steuerklasse = steuerklassen[data.verwandtschaftsgrad] || 3;
+            let erbschaftsteuer = 0;
+            
+            if (steuerpflichtiger_erwerb > 0) {
+                // Progressive tax rates
+                const steuersaetze = {
+                    1: [7, 11, 15, 19, 23, 27, 30],
+                    2: [15, 20, 25, 30, 35, 40, 43],
+                    3: [30, 30, 30, 30, 50, 50, 50]
+                };
+                
+                const wertgrenzen = [75000, 300000, 600000, 6000000, 13000000, 26000000];
+                const saetze = steuersaetze[steuerklasse];
+                
+                // Calculate progressive tax
+                let verbleibendesSteuervolumen = steuerpflichtiger_erwerb;
+                let letzteGrenze = 0;
+                
+                for (let i = 0; i < wertgrenzen.length && verbleibendesSteuervolumen > 0; i++) {
+                    const aktuelleGrenze = wertgrenzen[i];
+                    const zuVersteuern = Math.min(verbleibendesSteuervolumen, aktuelleGrenze - letzteGrenze);
+                    erbschaftsteuer += zuVersteuern * (saetze[i] / 100);
+                    verbleibendesSteuervolumen -= zuVersteuern;
+                    letzteGrenze = aktuelleGrenze;
+                }
+                
+                // Remaining amount at highest rate
+                if (verbleibendesSteuervolumen > 0) {
+                    erbschaftsteuer += verbleibendesSteuervolumen * (saetze[saetze.length - 1] / 100);
+                }
+            }
+            
+            const nettoerbe = gesamtvermoegen - erbschaftsteuer;
+            const effektiver_steuersatz = gesamtvermoegen > 0 ? (erbschaftsteuer / gesamtvermoegen * 100) : 0;
+
+            const result = {
+                gesamtvermoegen,
+                freibetrag,
+                steuerpflichtiger_erwerb,
+                erbschaftsteuer,
+                nettoerbe,
+                steuerklasse,
+                effektiver_steuersatz
+            };
+            
+            console.log('Erbschaftsteuer calculation result:', result);
+            return result;
+            
+        } catch (error) {
+            console.error('Error in Erbschaftsteuer calculation:', error);
+            throw error;
         }
+    }
+}
+
     class SchenkungsteuerCalculator extends BaseCalculator {
         constructor() {
             super('schenkungssteuer');
@@ -4400,114 +4483,138 @@ List available plugins
             }
         }
 
-        loadCalculationsFrame() {
-            console.log('loadCalculationsFrame called');
-            
-            const contentArea = document.getElementById('dynamic-content');
-            if (!contentArea) {
-                console.error('dynamic-content element not found');
-                this.showToast('Error: Content area not found', 'danger');
-                return;
-            }
-            
-            try {
-                // Track navigation to calculations
-                if (this.gaTracker) {
-                    this.gaTracker.trackUserJourney('navigation', 'calculations_opened', {
-                        source: 'sidebar_navigation'
-                    });
-                }
-                
-                // Save current section data before switching
-                this.saveCurrentSectionData();
-                
-                // Update navigation state
-                document.querySelectorAll('.nav-link').forEach(link => {
-                    link.classList.remove('active');
-                });
-                const calcLink = document.querySelector('[data-section="calculations"]');
-                if (calcLink) {
-                    calcLink.classList.add('active');
-                }
-                
-                // Create the iframe content
-                const iframeContent = `
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">
-                                <span>🧮</span>
-                                <span>Tax Calculations</span>
-                            </div>
-                            <button onclick="app.navigateToSection('verkauf')" 
-                                    class="btn btn-outline" 
-                                    style="margin-left: auto; padding: 0.5rem 1rem; font-size: 0.9rem;"
-                                    title="Zurück zur Steuerberechnung">
-                                ← Zurück
-                            </button>
-                        </div>
-                        <div style="height: calc(100vh - 250px); border-radius: 8px; overflow: hidden; background: #f8f9fa; position: relative;">
-                            <div id="iframe-loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
-                                <div style="font-size: 2rem; margin-bottom: 1rem;">🧮</div>
-                                <div>Loading calculations...</div>
-                            </div>
-                            <iframe 
-                                id="calculations-iframe"
-                                src="calculations.html" 
-                                style="width: 100%; height: 100%; border: none; border-radius: 8px; background: white; opacity: 0; transition: opacity 0.3s;"
-                                title="Tax Calculations"
-                                onload="
-                                    this.style.opacity = '1';
-                                    document.getElementById('iframe-loading').style.display = 'none';
-                                    if (window.app) app.showToast('🧮 Calculations loaded successfully', 'success');
-                                "
-                                onerror="
-                                    console.error('Iframe failed to load');
-                                    if (window.app) app.showToast('❌ Failed to load calculations', 'danger');
-                                ">
-                                <p>Your browser does not support iframes. 
-                                   <a href="calculations.html" target="_blank">
-                                      Click here to open calculations in new tab
-                                   </a>
-                                </p>
-                            </iframe>
-                        </div>
-                    </div>
-                `;
-                
-                // Set the content
-                contentArea.innerHTML = iframeContent;
-                
-                console.log('Content set successfully');
-                this.showToast('🧮 Loading calculations page...', 'info');
-                
-            } catch (error) {
-                console.error('Error in loadCalculationsFrame:', error);
-                this.showToast('Error loading calculations: ' + error.message, 'danger');
-            }
-        }
+// Replace the existing loadCalculationsFrame method with this updated version
 
-        openCalculationsNewTab() {
-            console.log('Opening calculations in new tab');
-            
-            try {
-                if (this.gaTracker) {
-                    this.gaTracker.trackUserJourney('navigation', 'calculations_opened_new_tab', {
-                        source: 'sidebar_navigation'
-                    });
-                }
-                
-                const newTab = window.open('calculations.html', '_blank');
-                
-                if (newTab) {
-                    this.showToast('🧮 Calculations opened in new tab', 'success');
-                } else {
-                    this.showToast('❌ Pop-up blocked. Please allow pop-ups and try again.', 'warning');
-                }
-            } catch (error) {
-                console.error('Error opening new tab:', error);
-                this.showToast('❌ Failed to open calculations', 'danger');
-            }
+// 2. Updated loadCalculationsFrame method with debugging:
+loadCalculationsFrame() {
+    console.log('loadCalculationsFrame called'); // Debug log
+    
+    const contentArea = document.getElementById('dynamic-content');
+    console.log('Content area found:', !!contentArea); // Debug log
+    
+    if (!contentArea) {
+        console.error('dynamic-content element not found');
+        this.showToast('Error: Content area not found', 'danger');
+        return;
+    }
+    
+    try {
+        // Track navigation to calculations
+        if (this.gaTracker) {
+            this.gaTracker.trackUserJourney('navigation', 'calculations_opened', {
+                source: 'sidebar_navigation'
+            });
         }
+        
+        // Save current section data before switching
+        this.saveCurrentSectionData();
+        
+        // Update navigation state
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.classList.remove('active');
+        });
+        const calcLink = document.querySelector('[data-section="calculations"]');
+        if (calcLink) {
+            calcLink.classList.add('active');
+        }
+        
+        // Create the iframe content
+        const iframeContent = `
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>🧮</span>
+                        <span>Tax Calculations</span>
+                    </div>
+                    <button onclick="app.navigateToSection('verkauf')" 
+                            class="btn btn-outline" 
+                            style="margin-left: auto; padding: 0.5rem 1rem; font-size: 0.9rem;"
+                            title="Zurück zur Steuerberechnung">
+                        ← Zurück
+                    </button>
+                </div>
+                <div style="height: calc(100vh - 250px); border-radius: 8px; overflow: hidden; background: #f8f9fa; position: relative;">
+                    <div id="iframe-loading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                        <div style="font-size: 2rem; margin-bottom: 1rem;">🧮</div>
+                        <div>Loading calculations...</div>
+                    </div>
+                    <iframe 
+                        id="calculations-iframe"
+                        src="https://deka42.github.io/SteuerImmo/calculations.html" 
+                        style="width: 100%; height: 100%; border: none; border-radius: 8px; background: white; opacity: 0; transition: opacity 0.3s;"
+                        title="Tax Calculations"
+                        onload="
+                            this.style.opacity = '1';
+                            document.getElementById('iframe-loading').style.display = 'none';
+                            if (window.app) app.showToast('🧮 Calculations loaded successfully', 'success');
+                        "
+                        onerror="
+                            console.error('Iframe failed to load');
+                            if (window.app) app.showToast('❌ Failed to load calculations', 'danger');
+                        ">
+                        <p>Your browser does not support iframes. 
+                           <a href="https://deka42.github.io/SteuerImmo/calculations.html" target="_blank">
+                              Click here to open calculations in new tab
+                           </a>
+                        </p>
+                    </iframe>
+                </div>
+            </div>
+        `;
+        
+        // Set the content
+        contentArea.innerHTML = iframeContent;
+        
+        console.log('Content set successfully'); // Debug log
+        this.showToast('🧮 Loading calculations page...', 'info');
+        
+        // Test iframe loading after a short delay
+        setTimeout(() => {
+            const iframe = document.getElementById('calculations-iframe');
+            if (iframe) {
+                console.log('Iframe found, src:', iframe.src);
+                // Try to detect if iframe loaded
+                try {
+                    if (iframe.contentDocument || iframe.contentWindow) {
+                        console.log('Iframe appears to be loading/loaded');
+                    }
+                } catch (e) {
+                    console.log('Iframe cross-origin restriction (this is normal)');
+                }
+            } else {
+                console.error('Iframe not found after setting content');
+            }
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Error in loadCalculationsFrame:', error);
+        this.showToast('Error loading calculations: ' + error.message, 'danger');
+    }
+}
+
+// 3. Alternative method - open in new tab (simpler, always works)
+openCalculationsNewTab() {
+    console.log('Opening calculations in new tab');
+    
+    try {
+        if (this.gaTracker) {
+            this.gaTracker.trackUserJourney('navigation', 'calculations_opened_new_tab', {
+                source: 'sidebar_navigation'
+            });
+        }
+        
+        const newTab = window.open('https://deka42.github.io/SteuerImmo/calculations.html', '_blank');
+        
+        if (newTab) {
+            this.showToast('🧮 Calculations opened in new tab', 'success');
+        } else {
+            this.showToast('❌ Pop-up blocked. Please allow pop-ups and try again.', 'warning');
+        }
+    } catch (error) {
+        console.error('Error opening new tab:', error);
+        this.showToast('❌ Failed to open calculations', 'danger');
+    }
+}
 
         // Enhanced Web Worker Implementation
         async initializeWebWorker() {
@@ -4855,25 +4962,29 @@ List available plugins
 
             field.classList.remove('valid', 'invalid');
 
-            const currentSection = this.getCurrentSection();
-            
-            const requiredFieldsBySection = {
-                'verkauf': ['kaufpreis', 'verkaufspreis', 'haltedauer'],
-                'erbschaft': ['erbschaft_immobilienwert', 'verwandtschaftsgrad'],
-                'schenkung': ['schenkung_immobilienwert', 'beschenkter'],
-                'grundsteuer': ['grundstuecksflaeche', 'wohnflaeche'],
-                'cashflow': ['mieteinnahmen']
-            };
-            
-            const requiredFields = requiredFieldsBySection[currentSection] || [];
-            const isRequired = field.hasAttribute('required') || requiredFields.includes(fieldName);
+// NEW CODE - ADD THIS:
+// Get current section to determine which fields are required
+const currentSection = this.getCurrentSection();
 
-            if (isRequired) {
-                if (!value || value.trim() === '') {
-                    isValid = false;
-                    errorMessage = 'Dieses Feld ist erforderlich';
-                }
-            }
+// Define required fields per section
+const requiredFieldsBySection = {
+    'verkauf': ['kaufpreis', 'verkaufspreis', 'haltedauer'],
+    'erbschaft': ['erbschaft_immobilienwert', 'verwandtschaftsgrad'],
+    'schenkung': ['schenkung_immobilienwert', 'beschenkter'],
+    'grundsteuer': ['grundstuecksflaeche', 'wohnflaeche'],
+    'cashflow': ['mieteinnahmen']
+};
+
+// Check if field is required for current section
+const requiredFields = requiredFieldsBySection[currentSection] || [];
+const isRequired = field.hasAttribute('required') || requiredFields.includes(fieldName);
+
+if (isRequired) {
+    if (!value || value.trim() === '') {
+        isValid = false;
+        errorMessage = 'Dieses Feld ist erforderlich';
+    }
+}
 
             if (field.type === 'number' && value) {
                 const numValue = parseFloat(value);
@@ -5035,73 +5146,52 @@ List available plugins
         }
 
         validateFormData(data, section = null) {
-            let isValid = true;
-            const errors = [];
-            
-            const currentSection = section || this.getCurrentSection();
-            
-            switch(currentSection) {
-                case 'verkauf':
-                    if (!data.kaufpreis || data.kaufpreis <= 0) {
-                        errors.push('Kaufpreis ist erforderlich');
-                        isValid = false;
-                    }
-                    if (!data.verkaufspreis || data.verkaufspreis <= 0) {
-                        errors.push('Verkaufspreis ist erforderlich');
-                        isValid = false;
-                    }
-                    if (data.haltedauer === undefined || data.haltedauer < 0) {
-                        errors.push('Haltedauer ist erforderlich');
-                        isValid = false;
-                    }
-                    break;
-                    
-                case 'erbschaft':
-                    if (!data.immobilienwert || data.immobilienwert <= 0) {
-                        errors.push('Immobilienwert ist erforderlich');
-                        isValid = false;
-                    }
-                    if (!data.verwandtschaftsgrad) {
-                        errors.push('Verwandtschaftsgrad ist erforderlich');
-                        isValid = false;
-                    }
-                    break;
-                    
-                case 'grundsteuer':
-                    if (!data.grundstuecksflaeche || data.grundstuecksflaeche <= 0) {
-                        errors.push('Grundstücksfläche ist erforderlich');
-                        isValid = false;
-                    }
-                    if (!data.wohnflaeche || data.wohnflaeche <= 0) {
-                        errors.push('Wohnfläche ist erforderlich');
-                        isValid = false;
-                    }
-                    break;
-                    
-                case 'schenkung':
-                    if (!data.immobilienwert || data.immobilienwert <= 0) {
-                        errors.push('Immobilienwert ist erforderlich');
-                        isValid = false;
-                    }
-                    if (!data.beschenkter) {
-                        errors.push('Beschenkter ist erforderlich');
-                        isValid = false;
-                    }
-                    break;
-                    
-                case 'cashflow':
-                    if (!data.mieteinnahmen || data.mieteinnahmen <= 0) {
-                        errors.push('Mieteinnahmen sind erforderlich');
-                        isValid = false;
-                    }
-                    break;
+    let isValid = true;
+    const errors = [];
+    
+    // Get current section if not provided
+    const currentSection = section || this.getCurrentSection();
+    
+    // Only validate fields relevant to current section
+    switch(currentSection) {
+        case 'verkauf':
+            if (!data.kaufpreis || data.kaufpreis <= 0) {
+                errors.push('Kaufpreis ist erforderlich');
+                isValid = false;
             }
+            if (!data.verkaufspreis || data.verkaufspreis <= 0) {
+                errors.push('Verkaufspreis ist erforderlich');
+                isValid = false;
+            }
+            if (data.haltedauer === undefined || data.haltedauer < 0) {
+                errors.push('Haltedauer ist erforderlich');
+                isValid = false;
+            }
+            break;
+            
+        case 'erbschaft':
+            if (!data.immobilienwert || data.immobilienwert <= 0) {
+                errors.push('Immobilienwert ist erforderlich');
+                isValid = false;
+            }
+            if (!data.verwandtschaftsgrad) {
+                errors.push('Verwandtschaftsgrad ist erforderlich');
+                isValid = false;
+            }
+            break;
+            
+        // Add other sections as needed...
+    }
 
-            if (!isValid) {
-                errors.forEach(error => {
-                    this.showToast('⚠️ ' + error, 'warning');
-                });
-            }
+    if (!isValid) {
+        errors.forEach(error => {
+            this.showToast('⚠️ ' + error, 'warning');
+        });
+    }
+
+    return isValid;
+}
+
         displayResults(results) {
             const container = document.getElementById('results-container');
             
@@ -5795,30 +5885,30 @@ List available plugins
             let content = '';
             
             switch(section) {
-                case 'verkauf':
-                    content = this.generateVerkaufContent();
-                    break;
-                case 'grundsteuer':
-                    content = this.generateGrundsteuerContent();
-                    break;
-                case 'erbschaft':
-                    content = this.generateErbschaftContent();
-                    break;
-                case 'schenkung':
-                    content = this.generateSchenkungContent();
-                    break;
-                case 'cashflow':
-                    content = this.generateCashflowContent();
-                    break;
-                case 'strategie':
-                    content = this.generateStrategieContent();
-                    break;
-                case 'calculations':
-                    this.loadCalculationsFrame();
-                    return;
-                default:
-                    content = this.generateVerkaufContent();
-            }
+    case 'verkauf':
+        content = this.generateVerkaufContent();
+        break;
+    case 'grundsteuer':
+        content = this.generateGrundsteuerContent();
+        break;
+    case 'erbschaft':
+        content = this.generateErbschaftContent();
+        break;
+    case 'schenkung':
+        content = this.generateSchenkungContent();
+        break;
+    case 'cashflow':
+        content = this.generateCashflowContent();
+        break;
+    case 'strategie':
+        content = this.generateStrategieContent();
+        break;
+    case 'calculations':  // Add this case
+        this.loadCalculationsFrame();
+        return; // Exit early since we're handling this differently
+    default:
+        content = this.generateVerkaufContent();
+}
             
             contentArea.innerHTML = content;
             
@@ -5930,85 +6020,126 @@ List available plugins
 
         setupSectionSpecificHandlers(section) {
             switch(section) {
-                case 'calculations':
-                    console.log('Setting up calculations handlers');
-                    // Any specific setup for calculations can go here
-                    break;
-                case 'grundsteuer':
-                    this.setupGrundsteuerEventHandlers();
-                    break;
-                case 'erbschaft':
-                    this.setupErbschaftEventHandlers();
-                    break;
-                case 'schenkung':
-                    this.setupSchenkungEventHandlers();
-                    break;
-                case 'cashflow':
-                    this.setupCashflowEventHandlers();
-                    break;
-                case 'strategie':
-                    this.setupStrategieEventHandlers();
-                    break;
-            }
-        }
+        case 'calculations':
+            console.log('Setting up calculations handlers');
+            // Any specific setup for calculations can go here
+            break;
+        case 'grundsteuer':
+            this.setupGrundsteuerEventHandlers();
+            break;
+        case 'erbschaft':
+            this.setupErbschaftEventHandlers();
+            break;
+        case 'schenkung':
+            this.setupSchenkungEventHandlers();
+            break;
+        case 'cashflow':
+            this.setupCashflowEventHandlers();
+            break;
+        case 'strategie':
+            this.setupStrategieEventHandlers();
+            break;
+    }
+}
 
         setupGrundsteuerEventHandlers() {
             console.log('Setting up Grundsteuer event handlers');
         }
 
         setupErbschaftEventHandlers() {
-            console.log('Setting up Erbschaft event handlers');
-            
-            const erbschaftFields = [
-                'erbschaft_immobilienwert',
-                'verwandtschaftsgrad', 
-                'erbschaft_immobilienart',
-                'sonstiges_vermoegen',
-                'selbstnutzung_erbe',
-                'lebzeitige_uebertragung'
-            ];
-
-            erbschaftFields.forEach(fieldId => {
-                const element = document.getElementById(fieldId);
-                if (!element) {
-                    console.warn(`Erbschaftsteuer field not found: ${fieldId}`);
-                    return;
-                }
+    console.log('Setting up Erbschaft event handlers');
+    
+    // Special handler for Immobilienart dropdown
+    const immobilienartSelect = document.getElementById('erbschaft_immobilienart');
+    if (immobilienartSelect) {
+        const immobilienartHandler = (e) => {
+            try {
+                this.handleImmobilienartChange(e.target.value);
+                this.validateField(e.target);
+                this.saveErbschaftData();
                 
-                const handler = (e) => {
-                    try {
-                        console.log('Erbschaftsteuer input changed:', e.target.id, e.target.value || e.target.checked);
-                        
-                        if (e.target.id === 'erbschaft_immobilienart') {
-                            this.handleImmobilienartChange(e.target.value);
-                        }
-                        
-                        this.validateField(e.target);
-                        this.saveErbschaftData();
-                        
-                        if (this.realtimeEnabled) {
-                            this.debouncedCalculateErbschaftsteuer();
-                        }
-                    } catch (error) {
-                        console.error('Error in Erbschaftsteuer input handler:', error);
-                        this.showToast('Fehler bei Eingabe: ' + error.message, 'danger');
+                if (this.realtimeEnabled) {
+                    this.debouncedCalculateErbschaftsteuer();
+                }
+            } catch (error) {
+                console.error('Error in Immobilienart handler:', error);
+                this.showToast('Fehler bei Immobilienart-Änderung: ' + error.message, 'danger');
+            }
+        };
+        
+        immobilienartSelect.addEventListener('change', immobilienartHandler);
+        this.eventListenersCleanup.add(() => immobilienartSelect.removeEventListener('change', immobilienartHandler));
+    }
+    
+    // General handlers for other inputs
+    const erbschaftInputs = document.querySelectorAll('#erbschaft_immobilienwert, #verwandtschaftsgrad, #sonstiges_vermoegen, #selbstnutzung_erbe, #lebzeitige_uebertragung');
+    
+    erbschaftInputs.forEach(input => {
+        if (input) {
+            const handler = (e) => {
+                try {
+                    console.log('Erbschaftsteuer input changed:', e.target.id, e.target.value);
+                    this.validateField(e.target);
+                    this.saveErbschaftData();
+                    
+                    if (this.realtimeEnabled) {
+                        this.debouncedCalculateErbschaftsteuer();
                     }
-                };
-                
-                if (element.type === 'checkbox') {
-                    element.addEventListener('change', handler);
-                } else if (element.tagName === 'SELECT') {
-                    element.addEventListener('change', handler);
-                } else {
-                    element.addEventListener('input', handler);
+                } catch (error) {
+                    console.error('Error in Erbschaftsteuer input handler:', error);
+                    this.showToast('Fehler bei Eingabe: ' + error.message, 'danger');
                 }
-                
-                this.eventListenersCleanup.add(() => {
-                    element.removeEventListener('change', handler);
-                    element.removeEventListener('input', handler);
-                });
-            });
+            };
+            
+            if (input.type === 'select-one' || input.tagName === 'SELECT') {
+                input.addEventListener('change', handler);
+                this.eventListenersCleanup.add(() => input.removeEventListener('change', handler));
+            } else {
+                input.addEventListener('input', handler);
+                this.eventListenersCleanup.add(() => input.removeEventListener('input', handler));
+            }
         }
+    });
+}
+
+handleImmobilienartChange(newValue) {
+    console.log('Immobilienart changed to:', newValue);
+    
+    try {
+        // Update related fields based on property type
+        const selbstnutzungCheckbox = document.getElementById('selbstnutzung_erbe');
+        
+        if (selbstnutzungCheckbox) {
+            // Enable/disable self-use checkbox based on property type
+            if (newValue === 'gewerbe' || newValue === 'grundstueck') {
+                selbstnutzungCheckbox.disabled = true;
+                selbstnutzungCheckbox.checked = false;
+                // Show info about why it's disabled
+                this.showToast('ℹ️ Selbstnutzung bei Gewerbe/Grundstück nicht relevant', 'info');
+            } else {
+                selbstnutzungCheckbox.disabled = false;
+            }
+        }
+        
+        // Update help text based on property type
+        const helpText = document.getElementById('erbschaft_immobilienart-help');
+        if (helpText) {
+            const helpTexts = {
+                'eigenheim': 'Eigenheim kann bei Selbstnutzung steuerfrei übertragen werden',
+                'vermietung': 'Vermietungsimmobilie - normale Erbschaftsteuer-Berechnung',
+                'ferienhaus': 'Ferienhaus - keine Steuerbefreiung möglich',
+                'gewerbe': 'Gewerbeimmobilie - spezielle Bewertungsregeln',
+                'grundstueck': 'Unbebautes Grundstück - Bodenrichtwert relevant'
+            };
+            helpText.textContent = helpTexts[newValue] || 'Art der zu vererbenden Immobilie';
+        }
+        
+    } catch (error) {
+        console.error('Error handling Immobilienart change:', error);
+        this.showToast('Fehler bei Immobilienart-Änderung: ' + error.message, 'danger');
+    }
+}
+
         setupSchenkungEventHandlers() {
             console.log('Setting up Schenkung event handlers');
         }
@@ -6964,26 +7095,29 @@ List available plugins
 
         // Enhanced Calculation Methods for Different Modules
         async calculateGrundsteuer() {
-            try {
-                this.showProgress('Berechne neue Grundsteuer 2025...', 20);
-                
-                const data = this.collectGrundsteuerData();
-                const results = await this.calculationEngine.calculate('grundsteuer', data);
-                
-                this.showProgress('Erstelle Grundsteuer-Ergebnisse...', 80);
-                this.displayGrundsteuerResults(results);
-                
-                setTimeout(() => {
-                    this.hideProgress();
-                    this.showToast('Grundsteuer erfolgreich berechnet', 'success');
-                }, 500);
+    try {
+        this.showProgress('Berechne neue Grundsteuer 2025...', 20);
+        
+        const formData = this.collectGrundsteuerData();
+        // Fixed: Remove redundant field mapping
+        const data = formData;
+        
+        const results = await this.calculationEngine.calculate('grundsteuer', data);
+        
+        this.showProgress('Erstelle Grundsteuer-Ergebnisse...', 80);
+        this.displayGrundsteuerResults(results);
+        
+        setTimeout(() => {
+            this.hideProgress();
+            this.showToast('Grundsteuer erfolgreich berechnet', 'success');
+        }, 500);
 
-            } catch (error) {
-                this.hideProgress();
-                this.errorHandler.logError(error);
-                this.showToast('Grundsteuer-Berechnung fehlgeschlagen: ' + error.message, 'danger');
-            }
-        }
+    } catch (error) {
+        this.hideProgress();
+        this.errorHandler.logError(error);
+        this.showToast('Grundsteuer-Berechnung fehlgeschlagen: ' + error.message, 'danger');
+    }
+}
 
         collectGrundsteuerData() {
             return {
@@ -7093,51 +7227,67 @@ List available plugins
         }
 
         async calculateErbschaftsteuer() {
-            try {
-                this.showProgress('Berechne Erbschaftsteuer...', 20);
-                
-                const data = this.collectErbschaftData();
-                console.log('Erbschaftsteuer data collected:', data);
-                
-                // Validate required fields
-                if (!data.immobilienwert || data.immobilienwert <= 0) {
-                    throw new Error('Immobilienwert ist erforderlich und muss größer als 0 sein');
-                }
-                
-                const results = await this.calculationEngine.calculate('erbschaft', data);
-                console.log('Erbschaftsteuer results:', results);
-                
-                this.showProgress('Erstelle Erbschaft-Ergebnisse...', 80);
-                this.displayErbschaftResults(results);
-                
-                // Save results to section data
-                if (!this.sectionData) this.sectionData = {};
-                this.sectionData.erbschaft = data;
-                this.sectionData.erbschaftResults = results;
-                
-                setTimeout(() => {
-                    this.hideProgress();
-                    this.showToast('Erbschaftsteuer erfolgreich berechnet', 'success');
-                }, 500);
-
-            } catch (error) {
-                console.error('Erbschaftsteuer calculation error:', error);
-                this.hideProgress();
-                this.errorHandler.logError(error);
-                this.showToast('Erbschaftsteuer-Berechnung fehlgeschlagen: ' + error.message, 'danger');
-            }
+    try {
+        this.showProgress('Berechne Erbschaftsteuer...', 20);
+        
+        // Add validation before calculation
+        const data = this.collectErbschaftData();
+        console.log('Erbschaftsteuer data collected:', data); // Debug log
+        
+        // Validate required fields
+        if (!data.immobilienwert || data.immobilienwert <= 0) {
+            throw new Error('Immobilienwert ist erforderlich und muss größer als 0 sein');
         }
+        
+        const results = await this.calculationEngine.calculate('erbschaft', data);
+        console.log('Erbschaftsteuer results:', results); // Debug log
+        
+        this.showProgress('Erstelle Erbschaft-Ergebnisse...', 80);
+        this.displayErbschaftResults(results);
+        
+        // Save results to section data
+        if (!this.sectionData) this.sectionData = {};
+        this.sectionData.erbschaft = data;
+        this.sectionData.erbschaftResults = results;
+        
+        setTimeout(() => {
+            this.hideProgress();
+            this.showToast('Erbschaftsteuer erfolgreich berechnet', 'success');
+        }, 500);
 
-        get debouncedCalculateErbschaftsteuer() {
-            if (!this._debouncedCalculateErbschaftsteuer) {
-                this._debouncedCalculateErbschaftsteuer = this.debounce(() => {
-                    if (this.realtimeEnabled) {
-                        this.calculateErbschaftsteuer();
-                    }
-                }, 800);
+    } catch (error) {
+        console.error('Erbschaftsteuer calculation error:', error);
+        this.hideProgress();
+        this.errorHandler.logError(error);
+        this.showToast('Erbschaftsteuer-Berechnung fehlgeschlagen: ' + error.message, 'danger');
+    }
+}
+
+collectErbschaftData() {
+    const data = {
+        immobilienwert: parseFloat(document.getElementById('erbschaft_immobilienwert')?.value) || 0,
+        verwandtschaftsgrad: document.getElementById('verwandtschaftsgrad')?.value || 'kind',
+        immobilienart: document.getElementById('erbschaft_immobilienart')?.value || 'eigenheim',
+        sonstiges_vermoegen: parseFloat(document.getElementById('sonstiges_vermoegen')?.value) || 0,
+        selbstnutzung: document.getElementById('selbstnutzung_erbe')?.checked || false,
+        lebzeitige_uebertragung: document.getElementById('lebzeitige_uebertragung')?.checked || false
+    };
+    
+    console.log('Collected Erbschaftsteuer data:', data); // Debug
+    return data;
+}
+
+        // Add this missing getter method after your other debounced methods
+get debouncedCalculateErbschaftsteuer() {
+    if (!this._debouncedCalculateErbschaftsteuer) {
+        this._debouncedCalculateErbschaftsteuer = this.debounce(() => {
+            if (this.realtimeEnabled) {
+                this.calculateErbschaftsteuer();
             }
-            return this._debouncedCalculateErbschaftsteuer;
-        }
+        }, 800);
+    }
+    return this._debouncedCalculateErbschaftsteuer;
+}
 
         displayErbschaftResults(results) {
             const container = document.getElementById('erbschaft-results');
@@ -7239,17 +7389,17 @@ List available plugins
         }
 
         collectSchenkungData() {
-            return {
-                immobilienwert: parseFloat(document.getElementById('schenkung_immobilienwert')?.value) || 0,
-                beschenkter: document.getElementById('beschenkter')?.value || 'kind',
-                vorherige_schenkungen: parseFloat(document.getElementById('vorherige_schenkungen')?.value) || 0,
-                schenkungsart: document.getElementById('schenkungsart')?.value || 'vollschenkung',
-                anteil: parseFloat(document.getElementById('schenkungsanteil')?.value) || 100,
-                niesbrauchswert: parseFloat(document.getElementById('niesbrauchswert')?.value) || 0,
-                alter_schenker: parseInt(document.getElementById('alter_schenker')?.value) || 65,
-                schenkungsstrategie: document.getElementById('schenkungsstrategie')?.value || 'einmalig'
-            };
-        }
+    return {
+        immobilienwert: parseFloat(document.getElementById('schenkung_immobilienwert')?.value) || 0,
+        beschenkter: document.getElementById('beschenkter')?.value || 'kind',
+        vorherige_schenkungen: parseFloat(document.getElementById('vorherige_schenkungen')?.value) || 0,
+        schenkungsart: document.getElementById('schenkungsart')?.value || 'vollschenkung',
+        anteil: parseFloat(document.getElementById('schenkungsanteil')?.value) || 100,
+        niesbrauchswert: parseFloat(document.getElementById('niesbrauchswert')?.value) || 0,
+        alter_schenker: parseInt(document.getElementById('alter_schenker')?.value) || 65,
+        schenkungsstrategie: document.getElementById('schenkungsstrategie')?.value || 'einmalig'
+    };
+}
 
         displaySchenkungResults(results) {
             const container = document.getElementById('schenkung-results');
@@ -7305,26 +7455,29 @@ List available plugins
         }
 
         async calculateCashflow() {
-            try {
-                this.showProgress('Berechne Cash-Flow Analyse...', 20);
-                
-                const data = this.collectCashflowData();
-                const results = await this.calculationEngine.calculate('cashflow', data);
-                
-                this.showProgress('Erstelle Cash-Flow Ergebnisse...', 80);
-                this.displayCashflowResults(results);
-                
-                setTimeout(() => {
-                    this.hideProgress();
-                    this.showToast('Cash-Flow erfolgreich analysiert', 'success');
-                }, 500);
+    try {
+        this.showProgress('Berechne Cash-Flow Analyse...', 20);
+        
+        const formData = this.collectCashflowData();
+        // Fixed: Remove redundant field mapping
+        const data = formData;
+        
+        const results = await this.calculationEngine.calculate('cashflow', data);
+        
+        this.showProgress('Erstelle Cash-Flow Ergebnisse...', 80);
+        this.displayCashflowResults(results);
+        
+        setTimeout(() => {
+            this.hideProgress();
+            this.showToast('Cash-Flow erfolgreich analysiert', 'success');
+        }, 500);
 
-            } catch (error) {
-                this.hideProgress();
-                this.errorHandler.logError(error);
-                this.showToast('Cash-Flow Analyse fehlgeschlagen: ' + error.message, 'danger');
-            }
-        }
+    } catch (error) {
+        this.hideProgress();
+        this.errorHandler.logError(error);
+        this.showToast('Cash-Flow Analyse fehlgeschlagen: ' + error.message, 'danger');
+    }
+}
         
         displayCashflowResults(results) {
             const container = document.getElementById('cashflow-results');
@@ -8281,4 +8434,5 @@ List available plugins
     console.log('🔧 Enhanced with all suggested improvements and enterprise features');
 </script>
 
-    </script>
+</body>
+</html>
