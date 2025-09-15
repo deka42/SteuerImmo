@@ -26,6 +26,7 @@ class TaxCalculationEngine {
             throw new Error(`Fehler bei ${type}-Berechnung: ${error.message}`);
         }
                 schenkungswert = schenkungswert * ((data.schenkungsanteil || 100) / 100);
+    }
 
     getAvailableCalculators() {
         return Array.from(this.calculators.keys());
