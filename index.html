@@ -4193,11 +4193,22 @@ List available plugins
     }
 
     class ErbschaftsteuerCalculator extends BaseCalculator {
-        constructor() {
-            super('erbschaftsteuer');
-        }
+    constructor() {
+        super('erbschaftsteuer');
+        this.setupValidation();
+    }
 
-        performCalculation(data) {
+    setupValidation() {
+        this.addValidationRule('immobilienwert', {
+            validator: (value) => value > 0,
+            message: 'Immobilienwert muss größer als 0 sein'
+        });
+    }
+
+    performCalculation(data) {
+        try {
+            console.log('Starting Erbschaftsteuer calculation with:', data);
+            
             const freibetraege = {
                 'ehepartner': 500000,
                 'kind': 400000,
@@ -4210,15 +4221,16 @@ List available plugins
             };
 
             const freibetrag = freibetraege[data.verwandtschaftsgrad] || 20000;
-            let gesamtvermoegen = (data.erbschaft_immobilienwert || 0) + (data.sonstiges_vermoegen || 0);
+            let gesamtvermoegen = (data.immobilienwert || 0) + (data.sonstiges_vermoegen || 0);
             
-            if (data.erbschaft_immobilienart === 'eigenheim' && data.selbstnutzung) {
-                gesamtvermoegen = (data.erbschaft_immobilienwert || 0) * 0.9 + (data.sonstiges_vermoegen || 0);
+            // Apply discount for owner-occupied property
+            if (data.immobilienart === 'eigenheim' && data.selbstnutzung) {
+                gesamtvermoegen = (data.immobilienwert || 0) * 0.9 + (data.sonstiges_vermoegen || 0);
             }
 
             const steuerpflichtiger_erwerb = Math.max(0, gesamtvermoegen - freibetrag);
             
-            // Enhanced progressive tax calculation
+            // Simplified tax calculation
             const steuerklassen = {
                 'ehepartner': 1, 'kind': 1, 'enkel': 1,
                 'eltern': 2, 'geschwister': 2, 'neffe_nichte': 2,
@@ -4229,16 +4241,17 @@ List available plugins
             let erbschaftsteuer = 0;
             
             if (steuerpflichtiger_erwerb > 0) {
-                // Progressive tax rates by tax class
+                // Progressive tax rates
                 const steuersaetze = {
-                    1: [7, 11, 15, 19, 23, 27, 30], // Tax class I
-                    2: [15, 20, 25, 30, 35, 40, 43], // Tax class II
-                    3: [30, 30, 30, 30, 50, 50, 50]  // Tax class III
+                    1: [7, 11, 15, 19, 23, 27, 30],
+                    2: [15, 20, 25, 30, 35, 40, 43],
+                    3: [30, 30, 30, 30, 50, 50, 50]
                 };
                 
                 const wertgrenzen = [75000, 300000, 600000, 6000000, 13000000, 26000000];
                 const saetze = steuersaetze[steuerklasse];
                 
+                // Calculate progressive tax
                 let verbleibendesSteuervolumen = steuerpflichtiger_erwerb;
                 let letzteGrenze = 0;
                 
@@ -4257,18 +4270,27 @@ List available plugins
             }
             
             const nettoerbe = gesamtvermoegen - erbschaftsteuer;
+            const effektiver_steuersatz = gesamtvermoegen > 0 ? (erbschaftsteuer / gesamtvermoegen * 100) : 0;
 
-            return {
+            const result = {
                 gesamtvermoegen,
                 freibetrag,
                 steuerpflichtiger_erwerb,
                 erbschaftsteuer,
                 nettoerbe,
                 steuerklasse,
-                effektiver_steuersatz: gesamtvermoegen > 0 ? (erbschaftsteuer / gesamtvermoegen * 100) : 0
+                effektiver_steuersatz
             };
+            
+            console.log('Erbschaftsteuer calculation result:', result);
+            return result;
+            
+        } catch (error) {
+            console.error('Error in Erbschaftsteuer calculation:', error);
+            throw error;
         }
     }
+}
 
     class SchenkungsteuerCalculator extends BaseCalculator {
         constructor() {
@@ -5989,8 +6011,67 @@ openCalculationsNewTab() {
         }
 
         setupErbschaftEventHandlers() {
-            console.log('Setting up Erbschaft event handlers');
+    console.log('Setting up Erbschaft event handlers');
+    
+    // Special handler for Immobilienart dropdown
+    const immobilienartSelect = document.getElementById('erbschaft_immobilienart');
+    if (immobilienartSelect) {
+        immobilienartSelect.addEventListener('change', (e) => {
+            this.handleImmobilienartChange(e.target.value);
+        });
+    }
+    
+    // General handlers for other inputs
+    const erbschaftInputs = document.querySelectorAll('#erbschaft_immobilienwert, #verwandtschaftsgrad, #sonstiges_vermoegen, #selbstnutzung_erbe, #lebzeitige_uebertragung');
+    
+    erbschaftInputs.forEach(input => {
+        if (input) {
+            const handler = (e) => {
+                console.log('Erbschaftsteuer input changed:', e.target.id, e.target.value);
+                this.validateField(e.target);
+                this.saveErbschaftData();
+                
+                if (this.realtimeEnabled) {
+                    this.debouncedCalculateErbschaftsteuer();
+                }
+            };
+            
+            if (input.type === 'select-one' || input.tagName === 'SELECT') {
+                input.addEventListener('change', handler);
+            } else {
+                input.addEventListener('input', handler);
+            }
         }
+    });
+}
+
+handleImmobilienartChange(newValue) {
+    console.log('Immobilienart changed to:', newValue);
+    
+    try {
+        // Update related fields based on property type
+        const selbstnutzungCheckbox = document.getElementById('selbstnutzung_erbe');
+        
+        if (selbstnutzungCheckbox) {
+            // Enable/disable self-use checkbox based on property type
+            if (newValue === 'gewerbe' || newValue === 'grundstueck') {
+                selbstnutzungCheckbox.disabled = true;
+                selbstnutzungCheckbox.checked = false;
+            } else {
+                selbstnutzungCheckbox.disabled = false;
+            }
+        }
+        
+        // Trigger recalculation
+        if (this.realtimeEnabled) {
+            this.debouncedCalculateErbschaftsteuer();
+        }
+        
+    } catch (error) {
+        console.error('Error handling Immobilienart change:', error);
+        this.showToast('Fehler bei Immobilienart-Änderung: ' + error.message, 'danger');
+    }
+}
 
         setupSchenkungEventHandlers() {
             console.log('Setting up Schenkung event handlers');
@@ -7079,34 +7160,44 @@ openCalculationsNewTab() {
         }
 
         async calculateErbschaftsteuer() {
-            try {
-                this.showProgress('Berechne Erbschaftsteuer...', 20);
-                
-                const data = this.collectErbschaftData();
-                const results = await this.calculationEngine.calculate('erbschaft', data);
-                
-                this.showProgress('Erstelle Erbschaft-Ergebnisse...', 80);
-                this.displayErbschaftResults(results);
-                
-                // Save results to section data
-                if (!this.sectionData) this.sectionData = {};
-                this.sectionData.erbschaft = data;
-                this.sectionData.erbschaftResults = results;
-                
-                setTimeout(() => {
-                    this.hideProgress();
-                    this.showToast('👨‍👩‍👧‍👦 Erbschaftsteuer erfolgreich berechnet', 'success');
-                }, 500);
-
-            } catch (error) {
-                this.hideProgress();
-                this.errorHandler.logError(error);
-                this.showToast('❌ Erbschaftsteuer-Berechnung fehlgeschlagen: ' + error.message, 'danger');
-            }
+    try {
+        this.showProgress('Berechne Erbschaftsteuer...', 20);
+        
+        // Add validation before calculation
+        const data = this.collectErbschaftData();
+        console.log('Erbschaftsteuer data collected:', data); // Debug log
+        
+        // Validate required fields
+        if (!data.immobilienwert || data.immobilienwert <= 0) {
+            throw new Error('Immobilienwert ist erforderlich und muss größer als 0 sein');
         }
+        
+        const results = await this.calculationEngine.calculate('erbschaft', data);
+        console.log('Erbschaftsteuer results:', results); // Debug log
+        
+        this.showProgress('Erstelle Erbschaft-Ergebnisse...', 80);
+        this.displayErbschaftResults(results);
+        
+        // Save results to section data
+        if (!this.sectionData) this.sectionData = {};
+        this.sectionData.erbschaft = data;
+        this.sectionData.erbschaftResults = results;
+        
+        setTimeout(() => {
+            this.hideProgress();
+            this.showToast('Erbschaftsteuer erfolgreich berechnet', 'success');
+        }, 500);
+
+    } catch (error) {
+        console.error('Erbschaftsteuer calculation error:', error);
+        this.hideProgress();
+        this.errorHandler.logError(error);
+        this.showToast('Erbschaftsteuer-Berechnung fehlgeschlagen: ' + error.message, 'danger');
+    }
+}
 
 collectErbschaftData() {
-    return {
+    const data = {
         immobilienwert: parseFloat(document.getElementById('erbschaft_immobilienwert')?.value) || 0,
         verwandtschaftsgrad: document.getElementById('verwandtschaftsgrad')?.value || 'kind',
         immobilienart: document.getElementById('erbschaft_immobilienart')?.value || 'eigenheim',
@@ -7114,6 +7205,9 @@ collectErbschaftData() {
         selbstnutzung: document.getElementById('selbstnutzung_erbe')?.checked || false,
         lebzeitige_uebertragung: document.getElementById('lebzeitige_uebertragung')?.checked || false
     };
+    
+    console.log('Collected Erbschaftsteuer data:', data); // Debug
+    return data;
 }
 
         displayErbschaftResults(results) {
