@@ -4212,18 +4212,59 @@ List available plugins
             const freibetrag = freibetraege[data.verwandtschaftsgrad] || 20000;
             let gesamtvermoegen = (data.erbschaft_immobilienwert || 0) + (data.sonstiges_vermoegen || 0);
             
-            if (data.erbschaft_immobilienart === 'eigenheim' && data.selbstnutzung_erbe) {
+            if (data.erbschaft_immobilienart === 'eigenheim' && data.selbstnutzung) {
                 gesamtvermoegen = (data.erbschaft_immobilienwert || 0) * 0.9 + (data.sonstiges_vermoegen || 0);
             }
 
             const steuerpflichtiger_erwerb = Math.max(0, gesamtvermoegen - freibetrag);
-            const erbschaftsteuer = steuerpflichtiger_erwerb * 0.15; // Vereinfacht
+            
+            // Enhanced progressive tax calculation
+            const steuerklassen = {
+                'ehepartner': 1, 'kind': 1, 'enkel': 1,
+                'eltern': 2, 'geschwister': 2, 'neffe_nichte': 2,
+                'sonstige': 3, 'fremde': 3
+            };
+            
+            const steuerklasse = steuerklassen[data.verwandtschaftsgrad] || 3;
+            let erbschaftsteuer = 0;
+            
+            if (steuerpflichtiger_erwerb > 0) {
+                // Progressive tax rates by tax class
+                const steuersaetze = {
+                    1: [7, 11, 15, 19, 23, 27, 30], // Tax class I
+                    2: [15, 20, 25, 30, 35, 40, 43], // Tax class II
+                    3: [30, 30, 30, 30, 50, 50, 50]  // Tax class III
+                };
+                
+                const wertgrenzen = [75000, 300000, 600000, 6000000, 13000000, 26000000];
+                const saetze = steuersaetze[steuerklasse];
+                
+                let verbleibendesSteuervolumen = steuerpflichtiger_erwerb;
+                let letzteGrenze = 0;
+                
+                for (let i = 0; i < wertgrenzen.length && verbleibendesSteuervolumen > 0; i++) {
+                    const aktuelleGrenze = wertgrenzen[i];
+                    const zuVersteuern = Math.min(verbleibendesSteuervolumen, aktuelleGrenze - letzteGrenze);
+                    erbschaftsteuer += zuVersteuern * (saetze[i] / 100);
+                    verbleibendesSteuervolumen -= zuVersteuern;
+                    letzteGrenze = aktuelleGrenze;
+                }
+                
+                // Remaining amount at highest rate
+                if (verbleibendesSteuervolumen > 0) {
+                    erbschaftsteuer += verbleibendesSteuervolumen * (saetze[saetze.length - 1] / 100);
+                }
+            }
+            
+            const nettoerbe = gesamtvermoegen - erbschaftsteuer;
 
             return {
                 gesamtvermoegen,
                 freibetrag,
                 steuerpflichtiger_erwerb,
                 erbschaftsteuer,
+                nettoerbe,
+                steuerklasse,
                 effektiver_steuersatz: gesamtvermoegen > 0 ? (erbschaftsteuer / gesamtvermoegen * 100) : 0
             };
         }
@@ -7060,6 +7101,8 @@ collectErbschaftData() {
                     <h3>👨‍👩‍👧‍👦 Ihre Erbschaftsteuer-Berechnung</h3>
                     <p><strong>Erbschaftsteuer:</strong> ${this.formatCurrency(results.erbschaftsteuer)}</p>
                     <p><strong>Effektiver Steuersatz:</strong> ${results.effektiver_steuersatz.toFixed(1)}%</p>
+                    <p><strong>Nettoerbe:</strong> ${this.formatCurrency(results.nettoerbe)}</p>
+                    <p><strong>Steuerklasse:</strong> ${results.steuerklasse}</p>
                 </div>
 
                 <div class="results-grid">
@@ -7082,6 +7125,14 @@ collectErbschaftData() {
                         <div class="result-item">
                             <span class="result-label">Erbschaftsteuer:</span>
                             <span class="result-value">${this.formatCurrency(results.erbschaftsteuer)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Nettoerbe:</span>
+                            <span class="result-value">${this.formatCurrency(results.nettoerbe)}</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Steuerklasse:</span>
+                            <span class="result-value">Steuerklasse ${results.steuerklasse}</span>
                         </div>
                     </div>
                 </div>
