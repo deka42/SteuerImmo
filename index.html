@@ -4199,7 +4199,7 @@ List available plugins
     }
 
     setupValidation() {
-        this.addValidationRule('immobilienwert', {
+            this.addValidationRule('erbschaft_immobilienwert', {
             validator: (value) => value > 0,
             message: 'Immobilienwert muss größer als 0 sein'
         });
@@ -4802,11 +4802,11 @@ openCalculationsNewTab() {
                 };
                 
                 const mouseOutHandler = () => {
-                    item.style.background = '';
+                let gesamtvermoegen = (data.erbschaft_immobilienwert || 0) + (data.sonstiges_vermoegen || 0);
                 };
                 
-                item.addEventListener('keydown', keyHandler);
-                item.addEventListener('mouseover', mouseOverHandler);
+                if (data.erbschaft_immobilienart === 'eigenheim' && data.selbstnutzung_erbe) {
+                    gesamtvermoegen = (data.erbschaft_immobilienwert || 0) * 0.9 + (data.sonstiges_vermoegen || 0);
                 item.addEventListener('mouseout', mouseOutHandler);
                 
                 this.eventListenersCleanup.add(() => {
@@ -5170,7 +5170,7 @@ if (isRequired) {
             break;
             
         case 'erbschaft':
-            if (!data.immobilienwert || data.immobilienwert <= 0) {
+                    if (!data.erbschaft_immobilienwert || data.erbschaft_immobilienwert <= 0) {
                 errors.push('Immobilienwert ist erforderlich');
                 isValid = false;
             }
@@ -7235,7 +7235,7 @@ handleImmobilienartChange(newValue) {
         console.log('Erbschaftsteuer data collected:', data); // Debug log
         
         // Validate required fields
-        if (!data.immobilienwert || data.immobilienwert <= 0) {
+                if (!data.erbschaft_immobilienwert || data.erbschaft_immobilienwert <= 0) {
             throw new Error('Immobilienwert ist erforderlich und muss größer als 0 sein');
         }
         
@@ -7355,7 +7355,7 @@ get debouncedCalculateErbschaftsteuer() {
                                     <li>Schenkung zu Lebzeiten (alle 10 Jahre Freibetrag nutzen)</li>
                                     <li>Nießbrauch-Konstruktionen für laufende Einkünfte</li>
                                     <li>Familienpool-Strukturen für Verteilung</li>
-                                    ${data.immobilienart === 'eigenheim' ? '<li>Selbstnutzung durch Erben prüfen (Familienheim-Regelung)</li>' : ''}
+                                    ${data.erbschaft_immobilienart === 'eigenheim' ? '<li>Selbstnutzung durch Erben prüfen (Familienheim-Regelung)</li>' : ''}
                                 </ul>
                             </div>
                         </div>
@@ -8225,11 +8225,11 @@ get debouncedCalculateErbschaftsteuer() {
             const data = {
                 scenarios: Object.fromEntries(this.scenarios),
                 currentScenario: this.currentScenario,
-                sectionData: this.sectionData,
+                erbschaft_immobilienwert: parseFloat(document.getElementById('erbschaft_immobilienwert')?.value) || 0,
                 settings: {
-                    realtimeEnabled: this.realtimeEnabled
+                erbschaft_immobilienart: document.getElementById('erbschaft_immobilienart')?.value || 'eigenheim',
                 },
-                version: this.version,
+                selbstnutzung_erbe: document.getElementById('selbstnutzung_erbe')?.checked || false,
                 timestamp: new Date().toISOString()
             };
             
