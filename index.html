@@ -4234,6 +4234,11 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
                 gesamtvermoegen = (data.immobilienwert || 0) * 0.9 + (data.sonstiges_vermoegen || 0);
                 console.log('Applied Familienheim discount');
             }
+// Apply discount for rental property
+            if (data.immobilienart === 'vermietung') {
+                gesamtvermoegen = (data.immobilienwert || 0) * 0.9 + (data.sonstiges_vermoegen || 0);
+                console.log('Applied Vermietobjekt discount');
+            }
 
             const steuerpflichtiger_erwerb = Math.max(0, gesamtvermoegen - freibetrag);
             
