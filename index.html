@@ -7349,31 +7349,16 @@ async calculateErbschaftsteuer() {
 }
 }
 
-// 2. Fixed collectErbschaftData method with proper field mapping
+// Korrigierte collectErbschaftData Methode
 collectErbschaftData() {
-    // Collect data directly from the DOM elements
-    const immobilienwertEl = document.getElementById('erbschaft_immobilienwert');
-    const verwandtschaftsgradEl = document.getElementById('verwandtschaftsgrad');
-    const immobilienartEl = document.getElementById('erbschaft_immobilienart');
-    const sonstigesVermoegenEl = document.getElementById('sonstiges_vermoegen');
-    const selbstnutzungEl = document.getElementById('selbstnutzung_erbe');
-    const lebzeitigeUebertragungEl = document.getElementById('lebzeitige_uebertragung');
-    
     const data = {
-        immobilienwert: immobilienwertEl ? (parseFloat(immobilienwertEl.value) || 0) : 0,
-        verwandtschaftsgrad: verwandtschaftsgradEl ? (verwandtschaftsgradEl.value || 'kind') : 'kind',
-        immobilienart: immobilienartEl ? (immobilienartEl.value || 'eigenheim') : 'eigenheim',
-        sonstiges_vermoegen: sonstigesVermoegenEl ? (parseFloat(sonstigesVermoegenEl.value) || 0) : 0,
-        selbstnutzung: selbstnutzungEl ? selbstnutzungEl.checked : false,
-        lebzeitige_uebertragung: lebzeitigeUebertragungEl ? lebzeitigeUebertragungEl.checked : false
+        immobilienwert: parseFloat(document.getElementById('erbschaft_immobilienwert')?.value) || 0,
+        verwandtschaftsgrad: document.getElementById('verwandtschaftsgrad')?.value || 'kind',
+        immobilienart: document.getElementById('erbschaft_immobilienart')?.value || 'eigenheim',
+        sonstiges_vermoegen: parseFloat(document.getElementById('sonstiges_vermoegen')?.value) || 0,
+        selbstnutzung: document.getElementById('selbstnutzung_erbe')?.checked || false,
+        lebzeitige_uebertragung: document.getElementById('lebzeitige_uebertragung')?.checked || false
     };
-    
-    // Debug output
-    console.log('=== Erbschaftsteuer Data Collection Debug ===');
-    console.log('immobilienwert element found:', !!immobilienwertEl, 'value:', immobilienwertEl?.value);
-    console.log('verwandtschaftsgrad element found:', !!verwandtschaftsgradEl, 'value:', verwandtschaftsgradEl?.value);
-    console.log('Final collected data:', data);
-    console.log('============================================');
     
     return data;
 }
