@@ -3,29 +3,40 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Immobilien-Steuer-Suite 2025</title>
+<title>Immobilien-Steuer-Suite 2025 - Multi-Steuer Rechner</title>
 
-<!-- Chart.js -->
+<!-- Chart.js und jsPDF via CDN -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-<!-- jsPDF für PDF-Export -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
   body {
     font-family: 'Segoe UI', system-ui, sans-serif;
-    margin: 0; padding: 2rem; background: #f8f9fa; color: #2c3e50;
+    background: #f8f9fa;
+    margin: 0; padding: 2rem; color: #2c3e50; min-height: 100vh;
   }
   .app-container {
-    max-width: 900px;
+    max-width: 1000px;
     margin: auto;
     background: white;
-    padding: 2rem;
+    padding: 2rem 3rem;
     border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
   }
   h1 {
     text-align: center;
     margin-bottom: 2rem;
+    font-weight: 700;
+  }
+  section {
+    margin-bottom: 3rem;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 2rem;
+  }
+  h2 {
+    color: #364f9a;
+    margin-bottom: 1rem;
+    font-weight: 600;
   }
   form {
     display: grid;
@@ -34,44 +45,45 @@
   }
   label {
     font-weight: 600;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.4rem;
     display: block;
   }
   input[type=number], select {
     width: 100%;
-    padding: 0.6rem 1rem;
+    padding: 0.7rem 1rem;
     border-radius: 8px;
     border: 1px solid #ccc;
     font-size: 1rem;
+    box-sizing: border-box;
   }
   .btn-group {
     grid-column: 1 / -1;
-    display: flex;
-    gap: 1rem;
     margin-top: 1rem;
+    display: flex;
+    justify-content: flex-start;
+    gap: 1rem;
   }
   button {
     cursor: pointer;
-    font-weight: 600;
+    font-weight: 700;
     padding: 0.9rem 1.5rem;
+    border-radius: 14px;
     border: none;
-    border-radius: 12px;
+    color: white;
     font-size: 1rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     user-select: none;
   }
-  button:disabled {
-    opacity: 0.5; cursor: not-allowed;
+  .btn-primary { background: #667eea; }
+  .btn-primary:hover:not(:disabled) { background: #5566cc; }
+  .btn-secondary { background: #95a5a6; }
+  .btn-secondary:hover:not(:disabled) { background: #7e8c8d; }
+  .result-section {
+    margin-top: 1.5rem;
   }
-  .btn-primary { background-color: #667eea; color: white; }
-  .btn-primary:hover:not(:disabled) { background-color: #5566cc; }
-  .btn-secondary { background-color: #95a5a6; color: white; }
-  .results {
-    margin-top: 2rem;
-  }
-  .result-item {
+  .result-row {
     display: flex;
     justify-content: space-between;
     padding: 0.3rem 0;
@@ -81,34 +93,31 @@
     margin-top: 2rem;
     max-width: 100%;
   }
-  /* Toast Container */
   .toast-container {
     position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 10000;
+    top: 20px; right: 20px;
+    z-index: 9999;
+    max-width: 320px;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 10px;
   }
   .toast {
-    background: #333;
+    background: #1e88e5;
     color: white;
-    padding: 1rem 1.5rem;
+    padding: 12px 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    min-width: 250px;
-    opacity: 0.95;
+    font-weight: 600;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-weight: 600;
   }
-  .toast-close {
+  .toast button {
     background: none;
     border: none;
     color: white;
-    font-size: 1.5rem;
+    font-size: 18px;
     cursor: pointer;
     line-height: 1;
   }
@@ -117,252 +126,118 @@
 <body>
 <div class="app-container">
   <h1>Immobilien-Steuer-Suite 2025</h1>
-
-  <form id="tax-form" autocomplete="off">
-    <div>
-      <label for="property-value">Immobilienwert (€) <span style="color:red;">*</span></label>
-      <input type="number" id="property-value" min="1" placeholder="500000" required />
-    </div>
-    <div>
-      <label for="location">Lage</label>
-      <select id="location">
+  
+  <!-- Grundsteuer -->
+  <section id="section-grundsteuer">
+    <h2>Grundsteuer</h2>
+    <form id="form-grundsteuer" autocomplete="off">
+      <label for="gs-property-value">Immobilienwert (€) <span style="color:red">*</span></label>
+      <input type="number" id="gs-property-value" min="1" placeholder="500000" required />
+      
+      <label for="gs-location">Lage</label>
+      <select id="gs-location">
         <option value="urban">Städtisch</option>
         <option value="suburban" selected>Vorstädtisch</option>
         <option value="rural">Ländlich</option>
       </select>
-    </div>
-    <div>
-      <label for="property-type">Objekttyp</label>
-      <select id="property-type">
+      
+      <label for="gs-property-type">Objekttyp</label>
+      <select id="gs-property-type">
         <option value="residential" selected>Wohnimmobilie</option>
         <option value="commercial">Gewerbeimmobilie</option>
         <option value="industrial">Industrieimmobilie</option>
         <option value="agricultural">Landwirtschaft</option>
       </select>
-    </div>
-    <div>
-      <label for="exemptions">Steuerliche Befreiungen (€)</label>
-      <input type="number" id="exemptions" min="0" placeholder="0" />
-    </div>
-    <div>
-      <label for="improvements">Steuerlich relevante Verbesserungen (€)</label>
-      <input type="number" id="improvements" min="0" placeholder="0" />
-    </div>
-    <div>
-      <label for="building-area">Nutzfläche (qm)</label>
-      <input type="number" id="building-area" min="0" placeholder="180" />
-    </div>
-    <div>
-      <label for="plot-size">Grundstücksgröße (qm)</label>
-      <input type="number" id="plot-size" min="0" placeholder="640" />
-    </div>
+      
+      <label for="gs-exemptions">Steuerliche Befreiungen (€)</label>
+      <input type="number" id="gs-exemptions" min="0" placeholder="0" />
+      
+      <label for="gs-improvements">Verbesserungen (€)</label>
+      <input type="number" id="gs-improvements" min="0" placeholder="0" />
+      
+      <div class="btn-group">
+        <button type="button" id="gs-calc-btn" class="btn btn-primary">Berechnen</button>
+        <button type="button" id="gs-reset-btn" class="btn btn-secondary">Zurücksetzen</button>
+      </div>
+    </form>
+    <div class="result-section" id="gs-results"></div>
+  </section>
+  
+  <!-- Verkaufssteuer -->
+  <section id="section-verkaufssteuer">
+    <h2>Verkaufssteuer</h2>
+    <form id="form-verkaufssteuer" autocomplete="off">
+      <label for="vs-sale-price">Verkaufspreis (€) <span style="color:red">*</span></label>
+      <input type="number" id="vs-sale-price" min="1" placeholder="400000" required />
+      
+      <label for="vs-purchase-price">Kaufpreis (€) <span style="color:red">*</span></label>
+      <input type="number" id="vs-purchase-price" min="1" placeholder="300000" required />
+      
+      <label for="vs-own-use-duration">Eigennutzungsdauer in Jahren</label>
+      <input type="number" id="vs-own-use-duration" min="0" placeholder="5" />
+      
+      <div class="btn-group">
+        <button type="button" id="vs-calc-btn" class="btn btn-primary">Berechnen</button>
+        <button type="button" id="vs-reset-btn" class="btn btn-secondary">Zurücksetzen</button>
+      </div>
+    </form>
+    <div class="result-section" id="vs-results"></div>
+  </section>
 
-    <div class="btn-group">
-      <button type="button" id="calculate-tax" class="btn btn-primary">🧮 Steuer berechnen</button>
-      <button type="button" id="reset-form" class="btn btn-secondary">🔄 Formular zurücksetzen</button>
-      <button type="button" id="export-pdf" class="btn btn-secondary">📄 PDF exportieren</button>
-    </div>
-  </form>
+  <!-- Erbschaftsteuer -->
+  <section id="section-erbschaftsteuer">
+    <h2>Erbschaftsteuer</h2>
+    <form id="form-erbschaftsteuer" autocomplete="off">
+      <label for="es-property-value">Immobilienwert (€) <span style="color:red">*</span></label>
+      <input type="number" id="es-property-value" min="1" placeholder="600000" required />
+      
+      <label for="es-relationship">Verwandtschaftsgrad</label>
+      <select id="es-relationship">
+        <option value="direct" selected>Direkte Abkömmlinge (Kinder, Ehepartner)</option>
+        <option value="extended">Erweiterte Verwandtschaft</option>
+        <option value="others">Andere</option>
+      </select>
+      
+      <div class="btn-group">
+        <button type="button" id="es-calc-btn" class="btn btn-primary">Berechnen</button>
+        <button type="button" id="es-reset-btn" class="btn btn-secondary">Zurücksetzen</button>
+      </div>
+    </form>
+    <div class="result-section" id="es-results"></div>
+  </section>
+  
+  <!-- Schenkungssteuer -->
+  <section id="section-schenkungssteuer">
+    <h2>Schenkungssteuer</h2>
+    <form id="form-schenkungssteuer" autocomplete="off">
+      <label for="ss-property-value">Wert der Schenkung (€) <span style="color:red">*</span></label>
+      <input type="number" id="ss-property-value" min="1" placeholder="500000" required />
+      
+      <label for="ss-relationship">Verwandtschaftsgrad</label>
+      <select id="ss-relationship">
+        <option value="direct" selected>Direkte Abkömmlinge (Kinder, Ehepartner)</option>
+        <option value="extended">Erweiterte Verwandtschaft</option>
+        <option value="others">Andere</option>
+      </select>
+      
+      <div class="btn-group">
+        <button type="button" id="ss-calc-btn" class="btn btn-primary">Berechnen</button>
+        <button type="button" id="ss-reset-btn" class="btn btn-secondary">Zurücksetzen</button>
+      </div>
+    </form>
+    <div class="result-section" id="ss-results"></div>
+  </section>
 
-  <div id="results" class="results" aria-live="polite" aria-atomic="true"></div>
+  <!-- Gemeinsame Buttons -->
+  <div style="display:flex; justify-content:flex-start; gap:1rem; margin-top: 1rem;">
+    <button id="export-pdf" class="btn btn-primary">📄 Alle Steuern als PDF exportieren</button>
+  </div>
 
-  <canvas id="tax-chart" aria-label="Diagramm der Grundsteueraufteilung" role="img"></canvas>
+  <canvas id="multi-tax-chart" aria-label="Diagramm aller Steuerarten" role="img"></canvas>
 </div>
 
-<!-- Toast Container -->
 <div class="toast-container" aria-live="assertive" aria-atomic="true"></div>
 
-<script>
-(() => {
-  const { jsPDF } = window.jspdf;
-  const toastContainer = document.querySelector('.toast-container');
-  const resultsDiv = document.getElementById('results');
-  const ctx = document.getElementById('tax-chart').getContext('2d');
-  let chartInstance = null;
-  let lastCalculation = null;
-
-  function showToast(message) {
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'toast-close';
-    closeBtn.innerHTML = '&times;';
-    closeBtn.addEventListener('click', () => toast.remove());
-
-    toast.appendChild(closeBtn);
-    toastContainer.appendChild(toast);
-
-    setTimeout(() => toast.remove(), 5000);
-  }
-
-  function formatCurrency(amount) {
-    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
-  }
-
-  function getFormData() {
-    return {
-      propertyValue: parseFloat(document.getElementById('property-value').value),
-      location: document.getElementById('location').value,
-      propertyType: document.getElementById('property-type').value,
-      exemptions: parseFloat(document.getElementById('exemptions').value) || 0,
-      improvements: parseFloat(document.getElementById('improvements').value) || 0,
-      buildingArea: parseFloat(document.getElementById('building-area').value) || 0,
-      plotSize: parseFloat(document.getElementById('plot-size').value) || 0,
-    };
-  }
-
-  function validate(data) {
-    if (isNaN(data.propertyValue) || data.propertyValue <= 0) {
-      showToast('Bitte geben Sie einen gültigen Immobilienwert größer 0 ein.');
-      return false;
-    }
-    return true;
-  }
-
-  function calculateTax(data) {
-    const taxRates = {
-      residential: 0.0035,
-      commercial: 0.0045,
-      industrial: 0.0055,
-      agricultural: 0.0020,
-    };
-    const locationMultiplier = {
-      urban: 1.2,
-      suburban: 1.0,
-      rural: 0.8,
-    };
-
-    const assessedValue = data.propertyValue * 0.7;
-    const taxableValue = assessedValue + data.improvements - data.exemptions;
-    const baseTax = taxableValue * (taxRates[data.propertyType] || 0.0035);
-    const finalTax = baseTax * (locationMultiplier[data.location] || 1.0);
-    const savings = finalTax * 0.1; // Beispielhafte 10%
-
-    return {
-      input: data,
-      calculations: {
-        assessedValue,
-        taxableValue,
-        baseTax,
-        finalTax,
-        annualTax: finalTax,
-        monthlyTax: finalTax / 12,
-        effectiveRate: (finalTax / data.propertyValue) * 100,
-      },
-      savings,
-    };
-  }
-
-  function displayResults(result) {
-    lastCalculation = result;
-    const html = `
-      <div class="result-item"><strong>Verkehrswert:</strong> ${formatCurrency(result.input.propertyValue)}</div>
-      <div class="result-item"><strong>Steuerwert (70%):</strong> ${formatCurrency(result.calculations.assessedValue)}</div>
-      <div class="result-item"><strong>Zu versteuernder Wert:</strong> ${formatCurrency(result.calculations.taxableValue)}</div>
-      <div class="result-item"><strong>Jährliche Grundsteuer:</strong> ${formatCurrency(result.calculations.annualTax)}</div>
-      <div class="result-item"><strong>Monatliche Rate:</strong> ${formatCurrency(result.calculations.monthlyTax)}</div>
-      <div class="result-item"><strong>Effektiver Steuersatz:</strong> ${result.calculations.effectiveRate.toFixed(2)}%</div>
-      <div class="result-item"><strong>Potenzielle Ersparnis:</strong> ${formatCurrency(result.savings)}</div>
-    `;
-    resultsDiv.innerHTML = html;
-  }
-
-  function createChart(result) {
-    if (chartInstance) {
-      chartInstance.destroy();
-    }
-    chartInstance = new Chart(ctx, {
-      type: 'doughnut',
-       {
-        labels: ['Grundsteuer', 'Nettowert', 'Ersparnis'],
-        datasets: [{
-           [
-            result.calculations.annualTax,
-            result.input.propertyValue - result.calculations.annualTax,
-            result.savings,
-          ],
-          backgroundColor: ['#ff6b6b', '#4ecdc4', '#45b7d1']
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'bottom' }
-        }
-      }
-    });
-  }
-
-  function resetForm() {
-    document.getElementById('tax-form').reset();
-    resultsDiv.innerHTML = '';
-    if (chartInstance) {
-      chartInstance.destroy();
-      chartInstance = null;
-    }
-    lastCalculation = null;
-  }
-
-  async function exportToPDF() {
-    if (!lastCalculation) {
-      showToast('Bitte zuerst eine Berechnung durchführen.');
-      return;
-    }
-    try {
-      const doc = new jsPDF();
-      doc.setFontSize(16);
-      doc.text("Immobilien-Steuer-Berechnung 2025", 14, 20);
-      doc.setFontSize(12);
-      const lineHeight = 10;
-      let y = 30;
-      const c = lastCalculation;
-
-      doc.text(`Datum: ${new Date().toLocaleDateString('de-DE')}`, 14, y);
-      y += lineHeight;
-      doc.text(`Immobilienwert: ${formatCurrency(c.input.propertyValue)}`, 14, y);
-      y += lineHeight;
-      doc.text(`Steuerwert (70%): ${formatCurrency(c.calculations.assessedValue)}`, 14, y);
-      y += lineHeight;
-      doc.text(`Zu versteuernder Wert: ${formatCurrency(c.calculations.taxableValue)}`, 14, y);
-      y += lineHeight;
-      doc.text(`Jährliche Grundsteuer: ${formatCurrency(c.calculations.annualTax)}`, 14, y);
-      y += lineHeight;
-      doc.text(`Monatliche Grundsteuer: ${formatCurrency(c.calculations.monthlyTax)}`, 14, y);
-      y += lineHeight;
-      doc.text(`Effektiver Steuersatz: ${c.calculations.effectiveRate.toFixed(2)}%`, 14, y);
-      y += lineHeight + 10;
-      doc.text(`Potenzielle Ersparnis: ${formatCurrency(c.savings)}`, 14, y);
-
-      doc.save("immobilien_steuer_berechnung.pdf");
-      showToast('PDF wurde erfolgreich exportiert!');
-    } catch (e) {
-      showToast('Fehler beim PDF-Export: ' + e.message);
-    }
-  }
-
-  document.getElementById('calculate-tax').addEventListener('click', () => {
-    const data = getFormData();
-    if (validate(data)) {
-      const result = calculateTax(data);
-      displayResults(result);
-      createChart(result);
-      showToast('Berechnung erfolgreich!');
-    }
-  });
-
-  document.getElementById('reset-form').addEventListener('click', () => {
-    resetForm();
-    showToast('Formular wurde zurückgesetzt.');
-  });
-
-  document.getElementById('export-pdf').addEventListener('click', () => {
-    exportToPDF();
-  });
-
-})();
-</script>
-
+<script src="app.js"></script>
 </body>
 </html>
