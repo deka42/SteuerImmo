@@ -23,47 +23,41 @@ Six modules drive the user-facing functionality:
 3. **Erbschaft**, **Schenkung** — Stufentarif nach § 19 ErbStG mit Härteausgleich.
 4. **Cashflow**, **Strategie** — multi-year analysis and KI strategy stub.
 
-## Repository layout (the only files that matter)
+## Repository layout (everything that's here)
 
 ```
-index.html                                ← THE app. Inline CSS + inline JS.
-                                            Contains the calculators that
-                                            actually run. ~8 600 lines.
-app.js                                    ← Small standalone calculator
-                                            (calcGrundsteuer, calcVerkaufssteuer,
-                                            calcErbschaftsteuer, calcSchenkungssteuer).
-                                            Wired up via "form-grundsteuer"
-                                            etc. — NOT the same code path as
-                                            index.html. Used by an older HTML
-                                            page that lives outside this repo,
-                                            but still kept in sync.
-calculations.js, calculations.html,
-calculations                              ← Older standalone "Premium Edition"
-                                            view. The bare `calculations` file
-                                            is HTML despite the extension-less
-                                            name. Year labels are kept in sync.
-js/worker-script.js                       ← Duplicate of the inline web-worker
-                                            in index.html. Kept in sync as a
-                                            module-style fallback.
-js/classes/*.js                           ← Older modular versions of the
-                                            inline classes (TaxCalculation-
-                                            Engine, UltimateImmobilienSuite-
-                                            Enhanced, EnhancedPDFExporter,
-                                            ApplicationState, …). They are
-                                            NOT imported by index.html — the
-                                            inline copies in index.html are
-                                            authoritative.
-package.json                              ← v4.0.8. Only http-server, eslint
-                                            and prettier as dev deps.
-README.md                                 ← User-facing project doc.
-CHANGELOG.md                              ← Versioned changes.
-CLAUDE.md                                 ← This file.
+index.html                ← THE app. Inline CSS + inline JS + inline web
+                            worker (≈ 8 700 lines). The only file that
+                            ships to end users.
+calculations.html         ← Older standalone "Premium Edition" view,
+                            iframed from index.html via
+                            https://deka42.github.io/SteuerImmo/calculations.html
+                            (GitHub Pages deploy of this repo). Self-
+                            contained inline CSS+JS. Keep year labels and
+                            calc rules in sync with index.html.
+package.json              ← v4.0.8. Only http-server, eslint, prettier
+                            as dev deps. "main": "index.html".
+README.md                 ← User-facing project doc.
+CHANGELOG.md              ← Versioned changes.
+CLAUDE.md                 ← This file.
+.github/dependabot.yml    ← Dependency updates config.
+.gitignore                ← Standard.
 ```
 
-If you change a calculation, the **only file that ships to users is
-`index.html`**. The duplicates in `js/classes/` and `js/worker-script.js`
-are nice-to-have copies — keep them roughly aligned but do not chase parity
-at the cost of correctness in `index.html`.
+**There is nothing else.** Earlier revisions of the repo carried a `js/`
+folder with modular copies of the inline classes
+(`TaxCalculationEngine`, `UltimateImmobilienSuiteEnhanced`,
+`EnhancedPDFExporter`, `EnhancedErrorHandler`, `ApplicationState`,
+`CookieConsentManager`, `GoogleAnalyticsTracker`), a standalone
+`js/worker-script.js`, a root-level `app.js` / `calculations.js`, a
+duplicate `index2.html`, an extension-less `calculations` HTML, and a
+top-level `styles.css`. **All of those were never wired up at runtime
+and were removed during the 2026 cleanup.** Don't reintroduce them; if
+you need a class, edit it inline in `index.html`.
+
+If you change a calculation, the only file that ships to users is
+`index.html` (or `calculations.html` if you're touching the embedded
+Premium Edition).
 
 ## Architecture in `index.html`
 
@@ -262,7 +256,8 @@ reports as `transparent`.
   GitHub — they need a new PR.
 - Unconditionally adding 5,5 % Soli (must respect the Freigrenze).
 - "Cleaning up" the per-state Grundsteuer models into one calculation.
-- Changing the version in only one place — there are seven (see
-  `package.json`, `README.md`, `CHANGELOG.md`, `index.html` three spots,
-  `js/classes/EnhancedPDFExporter.js`, `js/classes/UltimateImmobilienSuiteEnhanced.js`,
-  `js/worker-script.js`).
+- Changing the version in only one place — after the cleanup there are
+  five: `package.json` `"version"`, `index.html` three spots (inline
+  worker `this.version`, `UltimateImmobilienSuiteEnhanced.this.version`,
+  the PDF header `Version: vX.Y.Z-enhanced`, plus the API-docs sample
+  response), `README.md` banner + Updates section, `CHANGELOG.md` heading.
