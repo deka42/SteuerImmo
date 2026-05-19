@@ -3,7 +3,7 @@ class EnhancedTaxCalculatorWorker {
     constructor() {
         this.cache = new Map();
         this.calculationHistory = [];
-        this.version = '4.0.0-enhanced';
+        this.version = '4.0.8-enhanced';
     }
 
     calculate(data) {

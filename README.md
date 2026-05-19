@@ -1,6 +1,6 @@
 # Immobilien-Steuer-Suite 2026 - Ultimate Enterprise Enhanced Edition
 
-> **Stand 2026 (v4.1.0)** — Steuerrecht-Audit durchgeführt: Grunderwerbsteuersätze
+> **Stand 2026 (v4.0.8-enhanced)** — Steuerrecht-Audit durchgeführt: Grunderwerbsteuersätze
 > aktualisiert (HH/SN 5,5 %, TH 5,0 %), Erbschaft-/Schenkungsteuer auf den
 > korrekten Stufentarif mit Härteausgleich (§ 19 ErbStG) umgestellt,
 > § 13 Familienheim & § 13d Vermietabschlag korrekt implementiert,
@@ -206,7 +206,7 @@ Alle 16 deutschen Bundesländer mit spezifischen:
 
 ## 🔄 Updates & Wartung
 
-### Version 4.1.0 — Steuerrecht-Audit 2026
+### Version 4.0.8 — Steuerrecht-Audit 2026
 - 🛠️ Kritische Bugfixes: zerstörter `try`-Block in `TaxCalculationEngine.js`, Worker-Timer-Leak, fehlerhafte Methoden-Überschreibung
 - 📊 Steuerrecht 2026: Grunderwerbsteuer aktualisiert (HH/SN 5,5 %, TH 5,0 %)
 - ⚖️ Erbschaft-/Schenkungsteuer: korrekter Stufentarif mit Härteausgleich (§ 19 Abs. 3 ErbStG)

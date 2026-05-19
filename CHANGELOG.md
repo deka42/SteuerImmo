@@ -5,7 +5,7 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.1.0] - 2026 - Steuerrecht-Audit & Korrekturen
+## [4.0.8] - 2026 - Steuerrecht-Audit & Korrekturen
 
 ### 🐛 Kritische Bugfixes
 - **`js/classes/TaxCalculationEngine.js`**: Syntaktisch zerstörter `try`-Block

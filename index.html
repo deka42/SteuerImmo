@@ -950,6 +950,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     .toast {
         background: white;
+        color: var(--dark);
         border-radius: 12px;
         padding: 1.25rem 1.5rem;
         box-shadow: var(--shadow-xl);
@@ -961,6 +962,21 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         position: relative;
         overflow: hidden;
         word-break: break-word;
+    }
+
+    /* Toast text & close button must stay legible regardless of theme:
+       the toast keeps a white background in dark mode too, so force a
+       dark foreground here instead of inheriting body.dark-mode's white.
+       Specificity must beat `body.dark-mode .app-container *` (which is
+       declared later in this file and would otherwise win at !important
+       parity), so we include the .toast-container parent. */
+    .toast,
+    .toast * {
+        color: var(--dark);
+    }
+    body.dark-mode .toast-container .toast.toast,
+    body.dark-mode .toast-container .toast.toast * {
+        color: var(--dark) !important;
     }
 
     .toast::before {
@@ -2625,7 +2641,7 @@ font-weight: 700 !important;
 }
 
 <strong>GET /api/v4/health</strong>
-Response: {“status”: “ok”, “version”: “4.0.7”, “uptime”: 123456}
+Response: {“status”: “ok”, “version”: “4.0.8”, “uptime”: 123456}
 
 <strong>POST /api/v4/compare</strong>
 Compare multiple scenarios
@@ -2662,7 +2678,7 @@ List available plugins
         constructor() {
             this.cache = new Map();
             this.calculationHistory = [];
-            this.version = '4.0.7-enhanced';
+            this.version = '4.0.8-enhanced';
         }
 
         calculate(data) {
@@ -3674,7 +3690,7 @@ List available plugins
             doc.setTextColor('#000000');
             doc.text('Ultimate Enterprise Enhanced Edition - Steueroptimierung Bericht', 20, 40);
             doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 20, 50);
-            doc.text(`Version: v4.0.7-enhanced`, 150, 50);
+            doc.text(`Version: v4.0.8-enhanced`, 150, 50);
             
             // Add separator line
             doc.setDrawColor('#667eea');
@@ -4529,7 +4545,7 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
     // Main Application Class
     class UltimateImmobilienSuiteEnhanced {
         constructor() {
-            this.version = '4.0.0-enhanced';
+            this.version = '4.0.8-enhanced';
             this.scenarios = new Map();
             this.currentScenario = 'scenario1';
             this.realtimeEnabled = true;
