@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Immobilien-Steuer-Suite 2025 - Premium Edition</title>
+    <title>Immobilien-Steuer-Suite 2026 - Premium Edition</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
 </head>
@@ -12,7 +12,7 @@
     
     <div class="container">
         <div class="header">
-            <h1>🏠 Immobilien-Steuer-Suite 2025</h1>
+            <h1>🏠 Immobilien-Steuer-Suite 2026</h1>
             <p>Premium Edition - Alle Steuerberechnungen für Immobilien</p>
         </div>
 
@@ -29,7 +29,7 @@
 
         <!-- Grundsteuer Tab -->
         <div id="grundsteuer" class="tab-content active">
-            <h2>Grundsteuer-Rechner 2025</h2>
+            <h2>Grundsteuer-Rechner 2026</h2>
             <form id="grundsteuerForm">
                 <div class="form-row">
                     <div class="form-col">
@@ -96,7 +96,7 @@
 
         <!-- Grunderwerbsteuer Tab -->
         <div id="grunderwerbsteuer" class="tab-content">
-            <h2>Grunderwerbsteuer-Rechner 2025</h2>
+            <h2>Grunderwerbsteuer-Rechner 2026</h2>
             <form id="grunderwerbsteuerForm">
                 <div class="form-row">
                     <div class="form-col">
@@ -152,7 +152,7 @@
 
         <!-- Spekulationssteuer Tab -->
         <div id="spekulationssteuer" class="tab-content">
-            <h2>Spekulationssteuer-Rechner 2025</h2>
+            <h2>Spekulationssteuer-Rechner 2026</h2>
             <form id="spekulationssteuerForm">
                 <div class="form-row">
                     <div class="form-col">
@@ -216,7 +216,7 @@
 
         <!-- Vermietung & Verpachtung Tab -->
         <div id="vermietung" class="tab-content">
-            <h2>Vermietung & Verpachtung - Steuerrechner 2025</h2>
+            <h2>Vermietung & Verpachtung - Steuerrechner 2026</h2>
             <form id="vermietungForm">
                 <div class="form-row">
                     <div class="form-col">
@@ -293,7 +293,7 @@
 
         <!-- AfA-Rechner Tab -->
         <div id="abschreibung" class="tab-content">
-            <h2>AfA-Rechner (Abschreibung) 2025</h2>
+            <h2>AfA-Rechner (Abschreibung) 2026</h2>
             <form id="abschreibungForm">
                 <div class="form-row">
                     <div class="form-col">
@@ -368,7 +368,7 @@
 
         <!-- Erbschaftssteuer Tab -->
         <div id="erbschaftssteuer" class="tab-content">
-            <h2>Erbschaftssteuer-Rechner 2025</h2>
+            <h2>Erbschaftssteuer-Rechner 2026</h2>
             <form id="erbschaftssteuerForm">
                 <div class="form-row">
                     <div class="form-col">
@@ -444,7 +444,7 @@
 
         <!-- Schenkungssteuer Tab -->
         <div id="schenkungssteuer" class="tab-content">
-            <h2>Schenkungssteuer-Rechner 2025</h2>
+            <h2>Schenkungssteuer-Rechner 2026</h2>
             <form id="schenkungssteuerForm">
                 <div class="form-row">
                     <div class="form-col">
@@ -525,7 +525,7 @@
 
         <!-- Steueroptimierung Tab -->
         <div id="steueroptimierung" class="tab-content">
-            <h2>Steueroptimierung für Immobilien 2025</h2>
+            <h2>Steueroptimierung für Immobilien 2026</h2>
             
             <div class="card">
                 <h3>🎯 Optimierungsstrategien</h3>
@@ -575,7 +575,7 @@
             <div class="card">
                 <h3>📚 Steuer-Tipps für Immobilienbesitzer</h3>
                 <div class="alert alert-info">
-                    <strong>Wichtige Steuervorteile 2025:</strong>
+                    <strong>Wichtige Steuervorteile 2026:</strong>
                     <ul style="margin-top: 10px; padding-left: 20px;">
                         <li>AfA-Sätze: 3% für Neubauten ab 2023 (statt 2,5%)</li>
                         <li>Sonderabschreibungen für Denkmalschutz bis zu 10%</li>
@@ -591,7 +591,7 @@
                 <div class="alert alert-warning">
                     <strong>Disclaimer:</strong> Alle Berechnungen sind unverbindlich und dienen nur der groben Orientierung. 
                     Steuergesetze können sich ändern. Für verbindliche Auskünfte konsultieren Sie bitte einen Steuerberater 
-                    oder das zuständige Finanzamt. Stand der Berechnungen: 2025.
+                    oder das zuständige Finanzamt. Stand der Berechnungen: 2026.
                 </div>
             </div>
         </div>
@@ -901,7 +901,7 @@
                 return;
             }
             
-            // Freibeträge 2025
+            // Freibeträge 2026
             const freibetraege = {
                 'ehepartner': 500000,
                 'kind': 400000,
@@ -971,7 +971,7 @@
                 return;
             }
             
-            // Freibeträge 2025 (alle 10 Jahre)
+            // Freibeträge 2026 (alle 10 Jahre)
             const freibetraege = {
                 'ehepartner': 500000,
                 'kind': 400000,
