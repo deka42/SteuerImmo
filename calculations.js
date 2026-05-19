@@ -106,34 +106,40 @@ function calculateAfa() {
 
     let afaSatz;
     let abschreibungsdauer;
-    let sonderAbschreibung = 0;
+    let sonderAbschreibungJahre = [];
 
-    // Enhanced AfA rates for 2025
+    // Lineare AfA-Sätze für Gebäude (§ 7 Abs. 4 EStG, Stand 2026)
     if (nutzungsart === 'wohngebaeude') {
-        if (baujahr >= 1925) {
-            afaSatz = 2.0; // 2% für Wohngebäude ab 1925
+        if (baujahr >= 2023) {
+            // Wohngebäude mit Fertigstellung ab 2023 (Wachstumschancengesetz): 3% / 33 Jahre
+            afaSatz = 3.0;
+            abschreibungsdauer = 33;
+        } else if (baujahr >= 1925) {
+            afaSatz = 2.0; // Wohngebäude 1925-2022
             abschreibungsdauer = 50;
         } else {
-            afaSatz = 2.5; // 2,5% für Wohngebäude vor 1925
+            afaSatz = 2.5; // Wohngebäude vor 1925
             abschreibungsdauer = 40;
         }
-        
-        // Sonderabschreibung für neue Mietwohnungen (2025)
-        if (anschaffungsjahr >= 2023 && baujahr >= 2023) {
-            sonderAbschreibung = anschaffungskosten * 0.05; // 5% Sonderabschreibung
+
+        // § 7b EStG Sonderabschreibung für neue Mietwohnungen:
+        // 5 % p.a. zusätzlich in den ersten 4 Jahren, sofern Bauantrag/Vertrag
+        // zwischen 2023 und 2026 und Baukostenobergrenze eingehalten.
+        if (anschaffungsjahr >= 2023 && anschaffungsjahr <= 2026 && baujahr >= 2023) {
+            for (let i = 0; i < 4; i++) {
+                sonderAbschreibungJahre.push(anschaffungskosten * 0.05);
+            }
         }
     } else if (nutzungsart === 'gewerbegebaeude') {
-        afaSatz = 3.0; // 3% für Gewerbegebäude
+        afaSatz = 3.0; // Betriebsvermögen, Bauantrag nach 31.03.1985
         abschreibungsdauer = 33;
-        
-        // Digitalisierungsbonus 2025
-        if (anschaffungsjahr >= 2024) {
-            sonderAbschreibung = Math.min(anschaffungskosten * 0.02, 50000);
-        }
     } else if (nutzungsart === 'denkmalschutz') {
         afaSatz = 2.5;
         abschreibungsdauer = 40;
-        sonderAbschreibung = anschaffungskosten * 0.09; // 9% Denkmal-AfA
+        // § 7i EStG: 9 % Jahre 1-8 + 7 % Jahre 9-12 auf Sanierungskosten.
+        // Hier wird der Standard-Sonderabschreibungs-Schedule modelliert.
+        for (let i = 0; i < 8; i++) sonderAbschreibungJahre.push(anschaffungskosten * 0.09);
+        for (let i = 0; i < 4; i++) sonderAbschreibungJahre.push(anschaffungskosten * 0.07);
     } else {
         afaSatz = 2.5; // Mischnutzung
         abschreibungsdauer = 40;
@@ -141,7 +147,8 @@ function calculateAfa() {
 
     const jaehrlicheAfa = anschaffungskosten * (afaSatz / 100);
     const monatlicheAfa = jaehrlicheAfa / 12;
-    const gesamtAfA = jaehrlicheAfa + sonderAbschreibung;
+    const sonderAbschreibung = sonderAbschreibungJahre.reduce((s, v) => s + v, 0);
+    const gesamtAfA = jaehrlicheAfa + (sonderAbschreibungJahre[0] || 0);
 
     // Display results
     const results = {
@@ -273,11 +280,11 @@ function calculateKaufnebenkosten() {
         return;
     }
 
-    // Enhanced real estate transfer tax rates (2025)
+    // Grunderwerbsteuer-Sätze 2026 (HH: 5,5% seit 1.1.2023, SN: 5,5% seit 1.1.2023, TH: 5,0% seit 1.1.2024)
     const grunderwerbsteuersaetze = {
         'bw': 5.0, 'by': 3.5, 'be': 6.0, 'bb': 6.5, 'hb': 5.0,
-        'hh': 4.5, 'he': 6.0, 'mv': 6.0, 'ni': 5.0, 'nw': 6.5,
-        'rp': 5.0, 'sl': 6.5, 'sn': 3.5, 'st': 5.0, 'sh': 6.5, 'th': 6.5
+        'hh': 5.5, 'he': 6.0, 'mv': 6.0, 'ni': 5.0, 'nw': 6.5,
+        'rp': 5.0, 'sl': 6.5, 'sn': 5.5, 'st': 5.0, 'sh': 6.5, 'th': 5.0
     };
 
     const grunderwerbsteuer = immobilienpreis * (grunderwerbsteuersaetze[bundesland] / 100);
