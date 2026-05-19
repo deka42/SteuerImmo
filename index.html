@@ -1285,7 +1285,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     }
 
     /* Dark Mode Support - Enhanced Visibility */
-@media (prefers-color-scheme: dark) {
+@media not all {
 body {
 background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
 color: #f8f9fa;
@@ -1514,7 +1514,7 @@ body.dark-mode .performance-indicator {
 /* Add these CSS rules to fix dark mode font visibility issues */
 
 /* Fix plugin items in sidebar */
-@media (prefers-color-scheme: dark) {
+@media not all {
 .plugin-item,
 .plugin-item strong,
 .plugin-item small {
@@ -1556,7 +1556,7 @@ color: #e9ecef !important;
 }
 
 /* Fix calculation results and data tables */
-@media (prefers-color-scheme: dark) {
+@media not all {
 #quick-calc-results,
 #quick-calc-results * {
 color: #f8f9fa !important;
@@ -1590,7 +1590,7 @@ color: #f8f9fa !important;
 }
 
 /* Fix all result values and labels */
-@media (prefers-color-scheme: dark) {
+@media not all {
 .result-value,
 .result-label,
 .widget-title,
@@ -1626,7 +1626,7 @@ color: #4ecdc4 !important;
 }
 
 /* Fix form help text and errors */
-@media (prefers-color-scheme: dark) {
+@media not all {
 .form-help,
 .form-error,
 .text-muted {
@@ -1641,7 +1641,7 @@ color: #adb5bd !important;
 }
 
 /* Fix list items and general text */
-@media (prefers-color-scheme: dark) {
+@media not all {
 .card ul li,
 .card ol li,
 .card p,
@@ -1675,7 +1675,7 @@ border-radius: 3px;
 }
 
 /* Fix scenario tabs */
-@media (prefers-color-scheme: dark) {
+@media not all {
 .scenario-tab {
 color: #adb5bd !important;
 border-bottom-color: transparent !important;
@@ -1699,7 +1699,7 @@ border-bottom-color: transparent !important;
 
 body.dark-mode .scenario-tab.active {
 color: #f8f9fa !important;
-border-bottom-color: var(–primary-solid) !important;
+border-bottom-color: var(--primary-solid) !important;
 }
 
 body.dark-mode .scenario-tab:hover {
@@ -1707,7 +1707,7 @@ color: #f8f9fa !important;
 }
 
 /* Fix disclosure toggle */
-@media (prefers-color-scheme: dark) {
+@media not all {
 .disclosure-toggle {
 color: #74b9ff !important;
 }
@@ -1727,7 +1727,7 @@ color: #f8f9fa !important;
 }
 
 /* Fix all headings in dark mode */
-@media (prefers-color-scheme: dark) {
+@media not all {
 h1, h2, h3, h4, h5, h6 {
 color: #f8f9fa !important;
 }
@@ -1743,7 +1743,7 @@ color: #f8f9fa !important;
 }
 
 /* Fix any remaining text elements */
-@media (prefers-color-scheme: dark) {
+@media not all {
 .card div,
 .card span:not(.result-value):not(.result-label),
 .sidebar div,
@@ -1795,7 +1795,7 @@ transform: scale(1.05);
 /* Additional Dark Mode Fixes for remaining visibility issues */
 
 /* Fix progress modal content */
-@media (prefers-color-scheme: dark) {
+@media not all {
 .progress-modal,
 .progress-modal * {
 color: #f8f9fa !important;
@@ -1845,11 +1845,11 @@ background: #495057 !important;
 }
 
 body.dark-mode .progress-fill {
-background: var(–primary) !important;
+background: var(--primary) !important;
 }
 
 /* Fix alert content in dark mode */
-@media (prefers-color-scheme: dark) {
+@media not all {
 .alert,
 .alert * {
 color: #f8f9fa !important;
@@ -1888,30 +1888,30 @@ color: #f8f9fa !important;
 
 body.dark-mode .alert-info {
 background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2)) !important;
-border-left-color: var(–primary-solid) !important;
+border-left-color: var(--primary-solid) !important;
 color: #f8f9fa !important;
 }
 
 body.dark-mode .alert-success {
 background: linear-gradient(135deg, rgba(17, 153, 142, 0.2), rgba(56, 239, 125, 0.2)) !important;
-border-left-color: var(–success-solid) !important;
+border-left-color: var(--success-solid) !important;
 color: #f8f9fa !important;
 }
 
 body.dark-mode .alert-warning {
 background: linear-gradient(135deg, rgba(240, 147, 251, 0.2), rgba(245, 87, 108, 0.2)) !important;
-border-left-color: var(–warning-solid) !important;
+border-left-color: var(--warning-solid) !important;
 color: #f8f9fa !important;
 }
 
 body.dark-mode .alert-danger {
 background: linear-gradient(135deg, rgba(255, 154, 158, 0.2), rgba(254, 207, 239, 0.2)) !important;
-border-left-color: var(–danger-solid) !important;
+border-left-color: var(--danger-solid) !important;
 color: #f8f9fa !important;
 }
 
 /* Fix form elements in alerts and modals */
-@media (prefers-color-scheme: dark) {
+@media not all {
 .alert label,
 .alert span,
 .alert input,
@@ -1936,12 +1936,12 @@ body.dark-mode .modal div {
 color: #f8f9fa !important;
 }
 
-body.dark-mode .alert input[type=“checkbox”] + span {
+body.dark-mode .alert input[type="checkbox"] + span {
 color: #f8f9fa !important;
 }
 
 /* Fix buttons in dark mode to ensure text is visible */
-@media (prefers-color-scheme: dark) {
+@media not all {
 .btn-secondary {
 background: linear-gradient(135deg, #6c757d, #495057) !important;
 color: #ffffff !important;
@@ -1977,7 +1977,7 @@ color: #ffffff !important;
 }
 
 /* Fix any remaining text elements that might be missed */
-@media (prefers-color-scheme: dark) {
+@media not all {
 .content-area *:not(.btn):not(.form-input):not(.form-select):not(button):not(input):not(select) {
 color: #f8f9fa !important;
 }
@@ -2005,20 +2005,20 @@ color: #f8f9fa !important;
 }
 
 /* Specific fix for checkbox labels and inline text */
-@media (prefers-color-scheme: dark) {
-label[style*=“display: flex”] span,
-label[style*=“align-items: center”] span {
+@media not all {
+label[style*="display: flex"] span,
+label[style*="align-items: center"] span {
 color: #f8f9fa !important;
 }
 }
 
-body.dark-mode label[style*=“display: flex”] span,
-body.dark-mode label[style*=“align-items: center”] span {
+body.dark-mode label[style*="display: flex"] span,
+body.dark-mode label[style*="align-items: center"] span {
 color: #f8f9fa !important;
 }
 
 /* Force all text to be visible in dark mode - nuclear option */
-@media (prefers-color-scheme: dark) {
+@media not all {
 .app-container *:not(input):not(select):not(button):not(.btn) {
 color: #f8f9fa !important;
 }
@@ -2029,7 +2029,7 @@ color: #f8f9fa !important;
 }
 
 /* Ensure contrast for specific result values */
-@media (prefers-color-scheme: dark) {
+@media not all {
 .result-value {
 color: #4ecdc4 !important;
 font-weight: 600 !important;
@@ -2274,7 +2274,7 @@ font-weight: 700 !important;
             <div class="app-title">
                 <span style="font-size: 2.5rem;" role="img" aria-label="House">🏠</span>
                 <div>
-                    <h1>Immobilien-Steuer-Suite 2025</h1>
+                    <h1>Immobilien-Steuer-Suite 2026</h1>
                     <div class="subtitle">Ultimate Enterprise Enhanced • KI • Real-time • PDF Reports • Multi-Scenario</div>
                 </div>
             </div>
@@ -2295,6 +2295,9 @@ font-weight: 700 !important;
                 <button class="btn btn-secondary" onclick="app.resetAll()" title="Alles zurücksetzen (Ctrl+R)" aria-label="Alle Daten zurücksetzen">
                     🔄 Reset
                 </button>
+                <button id="dark-mode-toggle-btn" class="btn btn-outline" onclick="toggleDarkMode()" title="Dark/Light Mode umschalten" aria-label="Dark Mode umschalten">
+                    🌙 Dark Mode
+                </button>
             </div>
         </div>
     </header>
@@ -2314,7 +2317,7 @@ font-weight: 700 !important;
                 <li class="nav-item" role="none">
                     <a href="#grundsteuer" class="nav-link" data-section="grundsteuer" role="menuitem">
                         <span class="nav-icon" role="img" aria-label="Gebäude">🏛️</span>
-                        Grundsteuer 2025
+                        Grundsteuer 2026
                     </a>
                 </li>
                 <li class="nav-item" role="none">
@@ -2923,7 +2926,7 @@ List available plugins
 
 <script>
     /**
-     * Ultimate Enterprise Immobilien-Steuer-Suite 2025 - Enhanced Version
+     * Ultimate Enterprise Immobilien-Steuer-Suite 2026 - Enhanced Version
      * With all bugs fixed and security improvements
      */
     
@@ -3632,7 +3635,7 @@ List available plugins
             // Header with logo placeholder
             doc.setFontSize(20);
             doc.setTextColor('#667eea');
-            doc.text('🏠 Immobilien-Steuer-Suite 2025', 20, 30);
+            doc.text('🏠 Immobilien-Steuer-Suite 2026', 20, 30);
             
             doc.setFontSize(12);
             doc.setTextColor('#000000');
@@ -3771,7 +3774,7 @@ List available plugins
                 doc.line(20, 280, 190, 280);
                 
                 doc.text(`Seite ${i} von ${pageCount}`, 20, 285);
-                doc.text('Immobilien-Steuer-Suite 2025 Ultimate Enterprise Enhanced', 90, 285);
+                doc.text('Immobilien-Steuer-Suite 2026 Ultimate Enterprise Enhanced', 90, 285);
                 doc.text(`Erstellt: ${new Date().toLocaleString('de-DE')}`, 20, 290);
             }
         }
@@ -4848,7 +4851,7 @@ openCalculationsNewTab() {
         getAdvantages(structureName) {
             const advantages = {
                 'Privatverkauf': ['Steuerfrei nach 10 Jahren', 'Einfachste Abwicklung'],
-                'VV GmbH & Co. KG (§ 9 Nr. 1 S. 2 GewStG)': ['BFH 2025: Gewerbesteuerfrei!', 'Haftungsbeschränkung'],
+                'VV GmbH & Co. KG (§ 9 Nr. 1 S. 2 GewStG)': ['Erweiterte Gewerbesteuer-Kürzung § 9 Nr. 1 S. 2 GewStG', 'Haftungsbeschränkung'],
                 'Familienpool (GbR)': ['Steuerverteilung auf Familie', 'Progression brechen'],
                 'Share Deal (GmbH)': ['40% steuerfreier Gewinn (§8b KStG)', 'Keine Grunderwerbsteuer'],
                 'Cross-Border Holding': ['Internationale Steueroptimierung', 'EU-Richtlinien nutzen'],
@@ -4921,8 +4924,11 @@ openCalculationsNewTab() {
                    // Save state before changes for undo functionality
                    if (!this.isRestoringState) {
                        this.saveCurrentState();
-                       // Also save to current scenario immediately
+                       // Save into both the active Verkauf scenario AND the
+                       // current section's sectionData so autoSave and
+                       // tab-switching never lose live edits.
                        this.saveCurrentScenarioData();
+                       try { this.saveCurrentSectionData(); } catch (err) {}
                    }
                     
                     // Trigger validation - FIXED: use e.target instead of undefined element
@@ -6081,12 +6087,36 @@ validateFormData(data, section = null) {
         }
 
         restoreVerkaufData() {
-            // Restore data for all scenarios
-            const scenario = this.scenarios.get(this.currentScenario);
-            if (scenario && scenario.data && Object.keys(scenario.data).length > 0) {
-                console.log(`Restoring verkauf data for ${this.currentScenario}:`, scenario.data);
-                this.populateForm(scenario.data);
+            // Repopulate every scenario's saved data into its own content block so
+            // switching tabs back shows what the user entered. Use scenario-specific
+            // prefixes (scenario1 = '', scenario2 = 's2_', scenario3 = 's3_').
+            this.isRestoringState = true;
+            try {
+                for (const [scenarioId, scenario] of this.scenarios.entries()) {
+                    if (!scenario || !scenario.data || Object.keys(scenario.data).length === 0) continue;
+                    const prefix = this.getScenarioPrefix(scenarioId);
+                    Object.keys(scenario.data).forEach(key => {
+                        const element = document.getElementById(prefix + key);
+                        if (!element) return;
+                        if (element.type === 'checkbox') {
+                            element.checked = !!scenario.data[key];
+                        } else {
+                            element.value = scenario.data[key];
+                        }
+                    });
+                }
+            } finally {
+                this.isRestoringState = false;
             }
+
+            // Restore the active scenario tab to match the persisted currentScenario
+            const wanted = this.currentScenario || 'scenario1';
+            document.querySelectorAll('.scenario-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.getAttribute('data-scenario') === wanted);
+            });
+            document.querySelectorAll('.scenario-content').forEach(c => {
+                c.classList.toggle('active', c.id === wanted + '-content');
+            });
         }
 
         restoreGrundsteuerData() {
@@ -6317,7 +6347,7 @@ handleImmobilienartChange(newValue) {
                     <div class="card-header">
                         <div class="card-title">
                             <span>💰</span>
-                            <span>KI-Optimierte Verkaufssteuer-Berechnung 2025</span>
+                            <span>KI-Optimierte Verkaufssteuer-Berechnung 2026</span>
                         </div>
                     </div>
 
@@ -6564,12 +6594,12 @@ handleImmobilienartChange(newValue) {
                     <div class="card-header">
                         <div class="card-title">
                             <span>🏛️</span>
-                            <span>Grundsteuer-Reform 2025</span>
+                            <span>Grundsteuer-Reform 2026</span>
                         </div>
                     </div>
 
                     <div class="alert alert-info">
-                        <h3>📋 Neue Grundsteuer-Berechnung ab 2025</h3>
+                        <h3>📋 Neue Grundsteuer-Berechnung ab 2025 (Stand 2026)</h3>
                         <p>Die Grundsteuer-Reform ist in Kraft! Berechnen Sie Ihre neue Grundsteuerbelastung mit den aktuellen Bewertungsverfahren.</p>
                     </div>
 
@@ -6649,7 +6679,7 @@ handleImmobilienartChange(newValue) {
 
                     <div class="btn-group">
                         <button class="btn btn-primary" onclick="app.calculateGrundsteuer()">
-                            🧮 Grundsteuer 2025 berechnen
+                            🧮 Grundsteuer 2026 berechnen
                         </button>
                         <button class="btn btn-warning" onclick="app.loadGrundsteuerExample()">
                             💡 Beispiel laden
@@ -6672,7 +6702,7 @@ handleImmobilienartChange(newValue) {
                     <div class="card-header">
                         <div class="card-title">
                             <span>👨‍👩‍👧‍👦</span>
-                            <span>Erbschaftsteuer-Optimierung 2025</span>
+                            <span>Erbschaftsteuer-Optimierung 2026</span>
                         </div>
                     </div>
 
@@ -6777,7 +6807,7 @@ handleImmobilienartChange(newValue) {
                     <div class="card-header">
                         <div class="card-title">
                             <span>🎁</span>
-                            <span>Schenkungssteuer-Planung 2025</span>
+                            <span>Schenkungssteuer-Planung 2026</span>
                         </div>
                     </div>
 
@@ -7235,7 +7265,7 @@ handleImmobilienartChange(newValue) {
         // Enhanced Calculation Methods for Different Modules
         async calculateGrundsteuer() {
     try {
-        this.showProgress('Berechne neue Grundsteuer 2025...', 20);
+        this.showProgress('Berechne neue Grundsteuer 2026...', 20);
         
         const formData = this.collectGrundsteuerData();
         // Fixed: Remove redundant field mapping
@@ -7302,7 +7332,7 @@ handleImmobilienartChange(newValue) {
             
             const html = `
                 <div class="alert alert-success">
-                    <h3>🏛️ Ihre neue Grundsteuer 2025</h3>
+                    <h3>🏛️ Ihre neue Grundsteuer 2026</h3>
                     <p><strong>Jährliche Grundsteuer:</strong> ${this.formatCurrency(results.grundsteuerJaehrlich)}</p>
                     <p><strong>Monatliche Belastung:</strong> ${this.formatCurrency(results.grundsteuerMonatlich)}</p>
                 </div>
@@ -8583,11 +8613,38 @@ get debouncedCalculateErbschaftsteuer() {
         }
     }
 
+    // Dark/Light Mode Toggle - persistent and OS-aware on first load.
+    // Respects the user's explicit choice; falls back to OS prefers-color-scheme
+    // until an explicit choice is made.
+    function applyDarkModeUI() {
+        const btn = document.getElementById('dark-mode-toggle-btn');
+        if (btn) {
+            const dark = document.body.classList.contains('dark-mode');
+            btn.textContent = dark ? '☀️ Light Mode' : '🌙 Dark Mode';
+            btn.setAttribute('aria-pressed', String(dark));
+        }
+    }
+    function toggleDarkMode() {
+        const willBeDark = !document.body.classList.contains('dark-mode');
+        document.body.classList.toggle('dark-mode', willBeDark);
+        try { localStorage.setItem('dark-mode-preference', willBeDark ? 'true' : 'false'); } catch (e) {}
+        applyDarkModeUI();
+    }
+    window.toggleDarkMode = toggleDarkMode;
+    (function initDarkMode() {
+        let saved = null;
+        try { saved = localStorage.getItem('dark-mode-preference'); } catch (e) {}
+        const osDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const startDark = saved !== null ? saved === 'true' : !!osDark;
+        document.body.classList.toggle('dark-mode', startDark);
+        applyDarkModeUI();
+    })();
+
     // Initialize the Enhanced Ultimate Suite
     const app = new UltimateImmobilienSuiteEnhanced();
     window.app = app;
 
-    console.log('🚀 Ultimate Enterprise Immobilien-Steuer-Suite 2025 Enhanced loaded');
+    console.log('🚀 Ultimate Enterprise Immobilien-Steuer-Suite 2026 Enhanced loaded');
     console.log('📊 Features: Real-time AI, Enhanced PDF Export, Multi-Scenario, Plugin Architecture, Error Handling, Performance Monitoring');
     console.log('⌨️ Keyboard shortcuts available - Press F1 for help');
     console.log('🔧 Enhanced with all suggested improvements and enterprise features');
