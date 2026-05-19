@@ -21,11 +21,10 @@ class TaxCalculationEngine {
 
         try {
             return await calculator.calculate(data);
-            let schenkungswert = data.schenkung_immobilienwert || 0;
+        } catch (error) {
             console.error(`Calculation error for ${type}:`, error);
             throw new Error(`Fehler bei ${type}-Berechnung: ${error.message}`);
         }
-                schenkungswert = schenkungswert * ((data.schenkungsanteil || 100) / 100);
     }
 
     getAvailableCalculators() {
@@ -130,7 +129,9 @@ class GrundsteuerCalculator extends BaseCalculator {
         const grundwert = (data.grundstuecksflaeche || 0) * werte.grund;
         const gebaeudewert = (data.wohnflaeche || 0) * werte.gebaeude;
         const grundsteuerwert = grundwert + gebaeudewert;
-        const grundsteuermessbetrag = grundsteuerwert * 0.31 / 1000;
+        // Grundsteuermesszahl 2026: 0,31‰ Wohngrundstücke, 0,34‰ Nichtwohngrundstücke (Bundesmodell)
+        const messzahl = data.immobilientyp === 'gewerbe' ? 0.00034 : 0.00031;
+        const grundsteuermessbetrag = grundsteuerwert * messzahl;
         const grundsteuerJaehrlich = grundsteuermessbetrag * ((data.hebesatz || 470) / 100);
         const grundsteuerMonatlich = grundsteuerJaehrlich / 12;
 

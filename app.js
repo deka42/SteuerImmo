@@ -89,26 +89,45 @@
     const salePrice = parseFloat(document.getElementById('vs-sale-price').value);
     const purchasePrice = parseFloat(document.getElementById('vs-purchase-price').value);
     const ownUse = parseFloat(document.getElementById('vs-own-use-duration').value) || 0;
+    const holdingPeriod = parseFloat(document.getElementById('vs-holding-period')?.value) || 0;
+    const marginalRate = parseFloat(document.getElementById('vs-marginal-rate')?.value) || 42;
+    const churchRate = parseFloat(document.getElementById('vs-church-rate')?.value) || 0;
 
     if (isNaN(salePrice) || salePrice <= 0 || isNaN(purchasePrice) || purchasePrice <= 0) {
       showToast('Bitte gültigen Verkaufs- und Kaufpreis eingeben.');
       return null;
     }
 
-    // Beispielhafte Annahme: Freibetrag bei Eigennutzung > 5 Jahre
+    // § 23 EStG (Private Veräußerungsgeschäfte) - Stand 2026:
+    //  - Steuerfrei nach 10 Jahren Haltedauer (Privatvermögen).
+    //  - Steuerfrei bei Eigennutzung im Verkaufsjahr und den zwei vorangegangenen Jahren
+    //    (3-Jahres-Regel, § 23 Abs. 1 Nr. 1 S. 3 EStG).
+    //  - Sonst: Versteuerung mit persönlichem Grenzsteuersatz + Soli + Kirchensteuer.
     const taxableGain = salePrice - purchasePrice;
     let tax = 0;
+    let taxStatus = 'steuerpflichtig';
+
     if (taxableGain > 0) {
-      if (ownUse >= 5) {
-        tax = taxableGain * 0.15 * 0.5; // 50% Steuerermäßigung bei Eigennutzung
+      const heldTenYears = holdingPeriod >= 10;
+      const eigennutzungBefreit = ownUse >= 3; // 3-Jahres-Regel (vereinfacht)
+
+      if (heldTenYears || eigennutzungBefreit) {
+        tax = 0;
+        taxStatus = heldTenYears ? 'steuerfrei (>10 Jahre Haltedauer)' : 'steuerfrei (Eigennutzung)';
       } else {
-        tax = taxableGain * 0.15;
+        const incomeTax = taxableGain * (marginalRate / 100);
+        const churchTax = incomeTax * (churchRate / 100);
+        const soli = incomeTax * 0.055;
+        tax = incomeTax + churchTax + soli;
       }
+    } else {
+      taxStatus = 'kein steuerpflichtiger Gewinn';
     }
 
     const result = {
       taxableGain,
-      tax
+      tax,
+      taxStatus
     };
 
     results.verkaufssteuer = result;
@@ -237,6 +256,7 @@
     } else if (label === 'Verkaufssteuer') {
       html = `
         <div class="result-row"><strong>Veräußerungsgewinn:</strong> ${formatCurrency(data.taxableGain)}</div>
+        <div class="result-row"><strong>Status:</strong> ${data.taxStatus || ''}</div>
         <div class="result-row"><strong>Verkaufssteuer:</strong> ${formatCurrency(data.tax)}</div>
       `;
     } else if (label === 'Erbschaftsteuer' || label === 'Schenkungssteuer') {

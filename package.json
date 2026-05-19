@@ -1,7 +1,7 @@
 {
   "name": "immobilien-steuer-suite-enhanced",
-  "version": "4.0.0",
-  "description": "Immobilien-Steuer-Suite 2025 - Ultimate Enterprise Enhanced Edition",
+  "version": "4.1.0",
+  "description": "Immobilien-Steuer-Suite 2025/2026 - Ultimate Enterprise Enhanced Edition",
   "main": "index.html",
   "scripts": {
     "dev": "node_modules/.bin/http-server . -p 3000 -o",

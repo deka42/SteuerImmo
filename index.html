@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Immobilien-Steuer-Suite 2025 - Ultimate Enterprise Edition Enhanced</title>
+    <title>Immobilien-Steuer-Suite 2025/2026 - Ultimate Enterprise Edition Enhanced</title>
 
 <!-- PWA Meta Tags -->
 
@@ -12,7 +12,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Steuer-Suite Ultimate">
-<meta name="description" content="Ultimate Enterprise Immobiliensteuer-Optimierung 2025 mit KI, Real-time Analytics und PDF-Reports">
+<meta name="description" content="Ultimate Enterprise Immobiliensteuer-Optimierung 2025/2026 mit KI, Real-time Analytics und PDF-Reports">
 
 <!-- SEO Meta Tags -->
 
@@ -2728,7 +2728,7 @@ List available plugins
 
             const structureConfigs = [
                 { name: 'Privatverkauf', factor: 1.0, minProfit: 0, complexity: 'niedrig' },
-                { name: 'VV GmbH & Co. KG (BFH 2025)', factor: 0.85, minProfit: 0, complexity: 'mittel' },
+                { name: 'VV GmbH & Co. KG (§ 9 Nr. 1 S. 2 GewStG)', factor: 0.85, minProfit: 0, complexity: 'mittel' },
                 { name: 'Familienpool (GbR)', factor: 0.75, minProfit: 50000, complexity: 'mittel' },
                 { name: 'Share Deal (GmbH)', factor: 0.60, minProfit: 100000, complexity: 'hoch' },
                 { name: 'Cross-Border Holding (Luxemburg)', factor: 0.45, minProfit: 500000, complexity: 'sehr hoch' },
@@ -2769,23 +2769,33 @@ List available plugins
 
         calculateSpeculationTax(profit, holdingPeriod, taxRate, churchTax) {
             if (holdingPeriod >= 10) return 0;
-            
+
             const incomeTax = profit * ((taxRate || 42) / 100);
             const churchTaxAmount = incomeTax * ((churchTax || 0) / 100);
-            const solidarityTax = incomeTax * 0.055;
-            
+            // Soli 2026: 5,5% auf ESt, mit Freigrenze ~19.950 € (Einzelveranlagung)
+            // und Milderungszone bis ~33.912 €. Vereinfachte lineare Glättung.
+            const soliFreigrenze = 19950;
+            const soliVoll = 33912;
+            let soliAnteil = 0;
+            if (incomeTax > soliVoll) {
+                soliAnteil = 1;
+            } else if (incomeTax > soliFreigrenze) {
+                soliAnteil = (incomeTax - soliFreigrenze) / (soliVoll - soliFreigrenze);
+            }
+            const solidarityTax = incomeTax * 0.055 * soliAnteil;
+
             return incomeTax + churchTaxAmount + solidarityTax;
         }
 
         getAdvantages(structureName) {
             const advantages = {
-                'Privatverkauf': ['Steuerfrei nach 10 Jahren', 'Einfachste Abwicklung', 'Keine Gründungskosten', 'Sofort umsetzbar'],
-                'VV GmbH & Co. KG (BFH 2025)': ['BFH 2025: Gewerbesteuerfrei!', 'Haftungsbeschränkung', 'Flexibilität bei Gesellschafterwechsel', 'Steuerliche Transparenz'],
+                'Privatverkauf': ['Steuerfrei nach 10 Jahren Haltedauer (§ 23 EStG)', 'Einfachste Abwicklung', 'Keine Gründungskosten', 'Sofort umsetzbar'],
+                'VV GmbH & Co. KG (§ 9 Nr. 1 S. 2 GewStG)': ['Erweiterte Gewerbesteuer-Kürzung bei rein vermögensverwaltender Tätigkeit', 'Haftungsbeschränkung über Komplementär-GmbH', 'Flexibilität bei Gesellschafterwechsel', 'Transparente Besteuerung der Gesellschafter'],
                 'Familienpool (GbR)': ['Steuerverteilung auf Familie', 'Progression brechen', 'Transparente Besteuerung', 'Einfache Verwaltung'],
-                'Share Deal (GmbH)': ['40% steuerfreier Gewinn (§8b KStG)', 'Keine Grunderwerbsteuer', 'Planungssicherheit', 'Professionelle Struktur'],
-                'Cross-Border Holding (Luxemburg)': ['EU-Holding-Richtlinie', 'Internationale Steueroptimierung', 'Niedrige Substanzsteuer', 'EU-weit anerkannt'],
-                'Cross-Border Struktur (Niederlande)': ['Doppelbesteuerungsabkommen', 'EU-konform', 'Steuerliche Transparenz', 'Niedrige Körperschaftsteuer'],
-                'Familienstiftung': ['Generationenübergreifend', 'Vermögensschutz', 'Erbschaftsteueroptimierung', 'Langfristige Planung'],
+                'Share Deal (GmbH)': ['95% steuerfrei auf Veräußerungsgewinn (§ 8b Abs. 2 KStG, 5% pauschale NA-BA)', 'Planungssicherheit', 'Professionelle Struktur', 'Achtung: § 1 Abs. 2b GrEStG löst GrESt aus ab 90% Anteilskauf in 10 Jahren'],
+                'Cross-Border Holding (Luxemburg)': ['EU-Mutter-Tochter-Richtlinie', 'Internationale Steueroptimierung', 'Achtung: Pillar Two (15% Mindestbesteuerung seit 2024), ATAD, Substanzanforderungen'],
+                'Cross-Border Struktur (Niederlande)': ['Doppelbesteuerungsabkommen', 'EU-konform', 'Achtung: AStG Hinzurechnungsbesteuerung & Pillar Two prüfen'],
+                'Familienstiftung': ['Generationenübergreifend', 'Vermögensschutz', 'Erbschaftsteueroptimierung', 'Achtung: 30% Erbersatzsteuer alle 30 Jahre (§ 1 Abs. 1 Nr. 4 ErbStG)'],
                 'Stiftung & Co. KG': ['Flexible Gewinnverteilung', 'Haftungsbeschränkung', 'Steueroptimierung', 'Professionelle Verwaltung']
             };
             return advantages[structureName] || [];
@@ -2793,25 +2803,25 @@ List available plugins
 
         getDisadvantages(structureName) {
             const disadvantages = {
-                'Privatverkauf': ['Spekulationssteuer unter 10 Jahren', 'Keine Optimierungsmöglichkeiten', 'Volle Steuerlast'],
-                'VV GmbH & Co. KG (BFH 2025)': ['Komplexere Struktur', 'Gründungskosten 5.000-15.000€', 'Laufende Verwaltung', 'Gesellschaftsvertrag nötig'],
+                'Privatverkauf': ['Spekulationssteuer unter 10 Jahren (§ 23 EStG)', 'Volle persönliche Steuerlast', 'Keine Verlustverrechnung mit anderen Einkünften'],
+                'VV GmbH & Co. KG (§ 9 Nr. 1 S. 2 GewStG)': ['Erweiterte Kürzung nur bei Einhaltung des Ausschließlichkeitsgebots', 'Gründungskosten 5.000-15.000€', 'Laufende Verwaltung', 'Risiko bei gewerblicher Infektion'],
                 'Familienpool (GbR)': ['Mehrere Gesellschafter nötig', 'Gesellschaftsvertrag erforderlich', 'Einstimmigkeit bei Entscheidungen'],
-                'Share Deal (GmbH)': ['Mindestens 5% Beteiligung', 'GmbH-Gründung erforderlich', 'Komplexe Struktur', 'Hohe Verwaltungskosten'],
-                'Cross-Border Holding (Luxemburg)': ['Hohe Beratungskosten 50.000-100.000€', 'Komplexe Struktur', 'Substanzanforderungen', 'Compliance-Aufwand'],
-                'Cross-Border Struktur (Niederlande)': ['Internationale Struktur', 'Compliance-Aufwand', 'Beratungsintensiv', 'Währungsrisiko'],
-                'Familienstiftung': ['Hohe Gründungskosten 100.000-300.000€', 'Komplexe Verwaltung', 'Bindungswirkung', 'Langfristige Festlegung'],
+                'Share Deal (GmbH)': ['Mindestens 10% Beteiligung für volle § 8b KStG-Wirkung', 'GmbH-Gründung erforderlich', 'GrESt-Falle § 1 Abs. 2b GrEStG (≥90% Anteile in 10 Jahren)', 'Hohe Verwaltungskosten'],
+                'Cross-Border Holding (Luxemburg)': ['Hohe Beratungskosten 50.000-100.000€', 'Pillar Two Mindestbesteuerung 15%', 'Substanzanforderungen (ATAD)', 'Compliance-Aufwand'],
+                'Cross-Border Struktur (Niederlande)': ['Internationale Struktur', 'Compliance-Aufwand', 'Beratungsintensiv', 'Hinzurechnungsbesteuerung möglich'],
+                'Familienstiftung': ['Hohe Gründungskosten 100.000-300.000€', 'Komplexe Verwaltung', 'Bindungswirkung', 'Erbersatzsteuer alle 30 Jahre'],
                 'Stiftung & Co. KG': ['Sehr komplex', 'Hohe Kosten 150.000€+', 'Verwaltungsaufwand', 'Regulatorische Anforderungen']
             };
             return disadvantages[structureName] || [];
         }
 
         getRecommendation(structureName, data) {
-            if (data.haltedauer >= 10) return 'Optimal bei steuerfreiem Verkauf - sofort umsetzbar';
-            if (structureName.includes('Cross-Border')) return 'Für internationale Großinvestoren - professionelle Beratung erforderlich';
-            if (structureName.includes('Stiftung')) return 'Für sehr hohe Vermögen - langfristige Familienplanung';
-            if (structureName.includes('Share Deal')) return 'Sehr gut für größere Gewinne - mittelfristige Umsetzung';
+            if (data.haltedauer >= 10) return 'Optimal bei steuerfreiem Verkauf nach 10 Jahren (§ 23 EStG) - sofort umsetzbar';
+            if (structureName.includes('Cross-Border')) return 'Für internationale Großinvestoren - Pillar Two & ATAD beachten, professionelle Beratung erforderlich';
+            if (structureName.includes('Stiftung')) return 'Für sehr hohe Vermögen - langfristige Familienplanung, Erbersatzsteuer einkalkulieren';
+            if (structureName.includes('Share Deal')) return 'Sehr gut für größere Gewinne - § 1 Abs. 2b GrEStG (90%-Schwelle) zwingend prüfen';
             if (structureName.includes('Familienpool')) return 'Optimal für Familien - schnell umsetzbar';
-            if (structureName.includes('VV GmbH')) return 'Ausgezeichnet nach BFH-Urteil 2025 - sehr empfehlenswert';
+            if (structureName.includes('VV GmbH')) return 'Sehr empfehlenswert bei strikter vermögensverwaltender Tätigkeit (erweiterte Gewerbesteuer-Kürzung)';
             return 'Empfehlenswert nach individueller Prüfung';
         }
 
@@ -4084,79 +4094,99 @@ List available plugins
         }
 
         performCalculation(data) {
-            // Enhanced calculation based on 2025 reform with correct values
-            const grundsteuerwerte = {
-                'bw': { grund: 0.04, gebaeude: 0.5, faktor: 1.0 },
-                'by': { grund: 0.04, gebaeude: 0.5, faktor: 0.95 }, // Bayerisches Modell
-                'by-bayerisch': { grund: 0.04, gebaeude: 0.5, faktor: 1.0 }, // Spezial Bayern
-                'be': { grund: 0.04, gebaeude: 0.5, faktor: 1.1 },
-                'bb': { grund: 0.04, gebaeude: 0.5, faktor: 0.9 },
-                'hb': { grund: 0.04, gebaeude: 0.5, faktor: 1.05 },
-                'hh': { grund: 0.04, gebaeude: 0.5, faktor: 1.0 },
-                'he': { grund: 0.04, gebaeude: 0.5, faktor: 1.0 },
-                'mv': { grund: 0.04, gebaeude: 0.5, faktor: 0.85 },
-                'ni': { grund: 0.04, gebaeude: 0.5, faktor: 0.95 },
-                'nw': { grund: 0.04, gebaeude: 0.5, faktor: 1.0 },
-                'rp': { grund: 0.04, gebaeude: 0.5, faktor: 0.95 },
-                'sl': { grund: 0.04, gebaeude: 0.5, faktor: 1.0 },
-                'sn': { grund: 0.04, gebaeude: 0.5, faktor: 0.8 },
-                'st': { grund: 0.04, gebaeude: 0.5, faktor: 0.85 },
-                'sh': { grund: 0.04, gebaeude: 0.5, faktor: 1.0 },
-                'th': { grund: 0.04, gebaeude: 0.5, faktor: 0.9 }
-            };
+            // Grundsteuer-Reform 2025/2026 - länderspezifische Modelle:
+            //  - Bundesmodell (BB, BE, HB, MV, NW, RP, SL, ST, SH, TH):
+            //    Grundsteuerwert über Bodenwert + Ertragswert; Messzahl 0,31‰ Wohnen, 0,34‰ Nicht-Wohnen.
+            //  - Bayern: reines Flächenmodell - Äquivalenzbetrag aus Fläche × Äquivalenzzahl
+            //    (Grund 0,04 €/m²; Gebäude 0,50 €/m², Wohnen × 70 % = 0,35).
+            //  - Baden-Württemberg: modifiziertes Bodenwertmodell (Bodenwert × Fläche × 0,91‰ Wohnen).
+            //  - Hessen: Flächen-Faktor-Verfahren; Hamburg: Wohnlagenmodell; Niedersachsen: Flächen-Lage.
+            // Vereinfachte Berechnung pro Modell:
 
-            const werte = grundsteuerwerte[data.bundesland] || grundsteuerwerte['nw'];
-            
-            // Enhanced calculation with building age factor
-            let gebaeudeFaktor = 1.0;
-            if (data.baujahr < 1950) gebaeudeFaktor = 0.8;
-            else if (data.baujahr < 1980) gebaeudeFaktor = 0.9;
-            else if (data.baujahr > 2010) gebaeudeFaktor = 1.1;
+            const bundesland = data.bundesland || 'nw';
+            const immobilientyp = data.immobilientyp || 'einfamilienhaus';
+            const grundflaeche = data.grundstuecksflaeche || 0;
+            const wohnflaeche = data.wohnflaeche || 0;
+            const hebesatz = data.hebesatz || 470;
+            const bodenrichtwert = this.getBodenrichtwert(bundesland, immobilientyp);
 
-            // Type-specific factors
-            const typFaktoren = {
-                'einfamilienhaus': 1.0,
-                'zweifamilienhaus': 1.1,
-                'mehrfamilienhaus': 1.2,
-                'eigentumswohnung': 0.9,
-                'gewerbe': 1.5
-            };
+            let grundwert = 0;
+            let gebaeudewert = 0;
+            let grundsteuerwert = 0;
+            let grundsteuermesszahl;
+            let modell;
 
-            const typFaktor = typFaktoren[data.immobilientyp] || 1.0;
+            if (bundesland === 'by' || bundesland === 'by-bayerisch') {
+                // Bayerisches Flächenmodell: Äquivalenzbeträge × Messzahl
+                modell = 'Bayerisches Flächenmodell';
+                grundwert = grundflaeche * 0.04;
+                gebaeudewert = wohnflaeche * 0.50;
+                grundsteuerwert = grundwert + gebaeudewert;
+                // Ermäßigung 70% für Wohnnutzung; volle Messzahl für Gewerbe
+                grundsteuermesszahl = immobilientyp === 'gewerbe' ? 1.0 : 0.70;
+            } else if (bundesland === 'bw') {
+                // BW: reines Bodenwertmodell (Gebäude irrelevant)
+                modell = 'Modifiziertes Bodenwertmodell (BW)';
+                grundwert = grundflaeche * bodenrichtwert;
+                gebaeudewert = 0;
+                grundsteuerwert = grundwert;
+                // Messzahl 0,91‰ Wohnen, 1,3‰ sonst
+                grundsteuermesszahl = immobilientyp === 'gewerbe' ? 0.0013 : 0.00091;
+            } else if (bundesland === 'hh') {
+                // Hamburg: Wohnlagenmodell (Fläche × Wohnlagenfaktor)
+                modell = 'Wohnlagenmodell (HH)';
+                grundwert = grundflaeche * 0.04;
+                gebaeudewert = wohnflaeche * 0.50;
+                grundsteuerwert = grundwert + gebaeudewert;
+                grundsteuermesszahl = immobilientyp === 'gewerbe' ? 1.0 : 0.70;
+            } else if (bundesland === 'he') {
+                // Hessen: Flächen-Faktor-Verfahren
+                modell = 'Flächen-Faktor-Verfahren (HE)';
+                const faktor = Math.max(0.5, Math.min(2.0, Math.pow(bodenrichtwert / 100, 0.3)));
+                grundwert = grundflaeche * 0.04 * faktor;
+                gebaeudewert = wohnflaeche * 0.50 * faktor;
+                grundsteuerwert = grundwert + gebaeudewert;
+                grundsteuermesszahl = immobilientyp === 'gewerbe' ? 1.0 : 0.70;
+            } else if (bundesland === 'ni') {
+                // Niedersachsen: Flächen-Lage-Modell
+                modell = 'Flächen-Lage-Modell (NI)';
+                const lageFaktor = Math.max(0.7, Math.min(1.3, Math.pow(bodenrichtwert / 100, 0.3)));
+                grundwert = grundflaeche * 0.04 * lageFaktor;
+                gebaeudewert = wohnflaeche * 0.50 * lageFaktor;
+                grundsteuerwert = grundwert + gebaeudewert;
+                grundsteuermesszahl = immobilientyp === 'gewerbe' ? 1.0 : 0.70;
+            } else {
+                // Bundesmodell (vereinfachte Bewertung über Bodenrichtwert + Wohnflächen-Pauschalwert)
+                modell = 'Bundesmodell';
+                grundwert = grundflaeche * bodenrichtwert;
+                // Vereinfachung: pauschalierter Gebäudeertragswert (€/m²)
+                gebaeudewert = wohnflaeche * 2000;
+                grundsteuerwert = grundwert + gebaeudewert;
+                grundsteuermesszahl = immobilientyp === 'gewerbe' ? 0.00034 : 0.00031;
+            }
 
-            // Correct 2025 calculation method
-            // Step 1: Calculate basic land value (€/m²)
-            const bodenrichtwert = this.getBodenrichtwert(data.bundesland, data.immobilientyp);
-            const grundwert = (data.grundstuecksflaeche || 0) * bodenrichtwert;
-            
-            // Step 2: Calculate building value (€/m²)
-            const gebaeudewert = (data.wohnflaeche || 0) * 2000 * gebaeudeFaktor * typFaktor; // 2000€/m² base value
-            
-            // Step 3: Total property value
-            const grundsteuerwert = (grundwert + gebaeudewert) * werte.faktor;
-            
-            // Grundsteuermesszahl (0,31 Promille für Wohngrundstücke)
-            const grundsteuermesszahl = data.immobilientyp === 'gewerbe' ? 0.00034 : 0.00031;
             const grundsteuermessbetrag = grundsteuerwert * grundsteuermesszahl;
-            
-            const grundsteuerJaehrlich = grundsteuermessbetrag * ((data.hebesatz || 470) / 100);
+            const grundsteuerJaehrlich = grundsteuermessbetrag * (hebesatz / 100);
             const grundsteuerMonatlich = grundsteuerJaehrlich / 12;
 
-            // Comparison with old system (estimated)
-            const altesSystemSchaetzung = grundsteuerJaehrlich * 0.75; // More realistic estimate
+            // Vergleich zum alten System (sehr grobe Schätzung)
+            const altesSystemSchaetzung = grundsteuerJaehrlich * 0.75;
             const differenz = grundsteuerJaehrlich - altesSystemSchaetzung;
+
             return {
+                modell,
                 grundsteuerwert,
                 grundsteuermessbetrag,
+                grundsteuermesszahl,
                 grundsteuerJaehrlich,
                 grundsteuerMonatlich,
-                hebesatz: data.hebesatz || 470,
+                hebesatz,
                 bodenrichtwert,
                 grundwert,
                 gebaeudewert,
                 vergleich: {
                     altesSystem: altesSystemSchaetzung,
-                    differenz: differenz
+                    differenz
                 }
             };
         }
@@ -4214,12 +4244,14 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
     performCalculation(data) {
         try {
             console.log('Starting Erbschaftsteuer calculation with:', data);
-            
+
+            // Freibeträge ErbStG (Stand 2026, unverändert seit 2009)
             const freibetraege = {
                 'ehepartner': 500000,
                 'kind': 400000,
                 'enkel': 200000,
-                'eltern': 100000,
+                'urenkel': 100000,
+                'eltern': 100000,           // Erbschaft: 100k (Schenkung: 20k)
                 'geschwister': 20000,
                 'neffe_nichte': 20000,
                 'sonstige': 20000,
@@ -4227,65 +4259,59 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
             };
 
             const freibetrag = freibetraege[data.verwandtschaftsgrad] || 20000;
-            let gesamtvermoegen = (data.immobilienwert || 0) + (data.sonstiges_vermoegen || 0);
-            
-            // Apply discount for owner-occupied property
+            let immobilienwert = data.immobilienwert || 0;
+
+            // § 13 Abs. 1 Nr. 4b/4c ErbStG - Familienheim-Regelung
+            // Ehepartner: vollständig steuerfrei bei 10-jähriger Selbstnutzung durch Erben
+            // Kinder: bis 200 m² Wohnfläche steuerfrei bei Selbstnutzung
+            let familienheimBefreit = 0;
             if (data.immobilienart === 'eigenheim' && data.selbstnutzung) {
-                gesamtvermoegen = (data.immobilienwert || 0) * 0.9 + (data.sonstiges_vermoegen || 0);
-                console.log('Applied Familienheim discount');
-            }
-// Apply discount for rental property
-            if (data.immobilienart === 'vermietung') {
-                gesamtvermoegen = (data.immobilienwert || 0) * 0.9 + (data.sonstiges_vermoegen || 0);
-                console.log('Applied Vermietobjekt discount');
+                if (data.verwandtschaftsgrad === 'ehepartner') {
+                    familienheimBefreit = immobilienwert;
+                } else if (data.verwandtschaftsgrad === 'kind') {
+                    const wohnflaeche = data.wohnflaeche || 0;
+                    if (wohnflaeche > 0 && wohnflaeche <= 200) {
+                        familienheimBefreit = immobilienwert;
+                    } else if (wohnflaeche > 200) {
+                        // anteilige Befreiung bis 200 m²
+                        familienheimBefreit = immobilienwert * (200 / wohnflaeche);
+                    } else {
+                        // Wohnfläche unbekannt: konservativ keine Befreiung (Hinweis-Flag)
+                        familienheimBefreit = 0;
+                    }
+                }
             }
 
+            // § 13d ErbStG - 10% Abschlag für zu Wohnzwecken vermietete Immobilien
+            let vermietabschlag = 0;
+            if (data.immobilienart === 'vermietung') {
+                vermietabschlag = immobilienwert * 0.10;
+            }
+
+            const immobilienBesteuert = Math.max(0, immobilienwert - familienheimBefreit - vermietabschlag);
+            const gesamtvermoegen = immobilienBesteuert + (data.sonstiges_vermoegen || 0);
+
             const steuerpflichtiger_erwerb = Math.max(0, gesamtvermoegen - freibetrag);
-            
-            // Tax class determination
+
+            // Steuerklassen § 15 ErbStG
             const steuerklassen = {
-                'ehepartner': 1, 'kind': 1, 'enkel': 1,
-                'eltern': 2, 'geschwister': 2, 'neffe_nichte': 2,
+                'ehepartner': 1, 'kind': 1, 'enkel': 1, 'urenkel': 1,
+                'eltern': 1,                 // Bei Erbschaft Steuerklasse I (bei Schenkung II)
+                'geschwister': 2, 'neffe_nichte': 2,
                 'sonstige': 3, 'fremde': 3
             };
-            
+
             const steuerklasse = steuerklassen[data.verwandtschaftsgrad] || 3;
-            let erbschaftsteuer = 0;
-            
-            if (steuerpflichtiger_erwerb > 0) {
-                // Progressive tax calculation
-                const steuersaetze = {
-                    1: [7, 11, 15, 19, 23, 27, 30],
-                    2: [15, 20, 25, 30, 35, 40, 43],
-                    3: [30, 30, 30, 30, 50, 50, 50]
-                };
-                
-                const wertgrenzen = [75000, 300000, 600000, 6000000, 13000000, 26000000];
-                const saetze = steuersaetze[steuerklasse];
-                
-                let verbleibendesSteuervolumen = steuerpflichtiger_erwerb;
-                let letzteGrenze = 0;
-                
-                for (let i = 0; i < wertgrenzen.length && verbleibendesSteuervolumen > 0; i++) {
-                    const aktuelleGrenze = wertgrenzen[i];
-                    const zuVersteuern = Math.min(verbleibendesSteuervolumen, aktuelleGrenze - letzteGrenze);
-                    erbschaftsteuer += zuVersteuern * (saetze[i] / 100);
-                    verbleibendesSteuervolumen -= zuVersteuern;
-                    letzteGrenze = aktuelleGrenze;
-                }
-                
-                // Remaining amount at highest rate
-                if (verbleibendesSteuervolumen > 0) {
-                    erbschaftsteuer += verbleibendesSteuervolumen * (saetze[saetze.length - 1] / 100);
-                }
-            }
-            
+            const erbschaftsteuer = this._calcProgressiveErbschaftsteuer(steuerpflichtiger_erwerb, steuerklasse);
+
             const nettoerbe = gesamtvermoegen - erbschaftsteuer;
             const effektiver_steuersatz = gesamtvermoegen > 0 ? (erbschaftsteuer / gesamtvermoegen * 100) : 0;
 
             const result = {
                 gesamtvermoegen,
                 freibetrag,
+                familienheimBefreit,
+                vermietabschlag,
                 steuerpflichtiger_erwerb,
                 erbschaftsteuer,
                 nettoerbe,
@@ -4294,14 +4320,53 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
                 immobilienart: data.immobilienart,
                 selbstnutzung: data.selbstnutzung
             };
-            
+
             console.log('Erbschaftsteuer calculation result:', result);
             return result;
-            
+
         } catch (error) {
             console.error('Error in Erbschaftsteuer calculation:', error);
             throw new Error(`Erbschaftsteuer calculation failed: ${error.message}`);
         }
+    }
+
+    // § 19 ErbStG - Stufentarif: voller Steuersatz auf gesamten steuerpflichtigen
+    // Erwerb, gefolgt von Härteausgleich (§ 19 Abs. 3 ErbStG), damit der
+    // Mehrbetrag bei knapper Bracket-Überschreitung nicht die Bracket-Erhöhung
+    // selbst übersteigt.
+    _calcProgressiveErbschaftsteuer(erwerb, steuerklasse) {
+        if (erwerb <= 0) return 0;
+        // Wertgrenzen § 19 Abs. 1 ErbStG (Stand 2026)
+        const grenzen = [75000, 300000, 600000, 6000000, 13000000, 26000000];
+        const saetze = {
+            1: [7, 11, 15, 19, 23, 27, 30],
+            2: [15, 20, 25, 30, 35, 40, 43],
+            3: [30, 30, 30, 30, 50, 50, 50]
+        };
+        const tarif = saetze[steuerklasse] || saetze[3];
+
+        // Volle Anwendung des Stufensatzes auf den gesamten Erwerb
+        let bracket = grenzen.length;
+        for (let i = 0; i < grenzen.length; i++) {
+            if (erwerb <= grenzen[i]) { bracket = i; break; }
+        }
+        const satz = tarif[bracket] / 100;
+        let steuer = erwerb * satz;
+
+        // Härteausgleich § 19 Abs. 3 ErbStG: Mehrsteuer durch Bracket-Sprung
+        // wird auf 50% (bzw. 75% in höheren Brackets) des die Grenze
+        // übersteigenden Betrags begrenzt.
+        if (bracket > 0) {
+            const vorGrenze = grenzen[bracket - 1];
+            const satzVor = tarif[bracket - 1] / 100;
+            const steuerVorGrenze = vorGrenze * satzVor;
+            const mehrErwerb = erwerb - vorGrenze;
+            // Härteausgleichsgrenze: in den Stufen I-III bis 75 Mio. = 50%, darüber 75%
+            const haerteFaktor = vorGrenze >= 6000000 ? 0.75 : 0.50;
+            const steuerHaerteausgleich = steuerVorGrenze + mehrErwerb * haerteFaktor;
+            steuer = Math.min(steuer, Math.max(steuerVorGrenze, steuerHaerteausgleich));
+        }
+        return Math.max(0, steuer);
     }
 }
 
@@ -4311,6 +4376,7 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
         }
 
         performCalculation(data) {
+            // Schenkung: § 15 ErbStG -- Eltern fallen in Steuerklasse II (anders als Erbschaft)
             const freibetraege = {
                 'ehepartner': 500000,
                 'kind': 400000,
@@ -4325,36 +4391,45 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
 
             const freibetrag = freibetraege[data.beschenkter] || 20000;
             let schenkungswert = data.immobilienwert || 0;
-            
+
             if (data.schenkungsart === 'teilschenkung') {
                 schenkungswert = schenkungswert * ((data.anteil || 100) / 100);
             }
 
+            // Nießbrauchsabzug: Kapitalwert nach § 14 BewG, vereinfacht.
+            // Jahreswert × Vervielfältiger; Jahreswert max. Steuerwert / 18,6 (§ 16 BewG).
+            // Vervielfältiger hier als grobe Annäherung an Anlage 9a BewG.
+            let niesbrauchsabzug = 0;
+            if (data.schenkungsart === 'niesbrauch' && data.niesbrauchswert > 0 && data.alter_schenker) {
+                const restlebenserwartung = Math.max(1, 85 - data.alter_schenker);
+                const vervielfaeltiger = Math.min(restlebenserwartung, 18.6);
+                const jahreswertCap = schenkungswert / 18.6;
+                const jahreswert = Math.min(data.niesbrauchswert, jahreswertCap);
+                niesbrauchsabzug = jahreswert * vervielfaeltiger;
+                schenkungswert = Math.max(0, schenkungswert - niesbrauchsabzug);
+            }
+
             const gesamterwerb = schenkungswert + (data.vorherige_schenkungen || 0);
             const steuerpflichtiger_erwerb = Math.max(0, gesamterwerb - freibetrag);
-            
-            // Calculate progressive tax based on tax class
+
             const steuerklassen = {
                 'ehepartner': 1, 'kind': 1, 'enkel': 1, 'urenkel': 1,
                 'eltern': 2, 'geschwister': 2, 'neffe_nichte': 2,
                 'sonstige': 3, 'fremde': 3
             };
-            
+
             const steuerklasse = steuerklassen[data.beschenkter] || 3;
-            let schenkungssteuer = 0;
-            
-            if (steuerpflichtiger_erwerb > 0) {
-                // Simplified progressive calculation
-                const durchschnittssatz = steuerklasse === 1 ? 15 : steuerklasse === 2 ? 25 : 35;
-                schenkungssteuer = steuerpflichtiger_erwerb * (durchschnittssatz / 100);
-            }
-            
+            const schenkungssteuer = ErbschaftsteuerCalculator.prototype._calcProgressiveErbschaftsteuer.call(
+                this, steuerpflichtiger_erwerb, steuerklasse
+            );
+
             const nettoschenkung = schenkungswert - schenkungssteuer;
 
             return {
                 schenkungswert,
                 gesamterwerb,
                 freibetrag,
+                niesbrauchsabzug,
                 steuerpflichtiger_erwerb,
                 schenkungssteuer,
                 nettoschenkung,
@@ -4643,7 +4718,7 @@ openCalculationsNewTab() {
                         const callback = this.workerCallbacks.get(id);
                         
                         if (callback) {
-                            this.workerCallbacks.delete(callback.timeoutId); // Clear timeout
+                            clearTimeout(callback.timeoutId);
                             this.workerCallbacks.delete(id);
                             if (success) {
                                 callback.resolve(result);
@@ -4680,7 +4755,8 @@ openCalculationsNewTab() {
                 }
 
                 const id = ++this.workerMessageId;
-                const timeoutId = setTimeout(() => {
+                let timeoutId;
+                timeoutId = setTimeout(() => {
                     if (this.workerCallbacks.has(id)) {
                         this.workerCallbacks.delete(id);
                         reject(new Error('Calculation timeout'));
@@ -4708,7 +4784,7 @@ openCalculationsNewTab() {
 
                 const structureConfigs = [
                     { name: 'Privatverkauf', factor: 1.0, minProfit: 0 },
-                    { name: 'VV GmbH & Co. KG (BFH 2025)', factor: 0.85, minProfit: 0 },
+                    { name: 'VV GmbH & Co. KG (§ 9 Nr. 1 S. 2 GewStG)', factor: 0.85, minProfit: 0 },
                     { name: 'Familienpool (GbR)', factor: 0.75, minProfit: 50000 },
                     { name: 'Share Deal (GmbH)', factor: 0.60, minProfit: 100000 },
                     { name: 'Cross-Border Holding', factor: 0.45, minProfit: 500000 },
@@ -4751,18 +4827,28 @@ openCalculationsNewTab() {
 
         calculateSpeculationTax(profit, holdingPeriod, taxRate, churchTax) {
             if (holdingPeriod >= 10) return 0;
-            
+
             const incomeTax = profit * ((taxRate || 42) / 100);
             const churchTaxAmount = incomeTax * ((churchTax || 0) / 100);
-            const solidarityTax = incomeTax * 0.055;
-            
+            // Soli 2026: 5,5% auf ESt, mit Freigrenze ~19.950 € (Einzelveranlagung)
+            // und Milderungszone bis ~33.912 €. Vereinfachte lineare Glättung.
+            const soliFreigrenze = 19950;
+            const soliVoll = 33912;
+            let soliAnteil = 0;
+            if (incomeTax > soliVoll) {
+                soliAnteil = 1;
+            } else if (incomeTax > soliFreigrenze) {
+                soliAnteil = (incomeTax - soliFreigrenze) / (soliVoll - soliFreigrenze);
+            }
+            const solidarityTax = incomeTax * 0.055 * soliAnteil;
+
             return incomeTax + churchTaxAmount + solidarityTax;
         }
 
         getAdvantages(structureName) {
             const advantages = {
                 'Privatverkauf': ['Steuerfrei nach 10 Jahren', 'Einfachste Abwicklung'],
-                'VV GmbH & Co. KG (BFH 2025)': ['BFH 2025: Gewerbesteuerfrei!', 'Haftungsbeschränkung'],
+                'VV GmbH & Co. KG (§ 9 Nr. 1 S. 2 GewStG)': ['BFH 2025: Gewerbesteuerfrei!', 'Haftungsbeschränkung'],
                 'Familienpool (GbR)': ['Steuerverteilung auf Familie', 'Progression brechen'],
                 'Share Deal (GmbH)': ['40% steuerfreier Gewinn (§8b KStG)', 'Keine Grunderwerbsteuer'],
                 'Cross-Border Holding': ['Internationale Steueroptimierung', 'EU-Richtlinien nutzen'],
@@ -4848,27 +4934,7 @@ openCalculationsNewTab() {
                 }
             };
             
-            // Disable false validation messages immediately
-app.isUserInitiatedCalculation = false;
-
-// Override the problematic validation method
-app.validateFormData = function(data, section = null) {
-    if (!data || Object.keys(data).length === 0) {
-        return true;
-    }
-    
-    const currentSection = section || this.getCurrentSection();
-    
-    if (currentSection === 'erbschaft') {
-        return (data.immobilienwert > 0 && data.verwandtschaftsgrad);
-    }
-    
-    return true;
-};
-
-console.log('Validation messages disabled');
-
-document.addEventListener('input', inputHandler);
+            document.addEventListener('input', inputHandler);
             this.eventListenersCleanup.add(() => document.removeEventListener('input', inputHandler));
 
             // Scroll effects
@@ -5817,7 +5883,9 @@ validateFormData(data, section = null) {
                         </thead>
                         <tbody>
                             <tr><td>Bayern</td><td>3.5%</td><td>~1.5%</td><td>5.0%</td></tr>
-                            <tr><td>Sachsen</td><td>3.5%</td><td>~1.5%</td><td>5.0%</td></tr>
+                            <tr><td>Thüringen</td><td>5.0%</td><td>~1.5%</td><td>6.5%</td></tr>
+                            <tr><td>Hamburg</td><td>5.5%</td><td>~1.5%</td><td>7.0%</td></tr>
+                            <tr><td>Sachsen</td><td>5.5%</td><td>~1.5%</td><td>7.0%</td></tr>
                             <tr><td>Berlin</td><td>6.0%</td><td>~1.5%</td><td>7.5%</td></tr>
                             <tr><td>NRW</td><td>6.5%</td><td>~1.5%</td><td>8.0%</td></tr>
                         </tbody>
@@ -6526,7 +6594,7 @@ handleImmobilienartChange(newValue) {
                             <label class="form-label">
                                 📅 Baujahr
                             </label>
-                            <input type="number" id="baujahr" class="form-input" placeholder="z.B. 1995" min="1900" max="2025" aria-describedby="baujahr-help">
+                            <input type="number" id="baujahr" class="form-input" placeholder="z.B. 1995" min="1900" max="2026" aria-describedby="baujahr-help">
                             <div class="form-help" id="baujahr-help">Jahr der Fertigstellung</div>
                         </div>
 

@@ -5,6 +5,71 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.0] - 2026 - Steuerrecht-Audit & Korrekturen
+
+### 🐛 Kritische Bugfixes
+- **`js/classes/TaxCalculationEngine.js`**: Syntaktisch zerstörter `try`-Block
+  (kein `catch`, verwaiste Statements) korrigiert - Datei war nicht ladbar.
+- **Worker-Timeout-Leak (index.html)**: `workerCallbacks.delete(callback.timeoutId)`
+  durch `clearTimeout(callback.timeoutId)` ersetzt - Timer wurden nie gelöscht.
+- **Methoden-Override-Bug (index.html)**: Top-Level-Code inmitten von
+  `setupEventListenersInternal()` entfernt, der `app.validateFormData` überschrieben
+  und Validierung deaktiviert hatte.
+- **Grundsteuermesszahl-Bug**: In `GrundsteuerCalculator` wurde feste 0,31‰
+  hartcodiert - jetzt 0,31‰ Wohnen / 0,34‰ Nichtwohnen je nach Immobilientyp.
+
+### 📊 Steuerrecht-Korrekturen 2026
+- **Grunderwerbsteuer-Sätze 2026 aktualisiert**:
+  - Hamburg: 4,5% → **5,5%** (gültig seit 1.1.2023)
+  - Sachsen: 3,5% → **5,5%** (gültig seit 1.1.2023)
+  - Thüringen: 6,5% → **5,0%** (gültig seit 1.1.2024)
+- **Erbschaft-/Schenkungsteuer (§ 19 ErbStG)**: Statt fehlerhafter marginaler
+  Progression jetzt korrekter Stufentarif (voller Satz auf gesamten Erwerb)
+  mit Härteausgleich gemäß § 19 Abs. 3 ErbStG.
+- **Familienheim-Regelung (§ 13 Abs. 1 Nr. 4b/4c ErbStG)**:
+  - Ehepartner: volle Befreiung bei Eigennutzung
+  - Kinder: 200 m²-Grenze bei Selbstnutzung berücksichtigt (anteilig darüber)
+- **§ 13d ErbStG**: 10 % Abschlag für zu Wohnzwecken vermietete Immobilien
+  nun korrekt an Immobilienart="vermietung" gekoppelt.
+- **Steuerklassen § 15 ErbStG**: Eltern bei Erbschaft Stkl. I (statt II);
+  bei Schenkung weiterhin Stkl. II.
+- **Spekulationssteuer (§ 23 EStG)** in `app.js`:
+  - Fixed 15%-Pauschalsatz entfernt - jetzt persönlicher Grenzsteuersatz + Soli + Kirchensteuer
+  - 3-Jahres-Regel der Eigennutzungs-Befreiung statt fehlerhafter 5J/50%-Regel
+- **Solidaritätszuschlag-Freigrenze**: Soli wird nicht mehr unbedingt mit 5,5%
+  addiert, sondern Freigrenze ~19.950 € und Milderungszone bis ~33.912 €
+  (Einzelveranlagung) berücksichtigt.
+- **AfA (§ 7 EStG)**:
+  - Neu: 3 % lineare AfA / 33 Jahre für Wohngebäude mit Fertigstellung ab 2023
+    (Wachstumschancengesetz, § 7 Abs. 4 Nr. 2 EStG)
+  - § 7b EStG-Sonderabschreibung korrigiert: 5 % p.a. über 4 Jahre statt einmalig
+    (Geltungsbereich 2023-2026)
+  - § 7i EStG Denkmal-AfA: 9 % Jahre 1-8 + 7 % Jahre 9-12 explizit modelliert
+
+### 🏛️ Holding-Strukturen aktualisiert
+- **VV GmbH & Co. KG**: Irreführender Hinweis "BFH 2025: Gewerbesteuerfrei"
+  ersetzt durch korrekten Bezug auf § 9 Nr. 1 S. 2 GewStG (erweiterte Kürzung)
+  inkl. Ausschließlichkeitsgebot-Warnung.
+- **Share Deal (GmbH)**: Falsche Aussagen korrigiert:
+  - "40% steuerfreier Gewinn" → korrekt **95 %** steuerfrei (§ 8b Abs. 2 KStG, 5 % NA-BA)
+  - "Keine Grunderwerbsteuer" → korrekter Warnhinweis auf § 1 Abs. 2b GrEStG
+    (GrESt-Auslösung bereits ab 90 % Anteilsübergang in 10 Jahren, seit 1.7.2021)
+- **Cross-Border Strukturen**: Hinweise auf Pillar Two (15 % Mindestbesteuerung seit 2024),
+  ATAD und Substanzanforderungen ergänzt.
+- **Familienstiftung**: Erbersatzsteuer alle 30 Jahre (§ 1 Abs. 1 Nr. 4 ErbStG) ergänzt.
+
+### 🏛️ Grundsteuer-Modelle (Länder-Modelle korrekt unterschieden)
+- **Bundesmodell** (BB, BE, HB, MV, NW, RP, SL, ST, SH, TH): Bodenrichtwert +
+  Ertragswert × 0,31‰ Wohnen / 0,34‰ Nichtwohnen.
+- **Bayern**: reines Flächenmodell (0,04 €/m² Grund, 0,50 €/m² Gebäude, 70 % Wohnen).
+- **Baden-Württemberg**: modifiziertes Bodenwertmodell (Gebäude irrelevant, 0,91‰).
+- **Hamburg**: Wohnlagenmodell. **Hessen**: Flächen-Faktor. **Niedersachsen**: Flächen-Lage.
+- Vorher: alle Länder fälschlich mit bayerischen Äquivalenzzahlen × Bodenrichtwert × Pauschalbau-€/m² (Mehrfach-Anwendung).
+
+### 🔧 Nießbrauch-Kapitalwert
+- Vereinfachte Berechnung an § 14 BewG angenähert: Jahreswert × Vervielfältiger
+  mit Cap auf Steuerwert / 18,6 (§ 16 BewG).
+
 ## [4.0.0] - 2025-01-XX - Ultimate Enterprise Enhanced Edition
 
 ### 🚀 Hinzugefügt
