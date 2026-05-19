@@ -418,11 +418,27 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         gap: 2rem;
     }
 
+    /* Grid items default to min-width: auto which resolves to the content's
+       min-content width. Number/text inputs report a large min-content based
+       on placeholder/value, which pushes the column wider than its track and
+       causes horizontal overflow on mobile. Force min-width: 0 here. */
+    .form-grid > *,
+    .form-group {
+        min-width: 0;
+    }
+
     .form-group {
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
         position: relative;
+    }
+
+    .form-input,
+    .form-select {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
     }
 
     .form-label {
@@ -924,6 +940,12 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         flex-direction: column;
         gap: 1rem;
         max-width: 400px;
+        width: calc(100vw - 40px);
+        pointer-events: none;
+    }
+
+    .toast-container > .toast {
+        pointer-events: auto;
     }
 
     .toast {
@@ -932,11 +954,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         padding: 1.25rem 1.5rem;
         box-shadow: var(--shadow-xl);
         border-left: 4px solid var(--primary-solid);
-        min-width: 320px;
+        min-width: 0;
+        max-width: 100%;
         transform: translateX(450px);
         animation: slideInToast 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         position: relative;
         overflow: hidden;
+        word-break: break-word;
     }
 
     .toast::before {
@@ -1211,11 +1235,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         .scenario-tabs {
             overflow-x: auto;
             scroll-snap-type: x mandatory;
+            flex-wrap: nowrap;
         }
-        
+
         .scenario-tab {
             scroll-snap-align: start;
             min-width: 120px;
+        }
+
+        /* "+ Szenario hinzufügen" sits inside .scenario-tabs with
+           margin-left:auto on desktop, which would push it past the
+           horizontal scroll viewport on mobile. Let it flow with the tabs. */
+        .scenario-tabs > .btn {
+            margin-left: 0 !important;
+            flex-shrink: 0;
         }
         
         .toast-container {
@@ -6352,9 +6385,9 @@ handleImmobilienartChange(newValue) {
                     </div>
 
                     <div class="alert alert-info">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span>🤖 Real-time KI-Berechnung aktiviert - Optimale Strukturen werden automatisch berechnet</span>
-                            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                            <span style="flex: 1 1 240px; min-width: 0;">🤖 Real-time KI-Berechnung aktiviert - Optimale Strukturen werden automatisch berechnet</span>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
                                 <input type="checkbox" id="realtime-calc" checked onchange="app.toggleRealtime()">
                                 <span>Real-time</span>
                             </label>
@@ -8280,11 +8313,27 @@ get debouncedCalculateErbschaftsteuer() {
             const container = document.getElementById('toast-container');
             if (!container) return;
 
-            const toastId = 'toast-' + Date.now();
+            // De-duplicate identical messages still on screen (e.g. rapid
+            // section navigation) and cap visible toasts to 4 to prevent the
+            // top corner from overflowing the viewport.
+            const MAX_TOASTS = 4;
+            const existing = container.querySelectorAll('.toast');
+            for (const t of existing) {
+                if (t.dataset.toastMsg === message) {
+                    t.remove();
+                    break;
+                }
+            }
+            while (container.querySelectorAll('.toast').length >= MAX_TOASTS) {
+                container.firstElementChild?.remove();
+            }
+
+            const toastId = 'toast-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6);
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
             toast.id = toastId;
-            
+            toast.dataset.toastMsg = message;
+
             const icons = {
                 'success': '✅',
                 'warning': '⚠️',
@@ -8295,7 +8344,7 @@ get debouncedCalculateErbschaftsteuer() {
             toast.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span>${icons[type] || 'ℹ️'} ${message}</span>
-                    <button onclick="document.getElementById('${toastId}').remove()" 
+                    <button onclick="document.getElementById('${toastId}').remove()"
                             style="background: none; border: none; font-size: 1.2rem; cursor: pointer;"
                             aria-label="Toast schließen">×</button>
                 </div>
