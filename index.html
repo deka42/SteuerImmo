@@ -2394,7 +2394,7 @@ font-weight: 700 !important;
                     </a>
                 </li>
                 <li class="nav-item" role="none">
-    <a href="#calculations" class="nav-link" data-section="calculations" role="menuitem" onclick="app.loadCalculationsFrame()">
+    <a href="#calculations" class="nav-link" data-section="calculations" role="menuitem">
         <span class="nav-icon" role="img" aria-label="Rechner">🧮</span>
         Calculations
     </a>
@@ -2734,22 +2734,47 @@ List available plugins
 
         performCalculation(data) {
             this.validateInput(data);
-            
-            const anschaffungskosten = (data.kaufpreis || 0) + (data.nebenkosten_kauf || 0) + (data.modernisierung || 0);
+
+            // Optionale Inflationsbereinigung des Kaufpreises (informativ).
+            // Anwendung: Kaufpreis × (1 + r)^Jahre. Jahre = aktuelles Jahr - Kaufjahr,
+            // fällt zurück auf data.haltedauer, falls Kaufjahr nicht angegeben ist.
+            // Hinweis: § 23 EStG erlaubt diese Anpassung steuerlich nicht.
+            let kaufpreis = data.kaufpreis || 0;
+            let inflationsanpassung = 0;
+            if (data['inflation-adjustment']) {
+                const rate = ((data.inflationsrate ?? 2.5) / 100);
+                const currentYear = new Date().getFullYear();
+                let years = 0;
+                if (data.kaufjahr && data.kaufjahr >= 1970 && data.kaufjahr <= currentYear) {
+                    years = currentYear - data.kaufjahr;
+                } else if (data.haltedauer > 0) {
+                    years = data.haltedauer;
+                }
+                if (years > 0 && rate > 0) {
+                    const inflationFactor = Math.pow(1 + rate, years);
+                    const adjustedKaufpreis = kaufpreis * inflationFactor;
+                    inflationsanpassung = adjustedKaufpreis - kaufpreis;
+                    kaufpreis = adjustedKaufpreis;
+                }
+            }
+
+            const anschaffungskosten = kaufpreis + (data.nebenkosten_kauf || 0) + (data.modernisierung || 0);
             const grossProfit = (data.verkaufspreis || 0) - (data.nebenkosten_verkauf || 0) - anschaffungskosten;
-            
+
             if (grossProfit <= 0) {
-                return { 
-                    grossProfit, 
+                return {
+                    grossProfit,
                     structures: [],
+                    inflationsanpassung,
                     message: 'Kein steuerpflichtiger Gewinn vorhanden'
                 };
             }
 
             const structures = this.calculateStructures(grossProfit, data);
-            
+
             return {
                 grossProfit,
+                inflationsanpassung,
                 structures,
                 maxNetProfit: structures.length > 0 ? structures[0].netProfit : 0,
                 totalSavings: structures.length > 1 ? structures[0].netProfit - structures[structures.length - 1].netProfit : 0,
@@ -4824,7 +4849,25 @@ openCalculationsNewTab() {
         // Main Thread Fallback
         calculateMainThread(data) {
             try {
-                const anschaffungskosten = (data.kaufpreis || 0) + (data.nebenkosten_kauf || 0) + (data.modernisierung || 0);
+                // Mirror the worker's optional inflation adjustment of Kaufpreis.
+                let kaufpreis = data.kaufpreis || 0;
+                let inflationsanpassung = 0;
+                if (data['inflation-adjustment']) {
+                    const rate = ((data.inflationsrate ?? 2.5) / 100);
+                    const currentYear = new Date().getFullYear();
+                    let years = 0;
+                    if (data.kaufjahr && data.kaufjahr >= 1970 && data.kaufjahr <= currentYear) {
+                        years = currentYear - data.kaufjahr;
+                    } else if (data.haltedauer > 0) {
+                        years = data.haltedauer;
+                    }
+                    if (years > 0 && rate > 0) {
+                        const adjustedKaufpreis = kaufpreis * Math.pow(1 + rate, years);
+                        inflationsanpassung = adjustedKaufpreis - kaufpreis;
+                        kaufpreis = adjustedKaufpreis;
+                    }
+                }
+                const anschaffungskosten = kaufpreis + (data.nebenkosten_kauf || 0) + (data.modernisierung || 0);
                 const grossProfit = (data.verkaufspreis || 0) - (data.nebenkosten_verkauf || 0) - anschaffungskosten;
                 
                 if (grossProfit <= 0) {
@@ -4867,6 +4910,7 @@ openCalculationsNewTab() {
 
                 return {
                     grossProfit,
+                    inflationsanpassung,
                     structures,
                     maxNetProfit: structures.length > 0 ? structures[0].netProfit : 0,
                     totalSavings: structures.length > 1 ? structures[0].netProfit - structures[structures.length - 1].netProfit : 0
@@ -5410,6 +5454,7 @@ validateFormData(data, section = null) {
                         <p><strong>Beste Option:</strong> ${this.escapeHtml(results.structures[0].name)}</p>
                         <p><strong>Nettogewinn:</strong> ${this.formatCurrency(results.maxNetProfit)}</p>
                         ${results.totalSavings > 0 ? `<p><strong>Steuerersparnis:</strong> ${this.formatCurrency(results.totalSavings)}</p>` : ''}
+                        ${results.inflationsanpassung > 0 ? `<p style="font-size:0.9rem;color:#6c757d;">💱 Inflationsanpassung des Kaufpreises: +${this.formatCurrency(results.inflationsanpassung)} (rein informativ, steuerlich nach § 23 EStG nicht anerkannt)</p>` : ''}
                         ${results.calculationTime ? `<p><strong>Berechnungszeit:</strong> ${results.calculationTime}ms</p>` : ''}
                     </div>
                 `;
@@ -5921,29 +5966,52 @@ validateFormData(data, section = null) {
         loadBundeslandAnalyzer() {
             this.gaTracker.trackFeatureUsage('bundesland_analyzer', 'opened');
             this.showModal('comparison-modal');
+            // Grunderwerbsteuer-Sätze 2026 (alle 16 Bundesländer) - Notarkosten + Grundbuch ~1,5%
+            const laender = [
+                { name: 'Baden-Württemberg',     grest: 5.0 },
+                { name: 'Bayern',                grest: 3.5 },
+                { name: 'Berlin',                grest: 6.0 },
+                { name: 'Brandenburg',           grest: 6.5 },
+                { name: 'Bremen',                grest: 5.0 },
+                { name: 'Hamburg',               grest: 5.5, note: 'seit 1.1.2023' },
+                { name: 'Hessen',                grest: 6.0 },
+                { name: 'Mecklenburg-Vorpommern',grest: 6.0 },
+                { name: 'Niedersachsen',         grest: 5.0 },
+                { name: 'Nordrhein-Westfalen',   grest: 6.5 },
+                { name: 'Rheinland-Pfalz',       grest: 5.0 },
+                { name: 'Saarland',              grest: 6.5 },
+                { name: 'Sachsen',               grest: 5.5, note: 'seit 1.1.2023' },
+                { name: 'Sachsen-Anhalt',        grest: 5.0 },
+                { name: 'Schleswig-Holstein',    grest: 6.5 },
+                { name: 'Thüringen',             grest: 5.0, note: 'seit 1.1.2024' }
+            ];
+            const notar = 1.5; // Notar + Grundbuch ca. 1,5%
+            const rows = laender
+                .sort((a, b) => (a.grest + notar) - (b.grest + notar) || a.name.localeCompare(b.name))
+                .map(l => `<tr>
+                    <td>${this.escapeHtml(l.name)}</td>
+                    <td style="text-align:right;">${l.grest.toFixed(1).replace('.', ',')} %${l.note ? ' <small style="color:#6c757d;">(' + this.escapeHtml(l.note) + ')</small>' : ''}</td>
+                    <td style="text-align:right;">~${notar.toFixed(1).replace('.', ',')} %</td>
+                    <td style="text-align:right;font-weight:600;">${(l.grest + notar).toFixed(1).replace('.', ',')} %</td>
+                </tr>`).join('');
             document.getElementById('comparison-content').innerHTML = `
-                <h3>🗺️ Bundesland-Steuer-Vergleich</h3>
+                <h3>🗺️ Bundesland-Steuer-Vergleich (Stand 2026)</h3>
                 <div class="alert alert-info">
-                    <p><strong>Plugin aktiv:</strong> Analysiert Steuerunterschiede zwischen allen 16 Bundesländern.</p>
+                    <p><strong>Plugin aktiv:</strong> Grunderwerbsteuersätze 2026 für alle 16 Bundesländer.
+                    Notarkosten und Grundbuchkosten sind als Pauschale (~1,5 %) eingerechnet.
+                    Aufsteigend nach Gesamtbelastung sortiert.</p>
                 </div>
                 <div class="data-table">
                     <table style="width: 100%;">
                         <thead>
                             <tr>
                                 <th>Bundesland</th>
-                                <th>Grunderwerbsteuer</th>
-                                <th>Notarkosten</th>
-                                <th>Gesamtbelastung</th>
+                                <th style="text-align:right;">Grunderwerbsteuer</th>
+                                <th style="text-align:right;">Notar &amp; Grundbuch</th>
+                                <th style="text-align:right;">Gesamtbelastung</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr><td>Bayern</td><td>3.5%</td><td>~1.5%</td><td>5.0%</td></tr>
-                            <tr><td>Thüringen</td><td>5.0%</td><td>~1.5%</td><td>6.5%</td></tr>
-                            <tr><td>Hamburg</td><td>5.5%</td><td>~1.5%</td><td>7.0%</td></tr>
-                            <tr><td>Sachsen</td><td>5.5%</td><td>~1.5%</td><td>7.0%</td></tr>
-                            <tr><td>Berlin</td><td>6.0%</td><td>~1.5%</td><td>7.5%</td></tr>
-                            <tr><td>NRW</td><td>6.5%</td><td>~1.5%</td><td>8.0%</td></tr>
-                        </tbody>
+                        <tbody>${rows}</tbody>
                     </table>
                 </div>
             `;
@@ -5951,24 +6019,69 @@ validateFormData(data, section = null) {
 
         loadInflationCalculator() {
             this.gaTracker.trackFeatureUsage('inflation_calculator', 'activated');
-            const checkbox = document.getElementById('inflation-adjustment');
-            if (checkbox) {
-                checkbox.checked = true;
-                this.showToast('📊 Inflation wird nun automatisch berücksichtigt', 'success');
+            // Plugin only makes sense in the Verkauf section - jump there first.
+            if (this.getCurrentSection() !== 'verkauf') {
+                this.navigateToSection('verkauf');
             }
+            setTimeout(() => {
+                // Open the "Erweiterte Optionen" disclosure so the fields are visible
+                const content = document.getElementById('advanced-content');
+                const toggle = document.querySelector('.disclosure-toggle');
+                if (content && !content.classList.contains('open')) {
+                    content.classList.add('open');
+                    content.style.display = 'block';
+                    toggle?.classList.add('open');
+                }
+                const checkbox = document.getElementById('inflation-adjustment');
+                if (checkbox) {
+                    checkbox.checked = true;
+                    checkbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Trigger recalculation so the inflation adjustment is reflected
+                    if (this.realtimeEnabled) {
+                        this.debouncedCalculate();
+                    }
+                    this.showToast('📊 Inflationsbereinigung aktiviert - Kaufjahr und Inflationsrate prüfen', 'success');
+                } else {
+                    this.showToast('📊 Inflationsbereinigung nur im Verkaufsmodul verfügbar', 'info');
+                }
+            }, 250);
         }
 
         loadAIOptimizer() {
             this.gaTracker.trackFeatureUsage('ai_optimizer', 'activated');
-            this.gaTracker.trackPremiumFeatureUsage('AI Optimizer', 1);
-            this.updatePerformanceIndicator('KI-Modus aktiv');
-            this.showToast('🤖 KI-Optimierer aktiviert - Erweiterte Berechnungen verfügbar', 'success');
+            this.showModal('comparison-modal');
+            document.getElementById('comparison-content').innerHTML = `
+                <h3>🤖 KI-Optimierer - in Vorbereitung</h3>
+                <div class="alert alert-warning">
+                    <p><strong>Hinweis:</strong> Dieses Plugin ist derzeit ein <strong>Platzhalter</strong>. Echte
+                    Machine-Learning-Vorhersagen sind noch nicht implementiert.</p>
+                    <p style="margin-top:0.5rem;">Was heute funktioniert: Die <strong>Verkaufssteuer-Optimierung</strong>
+                    im Hauptmodul vergleicht bereits regelbasiert alle Holding-Strukturen (Privatverkauf,
+                    VV GmbH &amp; Co. KG, Familienpool, Share Deal, Cross-Border, Familienstiftung) und liefert
+                    eine sortierte Empfehlung. Das ist heuristisch, aber gegen die korrekten 2026er
+                    Steuersätze gerechnet.</p>
+                    <p style="margin-top:0.5rem;">Geplant: Lernfähige Empfehlungen aus historischen Berechnungen,
+                    Risikoprognosen, Cross-Border-Pricing.</p>
+                </div>
+            `;
         }
 
         loadInternationalTax() {
             this.gaTracker.trackFeatureUsage('international_tax', 'activated');
-            this.gaTracker.trackPremiumFeatureUsage('International Tax', 1);
-            this.showToast('🌍 International Tax Plugin aktiviert - Cross-Border Strukturen verfügbar', 'success');
+            this.showModal('comparison-modal');
+            document.getElementById('comparison-content').innerHTML = `
+                <h3>🌍 International Tax - in Vorbereitung</h3>
+                <div class="alert alert-warning">
+                    <p><strong>Hinweis:</strong> Vollwertige Cross-Border-Berechnungen (Pillar Two, ATAD,
+                    Hinzurechnungsbesteuerung nach §§ 7-14 AStG, DBAs) sind noch nicht implementiert.</p>
+                    <p style="margin-top:0.5rem;">Was heute funktioniert: Die Holding-Struktur-Liste im Verkaufsmodul
+                    enthält bereits <strong>Cross-Border Holding (Luxemburg)</strong> und
+                    <strong>Cross-Border Struktur (Niederlande)</strong> als Optionen mit Hinweisen auf
+                    Pillar Two (15 % Mindestbesteuerung seit 2024) und ATAD-Substanzanforderungen.</p>
+                    <p style="margin-top:0.5rem;">Geplant: Länderspezifische Quellensteuersätze, DBA-Quoten,
+                    GloBE-Top-up-Tax-Berechnung.</p>
+                </div>
+            `;
         }
 
         // Navigation and Content Loading
@@ -6610,7 +6723,23 @@ handleImmobilienartChange(newValue) {
                                             <input type="checkbox" id="inflation-adjustment">
                                             <span>Kaufpreis inflationsbereinigt berechnen</span>
                                         </label>
-                                        <div class="form-help">Automatische Anpassung an Inflation seit Kauf</div>
+                                        <div class="form-help">Erhöht den Kaufpreis um die kumulierte Inflation seit dem Kaufjahr. Hinweis: § 23 EStG erlaubt diese Anpassung nicht steuerlich - dies ist nur ein Informationswert.</div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            📅 Kaufjahr
+                                        </label>
+                                        <input type="number" id="kaufjahr" class="form-input" placeholder="z.B. 2015" min="1970" max="2026" step="1" aria-describedby="kaufjahr-help">
+                                        <div class="form-help" id="kaufjahr-help">Jahr des Erwerbs (für Inflationsbereinigung). Fallback: aktuelles Jahr - Haltedauer.</div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">
+                                            📈 Inflationsrate p.a. (%)
+                                        </label>
+                                        <input type="number" id="inflationsrate" class="form-input" placeholder="z.B. 2.5" min="0" max="20" step="0.1" value="2.5" aria-describedby="inflationsrate-help">
+                                        <div class="form-help" id="inflationsrate-help">Durchschnittliche jährliche Inflationsrate (Default 2,5 %). Wird zinseszinsbasiert auf den Kaufpreis angewendet.</div>
                                     </div>
                                 </div>
                             </div>
@@ -7107,9 +7236,9 @@ handleImmobilienartChange(newValue) {
                         </div>
                     </div>
 
-                    <div class="alert alert-success">
-                        <h3>🤖 Intelligente Gesamtstrategie-Analyse</h3>
-                        <p>Unser KI-System analysiert Ihr gesamtes Immobilien-Portfolio und entwickelt eine optimale Langzeitstrategie für maximale Steuerersparnis.</p>
+                    <div class="alert alert-info">
+                        <h3>📋 Heuristische Strategievorschläge</h3>
+                        <p>Dieses Modul liefert <strong>regelbasierte Strategievorschläge</strong> auf Grundlage Ihrer Portfolio-Eckdaten. Die ausgewiesenen Ersparnis-Potentiale sind <strong>Pauschalindikatoren</strong> (% vom Portfoliowert), <em>keine</em> exakten Steuerberechnungen auf Basis von §§ ErbStG, EStG, GewStG. Für verbindliche Aussagen bitte Steuerberater konsultieren.</p>
                     </div>
 
                     <div class="form-grid">
@@ -7924,10 +8053,11 @@ get debouncedCalculateErbschaftsteuer() {
             if (!container) return;
             
             let html = `
-                <div class="alert alert-success">
-                    <h3>🤖 KI-Strategieanalyse abgeschlossen</h3>
-                    <p><strong>Optimierungspotential:</strong> ${this.formatCurrency(results.portfolio_analyse.optimierungspotential)}</p>
+                <div class="alert alert-info">
+                    <h3>📋 Strategievorschläge (heuristisch)</h3>
+                    <p><strong>Geschätztes Optimierungspotential:</strong> ${this.formatCurrency(results.portfolio_analyse.optimierungspotential)} <small style="color:#6c757d;">(Pauschalsatz 12 % des Portfoliowerts)</small></p>
                     <p><strong>Risiko-Score:</strong> ${results.portfolio_analyse.risiko_score}/100</p>
+                    <p style="margin-top:0.5rem;font-size:0.85rem;color:#6c757d;">⚠️ Pauschalindikatoren auf Basis Ihrer Eingaben. Keine verbindliche Steuerberechnung.</p>
                 </div>
 
                 <div class="results-grid">
@@ -8182,16 +8312,21 @@ get debouncedCalculateErbschaftsteuer() {
             const data = {};
             const prefix = this.getScenarioPrefix(this.currentScenario);
             const contentSelector = `#${this.currentScenario}-content`;
-            const inputs = document.querySelectorAll(`${contentSelector} .form-input, ${contentSelector} .form-select`);
-            console.log(`Collecting data for ${this.currentScenario}, found ${inputs.length} inputs`);
-            
+            // Include checkboxes too - some (e.g. #inflation-adjustment) are
+            // intentionally NOT styled with .form-input but still drive
+            // calculation behaviour and must be collected.
+            const inputs = document.querySelectorAll(
+                `${contentSelector} .form-input, ${contentSelector} .form-select, ${contentSelector} input[type="checkbox"]`
+            );
+
             inputs.forEach(input => {
+                if (!input.id) return;
                 // Remove scenario prefix from field name to get the actual field name
                 let fieldName = input.id;
                 if (prefix && fieldName.startsWith(prefix)) {
                     fieldName = fieldName.substring(prefix.length);
                 }
-                
+
                 if (input.type === 'number') {
                     data[fieldName] = parseFloat(input.value) || 0;
                 } else if (input.type === 'checkbox') {
@@ -8199,10 +8334,8 @@ get debouncedCalculateErbschaftsteuer() {
                 } else {
                     data[fieldName] = input.value || '';
                 }
-                console.log(`Collected ${fieldName}: ${data[fieldName]} from element ${input.id}`);
             });
 
-            console.log('Final collected data:', data);
             return data;
         }
 
