@@ -105,7 +105,7 @@ class EnhancedPDFExporter {
         doc.setTextColor('#000000');
         doc.text('Ultimate Enterprise Enhanced Edition - Steueroptimierung Bericht', 20, 40);
         doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 20, 50);
-        doc.text(`Version: v4.0.0-enhanced`, 150, 50);
+        doc.text(`Version: v4.0.8-enhanced`, 150, 50);
         
         // Add separator line
         doc.setDrawColor('#667eea');

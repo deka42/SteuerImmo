@@ -1,7 +1,7 @@
 // Ultimate Immobilien Suite Enhanced - Main Application Class
 class UltimateImmobilienSuiteEnhanced {
     constructor() {
-        this.version = '4.0.0-enhanced';
+        this.version = '4.0.8-enhanced';
         this.scenarios = new Map();
         this.currentScenario = 'scenario1';
         this.realtimeEnabled = true;
