@@ -1,8 +1,18 @@
-# Immobilien-Steuer-Suite 2025 - Ultimate Enterprise Enhanced Edition
+# Immobilien-Steuer-Suite 2026 - Ultimate Enterprise Enhanced Edition
+
+> **Stand 2026 (v4.1.0)** — Steuerrecht-Audit durchgeführt: Grunderwerbsteuersätze
+> aktualisiert (HH/SN 5,5 %, TH 5,0 %), Erbschaft-/Schenkungsteuer auf den
+> korrekten Stufentarif mit Härteausgleich (§ 19 ErbStG) umgestellt,
+> § 13 Familienheim & § 13d Vermietabschlag korrekt implementiert,
+> Spekulationssteuer mit persönlichem Grenzsteuersatz + Soli-Freigrenze
+> + 3-Jahres-Eigennutzungsregel, Grundsteuer länderspezifische Modelle
+> (Bundesmodell, Bayern, BW, HH, HE, NI), AfA 3 % für Wohnneubauten ab 2023
+> (§ 7 Abs. 4 Nr. 2 EStG) und § 7b Sonderabschreibung über 4 Jahre.
+> Siehe [CHANGELOG.md](CHANGELOG.md) für Details.
 
 ## 🏠 Überblick
 
-Die **Ultimate Enterprise Enhanced Edition** der Immobilien-Steuer-Suite 2025 ist eine hochmoderne, KI-gestützte Webanwendung zur Optimierung von Immobiliensteuern. Mit fortschrittlichen Features wie Real-time-Berechnungen, Multi-Szenario-Vergleichen und umfassender Analytics bietet sie professionelle Steueroptimierung auf Enterprise-Niveau.
+Die **Ultimate Enterprise Enhanced Edition** der Immobilien-Steuer-Suite 2026 ist eine hochmoderne, KI-gestützte Webanwendung zur Optimierung von Immobiliensteuern. Mit fortschrittlichen Features wie Real-time-Berechnungen, Multi-Szenario-Vergleichen und umfassender Analytics bietet sie professionelle Steueroptimierung auf Enterprise-Niveau.
 
 ## ✨ Hauptfeatures
 
@@ -20,26 +30,26 @@ Die **Ultimate Enterprise Enhanced Edition** der Immobilien-Steuer-Suite 2025 is
 
 ### 📈 Umfassende Steuermodule
 1. **Verkaufssteuer-Optimierung** (Hauptmodul)
-   - Spekulationssteuer-Berechnung
-   - Optimale Rechtsformen (GmbH, KG, Stiftung)
-   - Cross-Border Strukturen
-   - BFH 2025 konforme Berechnungen
+   - Spekulationssteuer nach § 23 EStG (Grenzsteuersatz + Soli-Freigrenze + Kirchensteuer)
+   - 10-Jahres-Frist & 3-Jahres-Eigennutzungsregel
+   - Optimale Rechtsformen (VV GmbH & Co. KG mit erweiterter Kürzung § 9 Nr. 1 S. 2 GewStG, Share Deal mit § 8b KStG, Familienpool, Stiftung)
+   - Cross-Border Strukturen mit Pillar Two / ATAD-Hinweisen
 
-2. **Grundsteuer 2025** (Reform-konform)
-   - Neue Bewertungsverfahren
-   - Bundeslandspezifische Berechnung
-   - Vergleich alt vs. neu
-   - Hebesatz-Optimierung
+2. **Grundsteuer 2026** (Reform-konform, länderspezifisch)
+   - Bundesmodell (BB, BE, HB, MV, NW, RP, SL, ST, SH, TH)
+   - Bayerisches Flächenmodell, BW Bodenwertmodell, HH Wohnlagenmodell, HE Flächen-Faktor, NI Flächen-Lage
+   - Grundsteuermesszahl 0,31 ‰ Wohnen / 0,34 ‰ Nichtwohnen
+   - Hebesatz-Berechnung
 
-3. **Erbschaftsteuer-Planung**
-   - Freibeträge 2025
-   - Familienheim-Regelung
-   - Steuerklassen-Optimierung
-   - Generationenplanung
+3. **Erbschaftsteuer-Planung (§§ 13, 15, 19 ErbStG)**
+   - Korrekter Stufentarif mit Härteausgleich (§ 19 Abs. 3)
+   - Familienheim-Befreiung Ehepartner (§ 13 Abs. 1 Nr. 4b) und Kinder bis 200 m² (Nr. 4c)
+   - § 13d ErbStG 10 %-Abschlag für zu Wohnzwecken vermietete Immobilien
+   - Steuerklassen I–III, alle aktuellen Freibeträge
 
 4. **Schenkungssteuer-Optimierung**
    - 10-Jahres-Freibeträge
-   - Nießbrauch-Strukturen
+   - Nießbrauch-Kapitalwert nach § 14 BewG (Jahreswert-Cap 1/18,6 nach § 16 BewG)
    - Teilschenkungen
    - Stufenweise Übertragung
 
@@ -66,12 +76,13 @@ Die **Ultimate Enterprise Enhanced Edition** der Immobilien-Steuer-Suite 2025 is
 
 ### 🎨 Moderne Benutzeroberfläche
 - **Responsive Design** für alle Geräte
-- **Dark Mode Support**
+- **Dark/Light Mode Toggle** im Header — OS-Preference bei erstem Aufruf, persistente Nutzerwahl (`localStorage`)
 - **Accessibility Features** (WCAG 2.1)
 - **Toast Notifications**
 - **Modal System**
 - **Progress Indicators**
 - **Real-time Validation**
+- **Tab-Switch-Persistenz**: Eingaben (inkl. aller drei Verkaufs-Szenarien) bleiben beim Wechsel zwischen Steuermodulen erhalten und werden alle 30 s automatisch gespeichert
 
 ## 🚀 Installation & Setup
 
@@ -162,30 +173,51 @@ Die Suite unterstützt verschiedene Plugins:
 ## 📊 Unterstützte Berechnungen
 
 ### Steuerarten
-- ✅ Spekulationssteuer (Verkauf < 10 Jahre)
-- ✅ Grundsteuer (Reform 2025)
-- ✅ Erbschaftsteuer (alle Steuerklassen)
-- ✅ Schenkungssteuer (10-Jahres-Freibeträge)
+- ✅ Spekulationssteuer (§ 23 EStG) — 10-Jahres-Frist + 3-Jahres-Eigennutzung
+- ✅ Grundsteuer (Reform seit 1.1.2025, alle Ländermodelle)
+- ✅ Erbschaftsteuer — Stufentarif § 19 ErbStG mit Härteausgleich
+- ✅ Schenkungssteuer (10-Jahres-Freibeträge, Nießbrauch § 14 BewG)
 - ✅ Einkommensteuer (Vermietung & Verpachtung)
 - ✅ Gewerbesteuer (gewerbliche Strukturen)
+- ✅ AfA (§ 7 EStG) — inkl. 3 % für Neubauten ab 2023, § 7b Sonderabschreibung (5 % × 4 Jahre), § 7i Denkmal-AfA
+
+### Grunderwerbsteuer-Sätze (Stand 2026)
+| Land | Satz | Land | Satz |
+| --- | --- | --- | --- |
+| Bayern, Sachsen-Anhalt | 3,5 % / 5,0 % | Sachsen | **5,5 %** (seit 1.1.2023) |
+| Baden-Württemberg, Bremen, Niedersachsen, Rheinland-Pfalz, Sachsen-Anhalt, **Thüringen** | 5,0 % | Hamburg | **5,5 %** (seit 1.1.2023) |
+| Berlin, Hessen, MV | 6,0 % | Brandenburg, NRW, Saarland, Schleswig-Holstein | 6,5 % |
 
 ### Optimierungsstrukturen
-- 🏠 **Privatverkauf** (Basis)
-- 🏢 **VV GmbH & Co. KG** (BFH 2025 konform)
+- 🏠 **Privatverkauf** (§ 23 EStG)
+- 🏢 **VV GmbH & Co. KG** mit erweiterter Gewerbesteuer-Kürzung (§ 9 Nr. 1 S. 2 GewStG)
 - 👨‍👩‍👧‍👦 **Familienpool (GbR)**
-- 📈 **Share Deal (GmbH)**
-- 🌍 **Cross-Border Holdings**
-- 🏛️ **Familienstiftungen**
+- 📈 **Share Deal (GmbH)** — § 8b KStG (95 % steuerfrei), inkl. § 1 Abs. 2b GrEStG-Warnhinweis (90 %/10 J.)
+- 🌍 **Cross-Border Holdings** — mit Pillar Two und ATAD-Hinweisen
+- 🏛️ **Familienstiftungen** — inkl. Erbersatzsteuer alle 30 Jahre
 - ⚖️ **Stiftung & Co. KG**
 
 ### Bundesländer
 Alle 16 deutschen Bundesländer mit spezifischen:
-- Grunderwerbsteuersätzen
+- Grunderwerbsteuersätzen (2026 aktualisiert)
 - Hebesätzen
 - Notarkosten
-- Besonderen Regelungen
+- Grundsteuermodellen
 
 ## 🔄 Updates & Wartung
+
+### Version 4.1.0 — Steuerrecht-Audit 2026
+- 🛠️ Kritische Bugfixes: zerstörter `try`-Block in `TaxCalculationEngine.js`, Worker-Timer-Leak, fehlerhafte Methoden-Überschreibung
+- 📊 Steuerrecht 2026: Grunderwerbsteuer aktualisiert (HH/SN 5,5 %, TH 5,0 %)
+- ⚖️ Erbschaft-/Schenkungsteuer: korrekter Stufentarif mit Härteausgleich (§ 19 Abs. 3 ErbStG)
+- 🏠 Familienheim § 13: Ehepartner / Kinder 200 m²-Regel; § 13d Vermietabschlag
+- 💰 Spekulationssteuer: persönlicher Grenzsteuersatz statt Pauschal-15 %, Soli-Freigrenze, 3-Jahres-Eigennutzungsregel
+- 🏛️ Grundsteuer: länderspezifische Modelle (Bundesmodell, Bayern, BW, HH, HE, NI)
+- 📉 AfA: 3 % für Wohnneubauten ab 2023 (§ 7 Abs. 4 Nr. 2 EStG), § 7b 5 % × 4 Jahre, § 7i Denkmal-AfA
+- 🏢 Share Deal: § 8b KStG 95 % korrekt, § 1 Abs. 2b GrEStG-Warnung (90 %/10 J. seit 1.7.2021)
+- 🌍 Cross-Border: Pillar Two (15 % Mindestbesteuerung seit 2024) und ATAD-Hinweise
+- 🌙 Dark/Light-Mode-Toggle im Header; CSS-Bugs in Theme-Regeln behoben
+- 💾 Tab-Switch-Persistenz für alle drei Verkaufs-Szenarien
 
 ### Version 4.0.0 - Ultimate Enterprise Enhanced
 - ✨ Vollständige Neuentwicklung der UI
@@ -234,6 +266,10 @@ Dieses Projekt steht unter der ISC Lizenz. Siehe `LICENSE` Datei für Details.
 
 ---
 
-**© 2025 Immobilien-Steuer-Suite - Ultimate Enterprise Enhanced Edition**
+**© 2026 Immobilien-Steuer-Suite - Ultimate Enterprise Enhanced Edition**
 
 *Professionelle Steueroptimierung für das digitale Zeitalter*
+
+> ⚠️ **Haftungsausschluss:** Die Berechnungen sind Schätzungen auf Basis vereinfachter
+> Modelle und ersetzen keine steuerliche Beratung. Für verbindliche Aussagen kontaktieren
+> Sie bitte einen Steuerberater oder das zuständige Finanzamt.
