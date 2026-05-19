@@ -3678,7 +3678,15 @@ List available plugins
 
                 await this.generatePDFContent(doc, data);
                 
-                const filename = `Steueroptimierung_${new Date().toISOString().split('T')[0]}.pdf`;
+                const sectionSlug = {
+                    verkauf: 'Verkaufssteuer',
+                    grundsteuer: 'Grundsteuer',
+                    erbschaft: 'Erbschaftsteuer',
+                    schenkung: 'Schenkungsteuer',
+                    cashflow: 'Cashflow',
+                    strategie: 'Strategie'
+                }[data?.section] || 'Steueroptimierung';
+                const filename = `${sectionSlug}_${new Date().toISOString().split('T')[0]}.pdf`;
                 doc.save(filename);
                 
                 return { success: true, filename };
@@ -3688,15 +3696,33 @@ List available plugins
             }
         }
 
+        // Page-flow helper: paginates when running out of room. Returns the
+        // (possibly updated) y position so the caller can keep writing.
+        _ensureRoom(doc, y, needed) {
+            if (y + needed > 275) {
+                doc.addPage();
+                return 30;
+            }
+            return y;
+        }
+
         async generatePDFContent(doc, data) {
             try {
-                this.addHeader(doc);
-                this.addInputData(doc, data);
-                
+                let y = this.addHeader(doc, data);
+                y = this.addInputData(doc, data, y);
                 if (data.results) {
-                    this.addResults(doc, data.results);
+                    y = this.addResults(doc, data, y);
+                } else {
+                    y = this._ensureRoom(doc, y, 20);
+                    doc.setFontSize(11);
+                    doc.setTextColor('#8b2635');
+                    doc.text('⚠️ Keine Berechnungsergebnisse vorhanden.', 20, y);
+                    y += 8;
+                    doc.setFontSize(9);
+                    doc.setTextColor('#000000');
+                    doc.text('Bitte führen Sie die Berechnung in der Anwendung aus und exportieren Sie erneut.', 20, y);
+                    y += 12;
                 }
-                
                 this.addFooter(doc);
                 this.addWatermark(doc);
             } catch (error) {
@@ -3705,135 +3731,273 @@ List available plugins
             }
         }
 
-        addHeader(doc) {
-            // Header with logo placeholder
+        addHeader(doc, data) {
+            const title = (data && data.sectionTitle) || 'Steueroptimierung Bericht';
             doc.setFontSize(20);
             doc.setTextColor('#667eea');
-            doc.text('🏠 Immobilien-Steuer-Suite 2026', 20, 30);
-            
-            doc.setFontSize(12);
-            doc.setTextColor('#000000');
-            doc.text('Ultimate Enterprise Enhanced Edition - Steueroptimierung Bericht', 20, 40);
-            doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 20, 50);
-            doc.text(`Version: v4.0.8-enhanced`, 150, 50);
-            
-            // Add separator line
-            doc.setDrawColor('#667eea');
-            doc.setLineWidth(0.5);
-            doc.line(20, 55, 190, 55);
-        }
+            doc.text('🏠 Immobilien-Steuer-Suite 2026', 20, 25);
 
-        addInputData(doc, data) {
-            let yPos = 70;
-            doc.setFontSize(16);
+            doc.setFontSize(13);
             doc.setTextColor('#2c3e50');
-            doc.text('Eingabedaten:', 20, yPos);
-            yPos += 15;
-            
+            doc.text(title, 20, 35);
+
             doc.setFontSize(10);
             doc.setTextColor('#000000');
-            
-            const dataPoints = [
-                { label: 'Kaufpreis', value: data.kaufpreis, format: 'currency' },
-                { label: 'Verkaufspreis', value: data.verkaufspreis, format: 'currency' },
-                { label: 'Haltedauer', value: data.haltedauer, format: 'years' },
-                { label: 'Steuersatz', value: data.steuersatz, format: 'percent' },
-                { label: 'Kirchensteuer', value: data.kirchensteuer, format: 'percent' },
-                { label: 'Bundesland', value: this.getBundeslandName(data.bundesland), format: 'text' }
-            ];
+            doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 20, 45);
+            const versionStr = data && data.version ? `Version: v${data.version}` : 'Version: v4.0.8-enhanced';
+            doc.text(versionStr, 150, 45);
 
-            dataPoints.forEach(point => {
-                if (point.value !== undefined && point.value !== null) {
-                    const formattedValue = this.formatValue(point.value, point.format);
-                    doc.text(`${point.label}: ${formattedValue}`, 25, yPos);
-                    yPos += 8;
-                }
-            });
+            doc.setDrawColor('#667eea');
+            doc.setLineWidth(0.5);
+            doc.line(20, 50, 190, 50);
+            return 60;
         }
 
-        addResults(doc, results) {
-            let yPos = 160;
-            
-            // Check if we need a new page
-            if (yPos > 250) {
-                doc.addPage();
-                yPos = 30;
-            }
-            
-            doc.setFontSize(16);
+        addInputData(doc, data, yIn) {
+            let y = this._ensureRoom(doc, yIn, 15);
+            doc.setFontSize(14);
             doc.setTextColor('#2c3e50');
-            doc.text('Optimierungsergebnisse:', 20, yPos);
-            yPos += 15;
-            
-            if (results && results.structures && results.structures.length > 0) {
-                const best = results.structures[0];
-                doc.setFontSize(12);
-                doc.setTextColor('#11998e');
-                doc.text(`BESTE OPTION: ${best.name}`, 25, yPos);
-                yPos += 10;
-                
-                doc.setFontSize(10);
-                doc.setTextColor('#000000');
-                doc.text(`Nettogewinn: ${this.formatCurrency(best.netProfit)}`, 25, yPos);
-                doc.text(`Steuersatz: ${best.taxRate.toFixed(1)}%`, 25, yPos + 8);
-                doc.text(`Steuerbelastung: ${this.formatCurrency(best.tax)}`, 25, yPos + 16);
-                
-                yPos += 35;
-                
-                // Results table
-                this.addResultsTable(doc, results.structures, yPos);
+            doc.text('Eingabedaten', 20, y);
+            y += 10;
+
+            doc.setFontSize(10);
+            doc.setTextColor('#000000');
+
+            const rows = Array.isArray(data.inputRows) ? data.inputRows : [];
+            if (rows.length === 0) {
+                doc.setTextColor('#6c757d');
+                doc.text('(keine Eingabedaten erfasst)', 25, y);
+                y += 8;
+                return y + 4;
             }
+            for (const row of rows) {
+                y = this._ensureRoom(doc, y, 8);
+                doc.setTextColor('#000000');
+                doc.text(`${row.label}:`, 25, y);
+                doc.text(String(row.value), 110, y);
+                y += 7;
+            }
+            return y + 4;
+        }
+
+        addResults(doc, data, yIn) {
+            const section = data.section || 'verkauf';
+            const results = data.results;
+            let y = this._ensureRoom(doc, yIn + 4, 15);
+            doc.setFontSize(14);
+            doc.setTextColor('#2c3e50');
+            doc.text('Ergebnisse', 20, y);
+            y += 10;
+            doc.setFontSize(10);
+            doc.setTextColor('#000000');
+
+            switch (section) {
+                case 'verkauf':       return this._verkaufResults(doc, results, y);
+                case 'grundsteuer':   return this._grundsteuerResults(doc, results, y);
+                case 'erbschaft':     return this._erbschaftResults(doc, results, y);
+                case 'schenkung':     return this._schenkungResults(doc, results, y);
+                case 'cashflow':      return this._cashflowResults(doc, results, y);
+                case 'strategie':     return this._strategieResults(doc, results, y);
+                default:              return y;
+            }
+        }
+
+        _kvRows(doc, rows, y) {
+            for (const [label, value] of rows) {
+                y = this._ensureRoom(doc, y, 8);
+                doc.setTextColor('#000000');
+                doc.text(`${label}:`, 25, y);
+                doc.text(String(value), 110, y);
+                y += 7;
+            }
+            return y + 2;
+        }
+
+        _verkaufResults(doc, results, yIn) {
+            let y = yIn;
+            if (!results || !results.structures || results.structures.length === 0) {
+                doc.setTextColor('#6c757d');
+                doc.text('(keine Strukturvorschläge - prüfen Sie, ob ein Gewinn vorliegt)', 25, y);
+                return y + 10;
+            }
+            const best = results.structures[0];
+            doc.setFontSize(11);
+            doc.setTextColor('#11998e');
+            doc.text(`BESTE OPTION: ${best.name}`, 25, y);
+            y += 9;
+            doc.setFontSize(10);
+            const rows = [
+                ['Bruttogewinn', this.formatCurrency(best.grossProfit)],
+                ['Steuerbelastung', this.formatCurrency(best.tax)],
+                ['Nettogewinn', this.formatCurrency(best.netProfit)],
+                ['Effektiver Steuersatz', `${best.taxRate.toFixed(1)} %`]
+            ];
+            if (results.inflationsanpassung > 0) {
+                rows.push(['Inflationsanpassung Kaufpreis', `+${this.formatCurrency(results.inflationsanpassung)} (§ 23 EStG steuerlich nicht anerkannt - informativ)`]);
+            }
+            if (results.totalSavings > 0) {
+                rows.push(['Steuerersparnis ggü. ungünstigster Option', this.formatCurrency(results.totalSavings)]);
+            }
+            y = this._kvRows(doc, rows, y);
+            return this.addResultsTable(doc, results.structures, y);
+        }
+
+        _grundsteuerResults(doc, results, y) {
+            if (!results) return y;
+            const rows = [
+                ['Modell', results.modell || '-'],
+                ['Bodenrichtwert', this.formatCurrency(results.bodenrichtwert)],
+                ['Grundwert', this.formatCurrency(results.grundwert)],
+                ['Gebäudewert', this.formatCurrency(results.gebaeudewert)],
+                ['Grundsteuerwert', this.formatCurrency(results.grundsteuerwert)],
+                ['Steuermesszahl', `${(results.grundsteuermesszahl * 1000).toFixed(2)} ‰`],
+                ['Messbetrag', this.formatCurrency(results.grundsteuermessbetrag)],
+                ['Hebesatz', `${results.hebesatz} %`],
+                ['Grundsteuer jährlich', this.formatCurrency(results.grundsteuerJaehrlich)],
+                ['Grundsteuer monatlich', this.formatCurrency(results.grundsteuerMonatlich)]
+            ];
+            return this._kvRows(doc, rows, y);
+        }
+
+        _erbschaftResults(doc, results, y) {
+            if (!results) return y;
+            const rows = [
+                ['Gesamtvermögen (nach Abschlägen)', this.formatCurrency(results.gesamtvermoegen)],
+                ['Familienheim-Befreiung (§ 13 ErbStG)', this.formatCurrency(results.familienheimBefreit)],
+                ['§ 13d-Abschlag (vermietet)', this.formatCurrency(results.vermietabschlag)],
+                ['Freibetrag', this.formatCurrency(results.freibetrag)],
+                ['Steuerpflichtiger Erwerb', this.formatCurrency(results.steuerpflichtiger_erwerb)],
+                ['Steuerklasse (§ 15 ErbStG)', `Stkl. ${results.steuerklasse}`],
+                ['Erbschaftsteuer', this.formatCurrency(results.erbschaftsteuer)],
+                ['Effektiver Steuersatz', `${(results.effektiver_steuersatz || 0).toFixed(1)} %`],
+                ['Nettoerbe', this.formatCurrency(results.nettoerbe)]
+            ];
+            return this._kvRows(doc, rows, y);
+        }
+
+        _schenkungResults(doc, results, y) {
+            if (!results) return y;
+            const rows = [
+                ['Schenkungswert', this.formatCurrency(results.schenkungswert)],
+                ['Nießbrauchsabzug (§ 14 BewG)', this.formatCurrency(results.niesbrauchsabzug)],
+                ['Gesamterwerb (inkl. Vorschenkungen)', this.formatCurrency(results.gesamterwerb)],
+                ['Freibetrag', this.formatCurrency(results.freibetrag)],
+                ['Steuerpflichtiger Erwerb', this.formatCurrency(results.steuerpflichtiger_erwerb)],
+                ['Steuerklasse (§ 15 ErbStG)', `Stkl. ${results.steuerklasse}`],
+                ['Schenkungsteuer', this.formatCurrency(results.schenkungssteuer)],
+                ['Effektiver Steuersatz', `${(results.effektiver_steuersatz || 0).toFixed(1)} %`],
+                ['Nettoschenkung', this.formatCurrency(results.nettoschenkung)]
+            ];
+            return this._kvRows(doc, rows, y);
+        }
+
+        _cashflowResults(doc, results, y) {
+            if (!results) return y;
+            const summary = [
+                ['Kumulierter Cash-Flow', this.formatCurrency(results.kumulierter_cashflow)],
+                ['Verkaufs-Cash-Flow', this.formatCurrency(results.verkaufs_cashflow)],
+                ['Gesamt-Cash-Flow', this.formatCurrency(results.gesamt_cashflow)],
+                ['Ø Jährlicher Cash-Flow', this.formatCurrency(results.durchschnittlicher_cashflow)],
+                ['ROI', `${(results.roi || 0).toFixed(1)} %`]
+            ];
+            y = this._kvRows(doc, summary, y);
+            // Per-year table
+            if (Array.isArray(results.jahre) && results.jahre.length > 0) {
+                y = this._ensureRoom(doc, y, 16);
+                doc.setFontSize(11);
+                doc.setTextColor('#2c3e50');
+                doc.text('Jahresübersicht', 25, y);
+                y += 8;
+                doc.setFontSize(9);
+                const headers = ['Jahr', 'Mieteinnahmen', 'Betriebskosten', 'Cash-Flow', 'Kumuliert'];
+                const colWidths = [15, 38, 38, 38, 38];
+                y = this._tableHeader(doc, headers, colWidths, 25, y);
+                for (const row of results.jahre) {
+                    y = this._ensureRoom(doc, y, 8);
+                    y = this._tableRow(doc, [
+                        String(row.jahr),
+                        this.formatCurrency(row.mieteinnahmen),
+                        this.formatCurrency(row.betriebskosten),
+                        this.formatCurrency(row.cashflow_nach_steuern),
+                        this.formatCurrency(row.kumulierter_cashflow)
+                    ], colWidths, 25, y);
+                }
+            }
+            return y;
+        }
+
+        _strategieResults(doc, results, y) {
+            if (!results) return y;
+            const analyse = results.portfolio_analyse || {};
+            const rows = [
+                ['Geschätztes Optimierungspotential (12 % vom Portfolio)', this.formatCurrency(analyse.optimierungspotential)],
+                ['Risiko-Score', `${analyse.risiko_score}/100`]
+            ];
+            y = this._kvRows(doc, rows, y);
+            y = this._ensureRoom(doc, y, 8);
+            doc.setFontSize(8);
+            doc.setTextColor('#6c757d');
+            doc.text('Hinweis: Pauschalindikatoren - keine verbindliche Steuerberechnung.', 25, y);
+            y += 8;
+            doc.setFontSize(11);
+            doc.setTextColor('#2c3e50');
+            doc.text('Strategievorschläge', 25, y);
+            y += 8;
+            doc.setFontSize(9);
+            doc.setTextColor('#000000');
+            for (const s of (results.strategien || [])) {
+                y = this._ensureRoom(doc, y, 14);
+                doc.setFont(undefined, 'bold');
+                doc.text(`${s.name} (Priorität: ${s.prioritaet})`, 25, y);
+                doc.setFont(undefined, 'normal');
+                y += 6;
+                doc.text(`  Ersparnis: ${this.formatCurrency(s.ersparnis)} · Zeitrahmen: ${s.zeitrahmen} · Komplexität: ${s.komplexitaet}`, 25, y);
+                y += 6;
+                doc.text(`  ${s.beschreibung}`, 25, y);
+                y += 8;
+            }
+            return y;
+        }
+
+        _tableHeader(doc, headers, colWidths, x, y) {
+            const w = colWidths.reduce((a, b) => a + b, 0);
+            doc.setFontSize(9);
+            doc.setFillColor(102, 126, 234);
+            doc.rect(x, y - 5, w, 8, 'F');
+            doc.setTextColor('#ffffff');
+            let cx = x;
+            headers.forEach((h, i) => { doc.text(h, cx + 2, y); cx += colWidths[i]; });
+            doc.setTextColor('#000000');
+            return y + 8;
+        }
+
+        _tableRow(doc, cells, colWidths, x, y) {
+            const w = colWidths.reduce((a, b) => a + b, 0);
+            // Subtle alternate row tint
+            doc.setFillColor(248, 249, 250);
+            doc.rect(x, y - 5, w, 7, 'F');
+            doc.setTextColor('#000000');
+            let cx = x;
+            cells.forEach((c, i) => { doc.text(String(c), cx + 2, y); cx += colWidths[i]; });
+            return y + 7;
         }
 
         addResultsTable(doc, structures, startY) {
             const headers = ['Struktur', 'Nettogewinn', 'Steuer', 'Rate'];
             const columnWidths = [60, 40, 40, 25];
             const startX = 25;
-            let currentY = startY;
-
-            // Table headers
-            doc.setFontSize(9);
-            doc.setTextColor('#ffffff');
-            doc.setFillColor(102, 126, 234);
-            doc.rect(startX, currentY - 5, columnWidths.reduce((a, b) => a + b, 0), 8, 'F');
-            
-            let currentX = startX;
-            headers.forEach((header, index) => {
-                doc.text(header, currentX + 2, currentY);
-                currentX += columnWidths[index];
-            });
-            
-            currentY += 10;
-
-            // Table rows
-            doc.setTextColor('#000000');
-            structures.slice(0, 8).forEach((structure, index) => {
-                if (currentY > 250) {
-                    doc.addPage();
-                    currentY = 30;
-                }
-                
-                // Alternate row colors
-                if (index % 2 === 0) {
-                    doc.setFillColor(248, 249, 250);
-                    doc.rect(startX, currentY - 4, columnWidths.reduce((a, b) => a + b, 0), 8, 'F');
-                }
-                
-                currentX = startX;
-                const rowData = [
-                    structure.name.substring(0, 25),
-                    this.formatCurrency(structure.netProfit),
-                    this.formatCurrency(structure.tax),
-                    `${structure.taxRate.toFixed(1)}%`
-                ];
-                
-                rowData.forEach((data, colIndex) => {
-                    doc.text(data, currentX + 2, currentY);
-                    currentX += columnWidths[colIndex];
-                });
-                
-                currentY += 8;
-            });
+            let y = this._ensureRoom(doc, startY + 4, 16);
+            y = this._tableHeader(doc, headers, columnWidths, startX, y);
+            for (const s of structures.slice(0, 8)) {
+                y = this._ensureRoom(doc, y, 8);
+                y = this._tableRow(doc, [
+                    s.name.substring(0, 25),
+                    this.formatCurrency(s.netProfit),
+                    this.formatCurrency(s.tax),
+                    `${s.taxRate.toFixed(1)}%`
+                ], columnWidths, startX, y);
+            }
+            return y;
         }
 
         addFooter(doc) {
@@ -5564,50 +5728,238 @@ validateFormData(data, section = null) {
         }
 
         // Enhanced PDF Export
+        // Section-aware PDF export. Collects inputs from the currently active
+        // section, recomputes results on the fly if there is no cached value,
+        // and emits a section-specific PDF (filename + title + tables). The
+        // exporter no longer falls back to an empty Verkauf-shaped document
+        // when invoked from another tab.
         async exportPDFReport() {
+            const section = this.getCurrentSection?.() || 'verkauf';
+            let warningMessage = null;
             try {
                 this.showProgress('Erstelle PDF-Bericht...', 10);
-                
-                const data = this.collectFormData();
-                const results = this.cache.get(JSON.stringify(data));
-                
-                // Track PDF export start
+
+                const payload = await this._collectPDFPayloadForSection(section);
+                if (payload.warning) warningMessage = payload.warning;
+
                 this.gaTracker.trackUserJourney('pdf_export', 'export_started', {
-                    calculation_type: 'verkaufssteuer',
-                    has_results: !!results
+                    calculation_type: section,
+                    has_results: !!payload.results
                 });
-                
+
                 this.showProgress('Generiere PDF...', 50);
-                
+
                 const pdfData = {
-                    ...data,
-                    results,
+                    section,
+                    sectionTitle: payload.title,
+                    inputRows: payload.inputRows,
+                    results: payload.results,
                     timestamp: new Date().toISOString(),
                     version: this.version
                 };
-                
+
                 const result = await this.pdfExporter.exportReport(pdfData);
-                
+
                 this.showProgress('Download startet...', 100);
-                
-                // Track successful PDF export
-                this.gaTracker.trackPDFExport(true, 'verkaufssteuer', JSON.stringify(pdfData).length);
+
+                this.gaTracker.trackPDFExport(true, section, JSON.stringify(pdfData).length);
                 this.gaTracker.trackConversion('pdf_download', 1);
                 this.gaTracker.trackFunnelStep('tax_optimization', 3, 'pdf_exported', true);
-                
+
                 setTimeout(() => {
                     this.hideProgress();
-                    this.showToast(`📄 PDF-Bericht "${result.filename}" erfolgreich erstellt`, 'success');
+                    if (warningMessage) {
+                        this.showToast('⚠️ ' + warningMessage, 'warning');
+                    } else {
+                        this.showToast(`📄 PDF-Bericht "${result.filename}" erfolgreich erstellt`, 'success');
+                    }
                 }, 500);
 
             } catch (error) {
                 console.error('PDF Export Error:', error);
                 this.errorHandler.logError(error);
-                this.gaTracker.trackPDFExport(false, 'verkaufssteuer', 0);
+                this.gaTracker.trackPDFExport(false, section, 0);
                 this.gaTracker.trackError('pdf_export_error', error.message);
                 this.hideProgress();
                 this.showToast('❌ PDF-Export fehlgeschlagen: ' + error.message, 'danger');
             }
+        }
+
+        // Gathers section-specific inputs (as label/value rows) and results
+        // for the PDF. Recomputes on-demand when no cached result is available
+        // so the user does not have to remember to hit "Berechnen" first.
+        async _collectPDFPayloadForSection(section) {
+            const fmtCur = v => this.formatCurrency(v || 0);
+            const fmtPct = v => `${parseFloat(v || 0).toFixed(1)}%`;
+            const fmtNum = v => String(v ?? '');
+            const fmtBool = v => v ? 'Ja' : 'Nein';
+            const fmtYears = v => `${v} Jahre`;
+
+            if (section === 'verkauf') {
+                const data = this.collectFormData();
+                let results = this.cache.get(JSON.stringify(data));
+                let warning = null;
+                if (!results && data.kaufpreis && data.verkaufspreis && data.haltedauer !== undefined) {
+                    try {
+                        results = await this.calculateInWorker(data);
+                        this.cache.set(JSON.stringify(data), results);
+                    } catch (e) {
+                        warning = 'Berechnung schlug fehl - PDF enthält nur Eingabedaten.';
+                    }
+                } else if (!results) {
+                    warning = 'Noch keine Berechnung vorhanden - PDF enthält nur Eingabedaten.';
+                }
+                const inputRows = this._rowsFromMap(data, [
+                    ['kaufpreis',         'Kaufpreis',                  fmtCur],
+                    ['verkaufspreis',     'Verkaufspreis',              fmtCur],
+                    ['nebenkosten_kauf',  'Nebenkosten Kauf',           fmtCur],
+                    ['nebenkosten_verkauf','Nebenkosten Verkauf',       fmtCur],
+                    ['modernisierung',    'Modernisierung',             fmtCur],
+                    ['haltedauer',        'Haltedauer',                 fmtYears],
+                    ['steuersatz',        'Persönlicher Steuersatz',    fmtPct],
+                    ['kirchensteuer',     'Kirchensteuer',              fmtPct],
+                    ['bundesland',        'Bundesland',                 v => this.pdfExporter.getBundeslandName(v)],
+                    ['werbungskosten',    'Werbungskosten',             fmtCur],
+                    ['abschreibungen',    'Abschreibungen (AfA)',       fmtCur],
+                    ['immobilientyp',     'Immobilientyp',              fmtNum],
+                    ['inflation-adjustment','Inflationsbereinigung',    fmtBool],
+                    ['kaufjahr',          'Kaufjahr',                   fmtNum],
+                    ['inflationsrate',    'Inflationsrate p.a.',        fmtPct]
+                ]);
+                return {
+                    title: 'Verkaufssteuer-Optimierung 2026',
+                    inputRows,
+                    results,
+                    warning
+                };
+            }
+
+            if (section === 'grundsteuer') {
+                const data = this.collectGrundsteuerData();
+                let results = null;
+                let warning = null;
+                if (data.grundstuecksflaeche > 0 && data.wohnflaeche > 0) {
+                    try {
+                        results = await this.calculationEngine.calculate('grundsteuer', data);
+                    } catch (e) { warning = 'Berechnung schlug fehl.'; }
+                } else {
+                    warning = 'Bitte erst Grundsteuer berechnen.';
+                }
+                const inputRows = this._rowsFromMap(data, [
+                    ['grundstuecksflaeche','Grundstücksfläche',         v => `${v} m²`],
+                    ['wohnflaeche',       'Wohnfläche',                 v => `${v} m²`],
+                    ['baujahr',           'Baujahr',                    fmtNum],
+                    ['immobilientyp',     'Immobilientyp',              fmtNum],
+                    ['bundesland',        'Bundesland',                 v => this.pdfExporter.getBundeslandName(v)],
+                    ['hebesatz',          'Hebesatz',                   v => `${v} %`]
+                ]);
+                return { title: 'Grundsteuer-Reform 2026', inputRows, results, warning };
+            }
+
+            if (section === 'erbschaft') {
+                const data = this.collectErbschaftData();
+                let results = this.sectionData?.erbschaftResults || null;
+                let warning = null;
+                if (!results && data.immobilienwert > 0 && data.verwandtschaftsgrad) {
+                    try {
+                        results = await this.calculationEngine.calculate('erbschaft', data);
+                    } catch (e) { warning = 'Berechnung schlug fehl.'; }
+                } else if (!results) {
+                    warning = 'Bitte erst Erbschaftsteuer berechnen.';
+                }
+                const inputRows = this._rowsFromMap(data, [
+                    ['immobilienwert',    'Immobilienwert',             fmtCur],
+                    ['verwandtschaftsgrad','Verwandtschaftsgrad',       fmtNum],
+                    ['immobilienart',     'Immobilienart',              fmtNum],
+                    ['sonstiges_vermoegen','Sonstiges Vermögen',        fmtCur],
+                    ['selbstnutzung',     'Selbstnutzung (Familienheim)',fmtBool],
+                    ['lebzeitige_uebertragung','Übertragung zu Lebzeiten',fmtBool]
+                ]);
+                return { title: 'Erbschaftsteuer-Berechnung 2026', inputRows, results, warning };
+            }
+
+            if (section === 'schenkung') {
+                const data = this.collectSchenkungData();
+                let results = null;
+                let warning = null;
+                if (data.immobilienwert > 0 && data.beschenkter) {
+                    try {
+                        results = await this.calculationEngine.calculate('schenkung', data);
+                    } catch (e) { warning = 'Berechnung schlug fehl.'; }
+                } else {
+                    warning = 'Bitte erst Schenkungsteuer berechnen.';
+                }
+                const inputRows = this._rowsFromMap(data, [
+                    ['immobilienwert',    'Immobilienwert',             fmtCur],
+                    ['beschenkter',       'Beschenkter',                fmtNum],
+                    ['vorherige_schenkungen','Vorherige Schenkungen',   fmtCur],
+                    ['schenkungsart',     'Art der Schenkung',          fmtNum],
+                    ['anteil',            'Anteil (%)',                 v => `${v} %`],
+                    ['niesbrauchswert',   'Nießbrauchswert (jährlich)', fmtCur],
+                    ['alter_schenker',    'Alter des Schenkers',        fmtYears]
+                ]);
+                return { title: 'Schenkungsteuer-Planung 2026', inputRows, results, warning };
+            }
+
+            if (section === 'cashflow') {
+                const data = this.collectCashflowData();
+                let results = null;
+                let warning = null;
+                if (data.mieteinnahmen > 0) {
+                    try {
+                        results = await this.calculationEngine.calculate('cashflow', data);
+                    } catch (e) { warning = 'Berechnung schlug fehl.'; }
+                } else {
+                    warning = 'Bitte erst Cash-Flow Analyse durchführen.';
+                }
+                const inputRows = this._rowsFromMap(data, [
+                    ['mieteinnahmen',     'Monatliche Mieteinnahmen',   fmtCur],
+                    ['betriebskosten',    'Monatliche Betriebskosten',  fmtCur],
+                    ['finanzierungskosten','Monatliche Finanzierung',   fmtCur],
+                    ['abschreibungen',    'Abschreibungen (AfA, jährl.)',fmtCur],
+                    ['steuersatz',        'Persönlicher Steuersatz',    fmtPct],
+                    ['analysezeitraum',   'Analysezeitraum',            fmtYears],
+                    ['mietsteigerung',    'Mietsteigerung p.a.',        fmtPct],
+                    ['verkaufserloes',    'Geplanter Verkaufserlös',    fmtCur]
+                ]);
+                return { title: 'Cash-Flow Analyse 2026', inputRows, results, warning };
+            }
+
+            if (section === 'strategie') {
+                const data = this.collectStrategyData();
+                let results = null;
+                let warning = null;
+                if (data.portfolio_wert > 0) {
+                    try {
+                        results = await this.performKIStrategyGeneration(data);
+                    } catch (e) { warning = 'Strategiegenerierung schlug fehl.'; }
+                } else {
+                    warning = 'Bitte erst Portfolio-Eckdaten eingeben.';
+                }
+                const inputRows = this._rowsFromMap(data, [
+                    ['portfolio_anzahl',  'Anzahl Immobilien',          fmtNum],
+                    ['portfolio_wert',    'Portfolio-Wert',             fmtCur],
+                    ['strategisches_ziel','Strategisches Ziel',         fmtNum],
+                    ['planungshorizont',  'Planungshorizont',           fmtNum],
+                    ['familiensituation', 'Familiensituation',          fmtNum],
+                    ['jahreseinkommen',   'Jahreseinkommen',            fmtNum],
+                    ['international',     'Internationale Komponente',  fmtBool],
+                    ['risikobereitschaft','Risikobereitschaft',         fmtNum]
+                ]);
+                return { title: 'KI-Strategievorschläge (heuristisch)', inputRows, results, warning };
+            }
+
+            return { title: 'Bericht', inputRows: [], results: null, warning: 'Unbekannte Sektion.' };
+        }
+
+        _rowsFromMap(data, schema) {
+            const rows = [];
+            for (const [key, label, fmt] of schema) {
+                const v = data?.[key];
+                if (v === undefined || v === null || v === '' || (typeof v === 'number' && v === 0 && !['anteil'].includes(key))) continue;
+                rows.push({ label, value: fmt(v) });
+            }
+            return rows;
         }
 
         // Enhanced Analytics
