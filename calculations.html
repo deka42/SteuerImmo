@@ -477,14 +477,24 @@
                     <input type="number" id="kaufpreis" step="0.01" placeholder="z.B. 350000">
                 </div>
                 <div class="form-col">
-                    <label for="bundeslandGrunderwerb">Bundesland:</label>
+                    <label for="bundeslandGrunderwerb">Bundesland (GrESt-Sätze Stand 2026):</label>
                     <select id="bundeslandGrunderwerb">
-                        <option value="3.5">Bayern, Sachsen (3,5%)</option>
-                        <option value="5.0">Baden-Württemberg, Bremen, Niedersachsen, Rheinland-Pfalz (5,0%)</option>
-                        <option value="5.5">Hamburg (5,5%)</option>
-                        <option value="6.0">Hessen, Mecklenburg-Vorpommern, Sachsen-Anhalt (6,0%)</option>
-                        <option value="6.5">Berlin, Brandenburg, Schleswig-Holstein, Thüringen (6,5%)</option>
-                        <option value="6.5">Nordrhein-Westfalen, Saarland (6,5%)</option>
+                        <option value="3.5">Bayern (3,5 %)</option>
+                        <option value="5.0">Baden-Württemberg (5,0 %)</option>
+                        <option value="5.0">Bremen (5,0 %)</option>
+                        <option value="5.0">Niedersachsen (5,0 %)</option>
+                        <option value="5.0">Rheinland-Pfalz (5,0 %)</option>
+                        <option value="5.0">Sachsen-Anhalt (5,0 %)</option>
+                        <option value="5.0">Thüringen (5,0 % seit 1.1.2024)</option>
+                        <option value="5.5">Hamburg (5,5 % seit 1.1.2023)</option>
+                        <option value="5.5">Sachsen (5,5 % seit 1.1.2023)</option>
+                        <option value="6.0">Berlin (6,0 %)</option>
+                        <option value="6.0">Hessen (6,0 %)</option>
+                        <option value="6.0">Mecklenburg-Vorpommern (6,0 %)</option>
+                        <option value="6.5">Brandenburg (6,5 %)</option>
+                        <option value="6.5">Nordrhein-Westfalen (6,5 %)</option>
+                        <option value="6.5">Saarland (6,5 %)</option>
+                        <option value="6.5">Schleswig-Holstein (6,5 %)</option>
                     </select>
                 </div>
             </div>
@@ -563,9 +573,19 @@
                     <input type="number" id="steuersatz" step="0.1" placeholder="z.B. 42" min="14" max="45">
                 </div>
             </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="kirchensteuer">Kirchensteuer (%):</label>
+                    <select id="kirchensteuer">
+                        <option value="0">0% (Konfessionslos)</option>
+                        <option value="8">8% (Bayern, Baden-Württemberg)</option>
+                        <option value="9" selected>9% (übrige Bundesländer)</option>
+                    </select>
+                </div>
+            </div>
             <div class="form-group">
                 <label>
-                    <input type="checkbox" id="eigennutzung3Jahre"> 
+                    <input type="checkbox" id="eigennutzung3Jahre">
                     Eigennutzung: Immobilie wurde im Verkaufsjahr und den beiden vorangehenden Kalenderjahren selbst bewohnt (3-Jahres-Regel)
                 </label>
             </div>
@@ -584,7 +604,19 @@
                 <span class="result-value" id="veraeusserungsgewinn">0,00 €</span>
             </div>
             <div class="result-item">
-                <span class="result-label">Spekulationssteuer:</span>
+                <span class="result-label">Einkommensteuer:</span>
+                <span class="result-value" id="spek_est">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Solidaritätszuschlag (§ Soli-Freigrenze):</span>
+                <span class="result-value" id="spek_soli">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Kirchensteuer:</span>
+                <span class="result-value" id="spek_kist">0,00 €</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Spekulationssteuer gesamt:</span>
                 <span class="result-value highlight" id="spekulationssteuerBetrag">0,00 €</span>
             </div>
             <div class="result-item">
@@ -778,6 +810,7 @@
                         <option value="ehepartner">Ehepartner/Lebenspartner</option>
                         <option value="kind">Kind/Stiefkind</option>
                         <option value="enkel">Enkelkind</option>
+                        <option value="urenkel">Urenkel</option>
                         <option value="eltern">Eltern/Großeltern</option>
                         <option value="geschwister">Geschwister</option>
                         <option value="neffe">Neffe/Nichte</option>
@@ -795,8 +828,24 @@
                     <input type="number" id="schulden" step="0.01" placeholder="z.B. 100000">
                 </div>
                 <div class="form-col">
+                    <label for="immobilienart_erbe">Immobilienart:</label>
+                    <select id="immobilienart_erbe">
+                        <option value="eigenheim">Eigenheim (selbst bewohnt)</option>
+                        <option value="vermietung">Zu Wohnzwecken vermietet (§ 13d ErbStG)</option>
+                        <option value="ferienhaus">Ferienhaus</option>
+                        <option value="gewerbe">Gewerbeimmobilie</option>
+                        <option value="grundstueck">Unbebautes Grundstück</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-col">
+                    <label for="wohnflaeche_erbe">Wohnfläche (m², für Familienheim-Regelung Kinder):</label>
+                    <input type="number" id="wohnflaeche_erbe" step="1" placeholder="z.B. 150">
+                </div>
+                <div class="form-col">
                     <label for="eigennutzung_erbe">
-                        <input type="checkbox" id="eigennutzung_erbe"> Eigennutzung durch Erben geplant
+                        <input type="checkbox" id="eigennutzung_erbe"> Familienheim - Eigennutzung durch Erben (§ 13 Abs. 1 Nr. 4b/4c ErbStG)
                     </label>
                 </div>
             </div>
@@ -854,6 +903,7 @@
                         <option value="ehepartner">Ehepartner/Lebenspartner</option>
                         <option value="kind">Kind/Stiefkind</option>
                         <option value="enkel">Enkelkind</option>
+                        <option value="urenkel">Urenkel</option>
                         <option value="eltern">Eltern/Großeltern</option>
                         <option value="geschwister">Geschwister</option>
                         <option value="neffe">Neffe/Nichte</option>
@@ -1014,28 +1064,35 @@
         loadFormData();
     });
 
-    // Tab Management
-    function showTab(tabName) {
+    // Tab Management - tolerant of being called programmatically (no event)
+    function showTab(tabName, evt) {
         // Save current form data before switching
         saveFormData();
-        
+
         // Hide all tabs
         const tabs = document.querySelectorAll('.tab-content');
         tabs.forEach(tab => {
             tab.classList.remove('active');
         });
-        
+
         // Remove active class from all nav tabs
         const navTabs = document.querySelectorAll('.nav-tab');
         navTabs.forEach(tab => {
             tab.classList.remove('active');
         });
-        
+
         // Show selected tab
         document.getElementById(tabName).classList.add('active');
-        
-        // Add active class to clicked nav tab
-        event.target.classList.add('active');
+
+        // Add active class to the nav tab. Prefer the click target if provided,
+        // otherwise fall back to matching by onclick text.
+        const e = evt || (typeof event !== 'undefined' ? event : null);
+        if (e && e.target) {
+            e.target.classList.add('active');
+        } else {
+            const match = Array.from(navTabs).find(t => (t.getAttribute('onclick') || '').includes(`'${tabName}'`));
+            if (match) match.classList.add('active');
+        }
         
         // Update current tab
         currentTab = tabName;
@@ -1176,41 +1233,65 @@
         saveFormData();
     }
 
-    // KORRIGIERTE Spekulationssteuer Calculation
+    // Spekulationssteuer (§ 23 EStG) Stand 2026:
+    //  - Steuerfrei nach 10 Jahren Haltedauer oder bei 3-Jahres-Eigennutzung.
+    //  - Steuerpflichtiger Gewinn = persönlicher Grenzsteuersatz × Gewinn
+    //    + Solidaritätszuschlag (mit Freigrenze ~19.950 € / Milderungszone bis ~33.912 €)
+    //    + Kirchensteuer (8 % BY/BW, sonst 9 %, jeweils auf Einkommensteuer).
+    //  - Freigrenze 600 € (§ 23 Abs. 3 S. 5 EStG).
     function calculateSpekulation() {
         const verkaufspreis = parseFloat(document.getElementById('verkaufspreis').value) || 0;
         const anschaffungskosten = parseFloat(document.getElementById('anschaffungskosten').value) || 0;
         const werbungskosten = parseFloat(document.getElementById('werbungskosten').value) || 0;
         const steuersatz = parseFloat(document.getElementById('steuersatz').value) || 0;
+        const kirchensteuerSatz = parseFloat(document.getElementById('kirchensteuer').value) || 0;
         const eigennutzung3Jahre = document.getElementById('eigennutzung3Jahre').checked;
-        
+
         const anschaffungsdatum = new Date(document.getElementById('anschaffungsdatum').value);
         const verkaufsdatum = new Date(document.getElementById('verkaufsdatum').value);
-        
+
         if (verkaufspreis === 0 || anschaffungskosten === 0 || !anschaffungsdatum || !verkaufsdatum) {
             alert('Bitte füllen Sie alle Pflichtfelder aus.');
             return;
         }
-        
+
         const haltedauer = (verkaufsdatum - anschaffungsdatum) / (1000 * 60 * 60 * 24 * 365.25);
         const veraeusserungsgewinn = verkaufspreis - anschaffungskosten - werbungskosten;
-        
-        let spekulationssteuer = 0;
-        let nettoerloes = verkaufspreis;
-        
-        // Korrigierte Logik: 10-Jahresfrist ODER 3-Jahres-Eigennutzung
-        if (haltedauer < 10 && !eigennutzung3Jahre) {
-            if (veraeusserungsgewinn > 600) { // Freigrenze 600 Euro
-                spekulationssteuer = Math.max(0, veraeusserungsgewinn * (steuersatz / 100));
-                nettoerloes = verkaufspreis - spekulationssteuer;
+
+        let est = 0;
+        let soli = 0;
+        let kist = 0;
+
+        // 10-Jahresfrist ODER 3-Jahres-Eigennutzung -> steuerfrei.
+        // Sonst: Freigrenze 600 € (§ 23 Abs. 3 S. 5 EStG).
+        if (haltedauer < 10 && !eigennutzung3Jahre && veraeusserungsgewinn > 600) {
+            est = veraeusserungsgewinn * (steuersatz / 100);
+
+            // Soli 2026: 5,5 % auf ESt, Freigrenze ~19.950 €, Milderungszone bis ~33.912 €
+            const soliFreigrenze = 19950;
+            const soliVoll = 33912;
+            let soliAnteil = 0;
+            if (est > soliVoll) {
+                soliAnteil = 1;
+            } else if (est > soliFreigrenze) {
+                soliAnteil = (est - soliFreigrenze) / (soliVoll - soliFreigrenze);
             }
+            soli = est * 0.055 * soliAnteil;
+
+            kist = est * (kirchensteuerSatz / 100);
         }
-        
+
+        const spekulationssteuer = est + soli + kist;
+        const nettoerloes = verkaufspreis - spekulationssteuer;
+
         document.getElementById('haltedauer').textContent = haltedauer.toFixed(1) + ' Jahre';
         document.getElementById('veraeusserungsgewinn').textContent = formatCurrency(veraeusserungsgewinn);
+        document.getElementById('spek_est').textContent = formatCurrency(est);
+        document.getElementById('spek_soli').textContent = formatCurrency(soli);
+        document.getElementById('spek_kist').textContent = formatCurrency(kist);
         document.getElementById('spekulationssteuerBetrag').textContent = formatCurrency(spekulationssteuer);
         document.getElementById('nettoerloes').textContent = formatCurrency(nettoerloes);
-        
+
         document.getElementById('spekulationResult').style.display = 'block';
         saveFormData();
     }
@@ -1299,143 +1380,162 @@
         saveFormData();
     }
 
-    // Erbschaftssteuer Calculation (bereits korrekt)
+    // Erbschaftsteuer (Stand 2026):
+    //  - § 16 ErbStG Freibeträge (unverändert seit 2009)
+    //  - § 15 ErbStG Steuerklassen: Eltern bei Erbschaft Stkl. I (anders als Schenkung!),
+    //    Geschwister/Neffe/Nichte Stkl. II, Sonstige/Fremde Stkl. III
+    //  - § 19 ErbStG Stufentarif (voller Satz auf gesamten Erwerb) mit Härteausgleich
+    //    nach Abs. 3 (50 % bzw. 75 % oberhalb 6 Mio €)
+    //  - § 13 Abs. 1 Nr. 4b/4c Familienheim: Ehepartner volle Befreiung,
+    //    Kinder bis 200 m² (anteilig darüber)
+    //  - § 13d 10 % Abschlag nur für zu Wohnzwecken vermietete Immobilien
+    function _calcProgressiveErbschaftsteuer(erwerb, steuerklasse) {
+        if (erwerb <= 0) return 0;
+        // § 19 Abs. 1 ErbStG Wertgrenzen
+        const grenzen = [75000, 300000, 600000, 6000000, 13000000, 26000000];
+        const tarife = {
+            1: [7, 11, 15, 19, 23, 27, 30],
+            2: [15, 20, 25, 30, 35, 40, 43],
+            3: [30, 30, 30, 30, 50, 50, 50]
+        };
+        const tarif = tarife[steuerklasse] || tarife[3];
+        let bracket = grenzen.length;
+        for (let i = 0; i < grenzen.length; i++) {
+            if (erwerb <= grenzen[i]) { bracket = i; break; }
+        }
+        const satz = tarif[bracket] / 100;
+        let steuer = erwerb * satz;
+        // Härteausgleich § 19 Abs. 3 ErbStG
+        if (bracket > 0) {
+            const vorGrenze = grenzen[bracket - 1];
+            const satzVor = tarif[bracket - 1] / 100;
+            const steuerVorGrenze = vorGrenze * satzVor;
+            const mehrErwerb = erwerb - vorGrenze;
+            const haerteFaktor = vorGrenze >= 6000000 ? 0.75 : 0.50;
+            const steuerHaerteausgleich = steuerVorGrenze + mehrErwerb * haerteFaktor;
+            steuer = Math.min(steuer, Math.max(steuerVorGrenze, steuerHaerteausgleich));
+        }
+        return Math.max(0, steuer);
+    }
+
     function calculateErbschaftssteuer() {
         const immobilienwert = parseFloat(document.getElementById('immobilienwert').value) || 0;
         const sonstigesVermoegen = parseFloat(document.getElementById('sonstigesVermoegen').value) || 0;
         const schulden = parseFloat(document.getElementById('schulden').value) || 0;
         const erbenstellung = document.getElementById('erbenstellung').value;
+        const immobilienart = document.getElementById('immobilienart_erbe')?.value || 'eigenheim';
+        const wohnflaeche = parseFloat(document.getElementById('wohnflaeche_erbe')?.value) || 0;
         const eigennutzung = document.getElementById('eigennutzung_erbe').checked;
-        
+
         if (immobilienwert === 0) {
             alert('Bitte geben Sie den Immobilienwert ein.');
             return;
         }
-        
-        // Korrekte Freibeträge 2026
+
+        // § 16 ErbStG Freibeträge
         const freibetraege = {
             'ehepartner': 500000,
             'kind': 400000,
             'enkel': 200000,
+            'urenkel': 100000,
             'eltern': 100000,
             'geschwister': 20000,
             'neffe': 20000,
             'sonstige': 20000
         };
-        
-        // Steuersätze nach Steuerklassen
-        const steuersaetze = {
-            'ehepartner': [7, 11, 15, 19, 23, 27, 30],
-            'kind': [7, 11, 15, 19, 23, 27, 30],
-            'enkel': [7, 11, 15, 19, 23, 27, 30],
-            'eltern': [15, 20, 25, 30, 35, 40, 43],
-            'geschwister': [30, 35, 40, 45, 50],
-            'neffe': [30, 35, 40, 45, 50],
-            'sonstige': [30, 35, 40, 45, 50]
+
+        // § 15 ErbStG Steuerklassen bei Erbschaft (Eltern = Stkl. I!)
+        const steuerklassen = {
+            'ehepartner': 1, 'kind': 1, 'enkel': 1, 'urenkel': 1, 'eltern': 1,
+            'geschwister': 2, 'neffe': 2,
+            'sonstige': 3
         };
-        
-        let bewerteterImmobilienwert = immobilienwert;
-        
-        // Eigennutzung: 10% Abschlag möglich
-        if (eigennutzung) {
-            bewerteterImmobilienwert = immobilienwert * 0.9;
+
+        // Familienheim § 13 Abs. 1 Nr. 4b/4c ErbStG
+        let familienheimBefreit = 0;
+        if (immobilienart === 'eigenheim' && eigennutzung) {
+            if (erbenstellung === 'ehepartner') {
+                familienheimBefreit = immobilienwert;
+            } else if (erbenstellung === 'kind') {
+                if (wohnflaeche > 0 && wohnflaeche <= 200) {
+                    familienheimBefreit = immobilienwert;
+                } else if (wohnflaeche > 200) {
+                    familienheimBefreit = immobilienwert * (200 / wohnflaeche);
+                }
+            }
         }
-        
-        const gesamtvermoegen = bewerteterImmobilienwert + sonstigesVermoegen - schulden;
+
+        // § 13d ErbStG 10 % Abschlag für vermietete Wohnimmobilien
+        const vermietabschlag = immobilienart === 'vermietung' ? immobilienwert * 0.10 : 0;
+
+        const immobilienBesteuert = Math.max(0, immobilienwert - familienheimBefreit - vermietabschlag);
+        const gesamtvermoegen = immobilienBesteuert + sonstigesVermoegen - schulden;
+
         const freibetrag = freibetraege[erbenstellung] || 20000;
         const steuerpflichtigerErwerb = Math.max(0, gesamtvermoegen - freibetrag);
-        
-        // Steuersatz bestimmen
-        let steuersatz = 0;
-        const saetze = steuersaetze[erbenstellung] || [30, 35, 40, 45, 50];
-        
-        if (steuerpflichtigerErwerb <= 75000) steuersatz = saetze[0];
-        else if (steuerpflichtigerErwerb <= 300000) steuersatz = saetze[1];
-        else if (steuerpflichtigerErwerb <= 600000) steuersatz = saetze[2];
-        else if (steuerpflichtigerErwerb <= 6000000) steuersatz = saetze[3];
-        else if (steuerpflichtigerErwerb <= 13000000) steuersatz = saetze[4];
-        else if (steuerpflichtigerErwerb <= 26000000) steuersatz = saetze[5] || saetze[4];
-        else steuersatz = saetze[6] || saetze[4];
-        
-        const erbschaftssteuer = steuerpflichtigerErwerb * (steuersatz / 100);
+        const steuerklasse = steuerklassen[erbenstellung] || 3;
+
+        const erbschaftssteuer = _calcProgressiveErbschaftsteuer(steuerpflichtigerErwerb, steuerklasse);
         const nettoerbschaft = gesamtvermoegen - erbschaftssteuer;
-        
+
         document.getElementById('gesamtvermoegen').textContent = formatCurrency(gesamtvermoegen);
         document.getElementById('freibetrag').textContent = formatCurrency(freibetrag);
         document.getElementById('steuerpflichtigerErwerb').textContent = formatCurrency(steuerpflichtigerErwerb);
         document.getElementById('erbschaftssteuerBetrag').textContent = formatCurrency(erbschaftssteuer);
         document.getElementById('nettoerbschaft').textContent = formatCurrency(nettoerbschaft);
-        
+
         document.getElementById('erbschaftssteuerResult').style.display = 'block';
         saveFormData();
     }
 
-    // Schenkungssteuer Calculation (bereits korrekt)
+    // Schenkungsteuer (Stand 2026):
+    //  - Selbe Freibeträge & Tarif wie Erbschaft, ABER:
+    //  - Eltern sind bei Schenkung in Steuerklasse II (anders als bei Erbschaft Stkl. I)
+    //  - Eltern haben bei Schenkung Freibetrag nur 20.000 € (statt 100.000 € bei Erbschaft)
+    //  - Kein Familienheim-Privileg, kein § 13d-Abschlag
     function calculateSchenkungssteuer() {
         const schenkungswert = parseFloat(document.getElementById('schenkungswert').value) || 0;
         const vorschenkungen = parseFloat(document.getElementById('vorschenkungen').value) || 0;
         const beschenkterStatus = document.getElementById('beschenkterStatus').value;
-        const eigennutzung = document.getElementById('eigennutzungSchenkung').checked;
-        
+
         if (schenkungswert === 0) {
             alert('Bitte geben Sie den Wert der Schenkung ein.');
             return;
         }
-        
-        // Korrekte Freibeträge 2026 (alle 10 Jahre)
+
+        // § 16 ErbStG Freibeträge (Schenkung: Eltern 20.000 €)
         const freibetraege = {
             'ehepartner': 500000,
             'kind': 400000,
             'enkel': 200000,
+            'urenkel': 100000,
             'eltern': 20000,
             'geschwister': 20000,
             'neffe': 20000,
             'sonstige': 20000
         };
-        
-        // Steuersätze nach Steuerklassen
-        const steuersaetze = {
-            'ehepartner': [7, 11, 15, 19, 23, 27, 30],
-            'kind': [7, 11, 15, 19, 23, 27, 30],
-            'enkel': [7, 11, 15, 19, 23, 27, 30],
-            'eltern': [30, 35, 40, 45, 50],
-            'geschwister': [30, 35, 40, 45, 50],
-            'neffe': [30, 35, 40, 45, 50],
-            'sonstige': [30, 35, 40, 45, 50]
+
+        // § 15 ErbStG Steuerklassen bei Schenkung (Eltern = Stkl. II)
+        const steuerklassen = {
+            'ehepartner': 1, 'kind': 1, 'enkel': 1, 'urenkel': 1,
+            'eltern': 2, 'geschwister': 2, 'neffe': 2,
+            'sonstige': 3
         };
-        
-        let bewerteterSchenkungswert = schenkungswert;
-        
-        // Eigennutzung: 10% Abschlag möglich
-        if (eigennutzung) {
-            bewerteterSchenkungswert = schenkungswert * 0.9;
-        }
-        
-        const gesamtschenkung = bewerteterSchenkungswert + vorschenkungen;
+
+        const gesamtschenkung = schenkungswert + vorschenkungen;
         const freibetrag = freibetraege[beschenkterStatus] || 20000;
         const steuerpflichtigerBetrag = Math.max(0, gesamtschenkung - freibetrag);
-        
-        // Steuersatz bestimmen
-        let steuersatz = 0;
-        const saetze = steuersaetze[beschenkterStatus] || [30, 35, 40, 45, 50];
-        
-        if (steuerpflichtigerBetrag <= 75000) steuersatz = saetze[0];
-        else if (steuerpflichtigerBetrag <= 300000) steuersatz = saetze[1];
-        else if (steuerpflichtigerBetrag <= 600000) steuersatz = saetze[2];
-        else if (steuerpflichtigerBetrag <= 6000000) steuersatz = saetze[3];
-        else if (steuerpflichtigerBetrag <= 13000000) steuersatz = saetze[4];
-        else if (steuerpflichtigerBetrag <= 26000000) steuersatz = saetze[5] || saetze[4];
-        else steuersatz = saetze[6] || saetze[4];
-        
-        const schenkungssteuer = steuerpflichtigerBetrag * (steuersatz / 100);
-        const nettoschenkung = bewerteterSchenkungswert - schenkungssteuer;
-        
+        const steuerklasse = steuerklassen[beschenkterStatus] || 3;
+
+        const schenkungssteuer = _calcProgressiveErbschaftsteuer(steuerpflichtigerBetrag, steuerklasse);
+        const nettoschenkung = schenkungswert - schenkungssteuer;
+
         document.getElementById('gesamtschenkung').textContent = formatCurrency(gesamtschenkung);
         document.getElementById('freibetragSchenkung').textContent = formatCurrency(freibetrag);
         document.getElementById('steuerpflichtigerBetragSchenkung').textContent = formatCurrency(steuerpflichtigerBetrag);
         document.getElementById('schenkungssteuerBetrag').textContent = formatCurrency(schenkungssteuer);
         document.getElementById('nettoschenkung').textContent = formatCurrency(nettoschenkung);
-        
+
         document.getElementById('schenkungssteuerResult').style.display = 'block';
         saveFormData();
     }
