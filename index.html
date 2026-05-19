@@ -2432,22 +2432,22 @@ font-weight: 700 !important;
     <div class="card-header">
         <h3 style="font-size: 1rem;">⚡ System Status</h3>
     </div>
-    <div style="font-size: 0.8rem;">
+    <div style="font-size: 0.8rem;" id="system-status-panel">
         <div style="margin-bottom: 0.5rem;">
-            <span>API Status:</span> 
-            <span id="api-status" style="color: var(--success-solid);">✅ Online</span>
+            <span>Modus:</span>
+            <span id="api-status" title="Berechnungs-Modus" style="color: var(--success-solid);">Initialisiere…</span>
         </div>
         <div style="margin-bottom: 0.5rem;">
-            <span>Cache:</span> 
-            <span id="cache-status" style="color: var(--success-solid);">✅ Aktiv</span>
+            <span>Cache:</span>
+            <span id="cache-status" title="Cache-Trefferquote">leer</span>
         </div>
         <div style="margin-bottom: 0.5rem;">
-            <span>Fehlerrate:</span> 
-            <span id="error-rate-status">0%</span>
+            <span>Fehler:</span>
+            <span id="error-rate-status" title="Anzahl protokollierter Fehler">0</span>
         </div>
         <div>
-            <span>Version:</span> 
-            <span style="color: var(--primary-solid);">v4.0.8-enhanced</span>
+            <span>Version:</span>
+            <span id="version-status" style="color: var(--primary-solid);">…</span>
         </div>
     </div>
 </div>
@@ -3552,14 +3552,13 @@ List available plugins
 
         updateErrorDisplay() {
             const errorLogElement = document.getElementById('error-log');
-            const errorRateElement = document.getElementById('error-rate-status');
-            
+
             if (errorLogElement) {
                 if (this.errorLog.length === 0) {
                     errorLogElement.innerHTML = '<div style="color: var(--success-solid);">✅ Keine Fehler</div>';
                 } else {
                     const recentErrors = this.errorLog.slice(-5);
-                    errorLogElement.innerHTML = recentErrors.map(error => 
+                    errorLogElement.innerHTML = recentErrors.map(error =>
                         `<div style="color: var(--danger-solid); margin-bottom: 0.25rem;">
                             <strong>${this.escapeHtml(error.type)}:</strong> ${this.escapeHtml(error.message.substring(0, 50))}...
                             <small style="display: block; color: #6c757d;">${new Date(error.timestamp).toLocaleTimeString()}</small>
@@ -3567,11 +3566,12 @@ List available plugins
                     ).join('');
                 }
             }
-            
-            if (errorRateElement) {
-                const errorRate = this.errorLog.length > 0 ? `${this.errorLog.length} Fehler` : '0%';
-                errorRateElement.textContent = errorRate;
-                errorRateElement.style.color = this.errorLog.length > 0 ? 'var(--danger-solid)' : 'var(--success-solid)';
+
+            // The sidebar System Status panel ("Fehler" row) is owned by
+            // updateSystemStatusPanel. Trigger it now so an uncaught error
+            // captured by setupGlobalHandlers shows up immediately.
+            if (window.app && typeof window.app.updateSystemStatusPanel === 'function') {
+                window.app.updateSystemStatusPanel();
             }
         }
 
@@ -4631,6 +4631,7 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
                 
                 this.showToast('🚀 Ultimate Enterprise Suite Enhanced geladen', 'success');
                 this.updatePerformanceIndicator('Ready');
+                this.updateSystemStatusPanel();
                 
                 // Track successful initialization
                 this.gaTracker.trackUserJourney('app_start', 'initialization_completed', {
@@ -5638,12 +5639,9 @@ validateFormData(data, section = null) {
                 this.updateTaxChart(results.structures);
             }
 
-            // Update API status
-            const apiStatusEl = this.getCachedElement('api-status');
-            const cacheStatusEl = this.getCachedElement('cache-status');
-            
-            if (apiStatusEl) apiStatusEl.innerHTML = '✅ Online';
-            if (cacheStatusEl) cacheStatusEl.innerHTML = '✅ Aktiv';
+            // Refresh the live System Status panel after every calculation
+            // so the cache hit-rate and error count update immediately.
+            this.updateSystemStatusPanel();
         }
 
         updateTaxChart(structures) {
@@ -8525,7 +8523,7 @@ get debouncedCalculateErbschaftsteuer() {
         updateSessionMetrics() {
             const uptime = Date.now() - this.analytics.startTime;
             const uptimeMinutes = Math.floor(uptime / 60000);
-            
+
             const sessionStats = document.getElementById('session-stats');
             if (sessionStats) {
                 sessionStats.innerHTML = `
@@ -8534,6 +8532,61 @@ get debouncedCalculateErbschaftsteuer() {
                     <div>Fehlerrate: <span id="error-rate">${this.analytics.calculations > 0 ? (this.analytics.errors / this.analytics.calculations * 100).toFixed(1) : 0}%</span></div>
                     <div>Laufzeit: <span id="uptime">${uptimeMinutes}min</span></div>
                 `;
+            }
+
+            this.updateSystemStatusPanel();
+        }
+
+        // Live System Status sidebar card. Reflects real runtime state instead
+        // of the previous hardcoded "✅ Online" / "✅ Aktiv" stubs.
+        updateSystemStatusPanel() {
+            const modeEl = document.getElementById('api-status');
+            const cacheEl = document.getElementById('cache-status');
+            const errEl = document.getElementById('error-rate-status');
+            const verEl = document.getElementById('version-status');
+
+            if (modeEl) {
+                const workerActive = !!this.worker;
+                modeEl.textContent = workerActive ? '⚙️ Web Worker' : '🧵 Main Thread';
+                modeEl.style.color = workerActive ? 'var(--success-solid)' : 'var(--warning-solid)';
+                modeEl.title = workerActive
+                    ? 'Berechnungen laufen im Hintergrund-Worker.'
+                    : 'Worker nicht verfügbar - Fallback auf Main Thread.';
+            }
+
+            if (cacheEl) {
+                const calls = this.analytics.calculations;
+                const hits = this.analytics.cacheHits;
+                if (calls === 0) {
+                    cacheEl.textContent = 'leer';
+                    cacheEl.style.color = '';
+                } else {
+                    const hitRate = (hits / calls * 100).toFixed(0);
+                    cacheEl.textContent = `${hits}/${calls} (${hitRate} %)`;
+                    cacheEl.style.color = hits > 0 ? 'var(--success-solid)' : '';
+                }
+                cacheEl.title = `Cache-Treffer: ${hits} bei ${calls} Berechnungen`;
+            }
+
+            if (errEl) {
+                const errCount = this.errorHandler?.errorLog?.length ?? this.analytics.errors;
+                const calls = this.analytics.calculations;
+                if (errCount === 0) {
+                    errEl.textContent = '0';
+                    errEl.style.color = 'var(--success-solid)';
+                    errEl.title = 'Keine Fehler protokolliert.';
+                } else {
+                    const ratePart = calls > 0
+                        ? ` (${(this.analytics.errors / calls * 100).toFixed(0)} % der Berechnungen)`
+                        : '';
+                    errEl.textContent = `${errCount}${ratePart}`;
+                    errEl.style.color = 'var(--danger-solid)';
+                    errEl.title = `${errCount} Fehler protokolliert${ratePart}`;
+                }
+            }
+
+            if (verEl) {
+                verEl.textContent = 'v' + this.version;
             }
         }
 
