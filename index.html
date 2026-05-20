@@ -4023,7 +4023,8 @@ List available plugins
             if (!results) return y;
             const rows = [
                 ['Schenkungswert', this.formatCurrency(results.schenkungswert)],
-                ['Nießbrauchsabzug (§ 14 BewG)', this.formatCurrency(results.niesbrauchsabzug)],
+                ['Nießbrauchsabzug (§§ 14, 16 BewG)', this.formatCurrency(results.niesbrauchsabzug)],
+                ['Wohnrechtsabzug (§§ 14, 16 BewG)', this.formatCurrency(results.wohnrechtsabzug)],
                 ['Gesamterwerb (inkl. Vorschenkungen)', this.formatCurrency(results.gesamterwerb)],
                 ['Freibetrag', this.formatCurrency(results.freibetrag)],
                 ['Steuerpflichtiger Erwerb', this.formatCurrency(results.steuerpflichtiger_erwerb)],
@@ -4764,6 +4765,42 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
             super('schenkungssteuer');
         }
 
+        // Anlage 9a BewG - Vervielfältiger für lebenslängliche Nutzungen/
+        // Leistungen, basierend auf der unisex Sterbetafel des StatBA
+        // (Sterbetafel 2020/2022), Diskontsatz 5,5 % p.a.
+        // Werte hier in 5-Jahres-Schritten gerundet; dazwischen wird linear
+        // interpoliert. § 14 Abs. 1 BewG.
+        _vervielfaeltigerAnlage9a(alter) {
+            const tabelle = [
+                [20, 17.40], [25, 17.18], [30, 16.86], [35, 16.40],
+                [40, 15.74], [45, 14.81], [50, 13.61], [55, 12.10],
+                [60, 10.32], [65,  8.34], [70,  6.40], [75,  4.64],
+                [80,  3.18], [85,  2.07], [90,  1.31], [95,  0.78]
+            ];
+            if (alter <= tabelle[0][0]) return tabelle[0][1];
+            if (alter >= tabelle[tabelle.length - 1][0]) return tabelle[tabelle.length - 1][1];
+            for (let i = 0; i < tabelle.length - 1; i++) {
+                const [a1, v1] = tabelle[i];
+                const [a2, v2] = tabelle[i + 1];
+                if (alter >= a1 && alter <= a2) {
+                    const t = (alter - a1) / (a2 - a1);
+                    return v1 + t * (v2 - v1);
+                }
+            }
+            return tabelle[tabelle.length - 1][1];
+        }
+
+        // Kapitalwert eines lebenslänglichen Rechts (Nießbrauch oder
+        // dingliches Wohnungsrecht § 1093 BGB) nach §§ 14, 16 BewG.
+        // Jahreswert wird auf Steuerwert / 18,6 gedeckelt (§ 16 BewG).
+        _kapitalwertLebenslangesRecht(jahreswertRoh, alter, steuerwert) {
+            if (!(jahreswertRoh > 0) || !(alter > 0) || !(steuerwert > 0)) return 0;
+            const jahreswertCap = steuerwert / 18.6;
+            const jahreswert = Math.min(jahreswertRoh, jahreswertCap);
+            const vervielfaeltiger = this._vervielfaeltigerAnlage9a(alter);
+            return jahreswert * vervielfaeltiger;
+        }
+
         performCalculation(data) {
             // Schenkung: § 15 ErbStG -- Eltern fallen in Steuerklasse II (anders als Erbschaft)
             const freibetraege = {
@@ -4781,21 +4818,29 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
             const freibetrag = freibetraege[data.beschenkter] || 20000;
             let schenkungswert = data.immobilienwert || 0;
 
+            // Teilschenkung: Bemessungsgrundlage = Wert × Anteil
             if (data.schenkungsart === 'teilschenkung') {
                 schenkungswert = schenkungswert * ((data.anteil || 100) / 100);
             }
 
-            // Nießbrauchsabzug: Kapitalwert nach § 14 BewG, vereinfacht.
-            // Jahreswert × Vervielfältiger; Jahreswert max. Steuerwert / 18,6 (§ 16 BewG).
-            // Vervielfältiger hier als grobe Annäherung an Anlage 9a BewG.
+            // Nießbrauch (§ 1030 BGB) — Kapitalwert nach §§ 14, 16 BewG
+            // mit altersabhängigem Anlage-9a-Vervielfältiger.
             let niesbrauchsabzug = 0;
-            if (data.schenkungsart === 'niesbrauch' && data.niesbrauchswert > 0 && data.alter_schenker) {
-                const restlebenserwartung = Math.max(1, 85 - data.alter_schenker);
-                const vervielfaeltiger = Math.min(restlebenserwartung, 18.6);
-                const jahreswertCap = schenkungswert / 18.6;
-                const jahreswert = Math.min(data.niesbrauchswert, jahreswertCap);
-                niesbrauchsabzug = jahreswert * vervielfaeltiger;
+            if (data.schenkungsart === 'niesbrauch') {
+                niesbrauchsabzug = this._kapitalwertLebenslangesRecht(
+                    data.niesbrauchswert, data.alter_schenker, schenkungswert
+                );
                 schenkungswert = Math.max(0, schenkungswert - niesbrauchsabzug);
+            }
+
+            // Dingliches Wohnungsrecht (§ 1093 BGB) — gleicher Mechanismus
+            // wie Nießbrauch. Jahreswert = imputierter Mietwert des Wohnrechts.
+            let wohnrechtsabzug = 0;
+            if (data.schenkungsart === 'wohnrecht') {
+                wohnrechtsabzug = this._kapitalwertLebenslangesRecht(
+                    data.wohnrechtswert, data.alter_schenker, schenkungswert
+                );
+                schenkungswert = Math.max(0, schenkungswert - wohnrechtsabzug);
             }
 
             const gesamterwerb = schenkungswert + (data.vorherige_schenkungen || 0);
@@ -4819,6 +4864,7 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
                 gesamterwerb,
                 freibetrag,
                 niesbrauchsabzug,
+                wohnrechtsabzug,
                 steuerpflichtiger_erwerb,
                 schenkungssteuer,
                 nettoschenkung,
@@ -6091,6 +6137,7 @@ validateFormData(data, section = null) {
                     ['schenkungsart',     'Art der Schenkung',          fmtNum],
                     ['anteil',            'Anteil (%)',                 v => `${v} %`],
                     ['niesbrauchswert',   'Nießbrauchswert (jährlich)', fmtCur],
+                    ['wohnrechtswert',    'Wohnrechtswert (jährlich)',  fmtCur],
                     ['alter_schenker',    'Alter des Schenkers',        fmtYears]
                 ]);
                 return { title: 'Schenkungsteuer-Planung 2026', inputRows, results, warning };
@@ -6857,9 +6904,18 @@ validateFormData(data, section = null) {
         }
 
         restoreSchenkungData() {
+            // Always apply the field-visibility rules - even without saved
+            // data, the user should land on a form that only shows the
+            // inputs relevant for the default Schenkungsart (vollschenkung).
+            const current = document.getElementById('schenkungsart')?.value
+                || this.sectionData?.schenkung?.schenkungsart
+                || 'vollschenkung';
+            this.handleSchenkungsartChange(current);
+
             if (this.sectionData && this.sectionData.schenkung) {
                 this.populateSchenkungForm(this.sectionData.schenkung);
-                
+                this.handleSchenkungsartChange(this.sectionData.schenkung.schenkungsart || 'vollschenkung');
+
                 // Trigger calculation if real-time is enabled
                 if (this.realtimeEnabled) {
                     setTimeout(() => this.calculateSchenkungssteuer(), 300);
@@ -7580,37 +7636,45 @@ handleImmobilienartChange(newValue) {
                             <label class="form-label">
                                 🏠 Art der Schenkung
                             </label>
-                            <select id="schenkungsart" class="form-select" aria-describedby="schenkungsart-help">
+                            <select id="schenkungsart" class="form-select" aria-describedby="schenkungsart-help" onchange="app.handleSchenkungsartChange?.(this.value)">
                                 <option value="vollschenkung">Vollständige Schenkung</option>
                                 <option value="teilschenkung">Teilschenkung (Anteil)</option>
-                                <option value="niesbrauch">Schenkung mit Nießbrauch</option>
-                                <option value="wohnrecht">Schenkung mit Wohnrecht</option>
+                                <option value="niesbrauch">Schenkung mit Nießbrauch (§ 1030 BGB)</option>
+                                <option value="wohnrecht">Schenkung mit Wohnrecht (§ 1093 BGB)</option>
                             </select>
-                            <div class="form-help" id="schenkungsart-help">Art der geplanten Schenkung</div>
+                            <div class="form-help" id="schenkungsart-help">Wählen Sie die Bemessungsgrundlage. Anteil bzw. Jahreswert + Alter sind nur bei der jeweils gewählten Variante relevant.</div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="schenkungsanteil-group">
                             <label class="form-label">
                                 📊 Anteil bei Teilschenkung (%)
                             </label>
                             <input type="number" id="schenkungsanteil" class="form-input" placeholder="z.B. 50" min="1" max="100" step="1" aria-describedby="schenkungsanteil-help">
-                            <div class="form-help" id="schenkungsanteil-help">Nur bei Teilschenkung relevant</div>
+                            <div class="form-help" id="schenkungsanteil-help">Nur bei Teilschenkung. Bemessungsgrundlage = Immobilienwert × Anteil%.</div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="niesbrauchswert-group">
                             <label class="form-label">
-                                💰 Nießbrauchswert (jährlich)
+                                💰 Nießbrauchswert (Jahreswert)
                             </label>
                             <input type="number" id="niesbrauchswert" class="form-input" placeholder="z.B. 24.000" min="0" step="1000" aria-describedby="niesbrauchswert-help">
-                            <div class="form-help" id="niesbrauchswert-help">Jährlicher Nießbrauchswert (Miete oder Nutzungswert)</div>
+                            <div class="form-help" id="niesbrauchswert-help">Jährliche Nettomiete bzw. Nutzungswert. Wird gem. § 16 BewG auf Steuerwert / 18,6 gedeckelt.</div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="wohnrechtswert-group" style="display:none;">
+                            <label class="form-label">
+                                🏠 Wohnrechtswert (Jahreswert)
+                            </label>
+                            <input type="number" id="wohnrechtswert" class="form-input" placeholder="z.B. 18.000" min="0" step="1000" aria-describedby="wohnrechtswert-help">
+                            <div class="form-help" id="wohnrechtswert-help">Imputierter Jahres-Mietwert des Wohnrechts (Vergleichsmiete der Wohnfläche). Gleicher Cap wie Nießbrauch.</div>
+                        </div>
+
+                        <div class="form-group" id="alter_schenker-group">
                             <label class="form-label">
                                 👤 Alter des Schenkers
                             </label>
                             <input type="number" id="alter_schenker" class="form-input" placeholder="z.B. 65" min="18" max="100" aria-describedby="alter_schenker-help">
-                            <div class="form-help" id="alter_schenker-help">Alter für Berechnung der Nießbrauchsdauer</div>
+                            <div class="form-help" id="alter_schenker-help">Alter steuert den Vervielfältiger nach Anlage 9a BewG (Sterbetafel 2020/2022, Diskontsatz 5,5 %).</div>
                         </div>
 
                         <div class="form-group">
@@ -8225,6 +8289,17 @@ get debouncedCalculateErbschaftsteuer() {
     return this._debouncedCalculateErbschaftsteuer;
 }
 
+get debouncedCalculateSchenkungssteuer() {
+    if (!this._debouncedCalculateSchenkungssteuer) {
+        this._debouncedCalculateSchenkungssteuer = this.debounce(() => {
+            if (this.realtimeEnabled) {
+                this.calculateSchenkungssteuer();
+            }
+        }, 800);
+    }
+    return this._debouncedCalculateSchenkungssteuer;
+}
+
         displayErbschaftResults(results) {
             const container = document.getElementById('erbschaft-results');
             if (!container) return;
@@ -8325,17 +8400,43 @@ get debouncedCalculateErbschaftsteuer() {
         }
 
         collectSchenkungData() {
-    return {
-        immobilienwert: parseFloat(document.getElementById('schenkung_immobilienwert')?.value) || 0,
-        beschenkter: document.getElementById('beschenkter')?.value || 'kind',
-        vorherige_schenkungen: parseFloat(document.getElementById('vorherige_schenkungen')?.value) || 0,
-        schenkungsart: document.getElementById('schenkungsart')?.value || 'vollschenkung',
-        anteil: parseFloat(document.getElementById('schenkungsanteil')?.value) || 100,
-        niesbrauchswert: parseFloat(document.getElementById('niesbrauchswert')?.value) || 0,
-        alter_schenker: parseInt(document.getElementById('alter_schenker')?.value) || 65,
-        schenkungsstrategie: document.getElementById('schenkungsstrategie')?.value || 'einmalig'
-    };
-}
+            return {
+                immobilienwert: parseFloat(document.getElementById('schenkung_immobilienwert')?.value) || 0,
+                beschenkter: document.getElementById('beschenkter')?.value || 'kind',
+                vorherige_schenkungen: parseFloat(document.getElementById('vorherige_schenkungen')?.value) || 0,
+                schenkungsart: document.getElementById('schenkungsart')?.value || 'vollschenkung',
+                anteil: parseFloat(document.getElementById('schenkungsanteil')?.value) || 100,
+                niesbrauchswert: parseFloat(document.getElementById('niesbrauchswert')?.value) || 0,
+                wohnrechtswert: parseFloat(document.getElementById('wohnrechtswert')?.value) || 0,
+                alter_schenker: parseInt(document.getElementById('alter_schenker')?.value) || 65,
+                schenkungsstrategie: document.getElementById('schenkungsstrategie')?.value || 'einmalig'
+            };
+        }
+
+        // Show only the field group relevant for the chosen Schenkungsart.
+        // Disabled groups are visually faded and not editable - the user
+        // immediately sees which inputs drive the current Bemessungsgrundlage.
+        handleSchenkungsartChange(value) {
+            const cfg = {
+                vollschenkung: { anteil: false, niesbrauch: false, wohnrecht: false, alter: false },
+                teilschenkung: { anteil: true,  niesbrauch: false, wohnrecht: false, alter: false },
+                niesbrauch:    { anteil: false, niesbrauch: true,  wohnrecht: false, alter: true  },
+                wohnrecht:     { anteil: false, niesbrauch: false, wohnrecht: true,  alter: true  }
+            };
+            const s = cfg[value] || cfg.vollschenkung;
+            const setVis = (id, show) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.style.display = show ? '' : 'none';
+            };
+            setVis('schenkungsanteil-group', s.anteil);
+            setVis('niesbrauchswert-group',  s.niesbrauch);
+            setVis('wohnrechtswert-group',   s.wohnrecht);
+            setVis('alter_schenker-group',   s.alter);
+            if (this.realtimeEnabled) {
+                this.debouncedCalculateSchenkungssteuer?.();
+            }
+        }
 
         displaySchenkungResults(results) {
             const container = document.getElementById('schenkung-results');
