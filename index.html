@@ -3667,6 +3667,131 @@ List available plugins
             return null;
         }
 
+        // Multi-scenario comparison PDF for the Verkauf module. Uses landscape
+        // orientation so the wide comparison table fits, and falls back to a
+        // detail block per scenario after the header table.
+        async exportComparison(data) {
+            const jsPDFConstructor = await this.ensureLibraryLoaded();
+            const doc = new jsPDFConstructor({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+            // Header (landscape: width ~297 mm, height ~210 mm)
+            doc.setFontSize(18);
+            doc.setTextColor('#667eea');
+            doc.text('Immobilien-Steuer-Suite 2026', 15, 18);
+            doc.setFontSize(12);
+            doc.setTextColor('#2c3e50');
+            doc.text('Multi-Szenario Vergleich (Verkaufssteuer)', 15, 26);
+            doc.setFontSize(9);
+            doc.setTextColor('#000000');
+            doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 15, 33);
+            doc.text(`Version: v${data.version || '4.0.8-enhanced'}`, 240, 33);
+            doc.setDrawColor('#667eea');
+            doc.setLineWidth(0.5);
+            doc.line(15, 37, 282, 37);
+
+            // Side-by-side table
+            const scenarios = data.scenarios || [];
+            const results = data.results instanceof Map ? data.results : new Map();
+            let y = 48;
+            doc.setFontSize(11);
+            doc.setTextColor('#2c3e50');
+            doc.text('Übersicht', 15, y);
+            y += 6;
+            const headers = ['Szenario', 'Kaufpreis', 'Verkaufspreis', 'Bruttogewinn', 'Beste Option', 'Nettogewinn', 'Steuersatz'];
+            const widths  = [55, 35, 35, 35, 60, 35, 20];
+            doc.setFontSize(9);
+            doc.setFillColor(102, 126, 234);
+            doc.rect(15, y - 4, widths.reduce((a, b) => a + b, 0), 7, 'F');
+            doc.setTextColor('#ffffff');
+            let cx = 15;
+            headers.forEach((h, i) => { doc.text(h, cx + 2, y); cx += widths[i]; });
+            y += 6;
+
+            doc.setTextColor('#000000');
+            for (let i = 0; i < scenarios.length; i++) {
+                const [id, scenario] = scenarios[i];
+                const data = scenario.data || {};
+                const result = results.get(id);
+                const gross = (data.verkaufspreis || 0) - (data.kaufpreis || 0)
+                    - (data.nebenkosten_kauf || 0) - (data.nebenkosten_verkauf || 0)
+                    - (data.modernisierung || 0);
+                const best = result?.structures?.[0];
+                if (i % 2 === 0) {
+                    doc.setFillColor(248, 249, 250);
+                    doc.rect(15, y - 4, widths.reduce((a, b) => a + b, 0), 6, 'F');
+                }
+                const cells = [
+                    this._stripNonWinAnsi(scenario.name || id),
+                    this.formatCurrency(data.kaufpreis || 0),
+                    this.formatCurrency(data.verkaufspreis || 0),
+                    this.formatCurrency(gross),
+                    best ? this._stripNonWinAnsi(best.name).substring(0, 30) : '—',
+                    best ? this.formatCurrency(best.netProfit) : '—',
+                    best ? `${best.taxRate.toFixed(1)}%` : '—'
+                ];
+                cx = 15;
+                cells.forEach((c, idx) => { doc.text(String(c), cx + 2, y); cx += widths[idx]; });
+                y += 6;
+            }
+            y += 6;
+
+            // Per-scenario detail blocks
+            doc.setFontSize(11);
+            doc.setTextColor('#2c3e50');
+            doc.text('Detail je Szenario', 15, y);
+            y += 7;
+            doc.setFontSize(9);
+            doc.setTextColor('#000000');
+            for (let i = 0; i < scenarios.length; i++) {
+                const [id, scenario] = scenarios[i];
+                const result = results.get(id);
+                if (y > 180) { doc.addPage(); y = 20; }
+                doc.setFont(undefined, 'bold');
+                doc.text(this._stripNonWinAnsi(scenario.name || id), 15, y);
+                doc.setFont(undefined, 'normal');
+                y += 5;
+                if (!result || !result.structures || result.structures.length === 0) {
+                    doc.setTextColor('#6c757d');
+                    doc.text('  (keine Optimierung berechnet)', 15, y);
+                    doc.setTextColor('#000000');
+                    y += 6;
+                    continue;
+                }
+                // Top-3 structures of this scenario
+                const top = result.structures.slice(0, 3);
+                for (const s of top) {
+                    if (y > 195) { doc.addPage(); y = 20; }
+                    doc.text(
+                        this._stripNonWinAnsi(`  • ${s.name}: Netto ${this.formatCurrency(s.netProfit)}, Steuer ${this.formatCurrency(s.tax)} (${s.taxRate.toFixed(1)}%)`),
+                        15, y
+                    );
+                    y += 5;
+                }
+                if (result.inflationsanpassung > 0) {
+                    doc.text(`  Inflationsanpassung Kaufpreis: +${this.formatCurrency(result.inflationsanpassung)} (informativ)`, 15, y);
+                    y += 5;
+                }
+                y += 3;
+            }
+
+            // Footer on every page
+            const pageCount = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pageCount; i++) {
+                doc.setPage(i);
+                doc.setFontSize(8);
+                doc.setTextColor('#6c757d');
+                doc.setDrawColor('#e9ecef');
+                doc.line(15, 198, 282, 198);
+                doc.text(`Seite ${i} von ${pageCount}`, 15, 203);
+                doc.text('Immobilien-Steuer-Suite 2026 - Vergleich', 130, 203);
+                doc.text(`Erstellt: ${new Date().toLocaleString('de-DE')}`, 15, 207);
+            }
+
+            const filename = `Vergleich_${new Date().toISOString().split('T')[0]}.pdf`;
+            doc.save(filename);
+            return { success: true, filename };
+        }
+
         async exportReport(data) {
             try {
                 const jsPDFConstructor = await this.ensureLibraryLoaded();
@@ -8484,7 +8609,27 @@ get debouncedCalculateErbschaftsteuer() {
         }
 
         // Example Loading Methods
+        // Section-aware "Beispiel laden": the header button always lands here,
+        // but loadExample's hardcoded keys (kaufpreis, verkaufspreis, …) only
+        // exist in the Verkauf form. On other sections the populateForm call
+        // would silently miss every field. Dispatch to the section-specific
+        // example loader instead so each tab gets sensible data.
         loadExample() {
+            const section = this.getCurrentSection?.() || 'verkauf';
+            const route = {
+                grundsteuer: 'loadGrundsteuerExample',
+                erbschaft:   'loadErbschaftExample',
+                schenkung:   'loadSchenkungExample',
+                cashflow:    'loadCashflowExample',
+                strategie:   'loadStrategyExample'
+            }[section];
+            if (route && typeof this[route] === 'function') {
+                return this[route]();
+            }
+            return this._loadVerkaufExample();
+        }
+
+        _loadVerkaufExample() {
             const exampleData = {
                 kaufpreis: 400000,
                 verkaufspreis: 600000,
@@ -8501,15 +8646,15 @@ get debouncedCalculateErbschaftsteuer() {
 
             this.saveCurrentState();
             this.populateForm(exampleData);
-            
+
             // Update current scenario data
             const scenario = this.scenarios.get(this.currentScenario);
             if (scenario) {
                 scenario.data = exampleData;
             }
-            
+
             this.showToast('💡 Beispieldaten geladen', 'success');
-            
+
             if (this.realtimeEnabled) {
                 setTimeout(() => this.calculateOptimal(), 500);
             }
@@ -9177,10 +9322,13 @@ get debouncedCalculateErbschaftsteuer() {
                 const [id, scenario] = scenarios[i];
                 if (scenario.data && Object.keys(scenario.data).length > 0) {
                     this.showProgress(`Berechne ${scenario.name}...`, (i / scenarios.length) * 100);
-                    
+
                     try {
                         const result = await this.calculateInWorker(scenario.data);
                         results.set(id, result);
+                        // Cache so the section-aware PDF exporter and the
+                        // single-scenario UI can reuse the result.
+                        try { this.cache.set(JSON.stringify(scenario.data), result); } catch (e) {}
                     } catch (error) {
                         console.error(`Error calculating scenario ${id}:`, error);
                         this.errorHandler.logError(error);
@@ -9189,11 +9337,36 @@ get debouncedCalculateErbschaftsteuer() {
             }
 
             this.hideProgress();
+            // Stash so exportComparisonPDF can consume it without recomputing.
+            this._comparisonResults = results;
             this.updateComparisonTable(results);
         }
 
+        // Populates the Beste-Option / Nettogewinn cells in the comparison
+        // modal that showComparison() rendered. Was previously a stub that
+        // only toasted, leaving those columns showing "-".
         updateComparisonTable(results) {
-            this.showToast('📊 Alle Szenarien berechnet', 'success');
+            const container = document.getElementById('comparison-content');
+            if (!container) return;
+            const rows = container.querySelectorAll('table tbody tr');
+            const scenarios = Array.from(this.scenarios.entries())
+                .filter(([id, s]) => s.data && Object.keys(s.data).length > 0);
+            let updated = 0;
+            rows.forEach((tr, idx) => {
+                const [scenarioId] = scenarios[idx] || [];
+                const result = scenarioId ? results.get(scenarioId) : null;
+                const cells = tr.querySelectorAll('td');
+                if (!result || !result.structures || result.structures.length === 0) {
+                    if (cells[4]) cells[4].textContent = 'keine Optimierung';
+                    if (cells[5]) cells[5].textContent = '-';
+                    return;
+                }
+                const best = result.structures[0];
+                if (cells[4]) cells[4].textContent = best.name;
+                if (cells[5]) cells[5].textContent = this.formatCurrency(best.netProfit);
+                updated++;
+            });
+            this.showToast(`📊 ${updated} Szenario${updated === 1 ? '' : 's'} berechnet`, 'success');
         }
 
         showAPIDocumentation() {
@@ -9226,11 +9399,61 @@ get debouncedCalculateErbschaftsteuer() {
             }, 2000);
         }
 
-        exportComparisonPDF() {
-            this.showToast('📊 Vergleichs-PDF wird erstellt...', 'info');
-            setTimeout(() => {
-                this.showToast('📊 Vergleichs-PDF erfolgreich erstellt', 'success');
-            }, 2000);
+        // Generates a real Vergleichs-PDF (was previously a toast-only stub).
+        // Walks every Verkauf scenario with data, computes a result for it
+        // if missing, and renders a side-by-side comparison table plus a
+        // per-scenario detail block in jsPDF.
+        async exportComparisonPDF() {
+            try {
+                this.showProgress('Vergleichs-PDF wird erstellt...', 10);
+
+                // Make sure every populated scenario has a result.
+                const scenarios = Array.from(this.scenarios.entries())
+                    .filter(([id, s]) => s.data && Object.keys(s.data).length > 0);
+                if (scenarios.length === 0) {
+                    this.hideProgress();
+                    this.showToast('⚠️ Keine Szenarien zum Vergleichen vorhanden', 'warning');
+                    return;
+                }
+
+                const results = this._comparisonResults instanceof Map
+                    ? this._comparisonResults
+                    : new Map();
+                for (const [id, scenario] of scenarios) {
+                    if (!results.has(id)) {
+                        try {
+                            const r = await this.calculateInWorker(scenario.data);
+                            results.set(id, r);
+                            try { this.cache.set(JSON.stringify(scenario.data), r); } catch (e) {}
+                        } catch (e) {
+                            console.error('Comparison calc error', id, e);
+                        }
+                    }
+                }
+                this._comparisonResults = results;
+                this.showProgress('Generiere PDF...', 50);
+
+                const result = await this.pdfExporter.exportComparison({
+                    scenarios,
+                    results,
+                    timestamp: new Date().toISOString(),
+                    version: this.version
+                });
+
+                this.showProgress('Download startet...', 100);
+                this.gaTracker.trackPDFExport(true, 'comparison', scenarios.length);
+                this.gaTracker.trackConversion('pdf_download', 1);
+
+                setTimeout(() => {
+                    this.hideProgress();
+                    this.showToast(`📊 Vergleichs-PDF "${result.filename}" erstellt`, 'success');
+                }, 500);
+            } catch (error) {
+                console.error('Comparison PDF error', error);
+                this.errorHandler.logError(error);
+                this.hideProgress();
+                this.showToast('❌ Vergleichs-PDF fehlgeschlagen: ' + error.message, 'danger');
+            }
         }
     }
 
