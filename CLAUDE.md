@@ -192,16 +192,41 @@ materially different results.
 
 ### Holding-Strukturen
 
-- VV GmbH & Co. KG: erweiterte Gewerbesteuer-Kürzung § 9 Nr. 1 S. 2 GewStG
-  (Ausschließlichkeitsgebot beachten). Do **not** label this as
-  "BFH 2025 gewerbesteuerfrei".
-- Share Deal: § 8b Abs. 2 KStG → **95 % steuerfrei** (5 % NA-BA).
-  **Not** 40 %. § 1 Abs. 2b GrEStG löst GrESt ab 90 % Anteilskauf in
-  10 Jahren aus (seit 1.7.2021).
-- Cross-Border: Pillar Two (15 % Mindestbesteuerung seit 2024), ATAD
-  Substanzanforderungen — always warn about these in advantage/disadvantage
-  text.
-- Familienstiftung: 30 % Erbersatzsteuer alle 30 Jahre.
+- **VV GmbH & Co. KG**: erweiterte Gewerbesteuer-Kürzung § 9 Nr. 1 S. 2
+  GewStG (Ausschließlichkeitsgebot beachten). 10-Jahres-Frist § 23 EStG
+  greift **transparent auf Gesellschafterebene** (Zebragesellschaft /
+  Bruchteilsbetrachtung). Do **not** label this as "BFH 2025
+  gewerbesteuerfrei".
+- **Share Deal**:
+  - Verkäufer = Kapitalgesellschaft → § 8b Abs. 2 KStG **95 % steuerfrei**
+    (5 % NA-BA). **No 10 % threshold** for capital gains - the 10 %
+    threshold is § 8b Abs. 4 KStG and only applies to *dividends*
+    (Streubesitzdividenden). Do **not** state "Mindestens 10 %
+    Beteiligung für volle § 8b-Wirkung" in the Share-Deal context.
+  - Verkäufer = natürliche Person mit Beteiligung ≥ 1 % → Teileinkünfte-
+    verfahren (60 % steuerpflichtig, 40 % steuerfrei) gem. § 17 EStG i.V.m.
+    § 3 Nr. 40 EStG.
+  - Verkäufer < 1 % Beteiligung → Abgeltungsteuer 25 % + Soli auf gesamten
+    Gewinn.
+  - § 1 Abs. 2b GrEStG löst GrESt ab 90 % Anteilskauf in 10 Jahren aus
+    (seit 1.7.2021). Do **not** write "Keine Grunderwerbsteuer" without
+    this caveat.
+- **Cross-Border (LU, NL, …)**: Für deutsches Grundvermögen entfällt der
+  Steuerspareffekt weitgehend — Deutschland besteuert weiterhin nach
+  **§ 49 Abs. 1 Nr. 2f EStG** (Beschränkte Steuerpflicht) und das DBA
+  (Art. 6/13) weist dem Belegenheitsstaat das Recht zu. Cross-Border-
+  Strukturen sind nur sinnvoll als Holding-Vehicle für **nicht-deutsches**
+  Vermögen. Always warn about Pillar Two (15 % Mindestbesteuerung seit 2024),
+  ATAD-Substanzanforderungen, AStG Hinzurechnungsbesteuerung §§ 7-14.
+  Faktoren in `structureConfigs` daher ≥ 0,85, nicht 0,45/0,50.
+- **Familienstiftung**: Laufende Erträge mit 15 % KSt + 5,5 % Soli; § 23
+  EStG 10-Jahres-Frist greift sinngemäß (Stiftung = eigene Rechts-
+  persönlichkeit); Erbersatzsteuer alle 30 Jahre (§ 1 Abs. 1 Nr. 4,
+  § 9 Abs. 1 Nr. 4 ErbStG).
+- **Stiftung & Co. KG**: Kombination aus erweiterter Gewerbesteuer-
+  Kürzung der KG (§ 9 Nr. 1 S. 2 GewStG) + Familienstiftung als
+  Komplementär für Asset-Protection und Generationen-Planung. Nicht nur
+  pauschal "Steueroptimierung" schreiben.
 
 ## Mobile / responsive gotchas
 

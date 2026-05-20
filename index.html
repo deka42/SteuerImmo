@@ -2808,8 +2808,12 @@ List available plugins
                 { name: 'VV GmbH & Co. KG (§ 9 Nr. 1 S. 2 GewStG)', factor: 0.85, minProfit: 0, complexity: 'mittel' },
                 { name: 'Familienpool (GbR)', factor: 0.75, minProfit: 50000, complexity: 'mittel' },
                 { name: 'Share Deal (GmbH)', factor: 0.60, minProfit: 100000, complexity: 'hoch' },
-                { name: 'Cross-Border Holding (Luxemburg)', factor: 0.45, minProfit: 500000, complexity: 'sehr hoch' },
-                { name: 'Cross-Border Struktur (Niederlande)', factor: 0.50, minProfit: 500000, complexity: 'sehr hoch' },
+                // Cross-Border-Strukturen: Wegen § 49 Abs. 1 Nr. 2f EStG
+                // (Beschränkte Steuerpflicht für deutsches Grundvermögen) +
+                // Pillar Two (15 % Mindestbesteuerung seit 2024) sind die
+                // realen Einsparungen viel geringer als früher. Faktor 0,85.
+                { name: 'Cross-Border Holding (Luxemburg)', factor: 0.85, minProfit: 500000, complexity: 'sehr hoch' },
+                { name: 'Cross-Border Struktur (Niederlande)', factor: 0.85, minProfit: 500000, complexity: 'sehr hoch' },
                 { name: 'Familienstiftung', factor: 0.35, minProfit: 1000000, complexity: 'sehr hoch' },
                 { name: 'Stiftung & Co. KG', factor: 0.40, minProfit: 1000000, complexity: 'sehr hoch' }
             ];
@@ -2866,39 +2870,40 @@ List available plugins
 
         getAdvantages(structureName) {
             const advantages = {
-                'Privatverkauf': ['Steuerfrei nach 10 Jahren Haltedauer (§ 23 EStG)', 'Einfachste Abwicklung', 'Keine Gründungskosten', 'Sofort umsetzbar'],
-                'VV GmbH & Co. KG (§ 9 Nr. 1 S. 2 GewStG)': ['Erweiterte Gewerbesteuer-Kürzung bei rein vermögensverwaltender Tätigkeit', 'Haftungsbeschränkung über Komplementär-GmbH', 'Flexibilität bei Gesellschafterwechsel', 'Transparente Besteuerung der Gesellschafter'],
-                'Familienpool (GbR)': ['Steuerverteilung auf Familie', 'Progression brechen', 'Transparente Besteuerung', 'Einfache Verwaltung'],
-                'Share Deal (GmbH)': ['95% steuerfrei auf Veräußerungsgewinn (§ 8b Abs. 2 KStG, 5% pauschale NA-BA)', 'Planungssicherheit', 'Professionelle Struktur', 'Achtung: § 1 Abs. 2b GrEStG löst GrESt aus ab 90% Anteilskauf in 10 Jahren'],
-                'Cross-Border Holding (Luxemburg)': ['EU-Mutter-Tochter-Richtlinie', 'Internationale Steueroptimierung', 'Achtung: Pillar Two (15% Mindestbesteuerung seit 2024), ATAD, Substanzanforderungen'],
-                'Cross-Border Struktur (Niederlande)': ['Doppelbesteuerungsabkommen', 'EU-konform', 'Achtung: AStG Hinzurechnungsbesteuerung & Pillar Two prüfen'],
-                'Familienstiftung': ['Generationenübergreifend', 'Vermögensschutz', 'Erbschaftsteueroptimierung', 'Achtung: 30% Erbersatzsteuer alle 30 Jahre (§ 1 Abs. 1 Nr. 4 ErbStG)'],
-                'Stiftung & Co. KG': ['Flexible Gewinnverteilung', 'Haftungsbeschränkung', 'Steueroptimierung', 'Professionelle Verwaltung']
+                'Privatverkauf': ['Steuerfrei nach 10 Jahren Haltedauer (§ 23 EStG)', 'Steuerfrei bei 3-Jahres-Eigennutzung (§ 23 Abs. 1 Nr. 1 S. 3 EStG)', 'Einfachste Abwicklung', 'Sofort umsetzbar'],
+                'VV GmbH & Co. KG (§ 9 Nr. 1 S. 2 GewStG)': ['Erweiterte Gewerbesteuer-Kürzung bei rein vermögensverwaltender Tätigkeit (§ 9 Nr. 1 S. 2 GewStG)', '10-Jahres-Frist § 23 EStG greift transparent auf Gesellschafterebene (Zebragesellschaft / Bruchteilsbetrachtung)', 'Haftungsbeschränkung über Komplementär-GmbH', 'Flexibilität bei Gesellschafterwechsel'],
+                'Familienpool (GbR)': ['Steuerverteilung auf Familie', 'Progression durch Verteilung auf mehrere Grenzsteuersätze brechen', 'Transparente Besteuerung', 'Einfache Verwaltung'],
+                'Share Deal (GmbH)': ['Verkäufer = Kapitalgesellschaft: 95 % steuerfrei (§ 8b Abs. 2 KStG, 5 % NA-BA gem. Abs. 3 S. 1)', 'Verkäufer = natürliche Person mit Beteiligung ≥ 1 %: Teileinkünfteverfahren (60 % stpfl., 40 % steuerfrei) gem. § 17 EStG i.V.m. § 3 Nr. 40 EStG', 'Verkäufer < 1 % Beteiligung: Abgeltungsteuer 25 % + Soli auf gesamten Gewinn', 'GrESt vermeidbar wenn < 90 % Anteilsübergang in 10 Jahren'],
+                'Cross-Border Holding (Luxemburg)': ['Holding-Funktion für Beteiligungen außerhalb DE', 'EU-Mutter-Tochter-Richtlinie für Dividenden', 'Substanz vor Ort schafft DBA-Vorteile für nicht-deutsches Vermögen', 'Achtung: deutsches Grundvermögen bleibt steuerpflichtig (§ 49 Abs. 1 Nr. 2f EStG, DBA Art. 6/13 Belegenheitsstaat)', 'Achtung: Pillar Two (15 % Mindestbesteuerung seit 2024), ATAD-Substanzanforderungen'],
+                'Cross-Border Struktur (Niederlande)': ['Holding-Funktion (Coöperatie, BV) für internationale Beteiligungen', 'Innovationsbox & Participation Exemption für ausländische Beteiligungen', 'Achtung: deutsches Grundvermögen bleibt steuerpflichtig (DBA Belegenheitsstaat)', 'Achtung: AStG Hinzurechnungsbesteuerung §§ 7-14, Pillar Two ab 2024'],
+                'Familienstiftung': ['Generationenübergreifende Vermögensbindung', 'Vermögensschutz gegen Pflichtteilsansprüche', 'Steuerfreie Veräußerung nach 10 Jahren analog § 23 EStG (Stiftung = eigene Rechtspersönlichkeit)', 'Laufende Erträge mit 15 % KSt + 5,5 % Soli (statt persönlichem Grenzsteuersatz bis 45 %)', 'Achtung: Erbersatzsteuer alle 30 Jahre (§ 1 Abs. 1 Nr. 4, § 9 Abs. 1 Nr. 4 ErbStG)'],
+                'Stiftung & Co. KG': ['KG mit Stiftung als Komplementär: kombiniert erweiterte Gewerbesteuer-Kürzung der KG (§ 9 Nr. 1 S. 2 GewStG) mit Asset-Protection durch die Stiftung', 'Flexible Gewinnverteilung an Familienkommanditisten', 'Generationen-Planung über die Stiftung als unkündbaren Anker', 'Haftungsbeschränkung der Kommanditisten']
             };
             return advantages[structureName] || [];
         }
 
         getDisadvantages(structureName) {
             const disadvantages = {
-                'Privatverkauf': ['Spekulationssteuer unter 10 Jahren (§ 23 EStG)', 'Volle persönliche Steuerlast', 'Keine Verlustverrechnung mit anderen Einkünften'],
-                'VV GmbH & Co. KG (§ 9 Nr. 1 S. 2 GewStG)': ['Erweiterte Kürzung nur bei Einhaltung des Ausschließlichkeitsgebots', 'Gründungskosten 5.000-15.000€', 'Laufende Verwaltung', 'Risiko bei gewerblicher Infektion'],
-                'Familienpool (GbR)': ['Mehrere Gesellschafter nötig', 'Gesellschaftsvertrag erforderlich', 'Einstimmigkeit bei Entscheidungen'],
-                'Share Deal (GmbH)': ['Mindestens 10% Beteiligung für volle § 8b KStG-Wirkung', 'GmbH-Gründung erforderlich', 'GrESt-Falle § 1 Abs. 2b GrEStG (≥90% Anteile in 10 Jahren)', 'Hohe Verwaltungskosten'],
-                'Cross-Border Holding (Luxemburg)': ['Hohe Beratungskosten 50.000-100.000€', 'Pillar Two Mindestbesteuerung 15%', 'Substanzanforderungen (ATAD)', 'Compliance-Aufwand'],
-                'Cross-Border Struktur (Niederlande)': ['Internationale Struktur', 'Compliance-Aufwand', 'Beratungsintensiv', 'Hinzurechnungsbesteuerung möglich'],
-                'Familienstiftung': ['Hohe Gründungskosten 100.000-300.000€', 'Komplexe Verwaltung', 'Bindungswirkung', 'Erbersatzsteuer alle 30 Jahre'],
-                'Stiftung & Co. KG': ['Sehr komplex', 'Hohe Kosten 150.000€+', 'Verwaltungsaufwand', 'Regulatorische Anforderungen']
+                'Privatverkauf': ['Spekulationssteuer bei < 10 Jahren Haltedauer ohne Eigennutzung (§ 23 EStG)', 'Voller persönlicher Grenzsteuersatz + Soli (Freigrenze) + ggf. Kirchensteuer', 'Keine Verlustverrechnung mit anderen Einkunftsarten'],
+                'VV GmbH & Co. KG (§ 9 Nr. 1 S. 2 GewStG)': ['Erweiterte Kürzung nur bei strikter Einhaltung des Ausschließlichkeitsgebots (kein eigenkapitalersetzendes Darlehen, keine Mitvermietung von Betriebsvorrichtungen > 5 %)', 'Risiko gewerblicher Infektion bei Mitunternehmerschaft', 'Gründungskosten 5.000-15.000 €', 'Laufende Verwaltung & Gesellschaftsvertrag erforderlich'],
+                'Familienpool (GbR)': ['Mehrere Gesellschafter nötig - Schenkungsteuer prüfen', 'Gesellschaftsvertrag erforderlich', 'Einstimmigkeit bei Entscheidungen (oder qualifizierte Mehrheit)', 'Bei Schenkung kurz vor Verkauf: Anschaffungsfiktion § 23 EStG'],
+                'Share Deal (GmbH)': ['GmbH-Gründung & Bewertung erforderlich (Stammkapital 25.000 €)', 'GrESt-Falle § 1 Abs. 2b GrEStG: Anteilsübergang ≥ 90 % in 10 Jahren löst GrESt aus (seit 1.7.2021)', 'Buchwertfortführung: latente Steuerlast auf Immobilien-stille-Reserven bleibt in der GmbH', 'Bei natürlichen Personen ohne KapG: nur Teileinkünfteverfahren / Abgeltungsteuer, kein § 8b KStG'],
+                'Cross-Border Holding (Luxemburg)': ['Für deutsches Grundvermögen entfällt der Steuerspareffekt weitgehend (§ 49 EStG / DBA)', 'Hohe Beratungskosten 50.000-100.000 €', 'Substanzanforderungen ATAD (eigene Mitarbeiter, Büro, Geschäftsleitung vor Ort)', 'Pillar Two GloBE Top-up auf 15 % Mindestbesteuerung', 'Wegzugsbesteuerung § 6 AStG bei natürlichen Personen'],
+                'Cross-Border Struktur (Niederlande)': ['Für deutsches Grundvermögen entfällt der Steuerspareffekt weitgehend (§ 49 EStG / DBA)', 'AStG Hinzurechnungsbesteuerung §§ 7-14 bei niedrig besteuerten Zwischeneinkünften', 'Pillar Two ab 2024', 'Compliance- und Beratungsaufwand'],
+                'Familienstiftung': ['Gründungskosten 100.000-300.000 €', 'Komplexe Stiftungssatzung & Stiftungsaufsicht', 'Vermögensbindung praktisch irreversibel', 'Erbersatzsteuer alle 30 Jahre als planungsrelevanter Faktor'],
+                'Stiftung & Co. KG': ['Sehr komplexe Struktur, Stiftungsgründung + KG-Vertrag', 'Hohe Initialkosten 150.000 €+', 'Erweiterte Kürzung bedingt das Ausschließlichkeitsgebot der KG', 'Regulatorische und steuerliche Sorgfalt erforderlich']
             };
             return disadvantages[structureName] || [];
         }
 
         getRecommendation(structureName, data) {
             if (data.haltedauer >= 10) return 'Optimal bei steuerfreiem Verkauf nach 10 Jahren (§ 23 EStG) - sofort umsetzbar';
-            if (structureName.includes('Cross-Border')) return 'Für internationale Großinvestoren - Pillar Two & ATAD beachten, professionelle Beratung erforderlich';
-            if (structureName.includes('Stiftung')) return 'Für sehr hohe Vermögen - langfristige Familienplanung, Erbersatzsteuer einkalkulieren';
-            if (structureName.includes('Share Deal')) return 'Sehr gut für größere Gewinne - § 1 Abs. 2b GrEStG (90%-Schwelle) zwingend prüfen';
-            if (structureName.includes('Familienpool')) return 'Optimal für Familien - schnell umsetzbar';
-            if (structureName.includes('VV GmbH')) return 'Sehr empfehlenswert bei strikter vermögensverwaltender Tätigkeit (erweiterte Gewerbesteuer-Kürzung)';
+            if (structureName.includes('Cross-Border')) return 'Für deutsches Grundvermögen kaum Steuerspareffekt - DE besteuert weiterhin nach § 49 EStG. Pillar Two & ATAD beachten. Nur sinnvoll als Holding-Vehicle für ausländisches Vermögen.';
+            if (structureName.includes('Stiftung & Co. KG')) return 'Für sehr hohe Vermögen & Generationen-Planung - kombiniert erweiterte Gewerbesteuer-Kürzung mit Asset-Protection';
+            if (structureName.includes('Familienstiftung')) return 'Für sehr hohe Vermögen - langfristige Familienplanung, 15 % KSt + Erbersatzsteuer alle 30 Jahre einkalkulieren';
+            if (structureName.includes('Share Deal')) return 'Sehr gut wenn Verkäufer eine Kapitalgesellschaft ist (§ 8b KStG 95 % steuerfrei). § 1 Abs. 2b GrEStG (90 %-Schwelle) zwingend prüfen.';
+            if (structureName.includes('Familienpool')) return 'Optimal für Familien zur Verteilung auf mehrere Grenzsteuersätze - schnell umsetzbar';
+            if (structureName.includes('VV GmbH')) return 'Sehr empfehlenswert bei strikter vermögensverwaltender Tätigkeit (erweiterte Kürzung § 9 Nr. 1 S. 2 GewStG; 10-J-Frist greift auf Gesellschafterebene)';
             return 'Empfehlenswert nach individueller Prüfung';
         }
 
@@ -5250,13 +5255,16 @@ openCalculationsNewTab() {
         }
 
         getAdvantages(structureName) {
+            // Mirrors the inline-worker version so the main-thread fallback
+            // does not silently regress to outdated descriptions. Kept terse
+            // here; the worker's getAdvantages has the full statute citations.
             const advantages = {
-                'Privatverkauf': ['Steuerfrei nach 10 Jahren', 'Einfachste Abwicklung'],
-                'VV GmbH & Co. KG (§ 9 Nr. 1 S. 2 GewStG)': ['Erweiterte Gewerbesteuer-Kürzung § 9 Nr. 1 S. 2 GewStG', 'Haftungsbeschränkung'],
-                'Familienpool (GbR)': ['Steuerverteilung auf Familie', 'Progression brechen'],
-                'Share Deal (GmbH)': ['40% steuerfreier Gewinn (§8b KStG)', 'Keine Grunderwerbsteuer'],
-                'Cross-Border Holding': ['Internationale Steueroptimierung', 'EU-Richtlinien nutzen'],
-                'Familienstiftung': ['Generationenübergreifend', 'Maximale Steueroptimierung']
+                'Privatverkauf': ['Steuerfrei nach 10 J. (§ 23 EStG)', 'Steuerfrei bei 3-J-Eigennutzung'],
+                'VV GmbH & Co. KG (§ 9 Nr. 1 S. 2 GewStG)': ['Erweiterte Kürzung § 9 Nr. 1 S. 2 GewStG', '10-J-Frist greift auf Gesellschafterebene'],
+                'Familienpool (GbR)': ['Verteilung auf Familienmitglieder', 'Progression brechen'],
+                'Share Deal (GmbH)': ['KapG-Verkäufer: 95 % steuerfrei (§ 8b Abs. 2 KStG)', 'Natürliche Person ab 1 %: Teileinkünfteverfahren', 'GrESt vermeidbar < 90 % Anteilsübergang in 10 J.'],
+                'Cross-Border Holding': ['Holding für nicht-deutsches Vermögen', 'Achtung: DE besteuert deutsches Grundvermögen weiter (§ 49 EStG)', 'Pillar Two ab 2024'],
+                'Familienstiftung': ['Langfristige Vermögensbindung', '15 % KSt + Soli auf Erträge', 'Erbersatzsteuer alle 30 J.']
             };
             return advantages[structureName] || [];
         }
