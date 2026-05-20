@@ -2418,7 +2418,7 @@ font-weight: 700 !important;
         </div>
         <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('ai-optimizer')" role="listitem" tabindex="0">
             <strong>🤖 KI-Optimierer</strong>
-            <small style="display: block; color: #6c757d;">Machine Learning Vorhersagen</small>
+            <small style="display: block; color: #6c757d;">Erweiterte Analyse (in Vorbereitung)</small>
         </div>
         <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('international-tax')" role="listitem" tabindex="0">
             <strong>🌍 International Tax</strong>
@@ -2583,7 +2583,7 @@ font-weight: 700 !important;
         <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
             <div class="progress-fill" id="progress-fill"></div>
         </div>
-        <p id="progress-text">KI-Algorithmus analysiert optimale Steuerstrukturen...</p>
+        <p id="progress-text">Strukturanalyse läuft ...</p>
         <button class="btn btn-secondary" onclick="app.cancelCalculation()" style="margin-top: 1rem;" aria-label="Berechnung abbrechen">
             Abbrechen
         </button>
@@ -4023,7 +4023,8 @@ List available plugins
             if (!results) return y;
             const rows = [
                 ['Schenkungswert', this.formatCurrency(results.schenkungswert)],
-                ['Nießbrauchsabzug (§ 14 BewG)', this.formatCurrency(results.niesbrauchsabzug)],
+                ['Nießbrauchsabzug (§§ 14, 16 BewG)', this.formatCurrency(results.niesbrauchsabzug)],
+                ['Wohnrechtsabzug (§§ 14, 16 BewG)', this.formatCurrency(results.wohnrechtsabzug)],
                 ['Gesamterwerb (inkl. Vorschenkungen)', this.formatCurrency(results.gesamterwerb)],
                 ['Freibetrag', this.formatCurrency(results.freibetrag)],
                 ['Steuerpflichtiger Erwerb', this.formatCurrency(results.steuerpflichtiger_erwerb)],
@@ -4764,6 +4765,42 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
             super('schenkungssteuer');
         }
 
+        // Anlage 9a BewG - Vervielfältiger für lebenslängliche Nutzungen/
+        // Leistungen, basierend auf der unisex Sterbetafel des StatBA
+        // (Sterbetafel 2020/2022), Diskontsatz 5,5 % p.a.
+        // Werte hier in 5-Jahres-Schritten gerundet; dazwischen wird linear
+        // interpoliert. § 14 Abs. 1 BewG.
+        _vervielfaeltigerAnlage9a(alter) {
+            const tabelle = [
+                [20, 17.40], [25, 17.18], [30, 16.86], [35, 16.40],
+                [40, 15.74], [45, 14.81], [50, 13.61], [55, 12.10],
+                [60, 10.32], [65,  8.34], [70,  6.40], [75,  4.64],
+                [80,  3.18], [85,  2.07], [90,  1.31], [95,  0.78]
+            ];
+            if (alter <= tabelle[0][0]) return tabelle[0][1];
+            if (alter >= tabelle[tabelle.length - 1][0]) return tabelle[tabelle.length - 1][1];
+            for (let i = 0; i < tabelle.length - 1; i++) {
+                const [a1, v1] = tabelle[i];
+                const [a2, v2] = tabelle[i + 1];
+                if (alter >= a1 && alter <= a2) {
+                    const t = (alter - a1) / (a2 - a1);
+                    return v1 + t * (v2 - v1);
+                }
+            }
+            return tabelle[tabelle.length - 1][1];
+        }
+
+        // Kapitalwert eines lebenslänglichen Rechts (Nießbrauch oder
+        // dingliches Wohnungsrecht § 1093 BGB) nach §§ 14, 16 BewG.
+        // Jahreswert wird auf Steuerwert / 18,6 gedeckelt (§ 16 BewG).
+        _kapitalwertLebenslangesRecht(jahreswertRoh, alter, steuerwert) {
+            if (!(jahreswertRoh > 0) || !(alter > 0) || !(steuerwert > 0)) return 0;
+            const jahreswertCap = steuerwert / 18.6;
+            const jahreswert = Math.min(jahreswertRoh, jahreswertCap);
+            const vervielfaeltiger = this._vervielfaeltigerAnlage9a(alter);
+            return jahreswert * vervielfaeltiger;
+        }
+
         performCalculation(data) {
             // Schenkung: § 15 ErbStG -- Eltern fallen in Steuerklasse II (anders als Erbschaft)
             const freibetraege = {
@@ -4781,21 +4818,29 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
             const freibetrag = freibetraege[data.beschenkter] || 20000;
             let schenkungswert = data.immobilienwert || 0;
 
+            // Teilschenkung: Bemessungsgrundlage = Wert × Anteil
             if (data.schenkungsart === 'teilschenkung') {
                 schenkungswert = schenkungswert * ((data.anteil || 100) / 100);
             }
 
-            // Nießbrauchsabzug: Kapitalwert nach § 14 BewG, vereinfacht.
-            // Jahreswert × Vervielfältiger; Jahreswert max. Steuerwert / 18,6 (§ 16 BewG).
-            // Vervielfältiger hier als grobe Annäherung an Anlage 9a BewG.
+            // Nießbrauch (§ 1030 BGB) — Kapitalwert nach §§ 14, 16 BewG
+            // mit altersabhängigem Anlage-9a-Vervielfältiger.
             let niesbrauchsabzug = 0;
-            if (data.schenkungsart === 'niesbrauch' && data.niesbrauchswert > 0 && data.alter_schenker) {
-                const restlebenserwartung = Math.max(1, 85 - data.alter_schenker);
-                const vervielfaeltiger = Math.min(restlebenserwartung, 18.6);
-                const jahreswertCap = schenkungswert / 18.6;
-                const jahreswert = Math.min(data.niesbrauchswert, jahreswertCap);
-                niesbrauchsabzug = jahreswert * vervielfaeltiger;
+            if (data.schenkungsart === 'niesbrauch') {
+                niesbrauchsabzug = this._kapitalwertLebenslangesRecht(
+                    data.niesbrauchswert, data.alter_schenker, schenkungswert
+                );
                 schenkungswert = Math.max(0, schenkungswert - niesbrauchsabzug);
+            }
+
+            // Dingliches Wohnungsrecht (§ 1093 BGB) — gleicher Mechanismus
+            // wie Nießbrauch. Jahreswert = imputierter Mietwert des Wohnrechts.
+            let wohnrechtsabzug = 0;
+            if (data.schenkungsart === 'wohnrecht') {
+                wohnrechtsabzug = this._kapitalwertLebenslangesRecht(
+                    data.wohnrechtswert, data.alter_schenker, schenkungswert
+                );
+                schenkungswert = Math.max(0, schenkungswert - wohnrechtsabzug);
             }
 
             const gesamterwerb = schenkungswert + (data.vorherige_schenkungen || 0);
@@ -4819,6 +4864,7 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
                 gesamterwerb,
                 freibetrag,
                 niesbrauchsabzug,
+                wohnrechtsabzug,
                 steuerpflichtiger_erwerb,
                 schenkungssteuer,
                 nettoschenkung,
@@ -4833,48 +4879,92 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
             super('cashflow');
         }
 
+        // Helper: apply Soli (with Freigrenze + Milderungszone) + Kirchensteuer
+        // to a slice of Einkommensteuer. Vermietungs-Einkünfte (§ 21 EStG) sind
+        // einkommensteuerpflichtig - Soli und KiSt fallen analog an.
+        _addSoliKist(est, churchTaxRate) {
+            const soliFreigrenze = 19950;
+            const soliVoll = 33912;
+            let soliAnteil = 0;
+            if (est > soliVoll) soliAnteil = 1;
+            else if (est > soliFreigrenze) soliAnteil = (est - soliFreigrenze) / (soliVoll - soliFreigrenze);
+            return est * 0.055 * soliAnteil + est * ((churchTaxRate || 0) / 100);
+        }
+
         performCalculation(data) {
             const jahre = [];
             let kumulierterCashflow = 0;
             let aktuelle_miete = data.mieteinnahmen || 0;
             const analysezeitraum = data.analysezeitraum || 5;
-            
+            const steuersatz = data.steuersatz || 42;
+            const kirchensteuer = data.kirchensteuer || 0;
+
             for (let jahr = 1; jahr <= analysezeitraum; jahr++) {
                 if (jahr > 1) {
                     aktuelle_miete *= (1 + (data.mietsteigerung || 2.5) / 100);
                 }
-                
+
                 const jahres_mieteinnahmen = aktuelle_miete * 12;
                 const jahres_betriebskosten = (data.betriebskosten || 0) * 12;
                 const jahres_finanzierung = (data.finanzierungskosten || 0) * 12;
                 const netto_einkommen = jahres_mieteinnahmen - jahres_betriebskosten - jahres_finanzierung;
                 const steuerliches_ergebnis = netto_einkommen - (data.abschreibungen || 0);
-                const steuern = Math.max(0, steuerliches_ergebnis * ((data.steuersatz || 42) / 100));
+                // Vermietungs-Einkünfte: voller Grenzsteuersatz + Soli (Freigrenze)
+                // + Kirchensteuer. Verlust wird nicht als Erstattung verbucht
+                // (konservativ; tatsächlich wäre Verlustausgleich mit anderen
+                // Einkünften möglich, aber dafür müssten wir das übrige
+                // Einkommen kennen).
+                const est = Math.max(0, steuerliches_ergebnis) * (steuersatz / 100);
+                const steuern = est + this._addSoliKist(est, kirchensteuer);
                 const cashflow_nach_steuern = netto_einkommen - steuern;
-                
+
                 kumulierterCashflow += cashflow_nach_steuern;
-                
+
                 jahre.push({
                     jahr,
                     mieteinnahmen: jahres_mieteinnahmen,
                     betriebskosten: jahres_betriebskosten,
                     finanzierungskosten: jahres_finanzierung,
                     netto_einkommen,
+                    steuern,
                     cashflow_nach_steuern,
                     kumulierter_cashflow: kumulierterCashflow
                 });
             }
 
-            const verkaufs_cashflow = (data.verkaufserloes || 0) * 0.9; // Nach Steuern
+            // Veräußerungs-Cashflow: § 23 EStG anwenden statt pauschaler 10 %.
+            // Bei Haltedauer >= 10 Jahre steuerfrei, sonst persönlicher
+            // Grenzsteuersatz auf den Gewinn (verkaufserloes - anschaffungskosten)
+            // plus Soli und Kirchensteuer.
+            const verkaufserloes = data.verkaufserloes || 0;
+            const anschaffungskosten = data.anschaffungskosten || 0;
+            let verkaufs_steuer = 0;
+            if (verkaufserloes > 0 && analysezeitraum < 10) {
+                const veraeusserungsgewinn = Math.max(0, verkaufserloes - anschaffungskosten);
+                if (veraeusserungsgewinn > 600) {
+                    const estV = veraeusserungsgewinn * (steuersatz / 100);
+                    verkaufs_steuer = estV + this._addSoliKist(estV, kirchensteuer);
+                }
+            }
+            const verkaufs_cashflow = verkaufserloes - verkaufs_steuer;
             const gesamt_cashflow = kumulierterCashflow + verkaufs_cashflow;
+
+            // ROI bezogen auf das tatsächlich gebundene Kapital. Wenn keine
+            // Anschaffungskosten erfasst sind, fällt auf verkaufserloes zurück,
+            // aber mit Hinweis-Flag, damit die UI das auch transparent zeigt.
+            const roiBase = anschaffungskosten > 0 ? anschaffungskosten : verkaufserloes;
+            const roi = roiBase > 0 ? (gesamt_cashflow / roiBase * 100) : 0;
 
             return {
                 jahre,
                 kumulierter_cashflow: kumulierterCashflow,
+                verkaufs_steuer,
                 verkaufs_cashflow,
                 gesamt_cashflow,
                 durchschnittlicher_cashflow: kumulierterCashflow / analysezeitraum,
-                roi: data.verkaufserloes > 0 ? (gesamt_cashflow / data.verkaufserloes * 100) : 0
+                roi,
+                roiBase,
+                roiBaseLabel: anschaffungskosten > 0 ? 'Anschaffungskosten' : 'Verkaufserlös (ersatzweise)'
             };
         }
     }
@@ -5583,7 +5673,7 @@ validateField(field) {
             
             try {
                 this.updatePerformanceIndicator('Berechnung läuft...');
-                this.showProgress('KI-Algorithmus analysiert optimale Steuerstrukturen...', 10);
+                this.showProgress('Strukturanalyse läuft - vergleiche Holding-Optionen ...', 10);
                 
                 // Save state before calculation
                 this.saveCurrentState();
@@ -5766,7 +5856,7 @@ validateFormData(data, section = null) {
             if (results.maxNetProfit > 0) {
                 html += `
                     <div class="alert alert-success">
-                        <h3>🎯 KI-Optimierung erfolgreich!</h3>
+                        <h3>🎯 Strukturanalyse abgeschlossen</h3>
                         <p><strong>Beste Option:</strong> ${this.escapeHtml(results.structures[0].name)}</p>
                         <p><strong>Nettogewinn:</strong> ${this.formatCurrency(results.maxNetProfit)}</p>
                         ${results.totalSavings > 0 ? `<p><strong>Steuerersparnis:</strong> ${this.formatCurrency(results.totalSavings)}</p>` : ''}
@@ -5850,7 +5940,7 @@ validateFormData(data, section = null) {
                         <div class="card-header">
                             <h3 class="card-title">💡 KI-Empfehlung</h3>
                         </div>
-                        <p>Basierend auf Ihrer Situation empfiehlt unser KI-Algorithmus die Struktur <strong>"${this.escapeHtml(bestStructure.name)}"</strong>.</p>
+                        <p>Die regel-basierte Strukturanalyse empfiehlt für Ihre Eingaben die Struktur <strong>"${this.escapeHtml(bestStructure.name)}"</strong>.</p>
                         <p>Diese Lösung bietet Ihnen den höchsten Nettogewinn von <strong>${this.formatCurrency(bestStructure.netProfit)}</strong> bei einem effektiven Steuersatz von nur <strong>${bestStructure.taxRate.toFixed(1)}%</strong>.</p>
                         ${results.totalSavings > 0 ? `<p class="text-success"><strong>Ihre Steuerersparnis beträgt ${this.formatCurrency(results.totalSavings)} gegenüber der ungünstigsten Option.</strong></p>` : ''}
                         ${results.recommendation ? `<div class="alert alert-info"><strong>Zusätzliche Empfehlung:</strong> ${this.escapeHtml(results.recommendation)}</div>` : ''}
@@ -6047,6 +6137,7 @@ validateFormData(data, section = null) {
                     ['schenkungsart',     'Art der Schenkung',          fmtNum],
                     ['anteil',            'Anteil (%)',                 v => `${v} %`],
                     ['niesbrauchswert',   'Nießbrauchswert (jährlich)', fmtCur],
+                    ['wohnrechtswert',    'Wohnrechtswert (jährlich)',  fmtCur],
                     ['alter_schenker',    'Alter des Schenkers',        fmtYears]
                 ]);
                 return { title: 'Schenkungsteuer-Planung 2026', inputRows, results, warning };
@@ -6068,7 +6159,9 @@ validateFormData(data, section = null) {
                     ['betriebskosten',    'Monatliche Betriebskosten',  fmtCur],
                     ['finanzierungskosten','Monatliche Finanzierung',   fmtCur],
                     ['abschreibungen',    'Abschreibungen (AfA, jährl.)',fmtCur],
+                    ['anschaffungskosten','Anschaffungskosten',         fmtCur],
                     ['steuersatz',        'Persönlicher Steuersatz',    fmtPct],
+                    ['kirchensteuer',     'Kirchensteuer',              fmtPct],
                     ['analysezeitraum',   'Analysezeitraum',            fmtYears],
                     ['mietsteigerung',    'Mietsteigerung p.a.',        fmtPct],
                     ['verkaufserloes',    'Geplanter Verkaufserlös',    fmtCur]
@@ -6432,7 +6525,7 @@ validateFormData(data, section = null) {
             this.plugins.set('ai-optimizer', {
                 name: 'KI-Optimierer',
                 version: '2.0.0',
-                description: 'Machine Learning Vorhersagen',
+                description: 'Erweiterte Analyse (in Vorbereitung)',
                 load: () => this.loadAIOptimizer(),
                 unload: () => this.unloadAIOptimizer()
             });
@@ -6811,9 +6904,18 @@ validateFormData(data, section = null) {
         }
 
         restoreSchenkungData() {
+            // Always apply the field-visibility rules - even without saved
+            // data, the user should land on a form that only shows the
+            // inputs relevant for the default Schenkungsart (vollschenkung).
+            const current = document.getElementById('schenkungsart')?.value
+                || this.sectionData?.schenkung?.schenkungsart
+                || 'vollschenkung';
+            this.handleSchenkungsartChange(current);
+
             if (this.sectionData && this.sectionData.schenkung) {
                 this.populateSchenkungForm(this.sectionData.schenkung);
-                
+                this.handleSchenkungsartChange(this.sectionData.schenkung.schenkungsart || 'vollschenkung');
+
                 // Trigger calculation if real-time is enabled
                 if (this.realtimeEnabled) {
                     setTimeout(() => this.calculateSchenkungssteuer(), 300);
@@ -7016,7 +7118,7 @@ handleImmobilienartChange(newValue) {
 
                     <div class="alert alert-info">
                         <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                            <span style="flex: 1 1 240px; min-width: 0;">🤖 Real-time KI-Berechnung aktiviert - Optimale Strukturen werden automatisch berechnet</span>
+                            <span style="flex: 1 1 240px; min-width: 0;">⚙️ Real-time Strukturanalyse aktiviert - Holding-Optionen werden bei jeder Eingabe neu durchgerechnet</span>
                             <label style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
                                 <input type="checkbox" id="realtime-calc" checked onchange="app.toggleRealtime()">
                                 <span>Real-time</span>
@@ -7252,7 +7354,7 @@ handleImmobilienartChange(newValue) {
             return `
                         <div class="btn-group">
                             <button class="btn btn-primary" onclick="app.calculateOptimal()" title="Optimale Berechnung starten (Ctrl+Enter)">
-                                🧮 KI-Optimierung starten
+                                🧮 Strukturanalyse starten
                             </button>
                             <button class="btn btn-success" onclick="app.loadExample()" title="Beispieldaten laden (Ctrl+E)">
                                 💡 Beispiel laden
@@ -7375,6 +7477,231 @@ handleImmobilienartChange(newValue) {
             `;
         }
 
+        // Wertermittlungs-Helfer für Erbschaft & Schenkung. Bietet
+        // Aufklärung welches BewG-Verfahren laut Immobilienart greift,
+        // sowie drei vereinfachte Mini-Rechner (Vergleichswert,
+        // Ertragswert, Sachwert) die den Grundbesitzwert in das
+        // angegebene Ziel-Input schreiben können.
+        generateBewertungsHelfer(targetInputId) {
+            return `
+                <details class="card bewertungs-helfer" style="margin-top: 1.5rem;">
+                    <summary style="cursor:pointer;font-weight:600;padding:0.5rem 0;">
+                        📐 Wertermittlungs-Helfer nach BewG (Vergleichswert / Ertragswert / Sachwert)
+                    </summary>
+                    <div class="alert alert-info" style="margin-top:1rem;">
+                        <h4 style="margin-bottom:0.5rem;">Welches Verfahren gilt für welche Immobilie?</h4>
+                        <ul style="margin-left:1.5rem;line-height:1.7;">
+                            <li><strong>Ein-/Zweifamilienhaus, Eigentumswohnung</strong> → Vergleichswertverfahren (§ 183 BewG); fehlen Vergleichswerte → Sachwertverfahren</li>
+                            <li><strong>Mietwohngrundstück (Mehrfamilien), Geschäfts-/gemischt genutzt</strong> → Ertragswertverfahren (§§ 184-188 BewG)</li>
+                            <li><strong>Sonstige bebaute Grundstücke</strong> → Sachwertverfahren (§§ 189-191 BewG)</li>
+                            <li><strong>Unbebautes Grundstück</strong> → § 179 BewG: Fläche × Bodenrichtwert</li>
+                        </ul>
+                        <p style="margin-top:0.5rem;color:#6c757d;font-size:0.85rem;">Hinweis: die Mini-Rechner sind <strong>vereinfacht</strong> (z. B. Vervielfältiger über Standardformel statt Anlage 21 BewG-Tabelle). Für die Steuererklärung den Steuerwert aus dem Bescheid des Finanzamts übernehmen.</p>
+                    </div>
+
+                    <div class="scenario-tabs" style="margin-top:1rem;flex-wrap:wrap;">
+                        <button type="button" class="scenario-tab active" data-bw-tab="vergleich" onclick="app.showBewertungsTab(this, 'vergleich', '${targetInputId}')">Vergleichswert (§ 183)</button>
+                        <button type="button" class="scenario-tab" data-bw-tab="ertrag" onclick="app.showBewertungsTab(this, 'ertrag', '${targetInputId}')">Ertragswert (§§ 184-188)</button>
+                        <button type="button" class="scenario-tab" data-bw-tab="sach" onclick="app.showBewertungsTab(this, 'sach', '${targetInputId}')">Sachwert (§§ 189-191)</button>
+                    </div>
+
+                    <div id="bw-content-vergleich" class="bw-tab-content" style="margin-top:1rem;">
+                        <p style="font-size:0.9rem;color:#6c757d;margin-bottom:0.75rem;">Wohnfläche × Vergleichspreis je m². Geeignet für Ein-/Zweifamilienhäuser und Eigentumswohnungen, wenn Vergleichswerte aus dem örtlichen Gutachterausschuss vorliegen.</p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Wohnfläche (m²)</label>
+                                <input type="number" id="bw_vw_wohnflaeche" class="form-input" placeholder="z.B. 130" min="0" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Vergleichspreis (€/m²)</label>
+                                <input type="number" id="bw_vw_preis" class="form-input" placeholder="z.B. 4500" min="0" step="50">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Lage-Faktor (0,7 - 1,3)</label>
+                                <input type="number" id="bw_vw_faktor" class="form-input" placeholder="1.0" min="0.5" max="1.5" step="0.05" value="1.0">
+                            </div>
+                        </div>
+                        <div class="btn-group" style="margin-top:0.75rem;">
+                            <button type="button" class="btn btn-primary" onclick="app.computeBewertung('vergleich', '${targetInputId}')">Berechnen &amp; übernehmen</button>
+                        </div>
+                        <div id="bw-result-vergleich" class="alert" style="display:none;margin-top:0.75rem;"></div>
+                    </div>
+
+                    <div id="bw-content-ertrag" class="bw-tab-content" style="display:none;margin-top:1rem;">
+                        <p style="font-size:0.9rem;color:#6c757d;margin-bottom:0.75rem;">Bodenwert + Gebäudeertragswert. Geeignet für vermietete Mehrfamilien-, Geschäfts- und gemischt genutzte Grundstücke.</p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Grundstücksfläche (m²)</label>
+                                <input type="number" id="bw_ew_grundflaeche" class="form-input" placeholder="z.B. 500" min="0" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Bodenrichtwert (€/m²)</label>
+                                <input type="number" id="bw_ew_bodenrichtwert" class="form-input" placeholder="z.B. 350" min="0" step="10">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Jahresnettokaltmiete (€/Jahr)</label>
+                                <input type="number" id="bw_ew_jahresmiete" class="form-input" placeholder="z.B. 36000" min="0" step="100">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Bewirtschaftungskostenanteil (%)</label>
+                                <input type="number" id="bw_ew_bewirt_pct" class="form-input" placeholder="25" min="0" max="60" step="1" value="25">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Restnutzungsdauer (Jahre)</label>
+                                <input type="number" id="bw_ew_rest" class="form-input" placeholder="z.B. 50" min="5" max="100" step="1" value="50">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Liegenschaftszinssatz (%)</label>
+                                <input type="number" id="bw_ew_zins" class="form-input" placeholder="5.0" min="2" max="8" step="0.1" value="5">
+                            </div>
+                        </div>
+                        <div class="btn-group" style="margin-top:0.75rem;">
+                            <button type="button" class="btn btn-primary" onclick="app.computeBewertung('ertrag', '${targetInputId}')">Berechnen &amp; übernehmen</button>
+                        </div>
+                        <div id="bw-result-ertrag" class="alert" style="display:none;margin-top:0.75rem;"></div>
+                    </div>
+
+                    <div id="bw-content-sach" class="bw-tab-content" style="display:none;margin-top:1rem;">
+                        <p style="font-size:0.9rem;color:#6c757d;margin-bottom:0.75rem;">Bodenwert + Gebäudesachwert (Normalherstellungskosten × Brutto-Grundfläche, abzgl. Alterswertminderung). Wird verwendet, wenn weder Vergleichs- noch Ertragswert ermittelbar.</p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Grundstücksfläche (m²)</label>
+                                <input type="number" id="bw_sw_grundflaeche" class="form-input" placeholder="z.B. 500" min="0" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Bodenrichtwert (€/m²)</label>
+                                <input type="number" id="bw_sw_bodenrichtwert" class="form-input" placeholder="z.B. 350" min="0" step="10">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Brutto-Grundfläche BGF (m²)</label>
+                                <input type="number" id="bw_sw_bgf" class="form-input" placeholder="z.B. 180" min="0" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Regelherstellungskosten (€/m² BGF)</label>
+                                <input type="number" id="bw_sw_rhk" class="form-input" placeholder="z.B. 1300" min="500" step="50" value="1300">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Baujahr</label>
+                                <input type="number" id="bw_sw_baujahr" class="form-input" placeholder="z.B. 1995" min="1850" max="2026" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Gesamtnutzungsdauer (Jahre)</label>
+                                <input type="number" id="bw_sw_gnd" class="form-input" placeholder="80" min="40" max="100" step="1" value="80">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Sachwertfaktor (Anlage 25 BewG)</label>
+                                <input type="number" id="bw_sw_faktor" class="form-input" placeholder="1.0" min="0.5" max="1.5" step="0.05" value="1.0">
+                            </div>
+                        </div>
+                        <div class="btn-group" style="margin-top:0.75rem;">
+                            <button type="button" class="btn btn-primary" onclick="app.computeBewertung('sach', '${targetInputId}')">Berechnen &amp; übernehmen</button>
+                        </div>
+                        <div id="bw-result-sach" class="alert" style="display:none;margin-top:0.75rem;"></div>
+                    </div>
+                </details>
+            `;
+        }
+
+        showBewertungsTab(tabButton, verfahren, targetInputId) {
+            // Tab-Button activation
+            const tabs = tabButton.parentElement.querySelectorAll('[data-bw-tab]');
+            tabs.forEach(t => t.classList.remove('active'));
+            tabButton.classList.add('active');
+            // Content visibility
+            for (const v of ['vergleich', 'ertrag', 'sach']) {
+                const el = document.getElementById('bw-content-' + v);
+                if (el) el.style.display = v === verfahren ? '' : 'none';
+            }
+        }
+
+        // Wertermittlung gemäß BewG - vereinfachte Modelle. Schreibt das
+        // Ergebnis als Grundbesitzwert in das Ziel-Input und blendet es als
+        // Ergebnisbox ein, damit der User die Rechnung nachvollziehen kann.
+        computeBewertung(verfahren, targetInputId) {
+            const num = id => parseFloat(document.getElementById(id)?.value) || 0;
+            const fmt = v => this.formatCurrency(v);
+            let value = 0;
+            let html = '';
+
+            if (verfahren === 'vergleich') {
+                const flaeche = num('bw_vw_wohnflaeche');
+                const preis = num('bw_vw_preis');
+                const faktor = num('bw_vw_faktor') || 1;
+                value = flaeche * preis * faktor;
+                html = `
+                    <strong>Vergleichswert (§ 183 BewG, vereinfacht)</strong><br>
+                    Wohnfläche × Vergleichspreis × Lage-Faktor =
+                    ${flaeche} m² × ${fmt(preis)}/m² × ${faktor.toFixed(2)}
+                    = <strong>${fmt(value)}</strong>`;
+            } else if (verfahren === 'ertrag') {
+                const grundflaeche = num('bw_ew_grundflaeche');
+                const bodenrichtwert = num('bw_ew_bodenrichtwert');
+                const jahresmiete = num('bw_ew_jahresmiete');
+                const bewirtPct = num('bw_ew_bewirt_pct') / 100;
+                const rest = num('bw_ew_rest') || 50;
+                const zinsRaw = num('bw_ew_zins') || 5;
+                const i = zinsRaw / 100;
+
+                const bodenwert = grundflaeche * bodenrichtwert;
+                const rohertrag = jahresmiete;
+                const reinertrag = rohertrag * (1 - bewirtPct);
+                const bodenwertverzinsung = bodenwert * i;
+                const gebaeudereinertrag = Math.max(0, reinertrag - bodenwertverzinsung);
+                // Rentenbarwertfaktor (= Vervielfältiger nach Anlage 21 BewG approx.)
+                const vervielfaeltiger = i > 0 ? (1 - Math.pow(1 + i, -rest)) / i : rest;
+                const gebaeudeertragswert = gebaeudereinertrag * vervielfaeltiger;
+                value = bodenwert + gebaeudeertragswert;
+                html = `
+                    <strong>Ertragswert (§§ 184-188 BewG, vereinfacht)</strong><br>
+                    Bodenwert = ${grundflaeche} m² × ${fmt(bodenrichtwert)}/m² = <strong>${fmt(bodenwert)}</strong><br>
+                    Rohertrag (Jahresmiete) = ${fmt(rohertrag)}<br>
+                    − Bewirtschaftungskosten (${(bewirtPct * 100).toFixed(0)} %) = Reinertrag <strong>${fmt(reinertrag)}</strong><br>
+                    − Bodenwertverzinsung (${zinsRaw} %) = ${fmt(bodenwertverzinsung)}<br>
+                    Gebäudereinertrag × Vervielfältiger (${vervielfaeltiger.toFixed(2)}) = <strong>${fmt(gebaeudeertragswert)}</strong><br>
+                    Grundbesitzwert = Bodenwert + Gebäudeertragswert = <strong>${fmt(value)}</strong>`;
+            } else if (verfahren === 'sach') {
+                const grundflaeche = num('bw_sw_grundflaeche');
+                const bodenrichtwert = num('bw_sw_bodenrichtwert');
+                const bgf = num('bw_sw_bgf');
+                const rhk = num('bw_sw_rhk');
+                const baujahr = num('bw_sw_baujahr');
+                const gnd = num('bw_sw_gnd') || 80;
+                const sachFaktor = num('bw_sw_faktor') || 1;
+
+                const bodenwert = grundflaeche * bodenrichtwert;
+                const normalherstellungswert = bgf * rhk;
+                const alter = Math.max(0, new Date().getFullYear() - baujahr);
+                // Lineare Alterswertminderung gem. § 190 Abs. 4 BewG, gedeckelt
+                // bei 70 % (Mindestrestwert 30 % gem. Anlage 22 BewG).
+                const altersminderungPct = Math.min(0.70, baujahr > 0 ? alter / gnd : 0);
+                const gebaeudesachwert = normalherstellungswert * (1 - altersminderungPct);
+                const vorlaeufig = bodenwert + gebaeudesachwert;
+                value = vorlaeufig * sachFaktor;
+                html = `
+                    <strong>Sachwert (§§ 189-191 BewG, vereinfacht)</strong><br>
+                    Bodenwert = ${grundflaeche} m² × ${fmt(bodenrichtwert)}/m² = <strong>${fmt(bodenwert)}</strong><br>
+                    Normalherstellungswert = ${bgf} m² BGF × ${fmt(rhk)}/m² = ${fmt(normalherstellungswert)}<br>
+                    − Alterswertminderung (Alter ${alter} J / ${gnd} J = ${(altersminderungPct * 100).toFixed(0)} %) → Gebäudesachwert <strong>${fmt(gebaeudesachwert)}</strong><br>
+                    Vorläufiger Sachwert = Bodenwert + Gebäudesachwert = ${fmt(vorlaeufig)}<br>
+                    × Sachwertfaktor (${sachFaktor.toFixed(2)}) = <strong>Grundbesitzwert ${fmt(value)}</strong>`;
+            }
+
+            const resultEl = document.getElementById('bw-result-' + verfahren);
+            if (resultEl) {
+                resultEl.className = 'alert alert-success';
+                resultEl.style.display = '';
+                resultEl.innerHTML = html + `
+                    <p style="margin-top:0.5rem;color:#6c757d;font-size:0.85rem;">
+                        Vereinfachung - ersetzt nicht das Sachverständigengutachten oder den Bescheid des Finanzamts.
+                    </p>`;
+            }
+            const target = document.getElementById(targetInputId);
+            if (target && value > 0) {
+                target.value = Math.round(value);
+                target.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        }
+
         generateErbschaftContent() {
             return `
                 <div class="card">
@@ -7393,10 +7720,10 @@ handleImmobilienartChange(newValue) {
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">
-                                🏠 Immobilienwert <span class="required">*</span>
+                                🏠 Grundbesitzwert (Steuerwert nach BewG) <span class="required">*</span>
                             </label>
                             <input type="number" id="erbschaft_immobilienwert" class="form-input" placeholder="z.B. 600.000" min="0" step="1000" required aria-describedby="erbschaft_immobilienwert-help">
-                            <div class="form-help" id="erbschaft_immobilienwert-help">Aktueller Verkehrswert der Immobilie</div>
+                            <div class="form-help" id="erbschaft_immobilienwert-help">Steuerwert nach §§ 176 ff. BewG. Welches Verfahren gilt, ergibt sich aus der Immobilienart - unterhalb finden Sie einen Helfer.</div>
                         </div>
 
                         <div class="form-group">
@@ -7461,6 +7788,8 @@ handleImmobilienartChange(newValue) {
                         </div>
                     </div>
 
+                    ${this.generateBewertungsHelfer('erbschaft_immobilienwert')}
+
                     <div class="btn-group">
                         <button class="btn btn-primary" onclick="app.calculateErbschaftsteuer()">
                             🧮 Erbschaftsteuer berechnen
@@ -7498,10 +7827,10 @@ handleImmobilienartChange(newValue) {
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">
-                                🏠 Immobilienwert <span class="required">*</span>
+                                🏠 Grundbesitzwert (Steuerwert nach BewG) <span class="required">*</span>
                             </label>
                             <input type="number" id="schenkung_immobilienwert" class="form-input" placeholder="z.B. 800.000" min="0" step="1000" required aria-describedby="schenkung_immobilienwert-help">
-                            <div class="form-help" id="schenkung_immobilienwert-help">Aktueller Verkehrswert der Immobilie</div>
+                            <div class="form-help" id="schenkung_immobilienwert-help">Steuerwert nach §§ 176 ff. BewG. Welches Verfahren gilt, ergibt sich aus der Immobilienart - unterhalb finden Sie einen Helfer.</div>
                         </div>
 
                         <div class="form-group">
@@ -7534,37 +7863,45 @@ handleImmobilienartChange(newValue) {
                             <label class="form-label">
                                 🏠 Art der Schenkung
                             </label>
-                            <select id="schenkungsart" class="form-select" aria-describedby="schenkungsart-help">
+                            <select id="schenkungsart" class="form-select" aria-describedby="schenkungsart-help" onchange="app.handleSchenkungsartChange?.(this.value)">
                                 <option value="vollschenkung">Vollständige Schenkung</option>
                                 <option value="teilschenkung">Teilschenkung (Anteil)</option>
-                                <option value="niesbrauch">Schenkung mit Nießbrauch</option>
-                                <option value="wohnrecht">Schenkung mit Wohnrecht</option>
+                                <option value="niesbrauch">Schenkung mit Nießbrauch (§ 1030 BGB)</option>
+                                <option value="wohnrecht">Schenkung mit Wohnrecht (§ 1093 BGB)</option>
                             </select>
-                            <div class="form-help" id="schenkungsart-help">Art der geplanten Schenkung</div>
+                            <div class="form-help" id="schenkungsart-help">Wählen Sie die Bemessungsgrundlage. Anteil bzw. Jahreswert + Alter sind nur bei der jeweils gewählten Variante relevant.</div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="schenkungsanteil-group">
                             <label class="form-label">
                                 📊 Anteil bei Teilschenkung (%)
                             </label>
                             <input type="number" id="schenkungsanteil" class="form-input" placeholder="z.B. 50" min="1" max="100" step="1" aria-describedby="schenkungsanteil-help">
-                            <div class="form-help" id="schenkungsanteil-help">Nur bei Teilschenkung relevant</div>
+                            <div class="form-help" id="schenkungsanteil-help">Nur bei Teilschenkung. Bemessungsgrundlage = Immobilienwert × Anteil%.</div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="niesbrauchswert-group">
                             <label class="form-label">
-                                💰 Nießbrauchswert (jährlich)
+                                💰 Nießbrauchswert (Jahreswert)
                             </label>
                             <input type="number" id="niesbrauchswert" class="form-input" placeholder="z.B. 24.000" min="0" step="1000" aria-describedby="niesbrauchswert-help">
-                            <div class="form-help" id="niesbrauchswert-help">Jährlicher Nießbrauchswert (Miete oder Nutzungswert)</div>
+                            <div class="form-help" id="niesbrauchswert-help">Jährliche Nettomiete bzw. Nutzungswert. Wird gem. § 16 BewG auf Steuerwert / 18,6 gedeckelt.</div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="wohnrechtswert-group" style="display:none;">
+                            <label class="form-label">
+                                🏠 Wohnrechtswert (Jahreswert)
+                            </label>
+                            <input type="number" id="wohnrechtswert" class="form-input" placeholder="z.B. 18.000" min="0" step="1000" aria-describedby="wohnrechtswert-help">
+                            <div class="form-help" id="wohnrechtswert-help">Imputierter Jahres-Mietwert des Wohnrechts (Vergleichsmiete der Wohnfläche). Gleicher Cap wie Nießbrauch.</div>
+                        </div>
+
+                        <div class="form-group" id="alter_schenker-group">
                             <label class="form-label">
                                 👤 Alter des Schenkers
                             </label>
                             <input type="number" id="alter_schenker" class="form-input" placeholder="z.B. 65" min="18" max="100" aria-describedby="alter_schenker-help">
-                            <div class="form-help" id="alter_schenker-help">Alter für Berechnung der Nießbrauchsdauer</div>
+                            <div class="form-help" id="alter_schenker-help">Alter steuert den Vervielfältiger nach Anlage 9a BewG (Sterbetafel 2020/2022, Diskontsatz 5,5 %).</div>
                         </div>
 
                         <div class="form-group">
@@ -7579,6 +7916,8 @@ handleImmobilienartChange(newValue) {
                             <div class="form-help" id="schenkungsstrategie-help">Strategie für die Schenkung</div>
                         </div>
                     </div>
+
+                    ${this.generateBewertungsHelfer('schenkung_immobilienwert')}
 
                     <div class="btn-group">
                         <button class="btn btn-primary" onclick="app.calculateSchenkungssteuer()">
@@ -7658,7 +7997,27 @@ handleImmobilienartChange(newValue) {
                                 <option value="42" selected>42% (Spitzensteuersatz)</option>
                                 <option value="45">45% (Reichensteuer)</option>
                             </select>
-                            <div class="form-help" id="cashflow_steuersatz-help">Ihr Einkommensteuersatz</div>
+                            <div class="form-help" id="cashflow_steuersatz-help">Ihr Einkommensteuersatz (Soli und Kirchensteuer werden zusätzlich berechnet)</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                ⛪ Kirchensteuer (%)
+                            </label>
+                            <select id="cashflow_kirchensteuer" class="form-select" aria-describedby="cashflow_kirchensteuer-help">
+                                <option value="0" selected>0% (Konfessionslos)</option>
+                                <option value="8">8% (Bayern, Baden-Württemberg)</option>
+                                <option value="9">9% (übrige Bundesländer)</option>
+                            </select>
+                            <div class="form-help" id="cashflow_kirchensteuer-help">Kirchensteuer auf die Einkommensteuer</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                🏠 Anschaffungskosten (Kauf + Nebenkosten + Modernisierung)
+                            </label>
+                            <input type="number" id="cashflow_anschaffungskosten" class="form-input" placeholder="z.B. 450.000" min="0" step="1000" aria-describedby="cashflow_anschaffungskosten-help">
+                            <div class="form-help" id="cashflow_anschaffungskosten-help">Basis für ROI und Spekulationssteuer beim geplanten Verkauf</div>
                         </div>
 
                         <div class="form-group">
@@ -7985,6 +8344,8 @@ handleImmobilienartChange(newValue) {
                 finanzierungskosten: parseFloat(document.getElementById('finanzierungskosten')?.value) || 0,
                 abschreibungen: parseFloat(document.getElementById('cashflow_abschreibungen')?.value) || 0,
                 steuersatz: parseFloat(document.getElementById('cashflow_steuersatz')?.value) || 42,
+                kirchensteuer: parseFloat(document.getElementById('cashflow_kirchensteuer')?.value) || 0,
+                anschaffungskosten: parseFloat(document.getElementById('cashflow_anschaffungskosten')?.value) || 0,
                 analysezeitraum: parseInt(document.getElementById('analysezeitraum')?.value) || 5,
                 mietsteigerung: parseFloat(document.getElementById('mietsteigerung')?.value) || 2.5,
                 verkaufserloes: parseFloat(document.getElementById('verkaufserloes')?.value) || 0,
@@ -8157,6 +8518,17 @@ get debouncedCalculateErbschaftsteuer() {
     return this._debouncedCalculateErbschaftsteuer;
 }
 
+get debouncedCalculateSchenkungssteuer() {
+    if (!this._debouncedCalculateSchenkungssteuer) {
+        this._debouncedCalculateSchenkungssteuer = this.debounce(() => {
+            if (this.realtimeEnabled) {
+                this.calculateSchenkungssteuer();
+            }
+        }, 800);
+    }
+    return this._debouncedCalculateSchenkungssteuer;
+}
+
         displayErbschaftResults(results) {
             const container = document.getElementById('erbschaft-results');
             if (!container) return;
@@ -8257,17 +8629,43 @@ get debouncedCalculateErbschaftsteuer() {
         }
 
         collectSchenkungData() {
-    return {
-        immobilienwert: parseFloat(document.getElementById('schenkung_immobilienwert')?.value) || 0,
-        beschenkter: document.getElementById('beschenkter')?.value || 'kind',
-        vorherige_schenkungen: parseFloat(document.getElementById('vorherige_schenkungen')?.value) || 0,
-        schenkungsart: document.getElementById('schenkungsart')?.value || 'vollschenkung',
-        anteil: parseFloat(document.getElementById('schenkungsanteil')?.value) || 100,
-        niesbrauchswert: parseFloat(document.getElementById('niesbrauchswert')?.value) || 0,
-        alter_schenker: parseInt(document.getElementById('alter_schenker')?.value) || 65,
-        schenkungsstrategie: document.getElementById('schenkungsstrategie')?.value || 'einmalig'
-    };
-}
+            return {
+                immobilienwert: parseFloat(document.getElementById('schenkung_immobilienwert')?.value) || 0,
+                beschenkter: document.getElementById('beschenkter')?.value || 'kind',
+                vorherige_schenkungen: parseFloat(document.getElementById('vorherige_schenkungen')?.value) || 0,
+                schenkungsart: document.getElementById('schenkungsart')?.value || 'vollschenkung',
+                anteil: parseFloat(document.getElementById('schenkungsanteil')?.value) || 100,
+                niesbrauchswert: parseFloat(document.getElementById('niesbrauchswert')?.value) || 0,
+                wohnrechtswert: parseFloat(document.getElementById('wohnrechtswert')?.value) || 0,
+                alter_schenker: parseInt(document.getElementById('alter_schenker')?.value) || 65,
+                schenkungsstrategie: document.getElementById('schenkungsstrategie')?.value || 'einmalig'
+            };
+        }
+
+        // Show only the field group relevant for the chosen Schenkungsart.
+        // Disabled groups are visually faded and not editable - the user
+        // immediately sees which inputs drive the current Bemessungsgrundlage.
+        handleSchenkungsartChange(value) {
+            const cfg = {
+                vollschenkung: { anteil: false, niesbrauch: false, wohnrecht: false, alter: false },
+                teilschenkung: { anteil: true,  niesbrauch: false, wohnrecht: false, alter: false },
+                niesbrauch:    { anteil: false, niesbrauch: true,  wohnrecht: false, alter: true  },
+                wohnrecht:     { anteil: false, niesbrauch: false, wohnrecht: true,  alter: true  }
+            };
+            const s = cfg[value] || cfg.vollschenkung;
+            const setVis = (id, show) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.style.display = show ? '' : 'none';
+            };
+            setVis('schenkungsanteil-group', s.anteil);
+            setVis('niesbrauchswert-group',  s.niesbrauch);
+            setVis('wohnrechtswert-group',   s.wohnrecht);
+            setVis('alter_schenker-group',   s.alter);
+            if (this.realtimeEnabled) {
+                this.debouncedCalculateSchenkungssteuer?.();
+            }
+        }
 
         displaySchenkungResults(results) {
             const container = document.getElementById('schenkung-results');
@@ -8350,13 +8748,17 @@ get debouncedCalculateErbschaftsteuer() {
         displayCashflowResults(results) {
             const container = document.getElementById('cashflow-results');
             if (!container) return;
-            
+
+            const roiNote = results.roiBaseLabel
+                ? ` <small style="color:#6c757d;">(bezogen auf ${this.escapeHtml(results.roiBaseLabel)} ${this.formatCurrency(results.roiBase)})</small>`
+                : '';
+
             let html = `
                 <div class="alert alert-success">
                     <h3>📊 Cash-Flow Analyse abgeschlossen</h3>
                     <p><strong>Gesamter Cash-Flow:</strong> ${this.formatCurrency(results.gesamt_cashflow)}</p>
                     <p><strong>Durchschnittlicher jährlicher Cash-Flow:</strong> ${this.formatCurrency(results.durchschnittlicher_cashflow)}</p>
-                    ${results.roi > 0 ? `<p><strong>ROI:</strong> ${results.roi.toFixed(1)}%</p>` : ''}
+                    ${results.roi !== 0 ? `<p><strong>ROI:</strong> ${results.roi.toFixed(1)} %${roiNote}</p>` : ''}
                 </div>
 
                 <div class="results-grid">
@@ -8368,8 +8770,13 @@ get debouncedCalculateErbschaftsteuer() {
                             <span class="result-label">Kumulierter Cash-Flow (${results.jahre.length} Jahre):</span>
                             <span class="result-value">${this.formatCurrency(results.kumulierter_cashflow)}</span>
                         </div>
+                        ${results.verkaufs_steuer > 0 ? `
                         <div class="result-item">
-                            <span class="result-label">Verkaufs-Cash-Flow:</span>
+                            <span class="result-label">Spekulationssteuer (§ 23 EStG):</span>
+                            <span class="result-value">${this.formatCurrency(results.verkaufs_steuer)}</span>
+                        </div>` : ''}
+                        <div class="result-item">
+                            <span class="result-label">Verkaufs-Cash-Flow ${results.jahre.length >= 10 ? '(steuerfrei nach 10 J.)' : 'nach Steuern'}:</span>
                             <span class="result-value">${this.formatCurrency(results.verkaufs_cashflow)}</span>
                         </div>
                         <div class="result-item">
@@ -8393,6 +8800,7 @@ get debouncedCalculateErbschaftsteuer() {
                                         <th>Jahr</th>
                                         <th>Mieteinnahmen</th>
                                         <th>Betriebskosten</th>
+                                        <th>Steuer</th>
                                         <th>Cash-Flow</th>
                                         <th>Kumuliert</th>
                                     </tr>
@@ -8406,6 +8814,7 @@ get debouncedCalculateErbschaftsteuer() {
                         <td style="text-align: center;">${jahr.jahr}</td>
                         <td style="text-align: right;">${this.formatCurrency(jahr.mieteinnahmen)}</td>
                         <td style="text-align: right;">${this.formatCurrency(jahr.betriebskosten)}</td>
+                        <td style="text-align: right;">${this.formatCurrency(jahr.steuern || 0)}</td>
                         <td style="text-align: right; color: ${jahr.cashflow_nach_steuern >= 0 ? '#11998e' : '#e74c3c'}">${this.formatCurrency(jahr.cashflow_nach_steuern)}</td>
                         <td style="text-align: right;">${this.formatCurrency(jahr.kumulierter_cashflow)}</td>
                     </tr>
@@ -8737,6 +9146,8 @@ get debouncedCalculateErbschaftsteuer() {
                 finanzierungskosten: 1200,
                 cashflow_abschreibungen: 8000,
                 cashflow_steuersatz: 42,
+                cashflow_kirchensteuer: 9,
+                cashflow_anschaffungskosten: 450000,
                 analysezeitraum: 5,
                 mietsteigerung: 2.5,
                 verkaufserloes: 650000,
