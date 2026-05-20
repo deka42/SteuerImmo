@@ -152,6 +152,24 @@ These were the bugs the audit fixed. If you touch them, keep the invariants:
 - Steuerklassen § 15 ErbStG: **Eltern sind Stkl. I bei Erbschaft, Stkl. II
   bei Schenkung** — must differ between calculators.
 - Freibeträge unverändert seit 2009: 500 k / 400 k / 200 k / 100 k / 20 k.
+- **Schenkungsart-Bemessungsgrundlagen** (alle vier implementiert, Felder
+  per `handleSchenkungsartChange(value)` conditional sichtbar):
+  - `vollschenkung`: Wert unverändert
+  - `teilschenkung`: Wert × Anteil %
+  - `niesbrauch` (§ 1030 BGB): Kapitalwert nach §§ 14, 16 BewG abziehen
+  - `wohnrecht` (§ 1093 BGB): identische Logik mit Wohnrechtswert-Input
+  - Vervielfältiger aus Lookup-Tabelle nach Anlage 9a BewG (5-J-Schritte
+    + lineare Interpolation). **Nicht** durch `Math.min(85 - alter, 18.6)`
+    ersetzen — das war der frühere Bug.
+- **Wertermittlungs-Helfer** (`generateBewertungsHelfer(targetInputId)`)
+  steht in beiden Formularen (Erbschaft + Schenkung) als
+  `<details>`-Element unter den Inputs. Drei Tabs: Vergleichswert
+  (§ 183 BewG), Ertragswert (§§ 184-188), Sachwert (§§ 189-191).
+  Jeder Rechner schreibt das Ergebnis via `computeBewertung(verfahren,
+  targetInputId)` direkt in das Ziel-Input `*_immobilienwert`.
+  Mini-Rechner sind **vereinfacht** — Vervielfältiger über
+  Rentenbarwert-Standardformel statt der vollen Anlage-21-Tabelle,
+  Alterswertminderung linear gem. § 190 BewG mit Mindestrestwert 30 %.
 
 ### Grunderwerbsteuer (Stand 2026)
 

@@ -7477,6 +7477,231 @@ handleImmobilienartChange(newValue) {
             `;
         }
 
+        // Wertermittlungs-Helfer für Erbschaft & Schenkung. Bietet
+        // Aufklärung welches BewG-Verfahren laut Immobilienart greift,
+        // sowie drei vereinfachte Mini-Rechner (Vergleichswert,
+        // Ertragswert, Sachwert) die den Grundbesitzwert in das
+        // angegebene Ziel-Input schreiben können.
+        generateBewertungsHelfer(targetInputId) {
+            return `
+                <details class="card bewertungs-helfer" style="margin-top: 1.5rem;">
+                    <summary style="cursor:pointer;font-weight:600;padding:0.5rem 0;">
+                        📐 Wertermittlungs-Helfer nach BewG (Vergleichswert / Ertragswert / Sachwert)
+                    </summary>
+                    <div class="alert alert-info" style="margin-top:1rem;">
+                        <h4 style="margin-bottom:0.5rem;">Welches Verfahren gilt für welche Immobilie?</h4>
+                        <ul style="margin-left:1.5rem;line-height:1.7;">
+                            <li><strong>Ein-/Zweifamilienhaus, Eigentumswohnung</strong> → Vergleichswertverfahren (§ 183 BewG); fehlen Vergleichswerte → Sachwertverfahren</li>
+                            <li><strong>Mietwohngrundstück (Mehrfamilien), Geschäfts-/gemischt genutzt</strong> → Ertragswertverfahren (§§ 184-188 BewG)</li>
+                            <li><strong>Sonstige bebaute Grundstücke</strong> → Sachwertverfahren (§§ 189-191 BewG)</li>
+                            <li><strong>Unbebautes Grundstück</strong> → § 179 BewG: Fläche × Bodenrichtwert</li>
+                        </ul>
+                        <p style="margin-top:0.5rem;color:#6c757d;font-size:0.85rem;">Hinweis: die Mini-Rechner sind <strong>vereinfacht</strong> (z. B. Vervielfältiger über Standardformel statt Anlage 21 BewG-Tabelle). Für die Steuererklärung den Steuerwert aus dem Bescheid des Finanzamts übernehmen.</p>
+                    </div>
+
+                    <div class="scenario-tabs" style="margin-top:1rem;flex-wrap:wrap;">
+                        <button type="button" class="scenario-tab active" data-bw-tab="vergleich" onclick="app.showBewertungsTab(this, 'vergleich', '${targetInputId}')">Vergleichswert (§ 183)</button>
+                        <button type="button" class="scenario-tab" data-bw-tab="ertrag" onclick="app.showBewertungsTab(this, 'ertrag', '${targetInputId}')">Ertragswert (§§ 184-188)</button>
+                        <button type="button" class="scenario-tab" data-bw-tab="sach" onclick="app.showBewertungsTab(this, 'sach', '${targetInputId}')">Sachwert (§§ 189-191)</button>
+                    </div>
+
+                    <div id="bw-content-vergleich" class="bw-tab-content" style="margin-top:1rem;">
+                        <p style="font-size:0.9rem;color:#6c757d;margin-bottom:0.75rem;">Wohnfläche × Vergleichspreis je m². Geeignet für Ein-/Zweifamilienhäuser und Eigentumswohnungen, wenn Vergleichswerte aus dem örtlichen Gutachterausschuss vorliegen.</p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Wohnfläche (m²)</label>
+                                <input type="number" id="bw_vw_wohnflaeche" class="form-input" placeholder="z.B. 130" min="0" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Vergleichspreis (€/m²)</label>
+                                <input type="number" id="bw_vw_preis" class="form-input" placeholder="z.B. 4500" min="0" step="50">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Lage-Faktor (0,7 - 1,3)</label>
+                                <input type="number" id="bw_vw_faktor" class="form-input" placeholder="1.0" min="0.5" max="1.5" step="0.05" value="1.0">
+                            </div>
+                        </div>
+                        <div class="btn-group" style="margin-top:0.75rem;">
+                            <button type="button" class="btn btn-primary" onclick="app.computeBewertung('vergleich', '${targetInputId}')">Berechnen &amp; übernehmen</button>
+                        </div>
+                        <div id="bw-result-vergleich" class="alert" style="display:none;margin-top:0.75rem;"></div>
+                    </div>
+
+                    <div id="bw-content-ertrag" class="bw-tab-content" style="display:none;margin-top:1rem;">
+                        <p style="font-size:0.9rem;color:#6c757d;margin-bottom:0.75rem;">Bodenwert + Gebäudeertragswert. Geeignet für vermietete Mehrfamilien-, Geschäfts- und gemischt genutzte Grundstücke.</p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Grundstücksfläche (m²)</label>
+                                <input type="number" id="bw_ew_grundflaeche" class="form-input" placeholder="z.B. 500" min="0" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Bodenrichtwert (€/m²)</label>
+                                <input type="number" id="bw_ew_bodenrichtwert" class="form-input" placeholder="z.B. 350" min="0" step="10">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Jahresnettokaltmiete (€/Jahr)</label>
+                                <input type="number" id="bw_ew_jahresmiete" class="form-input" placeholder="z.B. 36000" min="0" step="100">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Bewirtschaftungskostenanteil (%)</label>
+                                <input type="number" id="bw_ew_bewirt_pct" class="form-input" placeholder="25" min="0" max="60" step="1" value="25">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Restnutzungsdauer (Jahre)</label>
+                                <input type="number" id="bw_ew_rest" class="form-input" placeholder="z.B. 50" min="5" max="100" step="1" value="50">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Liegenschaftszinssatz (%)</label>
+                                <input type="number" id="bw_ew_zins" class="form-input" placeholder="5.0" min="2" max="8" step="0.1" value="5">
+                            </div>
+                        </div>
+                        <div class="btn-group" style="margin-top:0.75rem;">
+                            <button type="button" class="btn btn-primary" onclick="app.computeBewertung('ertrag', '${targetInputId}')">Berechnen &amp; übernehmen</button>
+                        </div>
+                        <div id="bw-result-ertrag" class="alert" style="display:none;margin-top:0.75rem;"></div>
+                    </div>
+
+                    <div id="bw-content-sach" class="bw-tab-content" style="display:none;margin-top:1rem;">
+                        <p style="font-size:0.9rem;color:#6c757d;margin-bottom:0.75rem;">Bodenwert + Gebäudesachwert (Normalherstellungskosten × Brutto-Grundfläche, abzgl. Alterswertminderung). Wird verwendet, wenn weder Vergleichs- noch Ertragswert ermittelbar.</p>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Grundstücksfläche (m²)</label>
+                                <input type="number" id="bw_sw_grundflaeche" class="form-input" placeholder="z.B. 500" min="0" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Bodenrichtwert (€/m²)</label>
+                                <input type="number" id="bw_sw_bodenrichtwert" class="form-input" placeholder="z.B. 350" min="0" step="10">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Brutto-Grundfläche BGF (m²)</label>
+                                <input type="number" id="bw_sw_bgf" class="form-input" placeholder="z.B. 180" min="0" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Regelherstellungskosten (€/m² BGF)</label>
+                                <input type="number" id="bw_sw_rhk" class="form-input" placeholder="z.B. 1300" min="500" step="50" value="1300">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Baujahr</label>
+                                <input type="number" id="bw_sw_baujahr" class="form-input" placeholder="z.B. 1995" min="1850" max="2026" step="1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Gesamtnutzungsdauer (Jahre)</label>
+                                <input type="number" id="bw_sw_gnd" class="form-input" placeholder="80" min="40" max="100" step="1" value="80">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Sachwertfaktor (Anlage 25 BewG)</label>
+                                <input type="number" id="bw_sw_faktor" class="form-input" placeholder="1.0" min="0.5" max="1.5" step="0.05" value="1.0">
+                            </div>
+                        </div>
+                        <div class="btn-group" style="margin-top:0.75rem;">
+                            <button type="button" class="btn btn-primary" onclick="app.computeBewertung('sach', '${targetInputId}')">Berechnen &amp; übernehmen</button>
+                        </div>
+                        <div id="bw-result-sach" class="alert" style="display:none;margin-top:0.75rem;"></div>
+                    </div>
+                </details>
+            `;
+        }
+
+        showBewertungsTab(tabButton, verfahren, targetInputId) {
+            // Tab-Button activation
+            const tabs = tabButton.parentElement.querySelectorAll('[data-bw-tab]');
+            tabs.forEach(t => t.classList.remove('active'));
+            tabButton.classList.add('active');
+            // Content visibility
+            for (const v of ['vergleich', 'ertrag', 'sach']) {
+                const el = document.getElementById('bw-content-' + v);
+                if (el) el.style.display = v === verfahren ? '' : 'none';
+            }
+        }
+
+        // Wertermittlung gemäß BewG - vereinfachte Modelle. Schreibt das
+        // Ergebnis als Grundbesitzwert in das Ziel-Input und blendet es als
+        // Ergebnisbox ein, damit der User die Rechnung nachvollziehen kann.
+        computeBewertung(verfahren, targetInputId) {
+            const num = id => parseFloat(document.getElementById(id)?.value) || 0;
+            const fmt = v => this.formatCurrency(v);
+            let value = 0;
+            let html = '';
+
+            if (verfahren === 'vergleich') {
+                const flaeche = num('bw_vw_wohnflaeche');
+                const preis = num('bw_vw_preis');
+                const faktor = num('bw_vw_faktor') || 1;
+                value = flaeche * preis * faktor;
+                html = `
+                    <strong>Vergleichswert (§ 183 BewG, vereinfacht)</strong><br>
+                    Wohnfläche × Vergleichspreis × Lage-Faktor =
+                    ${flaeche} m² × ${fmt(preis)}/m² × ${faktor.toFixed(2)}
+                    = <strong>${fmt(value)}</strong>`;
+            } else if (verfahren === 'ertrag') {
+                const grundflaeche = num('bw_ew_grundflaeche');
+                const bodenrichtwert = num('bw_ew_bodenrichtwert');
+                const jahresmiete = num('bw_ew_jahresmiete');
+                const bewirtPct = num('bw_ew_bewirt_pct') / 100;
+                const rest = num('bw_ew_rest') || 50;
+                const zinsRaw = num('bw_ew_zins') || 5;
+                const i = zinsRaw / 100;
+
+                const bodenwert = grundflaeche * bodenrichtwert;
+                const rohertrag = jahresmiete;
+                const reinertrag = rohertrag * (1 - bewirtPct);
+                const bodenwertverzinsung = bodenwert * i;
+                const gebaeudereinertrag = Math.max(0, reinertrag - bodenwertverzinsung);
+                // Rentenbarwertfaktor (= Vervielfältiger nach Anlage 21 BewG approx.)
+                const vervielfaeltiger = i > 0 ? (1 - Math.pow(1 + i, -rest)) / i : rest;
+                const gebaeudeertragswert = gebaeudereinertrag * vervielfaeltiger;
+                value = bodenwert + gebaeudeertragswert;
+                html = `
+                    <strong>Ertragswert (§§ 184-188 BewG, vereinfacht)</strong><br>
+                    Bodenwert = ${grundflaeche} m² × ${fmt(bodenrichtwert)}/m² = <strong>${fmt(bodenwert)}</strong><br>
+                    Rohertrag (Jahresmiete) = ${fmt(rohertrag)}<br>
+                    − Bewirtschaftungskosten (${(bewirtPct * 100).toFixed(0)} %) = Reinertrag <strong>${fmt(reinertrag)}</strong><br>
+                    − Bodenwertverzinsung (${zinsRaw} %) = ${fmt(bodenwertverzinsung)}<br>
+                    Gebäudereinertrag × Vervielfältiger (${vervielfaeltiger.toFixed(2)}) = <strong>${fmt(gebaeudeertragswert)}</strong><br>
+                    Grundbesitzwert = Bodenwert + Gebäudeertragswert = <strong>${fmt(value)}</strong>`;
+            } else if (verfahren === 'sach') {
+                const grundflaeche = num('bw_sw_grundflaeche');
+                const bodenrichtwert = num('bw_sw_bodenrichtwert');
+                const bgf = num('bw_sw_bgf');
+                const rhk = num('bw_sw_rhk');
+                const baujahr = num('bw_sw_baujahr');
+                const gnd = num('bw_sw_gnd') || 80;
+                const sachFaktor = num('bw_sw_faktor') || 1;
+
+                const bodenwert = grundflaeche * bodenrichtwert;
+                const normalherstellungswert = bgf * rhk;
+                const alter = Math.max(0, new Date().getFullYear() - baujahr);
+                // Lineare Alterswertminderung gem. § 190 Abs. 4 BewG, gedeckelt
+                // bei 70 % (Mindestrestwert 30 % gem. Anlage 22 BewG).
+                const altersminderungPct = Math.min(0.70, baujahr > 0 ? alter / gnd : 0);
+                const gebaeudesachwert = normalherstellungswert * (1 - altersminderungPct);
+                const vorlaeufig = bodenwert + gebaeudesachwert;
+                value = vorlaeufig * sachFaktor;
+                html = `
+                    <strong>Sachwert (§§ 189-191 BewG, vereinfacht)</strong><br>
+                    Bodenwert = ${grundflaeche} m² × ${fmt(bodenrichtwert)}/m² = <strong>${fmt(bodenwert)}</strong><br>
+                    Normalherstellungswert = ${bgf} m² BGF × ${fmt(rhk)}/m² = ${fmt(normalherstellungswert)}<br>
+                    − Alterswertminderung (Alter ${alter} J / ${gnd} J = ${(altersminderungPct * 100).toFixed(0)} %) → Gebäudesachwert <strong>${fmt(gebaeudesachwert)}</strong><br>
+                    Vorläufiger Sachwert = Bodenwert + Gebäudesachwert = ${fmt(vorlaeufig)}<br>
+                    × Sachwertfaktor (${sachFaktor.toFixed(2)}) = <strong>Grundbesitzwert ${fmt(value)}</strong>`;
+            }
+
+            const resultEl = document.getElementById('bw-result-' + verfahren);
+            if (resultEl) {
+                resultEl.className = 'alert alert-success';
+                resultEl.style.display = '';
+                resultEl.innerHTML = html + `
+                    <p style="margin-top:0.5rem;color:#6c757d;font-size:0.85rem;">
+                        Vereinfachung - ersetzt nicht das Sachverständigengutachten oder den Bescheid des Finanzamts.
+                    </p>`;
+            }
+            const target = document.getElementById(targetInputId);
+            if (target && value > 0) {
+                target.value = Math.round(value);
+                target.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        }
+
         generateErbschaftContent() {
             return `
                 <div class="card">
@@ -7495,10 +7720,10 @@ handleImmobilienartChange(newValue) {
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">
-                                🏠 Immobilienwert <span class="required">*</span>
+                                🏠 Grundbesitzwert (Steuerwert nach BewG) <span class="required">*</span>
                             </label>
                             <input type="number" id="erbschaft_immobilienwert" class="form-input" placeholder="z.B. 600.000" min="0" step="1000" required aria-describedby="erbschaft_immobilienwert-help">
-                            <div class="form-help" id="erbschaft_immobilienwert-help">Aktueller Verkehrswert der Immobilie</div>
+                            <div class="form-help" id="erbschaft_immobilienwert-help">Steuerwert nach §§ 176 ff. BewG. Welches Verfahren gilt, ergibt sich aus der Immobilienart - unterhalb finden Sie einen Helfer.</div>
                         </div>
 
                         <div class="form-group">
@@ -7563,6 +7788,8 @@ handleImmobilienartChange(newValue) {
                         </div>
                     </div>
 
+                    ${this.generateBewertungsHelfer('erbschaft_immobilienwert')}
+
                     <div class="btn-group">
                         <button class="btn btn-primary" onclick="app.calculateErbschaftsteuer()">
                             🧮 Erbschaftsteuer berechnen
@@ -7600,10 +7827,10 @@ handleImmobilienartChange(newValue) {
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">
-                                🏠 Immobilienwert <span class="required">*</span>
+                                🏠 Grundbesitzwert (Steuerwert nach BewG) <span class="required">*</span>
                             </label>
                             <input type="number" id="schenkung_immobilienwert" class="form-input" placeholder="z.B. 800.000" min="0" step="1000" required aria-describedby="schenkung_immobilienwert-help">
-                            <div class="form-help" id="schenkung_immobilienwert-help">Aktueller Verkehrswert der Immobilie</div>
+                            <div class="form-help" id="schenkung_immobilienwert-help">Steuerwert nach §§ 176 ff. BewG. Welches Verfahren gilt, ergibt sich aus der Immobilienart - unterhalb finden Sie einen Helfer.</div>
                         </div>
 
                         <div class="form-group">
@@ -7689,6 +7916,8 @@ handleImmobilienartChange(newValue) {
                             <div class="form-help" id="schenkungsstrategie-help">Strategie für die Schenkung</div>
                         </div>
                     </div>
+
+                    ${this.generateBewertungsHelfer('schenkung_immobilienwert')}
 
                     <div class="btn-group">
                         <button class="btn btn-primary" onclick="app.calculateSchenkungssteuer()">
