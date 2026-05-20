@@ -2418,7 +2418,7 @@ font-weight: 700 !important;
         </div>
         <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('ai-optimizer')" role="listitem" tabindex="0">
             <strong>🤖 KI-Optimierer</strong>
-            <small style="display: block; color: #6c757d;">Machine Learning Vorhersagen</small>
+            <small style="display: block; color: #6c757d;">Erweiterte Analyse (in Vorbereitung)</small>
         </div>
         <div class="plugin-item" style="padding: 0.5rem; margin: 0.5rem 0; border: 1px solid #e9ecef; border-radius: 8px; cursor: pointer; transition: var(--transition);" onclick="app.loadPlugin('international-tax')" role="listitem" tabindex="0">
             <strong>🌍 International Tax</strong>
@@ -2583,7 +2583,7 @@ font-weight: 700 !important;
         <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
             <div class="progress-fill" id="progress-fill"></div>
         </div>
-        <p id="progress-text">KI-Algorithmus analysiert optimale Steuerstrukturen...</p>
+        <p id="progress-text">Strukturanalyse läuft ...</p>
         <button class="btn btn-secondary" onclick="app.cancelCalculation()" style="margin-top: 1rem;" aria-label="Berechnung abbrechen">
             Abbrechen
         </button>
@@ -4833,48 +4833,92 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
             super('cashflow');
         }
 
+        // Helper: apply Soli (with Freigrenze + Milderungszone) + Kirchensteuer
+        // to a slice of Einkommensteuer. Vermietungs-Einkünfte (§ 21 EStG) sind
+        // einkommensteuerpflichtig - Soli und KiSt fallen analog an.
+        _addSoliKist(est, churchTaxRate) {
+            const soliFreigrenze = 19950;
+            const soliVoll = 33912;
+            let soliAnteil = 0;
+            if (est > soliVoll) soliAnteil = 1;
+            else if (est > soliFreigrenze) soliAnteil = (est - soliFreigrenze) / (soliVoll - soliFreigrenze);
+            return est * 0.055 * soliAnteil + est * ((churchTaxRate || 0) / 100);
+        }
+
         performCalculation(data) {
             const jahre = [];
             let kumulierterCashflow = 0;
             let aktuelle_miete = data.mieteinnahmen || 0;
             const analysezeitraum = data.analysezeitraum || 5;
-            
+            const steuersatz = data.steuersatz || 42;
+            const kirchensteuer = data.kirchensteuer || 0;
+
             for (let jahr = 1; jahr <= analysezeitraum; jahr++) {
                 if (jahr > 1) {
                     aktuelle_miete *= (1 + (data.mietsteigerung || 2.5) / 100);
                 }
-                
+
                 const jahres_mieteinnahmen = aktuelle_miete * 12;
                 const jahres_betriebskosten = (data.betriebskosten || 0) * 12;
                 const jahres_finanzierung = (data.finanzierungskosten || 0) * 12;
                 const netto_einkommen = jahres_mieteinnahmen - jahres_betriebskosten - jahres_finanzierung;
                 const steuerliches_ergebnis = netto_einkommen - (data.abschreibungen || 0);
-                const steuern = Math.max(0, steuerliches_ergebnis * ((data.steuersatz || 42) / 100));
+                // Vermietungs-Einkünfte: voller Grenzsteuersatz + Soli (Freigrenze)
+                // + Kirchensteuer. Verlust wird nicht als Erstattung verbucht
+                // (konservativ; tatsächlich wäre Verlustausgleich mit anderen
+                // Einkünften möglich, aber dafür müssten wir das übrige
+                // Einkommen kennen).
+                const est = Math.max(0, steuerliches_ergebnis) * (steuersatz / 100);
+                const steuern = est + this._addSoliKist(est, kirchensteuer);
                 const cashflow_nach_steuern = netto_einkommen - steuern;
-                
+
                 kumulierterCashflow += cashflow_nach_steuern;
-                
+
                 jahre.push({
                     jahr,
                     mieteinnahmen: jahres_mieteinnahmen,
                     betriebskosten: jahres_betriebskosten,
                     finanzierungskosten: jahres_finanzierung,
                     netto_einkommen,
+                    steuern,
                     cashflow_nach_steuern,
                     kumulierter_cashflow: kumulierterCashflow
                 });
             }
 
-            const verkaufs_cashflow = (data.verkaufserloes || 0) * 0.9; // Nach Steuern
+            // Veräußerungs-Cashflow: § 23 EStG anwenden statt pauschaler 10 %.
+            // Bei Haltedauer >= 10 Jahre steuerfrei, sonst persönlicher
+            // Grenzsteuersatz auf den Gewinn (verkaufserloes - anschaffungskosten)
+            // plus Soli und Kirchensteuer.
+            const verkaufserloes = data.verkaufserloes || 0;
+            const anschaffungskosten = data.anschaffungskosten || 0;
+            let verkaufs_steuer = 0;
+            if (verkaufserloes > 0 && analysezeitraum < 10) {
+                const veraeusserungsgewinn = Math.max(0, verkaufserloes - anschaffungskosten);
+                if (veraeusserungsgewinn > 600) {
+                    const estV = veraeusserungsgewinn * (steuersatz / 100);
+                    verkaufs_steuer = estV + this._addSoliKist(estV, kirchensteuer);
+                }
+            }
+            const verkaufs_cashflow = verkaufserloes - verkaufs_steuer;
             const gesamt_cashflow = kumulierterCashflow + verkaufs_cashflow;
+
+            // ROI bezogen auf das tatsächlich gebundene Kapital. Wenn keine
+            // Anschaffungskosten erfasst sind, fällt auf verkaufserloes zurück,
+            // aber mit Hinweis-Flag, damit die UI das auch transparent zeigt.
+            const roiBase = anschaffungskosten > 0 ? anschaffungskosten : verkaufserloes;
+            const roi = roiBase > 0 ? (gesamt_cashflow / roiBase * 100) : 0;
 
             return {
                 jahre,
                 kumulierter_cashflow: kumulierterCashflow,
+                verkaufs_steuer,
                 verkaufs_cashflow,
                 gesamt_cashflow,
                 durchschnittlicher_cashflow: kumulierterCashflow / analysezeitraum,
-                roi: data.verkaufserloes > 0 ? (gesamt_cashflow / data.verkaufserloes * 100) : 0
+                roi,
+                roiBase,
+                roiBaseLabel: anschaffungskosten > 0 ? 'Anschaffungskosten' : 'Verkaufserlös (ersatzweise)'
             };
         }
     }
@@ -5583,7 +5627,7 @@ validateField(field) {
             
             try {
                 this.updatePerformanceIndicator('Berechnung läuft...');
-                this.showProgress('KI-Algorithmus analysiert optimale Steuerstrukturen...', 10);
+                this.showProgress('Strukturanalyse läuft - vergleiche Holding-Optionen ...', 10);
                 
                 // Save state before calculation
                 this.saveCurrentState();
@@ -5766,7 +5810,7 @@ validateFormData(data, section = null) {
             if (results.maxNetProfit > 0) {
                 html += `
                     <div class="alert alert-success">
-                        <h3>🎯 KI-Optimierung erfolgreich!</h3>
+                        <h3>🎯 Strukturanalyse abgeschlossen</h3>
                         <p><strong>Beste Option:</strong> ${this.escapeHtml(results.structures[0].name)}</p>
                         <p><strong>Nettogewinn:</strong> ${this.formatCurrency(results.maxNetProfit)}</p>
                         ${results.totalSavings > 0 ? `<p><strong>Steuerersparnis:</strong> ${this.formatCurrency(results.totalSavings)}</p>` : ''}
@@ -5850,7 +5894,7 @@ validateFormData(data, section = null) {
                         <div class="card-header">
                             <h3 class="card-title">💡 KI-Empfehlung</h3>
                         </div>
-                        <p>Basierend auf Ihrer Situation empfiehlt unser KI-Algorithmus die Struktur <strong>"${this.escapeHtml(bestStructure.name)}"</strong>.</p>
+                        <p>Die regel-basierte Strukturanalyse empfiehlt für Ihre Eingaben die Struktur <strong>"${this.escapeHtml(bestStructure.name)}"</strong>.</p>
                         <p>Diese Lösung bietet Ihnen den höchsten Nettogewinn von <strong>${this.formatCurrency(bestStructure.netProfit)}</strong> bei einem effektiven Steuersatz von nur <strong>${bestStructure.taxRate.toFixed(1)}%</strong>.</p>
                         ${results.totalSavings > 0 ? `<p class="text-success"><strong>Ihre Steuerersparnis beträgt ${this.formatCurrency(results.totalSavings)} gegenüber der ungünstigsten Option.</strong></p>` : ''}
                         ${results.recommendation ? `<div class="alert alert-info"><strong>Zusätzliche Empfehlung:</strong> ${this.escapeHtml(results.recommendation)}</div>` : ''}
@@ -6068,7 +6112,9 @@ validateFormData(data, section = null) {
                     ['betriebskosten',    'Monatliche Betriebskosten',  fmtCur],
                     ['finanzierungskosten','Monatliche Finanzierung',   fmtCur],
                     ['abschreibungen',    'Abschreibungen (AfA, jährl.)',fmtCur],
+                    ['anschaffungskosten','Anschaffungskosten',         fmtCur],
                     ['steuersatz',        'Persönlicher Steuersatz',    fmtPct],
+                    ['kirchensteuer',     'Kirchensteuer',              fmtPct],
                     ['analysezeitraum',   'Analysezeitraum',            fmtYears],
                     ['mietsteigerung',    'Mietsteigerung p.a.',        fmtPct],
                     ['verkaufserloes',    'Geplanter Verkaufserlös',    fmtCur]
@@ -6432,7 +6478,7 @@ validateFormData(data, section = null) {
             this.plugins.set('ai-optimizer', {
                 name: 'KI-Optimierer',
                 version: '2.0.0',
-                description: 'Machine Learning Vorhersagen',
+                description: 'Erweiterte Analyse (in Vorbereitung)',
                 load: () => this.loadAIOptimizer(),
                 unload: () => this.unloadAIOptimizer()
             });
@@ -7016,7 +7062,7 @@ handleImmobilienartChange(newValue) {
 
                     <div class="alert alert-info">
                         <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                            <span style="flex: 1 1 240px; min-width: 0;">🤖 Real-time KI-Berechnung aktiviert - Optimale Strukturen werden automatisch berechnet</span>
+                            <span style="flex: 1 1 240px; min-width: 0;">⚙️ Real-time Strukturanalyse aktiviert - Holding-Optionen werden bei jeder Eingabe neu durchgerechnet</span>
                             <label style="display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;">
                                 <input type="checkbox" id="realtime-calc" checked onchange="app.toggleRealtime()">
                                 <span>Real-time</span>
@@ -7252,7 +7298,7 @@ handleImmobilienartChange(newValue) {
             return `
                         <div class="btn-group">
                             <button class="btn btn-primary" onclick="app.calculateOptimal()" title="Optimale Berechnung starten (Ctrl+Enter)">
-                                🧮 KI-Optimierung starten
+                                🧮 Strukturanalyse starten
                             </button>
                             <button class="btn btn-success" onclick="app.loadExample()" title="Beispieldaten laden (Ctrl+E)">
                                 💡 Beispiel laden
@@ -7658,7 +7704,27 @@ handleImmobilienartChange(newValue) {
                                 <option value="42" selected>42% (Spitzensteuersatz)</option>
                                 <option value="45">45% (Reichensteuer)</option>
                             </select>
-                            <div class="form-help" id="cashflow_steuersatz-help">Ihr Einkommensteuersatz</div>
+                            <div class="form-help" id="cashflow_steuersatz-help">Ihr Einkommensteuersatz (Soli und Kirchensteuer werden zusätzlich berechnet)</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                ⛪ Kirchensteuer (%)
+                            </label>
+                            <select id="cashflow_kirchensteuer" class="form-select" aria-describedby="cashflow_kirchensteuer-help">
+                                <option value="0" selected>0% (Konfessionslos)</option>
+                                <option value="8">8% (Bayern, Baden-Württemberg)</option>
+                                <option value="9">9% (übrige Bundesländer)</option>
+                            </select>
+                            <div class="form-help" id="cashflow_kirchensteuer-help">Kirchensteuer auf die Einkommensteuer</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                🏠 Anschaffungskosten (Kauf + Nebenkosten + Modernisierung)
+                            </label>
+                            <input type="number" id="cashflow_anschaffungskosten" class="form-input" placeholder="z.B. 450.000" min="0" step="1000" aria-describedby="cashflow_anschaffungskosten-help">
+                            <div class="form-help" id="cashflow_anschaffungskosten-help">Basis für ROI und Spekulationssteuer beim geplanten Verkauf</div>
                         </div>
 
                         <div class="form-group">
@@ -7985,6 +8051,8 @@ handleImmobilienartChange(newValue) {
                 finanzierungskosten: parseFloat(document.getElementById('finanzierungskosten')?.value) || 0,
                 abschreibungen: parseFloat(document.getElementById('cashflow_abschreibungen')?.value) || 0,
                 steuersatz: parseFloat(document.getElementById('cashflow_steuersatz')?.value) || 42,
+                kirchensteuer: parseFloat(document.getElementById('cashflow_kirchensteuer')?.value) || 0,
+                anschaffungskosten: parseFloat(document.getElementById('cashflow_anschaffungskosten')?.value) || 0,
                 analysezeitraum: parseInt(document.getElementById('analysezeitraum')?.value) || 5,
                 mietsteigerung: parseFloat(document.getElementById('mietsteigerung')?.value) || 2.5,
                 verkaufserloes: parseFloat(document.getElementById('verkaufserloes')?.value) || 0,
@@ -8350,13 +8418,17 @@ get debouncedCalculateErbschaftsteuer() {
         displayCashflowResults(results) {
             const container = document.getElementById('cashflow-results');
             if (!container) return;
-            
+
+            const roiNote = results.roiBaseLabel
+                ? ` <small style="color:#6c757d;">(bezogen auf ${this.escapeHtml(results.roiBaseLabel)} ${this.formatCurrency(results.roiBase)})</small>`
+                : '';
+
             let html = `
                 <div class="alert alert-success">
                     <h3>📊 Cash-Flow Analyse abgeschlossen</h3>
                     <p><strong>Gesamter Cash-Flow:</strong> ${this.formatCurrency(results.gesamt_cashflow)}</p>
                     <p><strong>Durchschnittlicher jährlicher Cash-Flow:</strong> ${this.formatCurrency(results.durchschnittlicher_cashflow)}</p>
-                    ${results.roi > 0 ? `<p><strong>ROI:</strong> ${results.roi.toFixed(1)}%</p>` : ''}
+                    ${results.roi !== 0 ? `<p><strong>ROI:</strong> ${results.roi.toFixed(1)} %${roiNote}</p>` : ''}
                 </div>
 
                 <div class="results-grid">
@@ -8368,8 +8440,13 @@ get debouncedCalculateErbschaftsteuer() {
                             <span class="result-label">Kumulierter Cash-Flow (${results.jahre.length} Jahre):</span>
                             <span class="result-value">${this.formatCurrency(results.kumulierter_cashflow)}</span>
                         </div>
+                        ${results.verkaufs_steuer > 0 ? `
                         <div class="result-item">
-                            <span class="result-label">Verkaufs-Cash-Flow:</span>
+                            <span class="result-label">Spekulationssteuer (§ 23 EStG):</span>
+                            <span class="result-value">${this.formatCurrency(results.verkaufs_steuer)}</span>
+                        </div>` : ''}
+                        <div class="result-item">
+                            <span class="result-label">Verkaufs-Cash-Flow ${results.jahre.length >= 10 ? '(steuerfrei nach 10 J.)' : 'nach Steuern'}:</span>
                             <span class="result-value">${this.formatCurrency(results.verkaufs_cashflow)}</span>
                         </div>
                         <div class="result-item">
@@ -8393,6 +8470,7 @@ get debouncedCalculateErbschaftsteuer() {
                                         <th>Jahr</th>
                                         <th>Mieteinnahmen</th>
                                         <th>Betriebskosten</th>
+                                        <th>Steuer</th>
                                         <th>Cash-Flow</th>
                                         <th>Kumuliert</th>
                                     </tr>
@@ -8406,6 +8484,7 @@ get debouncedCalculateErbschaftsteuer() {
                         <td style="text-align: center;">${jahr.jahr}</td>
                         <td style="text-align: right;">${this.formatCurrency(jahr.mieteinnahmen)}</td>
                         <td style="text-align: right;">${this.formatCurrency(jahr.betriebskosten)}</td>
+                        <td style="text-align: right;">${this.formatCurrency(jahr.steuern || 0)}</td>
                         <td style="text-align: right; color: ${jahr.cashflow_nach_steuern >= 0 ? '#11998e' : '#e74c3c'}">${this.formatCurrency(jahr.cashflow_nach_steuern)}</td>
                         <td style="text-align: right;">${this.formatCurrency(jahr.kumulierter_cashflow)}</td>
                     </tr>
@@ -8737,6 +8816,8 @@ get debouncedCalculateErbschaftsteuer() {
                 finanzierungskosten: 1200,
                 cashflow_abschreibungen: 8000,
                 cashflow_steuersatz: 42,
+                cashflow_kirchensteuer: 9,
+                cashflow_anschaffungskosten: 450000,
                 analysezeitraum: 5,
                 mietsteigerung: 2.5,
                 verkaufserloes: 650000,
