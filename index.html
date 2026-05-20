@@ -122,7 +122,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
 <!-- External Libraries -->
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<!-- TODO add SRI (sha384 / sha512) integrity once a known-good hash is
+     available. Without SRI a CDN compromise could ship arbitrary JS into
+     this page's origin. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <style>
     :root {
@@ -9421,14 +9425,25 @@ get debouncedCalculateSchenkungssteuer() {
                 'info': 'ℹ️'
             };
 
-            toast.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>${icons[type] || 'ℹ️'} ${message}</span>
-                    <button onclick="document.getElementById('${toastId}').remove()"
-                            style="background: none; border: none; font-size: 1.2rem; cursor: pointer;"
-                            aria-label="Toast schließen">×</button>
-                </div>
-            `;
+            // Build the toast via createElement / textContent rather than
+            // innerHTML interpolation. Any third-party error.message that
+            // contains HTML (or worse, "<img src=x onerror=...>") would
+            // otherwise execute in this page's origin - confirmed XSS in
+            // the final audit. The structural icon + message + close-button
+            // layout is recreated programmatically.
+            const row = document.createElement('div');
+            row.style.cssText = 'display: flex; justify-content: space-between; align-items: center;';
+            const msgSpan = document.createElement('span');
+            msgSpan.textContent = (icons[type] || 'ℹ️') + ' ' + String(message);
+            const closeBtn = document.createElement('button');
+            closeBtn.type = 'button';
+            closeBtn.style.cssText = 'background: none; border: none; font-size: 1.2rem; cursor: pointer;';
+            closeBtn.setAttribute('aria-label', 'Toast schließen');
+            closeBtn.textContent = '×';
+            closeBtn.addEventListener('click', () => toast.remove());
+            row.appendChild(msgSpan);
+            row.appendChild(closeBtn);
+            toast.appendChild(row);
 
             container.appendChild(toast);
 
