@@ -1,4 +1,4 @@
-# CLAUDE.md — Working notes for the Immobilien-Steuer-Suite (Stand 2026, v4.0.8-enhanced)
+# CLAUDE.md — Working notes for the Immobilien-Steuer-Suite (Stand 2026, v4.0.9-enhanced)
 
 This file is for future agent sessions. It captures the load-bearing facts
 about this repository so you do not re-discover them from scratch.
@@ -35,7 +35,7 @@ calculations.html         ← Older standalone "Premium Edition" view,
                             (GitHub Pages deploy of this repo). Self-
                             contained inline CSS+JS. Keep year labels and
                             calc rules in sync with index.html.
-package.json              ← v4.0.8. Only http-server, eslint, prettier
+package.json              ← v4.0.9. Only http-server, eslint, prettier
                             as dev deps. "main": "index.html".
 README.md                 ← User-facing project doc.
 CHANGELOG.md              ← Versioned changes.

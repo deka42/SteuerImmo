@@ -2640,7 +2640,7 @@ font-weight: 700 !important;
 }
 
 <strong>GET /api/v4/health</strong>
-Response: {“status”: “ok”, “version”: “4.0.8”, “uptime”: 123456}
+Response: {“status”: “ok”, “version”: “4.0.9”, “uptime”: 123456}
 
 <strong>POST /api/v4/compare</strong>
 Compare multiple scenarios
@@ -2677,7 +2677,7 @@ List available plugins
         constructor() {
             this.cache = new Map();
             this.calculationHistory = [];
-            this.version = '4.0.8-enhanced';
+            this.version = '4.0.9-enhanced';
         }
 
         calculate(data) {
@@ -3688,7 +3688,7 @@ List available plugins
             doc.setFontSize(9);
             doc.setTextColor('#000000');
             doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 15, 33);
-            doc.text(`Version: v${data.version || '4.0.8-enhanced'}`, 240, 33);
+            doc.text(`Version: v${data.version || '4.0.9-enhanced'}`, 240, 33);
             doc.setDrawColor('#667eea');
             doc.setLineWidth(0.5);
             doc.line(15, 37, 282, 37);
@@ -3887,7 +3887,7 @@ List available plugins
             doc.setFontSize(10);
             doc.setTextColor('#000000');
             doc.text(`Erstellt am: ${new Date().toLocaleDateString('de-DE')}`, 20, 45);
-            const versionStr = data && data.version ? `Version: v${data.version}` : 'Version: v4.0.8-enhanced';
+            const versionStr = data && data.version ? `Version: v${data.version}` : 'Version: v4.0.9-enhanced';
             doc.text(versionStr, 150, 45);
 
             doc.setDrawColor('#667eea');
@@ -4971,7 +4971,7 @@ class ErbschaftsteuerCalculator extends BaseCalculator {
     // Main Application Class
     class UltimateImmobilienSuiteEnhanced {
         constructor() {
-            this.version = '4.0.8-enhanced';
+            this.version = '4.0.9-enhanced';
             this.scenarios = new Map();
             this.currentScenario = 'scenario1';
             this.realtimeEnabled = true;

@@ -5,6 +5,62 @@ Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert
 Das Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 und dieses Projekt folgt [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.9] - 2026 - Verfeinerungen nach Steuerrecht-Audit
+
+### 🐛 Bugfixes
+- **Cashflow**: Soli (mit Freigrenze) und Kirchensteuer werden jetzt auf
+  laufende Mieteinnahmen + Veräußerungsgewinn angewendet (vorher nur
+  blanke ESt). § 23 EStG ersetzt den pauschalen 10 %-Abzug beim
+  geplanten Verkauf; ROI ist jetzt auf Anschaffungskosten bezogen.
+- **Schenkung**: Wohnrecht (§ 1093 BGB) implementiert (war zuvor still
+  als Vollschenkung behandelt). Vervielfältiger Anlage 9a BewG aus
+  Lookup-Tabelle statt Pauschalformel.
+- **Sidebar**: das beschnittene `<span class="nav-badge">AI</span>` an
+  der Verkaufssteuer-Navigation entfernt (Konsistenz mit der
+  Sprachversachlichung "Strukturanalyse").
+- **Verkaufssteuer-Modul**: "KI-Algorithmus"-Marketingsprache an
+  mehreren Stellen durch "Strukturanalyse" ersetzt (Progress-Modal,
+  Ergebnis-Heading, Buttons). Strategie-Modul behält "KI-Gesamtstrategie"
+  bewusst mit Heuristik-Disclaimer.
+
+### 🆕 Neue Features
+- **Wertermittlungs-Helfer für Erbschaft & Schenkung** mit drei Tabs
+  (Vergleichswert §183, Ertragswert §§184-188, Sachwert §§189-191 BewG).
+  Jeder Rechner schreibt den ermittelten Grundbesitzwert direkt in das
+  Ziel-Input und zeigt eine Klartext-Rechnung als Audit-Trail.
+- **Vergleichs-PDF** generiert jetzt einen echten landscape A4 PDF mit
+  Side-by-side-Tabelle und Top-3-Strukturen je Szenario (vorher reiner
+  Toast-Stub).
+- **PDF-Export** ist section-aware (eigenes Layout für Verkauf,
+  Grundsteuer, Erbschaft, Schenkung, Cashflow, Strategie) mit On-Demand-
+  Recompute bei Cache-Miss.
+- **Beispiel-Button** ist section-aware - lädt je nach aktiver Sektion
+  die passenden Beispieldaten (vorher immer nur Verkauf).
+- **Vergleichs-Modal** populiert Beste Option / Nettogewinn-Spalten nach
+  "Alle Szenarien berechnen" (vorher leerer Stub).
+- **System Status-Panel** in der Sidebar zeigt jetzt echte Runtime-
+  Werte (Worker/Main-Thread, Cache-Hit-Rate, Fehleranzahl, Version).
+- **Toast-System** hat eine Obergrenze von 4 sichtbaren Toasts mit
+  De-Duplizierung; Container ist `pointer-events: none` so dass die
+  leere Ecke keine Klicks blockt.
+- **Mobile**: Form-Grid-Items haben `min-width: 0` damit Inputs in
+  schmalen Containern nicht überlaufen.
+- **Dark-Mode-Toggle**: First-Load-Toast nicht mehr weiß-auf-weiß; das
+  ⚠️-Emoji aus dem PDF-Empty-Path entfernt (rendert in jsPDF-Helvetica
+  als "Ø<ßà" Mojibake).
+
+### 📊 Holding-Strukturen weiter präzisiert
+- VV GmbH & Co. KG: Hinweis dass 10-J-Frist § 23 EStG transparent auf
+  Gesellschafterebene greift (Zebragesellschaft).
+- Share Deal: falsche "Mindestens 10 % Beteiligung"-Aussage entfernt -
+  diese Schwelle gilt nur für Dividenden (§ 8b Abs. 4 KStG), nicht für
+  Veräußerungsgewinne nach Abs. 2.
+- Cross-Border (LU/NL): Faktor von 0,45/0,50 auf 0,85 angehoben -
+  deutsches Grundvermögen unterliegt weiterhin der Beschränkten
+  Steuerpflicht (§ 49 EStG); Pillar Two zementiert 15 % seit 2024.
+- Familienstiftung: 15 % KSt + 5,5 % Soli auf laufende Erträge explizit
+  ausgewiesen; Erbersatzsteuer-Paragraphen konkret zitiert.
+
 ## [4.0.8] - 2026 - Steuerrecht-Audit & Korrekturen
 
 ### 🐛 Kritische Bugfixes

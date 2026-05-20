@@ -1,6 +1,6 @@
 # Immobilien-Steuer-Suite 2026 - Ultimate Enterprise Enhanced Edition
 
-> **Stand 2026 (v4.0.8-enhanced)** — Steuerrecht-Audit durchgeführt: Grunderwerbsteuersätze
+> **Stand 2026 (v4.0.9-enhanced)** — Steuerrecht-Audit durchgeführt: Grunderwerbsteuersätze
 > aktualisiert (HH/SN 5,5 %, TH 5,0 %), Erbschaft-/Schenkungsteuer auf den
 > korrekten Stufentarif mit Härteausgleich (§ 19 ErbStG) umgestellt,
 > § 13 Familienheim & § 13d Vermietabschlag korrekt implementiert,
@@ -205,6 +205,16 @@ Alle 16 deutschen Bundesländer mit spezifischen:
 - Grundsteuermodellen
 
 ## 🔄 Updates & Wartung
+
+### Version 4.0.9 — Verfeinerungen
+- 💧 Cashflow: Soli (Freigrenze) + Kirchensteuer; § 23 EStG ersetzt 10 %-Pauschalabzug beim Verkauf; ROI auf Anschaffungskosten bezogen
+- 🎁 Schenkung: Wohnrecht (§ 1093 BGB) implementiert; Anlage 9a BewG Vervielfältiger aus Lookup-Tabelle
+- 📐 Wertermittlungs-Helfer für Erbschaft & Schenkung (Vergleichs-/Ertrags-/Sachwertverfahren) mit Klartext-Rechnung
+- 📄 PDF-Export jetzt section-aware mit On-Demand-Recompute; Vergleichs-PDF (vorher Toast-Stub) generiert echtes Landscape-PDF
+- 🧮 Header-Menü: Beispiel-Button section-aware, Vergleichs-Modal füllt Beste-Option / Nettogewinn-Spalten
+- ⚡ Live System-Status (Worker/Main-Thread, Cache-Hit-Rate, Fehler, Version)
+- 🪟 Sidebar-Aufräumen: beschnittenes "A"-Badge entfernt; KI-Wording im Verkauf-Modul versachlicht
+- 🏛️ Holding-Strukturen weiter präzisiert (Share Deal § 8b ohne 10 %-Schwelle; Cross-Border Faktor realistisch auf 0,85; Stiftung KSt 15 %)
 
 ### Version 4.0.8 — Steuerrecht-Audit 2026
 - 🛠️ Kritische Bugfixes: zerstörter `try`-Block in `TaxCalculationEngine.js`, Worker-Timer-Leak, fehlerhafte Methoden-Überschreibung
